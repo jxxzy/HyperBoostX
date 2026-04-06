@@ -265,9 +265,205 @@
                     <StackPanel Name="TweaksContent" Visibility="Collapsed"><TextBlock Text="Windows Tweaks" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/><Border Background="#2c2c2c" CornerRadius="5" BorderThickness="1" BorderBrush="#3c3c3c" Padding="15" Height="400"><TextBlock Name="TweaksText" Text="Loading tweaks..." Foreground="#cccccc" FontSize="11" TextWrapping="Wrap" FontFamily="Courier New" LineHeight="16" VerticalAlignment="Top"/></Border><Button Content="Refresh Tweaks" Click="RefreshTweaks_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,15,0,0"/></StackPanel>
                     <StackPanel Name="SettingsContent" Visibility="Collapsed"><TextBlock Text="Settings" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/><Border Background="#2c2c2c" CornerRadius="5" BorderThickness="1" BorderBrush="#3c3c3c" Padding="15" Margin="0,0,0,15"><StackPanel><TextBlock Text="Backend Configuration" Foreground="#2196F3" FontSize="13" FontWeight="Bold" Margin="0,0,0,15"/><TextBlock Text="Backend URL:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/><TextBox Name="BackendUrlInput" Text="http://127.0.0.1:5000" Background="#3c3c3c" Foreground="#ffffff" Padding="10" Margin="0,0,0,15" BorderThickness="1" BorderBrush="#4CAF50"/><Button Content="Update Backend URL" Click="UpdateBackendUrl_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,15"/><Button Content="Test Backend Connection" Click="TestBackend_Click" Style="{StaticResource ActionButtonStyle}"/></StackPanel></Border></StackPanel>
                     <StackPanel Name="PerformanceContent" Visibility="Collapsed"><TextBlock Text="Performance Boost" FontSize="16" Foreground="#4CAF50" FontWeight="Bold" Margin="0,0,0,20"/><TextBlock Text="Choose optimization method:" Foreground="#cccccc" FontSize="12" Margin="0,0,0,15"/><Button Content="Optimize RAM" Click="OptimizeRAM_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Boost Gaming Mode" Click="BoostGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Auto Performance Profile" Click="AutoPerformance_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/></StackPanel>
-                    <StackPanel Name="StartupContent" Visibility="Collapsed"><TextBlock Text="Startup Manager" FontSize="16" Foreground="#ff9800" FontWeight="Bold" Margin="0,0,0,20"/><TextBlock Text="Manage startup applications to improve boot time" Foreground="#cccccc" FontSize="12" Margin="0,0,0,15"/><Border Background="#2c2c2c" CornerRadius="5" BorderThickness="1" BorderBrush="#3c3c3c" Padding="15" Margin="0,0,0,15"><TextBlock Name="StartupItemsText" Text="Loading startup items..." Foreground="#cccccc" FontSize="11" TextWrapping="Wrap" FontFamily="Courier New" LineHeight="16"/></Border><Button Content="Refresh Startup Items" Click="ViewStartup_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Enable/Disable Startup" Click="ManageStartup_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Delay Startup Apps" Click="DelayStartup_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/></StackPanel>
+                    <StackPanel Name="StartupContent" Visibility="Collapsed">
+                        <TextBlock Text="STARTUP MANAGER — ISI LENGKAP" FontSize="18" Foreground="#f59e0b" FontWeight="Bold" Margin="0,0,0,8"/>
+                        <TextBlock Text="Atur aplikasi yang jalan saat boot supaya startup lebih cepat, RAM lebih lega, dan app berat tidak jalan diam-diam." Foreground="#cbd5e1" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,18"/>
+
+                        <Border Style="{StaticResource InfoCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Startup Health" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                <TextBlock Name="StartupScoreText" Text="Startup Health: --/100" Foreground="#38bdf8" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <TextBlock Name="StartupSummaryText" Text="Menganalisa startup apps..." Foreground="#cbd5e1" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                <TextBlock Name="StartupRecommendationText" Text="Auto suggest akan muncul di sini." Foreground="#fbbf24" FontSize="12" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource InfoCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Startup Profile" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                <TextBlock Text="Preset cepat untuk kebutuhan gaming, kerja, atau boot minimal." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,12"/>
+                                <WrapPanel>
+                                    <Button Content="Gaming Startup" Click="ApplyGamingStartupProfile_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="Work Startup" Click="ApplyWorkStartupProfile_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="Minimal Startup" Click="ApplyMinimalStartupProfile_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <WrapPanel Margin="0,0,0,12">
+                            <Button Content="1. View All Startup Apps" Click="ViewStartup_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                            <Button Content="2. Enable / Disable Startup" Click="ManageStartup_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                            <Button Content="3. Delay Startup Apps" Click="DelayStartup_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                            <Button Content="4. Startup Impact Analyzer" Click="AnalyzeStartupImpact_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                            <Button Content="5. Safe Disable Recommendation" Click="SafeStartupRecommendation_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                            <Button Content="8. Open Startup Folder" Click="OpenStartupFolder_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                            <Button Content="Open Common Startup" Click="OpenCommonStartupFolder_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                            <Button Content="9. Startup Services (Advanced)" Click="StartupServicesAdvanced_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                            <Button Content="10. Restore Default Startup" Click="RestoreDefaultStartup_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                            <Button Content="0. Back" Click="BackFromStartup_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                        </WrapPanel>
+
+                        <Border Style="{StaticResource InfoCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Startup Apps Inventory" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                <TextBlock Text="Menampilkan startup item dari Registry, Startup Folder, dan jalur startup umum lainnya." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,12"/>
+                                <TextBlock Name="StartupItemsText" Text="Loading startup items..." Foreground="#cccccc" FontSize="11" TextWrapping="Wrap" FontFamily="Consolas" LineHeight="16"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource InfoCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Impact Analyzer Details" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                <TextBlock Name="StartupAnalyzerDetailsText" Text="Belum ada data analyzer." Foreground="#cbd5e1" FontSize="11" TextWrapping="Wrap" FontFamily="Consolas" LineHeight="16"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource InfoCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="2. Enable / Disable Startup" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                <TextBlock Text="Masukkan nama item startup persis seperti yang tampil di daftar. Fokus utama untuk entry user-level (HKCU / Startup folder user)." Foreground="#94a3b8" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBox Name="StartupTargetInput" Width="320" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="10"/>
+                                    <Button Content="Disable" Click="DisableStartupTarget_Click" Style="{StaticResource ActionButtonStyle}" Margin="12,0,0,0"/>
+                                    <Button Content="Enable" Click="EnableStartupTarget_Click" Style="{StaticResource ActionButtonStyle}" Margin="12,0,0,0"/>
+                                    <Button Content="Remove Entry" Click="RemoveStartupEntry_Click" Style="{StaticResource ActionButtonStyle}" Margin="12,0,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource InfoCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="3. Delay Startup Apps" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                <TextBlock Text="Delay startup app supaya tidak langsung jalan bersamaan saat boot." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,12"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBox Name="StartupDelayTargetInput" Width="260" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="10"/>
+                                    <TextBox Name="StartupDelaySecondsInput" Width="120" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="10" Margin="12,0,0,0" Text="30"/>
+                                    <Button Content="Apply Delay" Click="ApplyStartupDelay_Click" Style="{StaticResource ActionButtonStyle}" Margin="12,0,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource InfoCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="6. Add Startup App" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                <TextBlock Text="Tambahkan aplikasi ke startup melalui Registry atau Startup Folder." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,12"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <TextBox Name="StartupAddPathInput" Width="500" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="10" IsReadOnly="True"/>
+                                    <Button Content="Browse App" Click="BrowseStartupApp_Click" Style="{StaticResource ActionButtonStyle}" Margin="12,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <ComboBox Name="StartupAddModeCombo" Width="220" SelectedIndex="0" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8">
+                                        <ComboBoxItem Content="Registry (Current User)"/>
+                                        <ComboBoxItem Content="Startup Folder (Current User)"/>
+                                    </ComboBox>
+                                    <Button Content="Add Startup App" Click="AddStartupApp_Click" Style="{StaticResource ActionButtonStyle}" Margin="12,0,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                     <StackPanel Name="CleanupContent" Visibility="Collapsed"><TextBlock Text="Storage Cleaner" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/><TextBlock Text="Free up disk space safely" Foreground="#cccccc" FontSize="12" Margin="0,0,0,15"/><Button Content="Clean Temporary Files" Click="CleanTemp_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Clear Cache" Click="ClearCache_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Empty Recycle Bin" Click="EmptyRecycle_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Deep Disk Cleanup" Click="DeepCleanup_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/></StackPanel>
-                    <StackPanel Name="GamingContent" Visibility="Collapsed"><TextBlock Text="Gaming Booster" FontSize="16" Foreground="#e91e63" FontWeight="Bold" Margin="0,0,0,20"/><TextBlock Text="Optimize system for gaming performance" Foreground="#cccccc" FontSize="12" Margin="0,0,0,15"/><Button Content="One-Click Game Mode" Click="GameMode_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Disable Overlays" Click="DisableOverlays_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Free RAM Before Launch" Click="FreeRAM_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="FPS Stability Tweak" Click="FPSStability_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/></StackPanel>
+                    <StackPanel Name="GamingContent" Visibility="Collapsed">
+                        <TextBlock Text="Game Mode — Sistem Final" FontSize="18" Foreground="#f472b6" FontWeight="Bold" Margin="0,0,0,8"/>
+                        <TextBlock Text="Preset cepat, kontrol manual, whitelist app penting, dan restore normal mode setelah sesi gaming selesai." Foreground="#cbd5e1" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,18"/>
+
+                        <WrapPanel Margin="0,0,0,10">
+                            <Button Content="1. Quick Safe Gaming" Click="QuickSafeGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                            <Button Content="2. Quick Competitive Gaming" Click="QuickCompetitiveGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                            <Button Content="3. Quick Streaming Gaming" Click="QuickStreamingGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                            <Button Content="11. Restore Normal Mode" Click="RestoreNormalMode_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                            <Button Content="0. Back" Click="BackFromGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                        </WrapPanel>
+
+                        <Border Style="{StaticResource InfoCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="4. Manual Custom Mode" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,10"/>
+                                <TextBlock Text="Pilih sendiri proses, overlay, performa, dan network tweak yang ingin dipakai." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,14"/>
+
+                                <TextBlock Text="Process Control" Foreground="#38bdf8" FontWeight="Bold" Margin="0,0,0,8"/>
+                                <WrapPanel Margin="0,0,0,14">
+                                    <CheckBox Name="ManualCloseOneDriveChk" Content="Close OneDrive" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualCloseTeamsChk" Content="Close Teams" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualCloseWidgetsChk" Content="Close Widgets" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualCloseBrowserChk" Content="Close Browser" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualCloseUpdaterChk" Content="Close Updater Apps" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualCloseRgbChk" Content="Close RGB Software" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualCloseVendorChk" Content="Close Vendor Utility" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                </WrapPanel>
+
+                                <TextBlock Text="Overlay Control" Foreground="#38bdf8" FontWeight="Bold" Margin="0,0,0,8"/>
+                                <WrapPanel Margin="0,0,0,14">
+                                    <CheckBox Name="ManualDisableXboxChk" Content="Disable Xbox Game Bar" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualDisableDiscordOverlayChk" Content="Disable Discord Overlay" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualDisableNvidiaOverlayChk" Content="Disable NVIDIA Overlay" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualDisableSteamOverlayChk" Content="Disable Steam Overlay" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualDisableAmdOverlayChk" Content="Disable AMD Overlay" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualDisableRtssOverlayChk" Content="Disable RTSS Overlay" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                </WrapPanel>
+
+                                <TextBlock Text="Performance" Foreground="#38bdf8" FontWeight="Bold" Margin="0,0,0,8"/>
+                                <WrapPanel Margin="0,0,0,14">
+                                    <CheckBox Name="ManualClearMemoryChk" Content="Clear standby memory" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualBestPerformanceChk" Content="Set Best Performance power plan" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualDisableTransparencyChk" Content="Disable transparency" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualDisableAnimationsChk" Content="Disable animations" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualHighPriorityChk" Content="Set process priority High" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualDisableBackgroundAppsChk" Content="Disable background apps" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualStopServicesChk" Content="Stop unnecessary services" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                </WrapPanel>
+
+                                <TextBlock Text="Network" Foreground="#38bdf8" FontWeight="Bold" Margin="0,0,0,8"/>
+                                <WrapPanel Margin="0,0,0,14">
+                                    <CheckBox Name="ManualFlushDnsChk" Content="Flush DNS" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualGamingDnsChk" Content="Apply Gaming DNS" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualDisableBandwidthHogsChk" Content="Disable bandwidth hog apps" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualLimitBackgroundBandwidthChk" Content="Limit background bandwidth" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                    <CheckBox Name="ManualDisableDeliveryOptChk" Content="Disable delivery optimization" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                </WrapPanel>
+
+                                <WrapPanel>
+                                    <Button Content="5. Process &amp; App Control" Click="ApplyProcessControl_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="6. Overlay Control" Click="ApplyOverlayControl_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="7. Network Optimization" Click="ApplyGamingNetwork_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="8. Update Control" Click="ApplyGameUpdateControl_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="Apply Manual Custom Mode" Click="ApplyManualGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource InfoCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="9. Whitelist Manager" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,10"/>
+                                <TextBlock Text="App yang masuk whitelist tidak akan disentuh saat preset gaming dijalankan." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,12"/>
+                                <TextBlock Name="WhitelistText" Text="Loading whitelist..." Foreground="#cbd5e1" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                <DockPanel LastChildFill="False">
+                                    <TextBox Name="WhitelistInput" Width="260" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="10" Margin="0,0,12,0"/>
+                                    <Button Content="Add" Click="AddWhitelist_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,0"/>
+                                    <Button Content="Remove" Click="RemoveWhitelist_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,0"/>
+                                    <Button Content="Reset Default" Click="ResetWhitelist_Click" Style="{StaticResource ActionButtonStyle}"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource InfoCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="10. Launch Game With Boost" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,10"/>
+                                <TextBlock Text="Pilih executable game, jalankan preset boost, lalu buka game dari panel ini." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,12"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                    <TextBox Name="GameLaunchPathInput" Width="520" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="10" IsReadOnly="True"/>
+                                    <Button Content="Browse Game" Click="BrowseGame_Click" Style="{StaticResource ActionButtonStyle}" Margin="12,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <ComboBox Name="GameLaunchModeCombo" Width="260" SelectedIndex="0" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8">
+                                        <ComboBoxItem Content="Quick Safe Gaming"/>
+                                        <ComboBoxItem Content="Quick Competitive Gaming"/>
+                                        <ComboBoxItem Content="Quick Streaming Gaming"/>
+                                        <ComboBoxItem Content="Manual Custom Mode"/>
+                                    </ComboBox>
+                                    <Button Content="Launch Game With Boost" Click="LaunchGameWithBoost_Click" Style="{StaticResource ActionButtonStyle}" Margin="12,0,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                     <StackPanel Name="NetworkContent" Visibility="Collapsed"><TextBlock Text="Network Booster" FontSize="16" Foreground="#00bcd4" FontWeight="Bold" Margin="0,0,0,20"/><TextBlock Text="Optimize network performance and latency" Foreground="#cccccc" FontSize="12" Margin="0,0,0,15"/><Border Background="#2c2c2c" CornerRadius="5" BorderThickness="1" BorderBrush="#3c3c3c" Padding="15" Margin="0,0,0,15"><TextBlock Name="NetworkDiagnosticsText" Text="Loading network diagnostics..." Foreground="#cccccc" FontSize="11" TextWrapping="Wrap" FontFamily="Courier New" LineHeight="16"/></Border><Button Content="Run DNS Test" Click="RunDnsTest_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Flush DNS" Click="FlushDNS_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Reset Network" Click="ResetNetwork_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Optimize TCP Settings" Click="OptimizeTCP_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Ping Stabilizer" Click="PingStabilizer_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/></StackPanel>
                     <StackPanel Name="BackgroundAppsContent" Visibility="Collapsed"><TextBlock Text="Background Apps" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/><TextBlock Text="Top running processes by memory usage" Foreground="#cccccc" FontSize="12" Margin="0,0,0,15"/><Border Background="#2c2c2c" CornerRadius="5" BorderThickness="1" BorderBrush="#3c3c3c" Padding="15" Margin="0,0,0,15"><TextBlock Name="BackgroundAppsText" Text="Loading background processes..." Foreground="#cccccc" FontSize="11" TextWrapping="Wrap" FontFamily="Courier New" LineHeight="16"/></Border><Button Content="Refresh Process List" Click="RefreshBackgroundApps_Click" Style="{StaticResource ActionButtonStyle}"/></StackPanel>
                     <StackPanel Name="PrivacyContent" Visibility="Collapsed"><TextBlock Text="Privacy Tweaks" FontSize="16" Foreground="#9c27b0" FontWeight="Bold" Margin="0,0,0,20"/><TextBlock Text="Control telemetry and privacy settings" Foreground="#cccccc" FontSize="12" Margin="0,0,0,15"/><Button Content="Disable Telemetry" Click="DisableTelemetry_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Disable Ads &amp; Suggestions" Click="DisableAds_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Activity Tracking Control" Click="ActivityTracking_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Privacy Settings Manager" Click="PrivacyManager_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/></StackPanel>

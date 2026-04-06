@@ -1,11 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using HyperBoostX.Services;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 using System.Windows.Media;
 
@@ -22,12 +26,40 @@ namespace HyperBoostX
             Error
         }
 
+        private sealed class StartupEntry
+        {
+            public string Name { get; set; } = "";
+            public bool Enabled { get; set; }
+            public string Impact { get; set; } = "Unknown";
+            public int ImpactScore { get; set; }
+            public double EstimatedMemoryMb { get; set; }
+            public double EstimatedLoadTimeSeconds { get; set; }
+            public string Source { get; set; } = "Unknown";
+            public string SourceDetail { get; set; } = "";
+            public string Type { get; set; } = "App";
+            public string Command { get; set; } = "";
+            public string RecommendedAction { get; set; } = "";
+        }
+
         private HyperBoostBackendClient _backendClient;
         private string _currentBackendUrl = "http://127.0.0.1:5000";
         private Button _selectedNavButton;
         private DispatcherTimer _dashboardTimer;
         private bool _isUpdating;
         private string _activePage = "Dashboard";
+        private readonly List<string> _defaultGamingWhitelist = new()
+        {
+            "discord",
+            "steam",
+            "obs64",
+            "rtss",
+            "msiafterburner",
+            "lghub",
+            "riotclientservices",
+            "vgc"
+        };
+        private List<string> _gamingWhitelist = new();
+        private List<StartupEntry> _startupEntries = new();
 
         public MainWindow()
         {
@@ -41,6 +73,7 @@ namespace HyperBoostX
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             // Check backend health on startup
+            LoadGamingWhitelist();
             await CheckBackendHealth();
             await ShowPage("Dashboard", DashboardBtn);
         }
@@ -130,6 +163,8 @@ namespace HyperBoostX
                 case "Gaming":
                     SetPageHeader("Gaming Booster", "Prepare the system for lower latency and fewer interruptions before launching games.");
                     GamingContent.Visibility = Visibility.Visible;
+                    RefreshGamingWhitelistView();
+                    InitializeGamingDefaults();
                     break;
                 case "Network":
                     SetPageHeader("Network Booster", "Run diagnostics first, then apply DNS and TCP actions with clear feedback.");
@@ -255,7 +290,7 @@ namespace HyperBoostX
                     await ShowSmartRecommendationAsync(button);
                     break;
                 case nameof(GamingBoosterBtn):
-                    await ShowPage("Booster", button);
+                    await ShowPage("Gaming", button);
                     break;
                 case nameof(StorageBtn):
                     await ShowPage("Storage", button);
@@ -719,10 +754,16 @@ namespace HyperBoostX
             if (startup == null)
             {
                 StartupItemsText.Text = "Unable to load startup items.";
+                StartupScoreText.Text = "Startup Health: --/100";
+                StartupSummaryText.Text = "Startup data belum tersedia.";
+                StartupRecommendationText.Text = "Auto suggest belum bisa dibuat karena backend startup data belum terbaca.";
+                StartupAnalyzerDetailsText.Text = "Analyzer detail belum tersedia.";
                 return;
             }
 
-            StartupItemsText.Text = FormatStartupItems(startup);
+            _startupEntries = ParseStartupItems(startup);
+            StartupItemsText.Text = FormatStartupItems(_startupEntries);
+            UpdateStartupAnalytics();
         }
 
         private async Task RefreshBackgroundApps()
@@ -744,12 +785,426 @@ namespace HyperBoostX
 
         private void ManageStartup_Click(object sender, RoutedEventArgs e)
         {
+            ShowActionStatus(ActionState.Info, "Enable / Disable Startup", "Gunakan field target untuk enable/disable entry startup. Kalau perlu verifikasi visual tambahan, Windows Startup Apps juga bisa dibuka.", "Tip: isi nama item lalu klik Enable/Disable");
             LaunchWindowsUri("ms-settings:startupapps", "Manage Startup");
         }
 
         private void DelayStartup_Click(object sender, RoutedEventArgs e)
         {
-            LaunchWindowsTool("taskschd.msc", null, "Delay Startup");
+            ShowActionStatus(ActionState.Info, "Delay Startup Apps", "Isi nama app dan jumlah detik untuk membuat delayed launch saat login.", "Default delay: 30 detik");
+        }
+
+        private List<StartupEntry> ParseStartupItems(dynamic startupData)
+        {
+            var entries = new List<StartupEntry>();
+            var items = startupData["items"] as Newtonsoft.Json.Linq.JArray;
+            if (items == null)
+            {
+                return entries;
+            }
+
+            foreach (var item in items)
+            {
+                entries.Add(new StartupEntry
+                {
+                    Name = item.Value<string>("name") ?? "Unknown",
+                    Enabled = item.Value<bool?>("enabled") == true,
+                    Impact = item.Value<string>("impact") ?? "Unknown",
+                    ImpactScore = item.Value<int?>("impact_score") ?? 0,
+                    EstimatedMemoryMb = item.Value<double?>("estimated_memory_mb") ?? 0,
+                    EstimatedLoadTimeSeconds = item.Value<double?>("estimated_load_time_s") ?? 0,
+                    Source = item.Value<string>("source") ?? "Unknown",
+                    SourceDetail = item.Value<string>("source_detail") ?? "",
+                    Type = item.Value<string>("type") ?? "App",
+                    Command = item.Value<string>("command") ?? "",
+                    RecommendedAction = item.Value<string>("recommended_action") ?? ""
+                });
+            }
+
+            return entries.OrderBy(x => x.Name).ToList();
+        }
+
+        private void UpdateStartupAnalytics()
+        {
+            var enabledCount = _startupEntries.Count(x => x.Enabled);
+            var highCount = _startupEntries.Count(x => x.Enabled && x.Impact.Equals("High", StringComparison.OrdinalIgnoreCase));
+            var mediumCount = _startupEntries.Count(x => x.Enabled && x.Impact.Equals("Medium", StringComparison.OrdinalIgnoreCase));
+            var lowCount = _startupEntries.Count(x => x.Enabled && x.Impact.Equals("Low", StringComparison.OrdinalIgnoreCase));
+            var totalImpactScore = _startupEntries.Where(x => x.Enabled).Sum(x => x.ImpactScore);
+            var totalEstimatedMemory = _startupEntries.Where(x => x.Enabled).Sum(x => x.EstimatedMemoryMb);
+            var totalEstimatedLoad = _startupEntries.Where(x => x.Enabled).Sum(x => x.EstimatedLoadTimeSeconds);
+            var taskCount = _startupEntries.Count(x => x.Source == "Task Scheduler");
+            var serviceCount = _startupEntries.Count(x => x.Source == "Services");
+
+            var score = 100 - Math.Min(55, totalImpactScore / 6) - (enabledCount * 2);
+            score = Math.Max(20, Math.Min(100, score));
+
+            StartupScoreText.Text = $"Startup Health: {score}/100";
+            StartupSummaryText.Text = $"Enabled items: {enabledCount} | High: {highCount} | Medium: {mediumCount} | Low: {lowCount} | Tasks: {taskCount} | Services: {serviceCount}";
+
+            var disableSuggestions = _startupEntries
+                .Where(x => x.Enabled && x.RecommendedAction == "Recommended to Disable")
+                .OrderByDescending(x => x.ImpactScore)
+                .Select(x => x.Name)
+                .Take(5)
+                .ToList();
+
+            if (disableSuggestions.Count > 0)
+            {
+                StartupRecommendationText.Text = $"Auto Suggest: startup terlalu ramai. Rekomendasi matikan {disableSuggestions.Count} app: {string.Join(", ", disableSuggestions)}";
+            }
+            else
+            {
+                StartupRecommendationText.Text = "Auto Suggest: startup terlihat cukup sehat. Pertahankan app esensial tetap aktif.";
+            }
+
+            var topHeavy = _startupEntries
+                .Where(x => x.Enabled)
+                .OrderByDescending(x => x.ImpactScore)
+                .ThenByDescending(x => x.EstimatedMemoryMb)
+                .Take(6)
+                .ToList();
+
+            var analyzer = new System.Text.StringBuilder();
+            analyzer.AppendLine($"Total estimated boot load time: {totalEstimatedLoad:0.0} s");
+            analyzer.AppendLine($"Total estimated startup RAM pressure: {totalEstimatedMemory:0.0} MB");
+            analyzer.AppendLine($"Combined impact score: {totalImpactScore}");
+            analyzer.AppendLine();
+            analyzer.AppendLine("Top startup impact:");
+            foreach (var item in topHeavy)
+            {
+                analyzer.AppendLine($"- {item.Name} | Score {item.ImpactScore} | RAM {item.EstimatedMemoryMb:0.#} MB | Load {item.EstimatedLoadTimeSeconds:0.#} s | {item.Source}");
+            }
+            StartupAnalyzerDetailsText.Text = analyzer.ToString();
+        }
+
+        private bool IsSafeDisableStartupApp(string name, string type)
+        {
+            var lowered = name.ToLowerInvariant();
+            if (type.Equals("System", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            if (new[]
+            {
+                "onedrive", "teams", "widgets", "spotify", "discord", "steam", "adobe", "launcher", "update", "updater"
+            }.Any(token => lowered.Contains(token)))
+            {
+                return true;
+            }
+
+            if (new[]
+            {
+                "defender", "security", "realtek", "audio", "synaptics", "touchpad", "nvidia", "amd", "intel", "antivirus"
+            }.Any(token => lowered.Contains(token)))
+            {
+                return false;
+            }
+
+            return false;
+        }
+
+        private string BuildSafeDisableRecommendation()
+        {
+            var recommendedDisable = _startupEntries
+                .Where(x => x.Enabled && x.RecommendedAction == "Recommended to Disable")
+                .OrderByDescending(x => x.ImpactScore)
+                .Select(x => $"✔ {x.Name}")
+                .ToList();
+
+            var keepEnabled = _startupEntries
+                .Where(x => x.Enabled && x.RecommendedAction != "Recommended to Disable")
+                .OrderByDescending(x => x.ImpactScore)
+                .Select(x => $"✔ {x.Name}")
+                .Take(6)
+                .ToList();
+
+            return "Recommended to Disable:\n" +
+                   (recommendedDisable.Count == 0 ? "- Tidak ada saran disable aman saat ini" : string.Join("\n", recommendedDisable)) +
+                   "\n\nKeep Enabled:\n" +
+                   (keepEnabled.Count == 0 ? "- Tidak ada data" : string.Join("\n", keepEnabled));
+        }
+
+        private StartupEntry FindStartupEntry(string rawName)
+        {
+            var normalized = rawName.Trim();
+            return _startupEntries.FirstOrDefault(x => string.Equals(x.Name, normalized, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private string GetStartupDisabledBackupPath()
+        {
+            var root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HyperBoost X", "startup");
+            Directory.CreateDirectory(root);
+            return Path.Combine(root, "disabled-startup");
+        }
+
+        private string EscapePowerShell(string input) => input.Replace("'", "''");
+
+        private async Task<bool> DisableStartupEntryAsync(string itemName)
+        {
+            var entry = FindStartupEntry(itemName);
+            if (entry == null)
+            {
+                ShowActionStatus(ActionState.Warning, "Disable Startup", "Item startup tidak ditemukan.");
+                return false;
+            }
+
+            var backupDir = EscapePowerShell(GetStartupDisabledBackupPath());
+            var escapedName = EscapePowerShell(entry.Name);
+            var escapedCommand = EscapePowerShell(entry.Command ?? "");
+            string script;
+
+            if (entry.Source == "Registry")
+            {
+                script =
+                    $"New-Item -ItemType Directory -Force -Path '{backupDir}' | Out-Null; " +
+                    $"$backup = Join-Path '{backupDir}' '{escapedName}.cmd.txt'; " +
+                    $"Set-Content -Path $backup -Value '{escapedCommand}'; " +
+                    $"if (Test-Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run') {{ Remove-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Name '{escapedName}' -ErrorAction SilentlyContinue }}";
+            }
+            else
+            {
+                var startupFolder = EscapePowerShell(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft\Windows\Start Menu\Programs\Startup"));
+                script =
+                    $"New-Item -ItemType Directory -Force -Path '{backupDir}' | Out-Null; " +
+                    $"Get-ChildItem -Path '{startupFolder}' -File | Where-Object {{ $_.BaseName -eq '{escapedName}' }} | ForEach-Object {{ Move-Item -LiteralPath $_.FullName -Destination '{backupDir}' -Force }}";
+            }
+
+            var (success, output) = await ExecutePowerShellScriptAsync(script);
+            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Disable Startup", success ? $"{entry.Name} dinonaktifkan dari startup." : "Gagal menonaktifkan startup entry.", output);
+            await RefreshStartupItems();
+            return success;
+        }
+
+        private async Task<bool> EnableStartupEntryAsync(string itemName)
+        {
+            var escapedName = EscapePowerShell(itemName.Trim());
+            var backupDir = EscapePowerShell(GetStartupDisabledBackupPath());
+            var startupFolder = EscapePowerShell(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft\Windows\Start Menu\Programs\Startup"));
+            var script =
+                $"$backupCmd = Join-Path '{backupDir}' '{escapedName}.cmd.txt'; " +
+                $"if (Test-Path $backupCmd) {{ $command = Get-Content $backupCmd -Raw; New-Item -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Force | Out-Null; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Name '{escapedName}' -Value $command; Remove-Item $backupCmd -Force; Write-Output 'Registry startup restored.' }} " +
+                $"else {{ Get-ChildItem -Path '{backupDir}' -File | Where-Object {{ $_.BaseName -eq '{escapedName}' }} | ForEach-Object {{ Move-Item -LiteralPath $_.FullName -Destination '{startupFolder}' -Force; Write-Output 'Startup folder entry restored.' }} }}";
+
+            var (success, output) = await ExecutePowerShellScriptAsync(script);
+            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Enable Startup", success ? $"{itemName} diaktifkan kembali ke startup." : "Gagal mengaktifkan startup entry.", output);
+            await RefreshStartupItems();
+            return success;
+        }
+
+        private async Task<bool> RemoveStartupEntryAsync(string itemName)
+        {
+            var entry = FindStartupEntry(itemName);
+            var escapedName = EscapePowerShell(itemName.Trim());
+            var startupFolder = EscapePowerShell(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft\Windows\Start Menu\Programs\Startup"));
+            var script =
+                $"if (Test-Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run') {{ Remove-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Name '{escapedName}' -ErrorAction SilentlyContinue }}; " +
+                $"Get-ChildItem -Path '{startupFolder}' -File -ErrorAction SilentlyContinue | Where-Object {{ $_.BaseName -eq '{escapedName}' }} | Remove-Item -Force -ErrorAction SilentlyContinue";
+
+            var (success, output) = await ExecutePowerShellScriptAsync(script);
+            var displayName = entry?.Name ?? itemName;
+            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Remove Startup Entry", success ? $"{displayName} dihapus dari startup." : "Gagal menghapus startup entry.", output);
+            await RefreshStartupItems();
+            return success;
+        }
+
+        private async void EnableStartupTarget_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(StartupTargetInput.Text))
+            {
+                ShowActionStatus(ActionState.Warning, "Enable Startup", "Masukkan nama startup item terlebih dulu.");
+                return;
+            }
+
+            await EnableStartupEntryAsync(StartupTargetInput.Text);
+        }
+
+        private async void DisableStartupTarget_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(StartupTargetInput.Text))
+            {
+                ShowActionStatus(ActionState.Warning, "Disable Startup", "Masukkan nama startup item terlebih dulu.");
+                return;
+            }
+
+            await DisableStartupEntryAsync(StartupTargetInput.Text);
+        }
+
+        private async void RemoveStartupEntry_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(StartupTargetInput.Text))
+            {
+                ShowActionStatus(ActionState.Warning, "Remove Startup Entry", "Masukkan nama startup item terlebih dulu.");
+                return;
+            }
+
+            await RemoveStartupEntryAsync(StartupTargetInput.Text);
+        }
+
+        private async void ApplyStartupDelay_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(StartupDelayTargetInput.Text))
+            {
+                ShowActionStatus(ActionState.Warning, "Delay Startup Apps", "Masukkan nama startup item yang ingin di-delay.");
+                return;
+            }
+
+            if (!int.TryParse(StartupDelaySecondsInput.Text, out var seconds) || seconds <= 0)
+            {
+                ShowActionStatus(ActionState.Warning, "Delay Startup Apps", "Masukkan delay dalam detik yang valid.");
+                return;
+            }
+
+            var entry = FindStartupEntry(StartupDelayTargetInput.Text);
+            if (entry == null || string.IsNullOrWhiteSpace(entry.Command))
+            {
+                ShowActionStatus(ActionState.Warning, "Delay Startup Apps", "Item startup tidak ditemukan atau command tidak tersedia.");
+                return;
+            }
+
+            await DisableStartupEntryAsync(entry.Name);
+            var taskName = EscapePowerShell($"HyperBoostX-Delayed-{entry.Name}");
+            var escapedCommand = EscapePowerShell(entry.Command);
+            var delaySpan = TimeSpan.FromSeconds(seconds);
+            var delayText = $"{delaySpan.Hours:00}{delaySpan.Minutes:00}:{delaySpan.Seconds:00}";
+            var script =
+                $"schtasks /Create /F /SC ONLOGON /TN '{taskName}' /TR 'cmd /c start \"\" {escapedCommand}' /DELAY {delayText}";
+            var (success, output) = await ExecutePowerShellScriptAsync(script);
+            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Delay Startup Apps", success ? $"{entry.Name} akan dijalankan dengan delay {seconds} detik setelah login." : "Gagal membuat delayed startup task.", output);
+        }
+
+        private void AnalyzeStartupImpact_Click(object sender, RoutedEventArgs e)
+        {
+            UpdateStartupAnalytics();
+            ShowActionStatus(ActionState.Success, "Startup Impact Analyzer", StartupSummaryText.Text, StartupScoreText.Text);
+        }
+
+        private void SafeStartupRecommendation_Click(object sender, RoutedEventArgs e)
+        {
+            ShowActionStatus(ActionState.Info, "Safe Disable Recommendation", "Berikut rekomendasi aman untuk startup.", BuildSafeDisableRecommendation());
+        }
+
+        private void OpenStartupFolder_Click(object sender, RoutedEventArgs e)
+        {
+            ShowActionStatus(ActionState.Info, "Open Startup Folder", "Membuka startup folder user dan common startup.", "shell:startup / shell:common startup");
+            LaunchWindowsTool("explorer.exe", "shell:startup", "Startup Folder");
+        }
+
+        private void OpenCommonStartupFolder_Click(object sender, RoutedEventArgs e)
+        {
+            ShowActionStatus(ActionState.Info, "Open Common Startup", "Membuka common startup folder untuk semua user.", "shell:common startup");
+            LaunchWindowsTool("explorer.exe", "shell:common startup", "Common Startup Folder");
+        }
+
+        private void StartupServicesAdvanced_Click(object sender, RoutedEventArgs e)
+        {
+            ShowActionStatus(ActionState.Warning, "Startup Services (Advanced)", "Perubahan service saat boot punya risiko. Pastikan tahu fungsi service sebelum mengubah Automatic / Manual / Disabled.");
+            LaunchWindowsTool("services.msc", null, "Startup Services");
+        }
+
+        private async void RestoreDefaultStartup_Click(object sender, RoutedEventArgs e)
+        {
+            var backupDir = EscapePowerShell(GetStartupDisabledBackupPath());
+            var startupFolder = EscapePowerShell(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft\Windows\Start Menu\Programs\Startup"));
+            var script =
+                $"if (Test-Path '{backupDir}') {{ " +
+                $"Get-ChildItem -Path '{backupDir}' -Filter '*.cmd.txt' -ErrorAction SilentlyContinue | ForEach-Object {{ " +
+                $"$name = $_.BaseName.Substring(0, $_.BaseName.Length - 4); $command = Get-Content $_.FullName -Raw; " +
+                $"New-Item -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Force | Out-Null; " +
+                $"Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Name $name -Value $command; Remove-Item $_.FullName -Force }}; " +
+                $"Get-ChildItem -Path '{backupDir}' -File -ErrorAction SilentlyContinue | Where-Object {{ $_.Extension -ne '.txt' }} | ForEach-Object {{ Move-Item -LiteralPath $_.FullName -Destination '{startupFolder}' -Force }} }}";
+            var (success, output) = await ExecutePowerShellScriptAsync(script);
+            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Restore Default Startup", success ? "Startup user-level defaults dipulihkan sejauh backup tersedia." : "Sebagian startup default gagal dipulihkan.", output);
+            await RefreshStartupItems();
+        }
+
+        private void BrowseStartupApp_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "Select Startup App",
+                Filter = "Executable (*.exe)|*.exe|All files (*.*)|*.*"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                StartupAddPathInput.Text = dialog.FileName;
+                ShowActionStatus(ActionState.Info, "Add Startup App", "Aplikasi dipilih untuk ditambahkan ke startup.", dialog.FileName);
+            }
+        }
+
+        private async void AddStartupApp_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(StartupAddPathInput.Text) || !File.Exists(StartupAddPathInput.Text))
+            {
+                ShowActionStatus(ActionState.Warning, "Add Startup App", "Pilih file .exe yang valid terlebih dulu.");
+                return;
+            }
+
+            var appPath = StartupAddPathInput.Text;
+            var appName = Path.GetFileNameWithoutExtension(appPath);
+            var escapedName = EscapePowerShell(appName);
+            var escapedPath = EscapePowerShell($"\"{appPath}\"");
+            string script;
+
+            if ((StartupAddModeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString()?.StartsWith("Registry") == true)
+            {
+                script = $"New-Item -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Force | Out-Null; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Name '{escapedName}' -Value '{escapedPath}'";
+            }
+            else
+            {
+                var startupFolder = EscapePowerShell(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft\Windows\Start Menu\Programs\Startup"));
+                script = $"$WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut((Join-Path '{startupFolder}' '{escapedName}.lnk')); $Shortcut.TargetPath = '{EscapePowerShell(appPath)}'; $Shortcut.Save()";
+            }
+
+            var (success, output) = await ExecutePowerShellScriptAsync(script);
+            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Add Startup App", success ? $"{appName} ditambahkan ke startup." : "Gagal menambahkan startup app.", output);
+            await RefreshStartupItems();
+        }
+
+        private void BackFromStartup_Click(object sender, RoutedEventArgs e)
+        {
+            _ = ShowPage("Dashboard", DashboardBtn);
+        }
+
+        private async Task ApplyStartupProfileAsync(string profileName, IEnumerable<string> targetNames)
+        {
+            var targets = _startupEntries
+                .Where(x => x.Enabled && targetNames.Any(token => x.Name.Contains(token, StringComparison.OrdinalIgnoreCase)))
+                .Select(x => x.Name)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (targets.Count == 0)
+            {
+                ShowActionStatus(ActionState.Info, profileName, "Tidak ada startup item yang cocok untuk profile ini.");
+                return;
+            }
+
+            var results = new List<string>();
+            foreach (var target in targets)
+            {
+                var success = await DisableStartupEntryAsync(target);
+                results.Add($"{(success ? "Disabled" : "Failed")}: {target}");
+            }
+
+            ShowActionStatus(ActionState.Success, profileName, $"Startup profile {profileName} diterapkan.", string.Join(Environment.NewLine, results));
+        }
+
+        private async void ApplyGamingStartupProfile_Click(object sender, RoutedEventArgs e)
+        {
+            await ApplyStartupProfileAsync("Gaming Startup", new[] { "OneDrive", "Teams", "Spotify", "Adobe", "Launcher", "Update" });
+        }
+
+        private async void ApplyWorkStartupProfile_Click(object sender, RoutedEventArgs e)
+        {
+            await ApplyStartupProfileAsync("Work Startup", new[] { "Steam", "Epic", "Discord", "Spotify", "Game", "RTSS" });
+        }
+
+        private async void ApplyMinimalStartupProfile_Click(object sender, RoutedEventArgs e)
+        {
+            await ApplyStartupProfileAsync("Minimal Startup", new[] { "OneDrive", "Teams", "Spotify", "Discord", "Steam", "Epic", "Adobe", "Launcher", "Update", "Widgets" });
         }
 
         #endregion
@@ -808,12 +1263,12 @@ namespace HyperBoostX
 
         private async void GameMode_Click(object sender, RoutedEventArgs e)
         {
-            await ApplyBoosterProfileAsync("gaming", "Game Mode");
+            await ApplyQuickCompetitiveGamingAsync();
         }
 
         private async void DisableOverlays_Click(object sender, RoutedEventArgs e)
         {
-            await ApplyTweakWithFeedbackAsync("disable_xbox", "Disable Overlays");
+            await ApplyOverlayTargetsAsync();
         }
 
         private void FreeRAM_Click(object sender, RoutedEventArgs e)
@@ -824,6 +1279,568 @@ namespace HyperBoostX
         private async void FPSStability_Click(object sender, RoutedEventArgs e)
         {
             await ApplyBoosterProfileAsync("streaming", "FPS Stability");
+        }
+
+        private void InitializeGamingDefaults()
+        {
+            ManualCloseOneDriveChk.IsChecked = true;
+            ManualCloseTeamsChk.IsChecked = true;
+            ManualCloseWidgetsChk.IsChecked = true;
+            ManualCloseBrowserChk.IsChecked = false;
+            ManualCloseUpdaterChk.IsChecked = true;
+            ManualCloseRgbChk.IsChecked = false;
+            ManualCloseVendorChk.IsChecked = false;
+
+            ManualDisableXboxChk.IsChecked = true;
+            ManualDisableDiscordOverlayChk.IsChecked = false;
+            ManualDisableNvidiaOverlayChk.IsChecked = false;
+            ManualDisableSteamOverlayChk.IsChecked = false;
+            ManualDisableAmdOverlayChk.IsChecked = false;
+            ManualDisableRtssOverlayChk.IsChecked = false;
+
+            ManualClearMemoryChk.IsChecked = true;
+            ManualBestPerformanceChk.IsChecked = true;
+            ManualDisableTransparencyChk.IsChecked = false;
+            ManualDisableAnimationsChk.IsChecked = false;
+            ManualHighPriorityChk.IsChecked = true;
+            ManualDisableBackgroundAppsChk.IsChecked = true;
+            ManualStopServicesChk.IsChecked = false;
+
+            ManualFlushDnsChk.IsChecked = true;
+            ManualGamingDnsChk.IsChecked = false;
+            ManualDisableBandwidthHogsChk.IsChecked = false;
+            ManualLimitBackgroundBandwidthChk.IsChecked = false;
+            ManualDisableDeliveryOptChk.IsChecked = true;
+        }
+
+        private string GetGamingWhitelistPath()
+        {
+            var root = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "HyperBoost X",
+                "gaming");
+            Directory.CreateDirectory(root);
+            return Path.Combine(root, "whitelist.json");
+        }
+
+        private void LoadGamingWhitelist()
+        {
+            try
+            {
+                var path = GetGamingWhitelistPath();
+                if (File.Exists(path))
+                {
+                    var loaded = JsonConvert.DeserializeObject<List<string>>(File.ReadAllText(path));
+                    _gamingWhitelist = loaded?
+                        .Where(x => !string.IsNullOrWhiteSpace(x))
+                        .Select(NormalizeWhitelistEntry)
+                        .Distinct()
+                        .ToList() ?? new List<string>();
+                }
+
+                if (_gamingWhitelist.Count == 0)
+                {
+                    _gamingWhitelist = _defaultGamingWhitelist.ToList();
+                    SaveGamingWhitelist();
+                }
+            }
+            catch
+            {
+                _gamingWhitelist = _defaultGamingWhitelist.ToList();
+            }
+        }
+
+        private void SaveGamingWhitelist()
+        {
+            var path = GetGamingWhitelistPath();
+            File.WriteAllText(path, JsonConvert.SerializeObject(_gamingWhitelist.OrderBy(x => x).ToList(), Formatting.Indented));
+        }
+
+        private void RefreshGamingWhitelistView()
+        {
+            if (WhitelistText == null)
+                return;
+
+            WhitelistText.Text = _gamingWhitelist.Count == 0
+                ? "Whitelist kosong."
+                : string.Join(", ", _gamingWhitelist.OrderBy(x => x));
+        }
+
+        private static string NormalizeWhitelistEntry(string value)
+        {
+            var normalized = value.Trim().ToLowerInvariant();
+            if (normalized.EndsWith(".exe"))
+            {
+                normalized = normalized[..^4];
+            }
+            return normalized;
+        }
+
+        private bool IsWhitelistedProcess(string processName)
+        {
+            var normalized = NormalizeWhitelistEntry(processName);
+            return _gamingWhitelist.Any(x => normalized.Contains(x, StringComparison.OrdinalIgnoreCase) || x.Contains(normalized, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private List<string> GetManualProcessTargets()
+        {
+            var targets = new List<string>();
+
+            if (ManualCloseOneDriveChk.IsChecked == true) targets.AddRange(new[] { "OneDrive", "OneDriveStandaloneUpdater" });
+            if (ManualCloseTeamsChk.IsChecked == true) targets.AddRange(new[] { "Teams", "ms-teams", "TeamsBootstrapper" });
+            if (ManualCloseWidgetsChk.IsChecked == true) targets.AddRange(new[] { "Widgets", "WidgetService", "msedgewebview2" });
+            if (ManualCloseBrowserChk.IsChecked == true) targets.AddRange(new[] { "chrome", "firefox", "msedge", "opera", "brave" });
+            if (ManualCloseUpdaterChk.IsChecked == true) targets.AddRange(new[] { "GoogleUpdate", "AdobeGCClient", "EpicWebHelper", "SteamService", "UbisoftConnect", "Update", "Updater" });
+            if (ManualCloseRgbChk.IsChecked == true) targets.AddRange(new[] { "iCUE", "ArmouryCrate", "LightingService", "SignalRgb", "Razer Synapse Service Process" });
+            if (ManualCloseVendorChk.IsChecked == true) targets.AddRange(new[] { "ArmouryCrate", "MyASUS", "LenovoVantage", "DellSupportAssist", "OMENCommandCenter" });
+
+            return targets
+                .Where(x => !IsWhitelistedProcess(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        private List<string> GetManualOverlayTargets()
+        {
+            var targets = new List<string>();
+
+            if (ManualDisableDiscordOverlayChk.IsChecked == true) targets.Add("Discord");
+            if (ManualDisableNvidiaOverlayChk.IsChecked == true) targets.AddRange(new[] { "NVIDIA Share", "NVIDIA Web Helper" });
+            if (ManualDisableSteamOverlayChk.IsChecked == true) targets.Add("GameOverlayUI");
+            if (ManualDisableAmdOverlayChk.IsChecked == true) targets.AddRange(new[] { "RadeonSoftware", "AMDRSServ" });
+            if (ManualDisableRtssOverlayChk.IsChecked == true) targets.AddRange(new[] { "RTSS", "RTSSHooksLoader64" });
+
+            return targets
+                .Where(x => !IsWhitelistedProcess(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        private async Task<(bool success, string output)> ExecutePowerShellScriptAsync(string script)
+        {
+            var encoded = Convert.ToBase64String(Encoding.Unicode.GetBytes(script));
+            var startInfo = new ProcessStartInfo("powershell.exe")
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                Arguments = $"-NoProfile -ExecutionPolicy Bypass -EncodedCommand {encoded}"
+            };
+
+            using var process = Process.Start(startInfo);
+            if (process == null)
+            {
+                return (false, "Unable to start PowerShell.");
+            }
+
+            var stdOut = await process.StandardOutput.ReadToEndAsync();
+            var stdErr = await process.StandardError.ReadToEndAsync();
+            await process.WaitForExitAsync();
+            var output = string.IsNullOrWhiteSpace(stdErr) ? stdOut : stdErr;
+            return (process.ExitCode == 0, output.Trim());
+        }
+
+        private static string EscapeSingleQuotedPowerShell(string text) =>
+            text.Replace("'", "''");
+
+        private string BuildStopProcessScript(IEnumerable<string> processNames)
+        {
+            var filtered = processNames
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (filtered.Count == 0)
+            {
+                return "$null = 1";
+            }
+
+            var names = string.Join(", ", filtered.Select(x => $"'{EscapeSingleQuotedPowerShell(x)}'"));
+            return "$targets = @(" + names + "); " +
+                   "$stopped = New-Object System.Collections.Generic.List[string]; " +
+                   "foreach ($target in $targets) { " +
+                   "Get-Process -Name $target -ErrorAction SilentlyContinue | ForEach-Object { " +
+                   "try { Stop-Process -Id $_.Id -Force -ErrorAction Stop; $stopped.Add($_.ProcessName) } catch {} } }; " +
+                   "if ($stopped.Count -eq 0) { 'No matching process was running.' } else { 'Stopped: ' + (($stopped | Sort-Object -Unique) -join ', ') }";
+        }
+
+        private async Task<string> ApplyProcessTargetsAsync(IEnumerable<string> processNames, string actionName)
+        {
+            var targets = processNames.ToList();
+            if (targets.Count == 0)
+            {
+                return "No process target selected.";
+            }
+
+            var (success, output) = await ExecutePowerShellScriptAsync(BuildStopProcessScript(targets));
+            if (!success && string.IsNullOrWhiteSpace(output))
+            {
+                output = "PowerShell failed while trying to stop selected processes.";
+            }
+
+            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, actionName, "Process control completed.", output);
+            return output;
+        }
+
+        private async Task<string> ApplyOverlayTargetsAsync()
+        {
+            var overlayTargets = GetManualOverlayTargets();
+            var notes = new List<string>();
+
+            if (ManualDisableXboxChk.IsChecked == true)
+            {
+                var tweakResult = await SafeApiCall(() => _backendClient.ApplyTweakAsync("disable_xbox"));
+                if (tweakResult != null)
+                {
+                    notes.Add("Xbox Game Bar disabled");
+                }
+            }
+
+            if (overlayTargets.Count > 0)
+            {
+                var (success, output) = await ExecutePowerShellScriptAsync(BuildStopProcessScript(overlayTargets));
+                notes.Add(success ? output : $"Overlay process action warning: {output}");
+            }
+
+            if (notes.Count == 0)
+            {
+                notes.Add("No overlay target selected.");
+            }
+
+            var summary = string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x)));
+            ShowActionStatus(ActionState.Success, "Overlay Control", "Overlay control actions finished.", summary);
+            return summary;
+        }
+
+        private async Task<string> ApplyPerformanceSelectionsAsync()
+        {
+            var notes = new List<string>();
+
+            if (ManualClearMemoryChk.IsChecked == true)
+            {
+                var (success, output) = await ExecutePowerShellScriptAsync("[System.GC]::Collect(); [System.GC]::WaitForPendingFinalizers(); 'Memory cleanup requested.'");
+                notes.Add(success ? "Clear standby memory requested" : output);
+            }
+
+            if (ManualBestPerformanceChk.IsChecked == true)
+            {
+                var (success, output) = await ExecutePowerShellScriptAsync("powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c");
+                notes.Add(success ? "Best performance power plan enabled" : output);
+            }
+
+            if (ManualDisableTransparencyChk.IsChecked == true)
+            {
+                var (success, output) = await ExecutePowerShellScriptAsync("reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize\" /v EnableTransparency /t REG_DWORD /d 0 /f");
+                notes.Add(success ? "Transparency disabled" : output);
+            }
+
+            if (ManualDisableAnimationsChk.IsChecked == true)
+            {
+                var (success, output) = await ExecutePowerShellScriptAsync("reg add \"HKCU\\Control Panel\\Desktop\\WindowMetrics\" /v MinAnimate /t REG_SZ /d 0 /f");
+                notes.Add(success ? "Animations reduced" : output);
+            }
+
+            if (ManualHighPriorityChk.IsChecked == true)
+            {
+                var result = await SafeApiCall(() => _backendClient.ApplyBoosterAsync("gaming"));
+                if (result != null)
+                {
+                    notes.Add("Gaming priority profile applied");
+                }
+            }
+
+            if (ManualDisableBackgroundAppsChk.IsChecked == true)
+            {
+                var processOutput = await ApplyProcessTargetsAsync(
+                    new[] { "OneDrive", "Teams", "Widgets", "WidgetService", "GoogleDriveFS", "Spotify" }
+                        .Where(x => !IsWhitelistedProcess(x)),
+                    "Background App Control");
+                notes.Add(processOutput);
+            }
+
+            if (ManualStopServicesChk.IsChecked == true)
+            {
+                var (success, output) = await ExecutePowerShellScriptAsync(
+                    "foreach($svc in 'SysMain','WSearch'){ try { Stop-Service -Name $svc -Force -ErrorAction Stop } catch {} }; 'Requested stop for SysMain and WSearch if available.'");
+                notes.Add(success ? "Requested stop for SysMain/WSearch" : output);
+            }
+
+            return string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x)));
+        }
+
+        private async Task<string> ApplyGamingNetworkSelectionsAsync(bool forceGamingDns = false)
+        {
+            var notes = new List<string>();
+
+            if (ManualFlushDnsChk.IsChecked == true || forceGamingDns)
+            {
+                var flush = await SafeApiCall(() => _backendClient.FlushDnsAsync());
+                if (flush != null) notes.Add("DNS cache flushed");
+            }
+
+            if (ManualGamingDnsChk.IsChecked == true || forceGamingDns)
+            {
+                notes.Add("Gaming DNS recommendation: Cloudflare 1.1.1.1 / 1.0.0.1");
+            }
+
+            if (ManualDisableBandwidthHogsChk.IsChecked == true)
+            {
+                var processOutput = await ApplyProcessTargetsAsync(
+                    new[] { "OneDrive", "GoogleDriveFS", "Dropbox", "EpicWebHelper" }
+                        .Where(x => !IsWhitelistedProcess(x)),
+                    "Bandwidth Hog Control");
+                notes.Add(processOutput);
+            }
+
+            if (ManualLimitBackgroundBandwidthChk.IsChecked == true)
+            {
+                var optimizeResult = await SafeApiCall(() => _backendClient.OptimizeTcpAsync());
+                if (optimizeResult != null) notes.Add("Background bandwidth tuned with TCP optimization");
+            }
+
+            if (ManualDisableDeliveryOptChk.IsChecked == true)
+            {
+                var (success, output) = await ExecutePowerShellScriptAsync("reg add \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\DeliveryOptimization\\Config\" /v DODownloadMode /t REG_DWORD /d 0 /f");
+                notes.Add(success ? "Delivery Optimization disabled" : output);
+            }
+
+            if (notes.Count == 0)
+            {
+                notes.Add("No network action selected.");
+            }
+
+            return string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x)));
+        }
+
+        private async Task ApplyQuickSafeGamingAsync()
+        {
+            var notes = new List<string>();
+            notes.Add(await ApplyProcessTargetsAsync(new[] { "OneDrive", "Teams", "Widgets", "WidgetService" }.Where(x => !IsWhitelistedProcess(x)), "Quick Safe Gaming"));
+            notes.Add(await ApplyPerformancePresetAsync(bestPerformance: true, disableTransparency: false, disableAnimations: false, highPriority: false));
+            notes.Add(await ApplyNetworkPresetAsync());
+            ShowActionStatus(ActionState.Success, "Quick Safe Gaming", "Safe gaming preset applied.", string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x))));
+        }
+
+        private async Task ApplyQuickCompetitiveGamingAsync()
+        {
+            var notes = new List<string>();
+            notes.Add(await ApplyProcessTargetsAsync(new[] { "OneDrive", "Teams", "Widgets", "WidgetService" }.Where(x => !IsWhitelistedProcess(x)), "Quick Competitive Gaming"));
+            notes.Add(await ApplyPerformancePresetAsync(bestPerformance: true, disableTransparency: true, disableAnimations: true, highPriority: true));
+            ManualDisableXboxChk.IsChecked = true;
+            notes.Add(await ApplyOverlayTargetsAsync());
+            notes.Add(await ApplyNetworkPresetAsync());
+            ShowActionStatus(ActionState.Success, "Quick Competitive Gaming", "Competitive gaming preset applied.", string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x))));
+        }
+
+        private async Task ApplyQuickStreamingGamingAsync()
+        {
+            var notes = new List<string>();
+            notes.Add(await ApplyProcessTargetsAsync(new[] { "OneDrive", "Teams", "Widgets", "GoogleDriveFS", "AdobeGCClient" }.Where(x => !IsWhitelistedProcess(x)), "Quick Streaming Gaming"));
+            var result = await SafeApiCall(() => _backendClient.ApplyBoosterAsync("streaming"));
+            if (result != null)
+            {
+                notes.Add("Streaming booster profile applied");
+            }
+
+            notes.Add(await ApplyNetworkPresetAsync());
+            notes.Add("Protected apps kept alive via whitelist, including Discord, Steam, OBS, RTSS, MSI Afterburner, LG HUB, Riot Client Services, and VGC.");
+            ShowActionStatus(ActionState.Success, "Quick Streaming Gaming", "Streaming gaming preset applied.", string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x))));
+        }
+
+        private async Task<string> ApplyPerformancePresetAsync(bool bestPerformance, bool disableTransparency, bool disableAnimations, bool highPriority)
+        {
+            ManualBestPerformanceChk.IsChecked = bestPerformance;
+            ManualDisableTransparencyChk.IsChecked = disableTransparency;
+            ManualDisableAnimationsChk.IsChecked = disableAnimations;
+            ManualHighPriorityChk.IsChecked = highPriority;
+            ManualClearMemoryChk.IsChecked = true;
+            return await ApplyPerformanceSelectionsAsync();
+        }
+
+        private async Task<string> ApplyNetworkPresetAsync()
+        {
+            ManualFlushDnsChk.IsChecked = true;
+            ManualDisableDeliveryOptChk.IsChecked = true;
+            return await ApplyGamingNetworkSelectionsAsync();
+        }
+
+        private async void QuickSafeGaming_Click(object sender, RoutedEventArgs e) => await ApplyQuickSafeGamingAsync();
+        private async void QuickCompetitiveGaming_Click(object sender, RoutedEventArgs e) => await ApplyQuickCompetitiveGamingAsync();
+        private async void QuickStreamingGaming_Click(object sender, RoutedEventArgs e) => await ApplyQuickStreamingGamingAsync();
+
+        private async Task ApplyManualGamingCoreAsync()
+        {
+            var parts = new List<string>
+            {
+                await ApplyProcessTargetsAsync(GetManualProcessTargets(), "Manual Process Control"),
+                await ApplyOverlayTargetsAsync(),
+                await ApplyPerformanceSelectionsAsync(),
+                await ApplyGamingNetworkSelectionsAsync()
+            };
+
+            ShowActionStatus(ActionState.Success, "Manual Custom Mode", "Selected gaming tweaks applied.", string.Join(Environment.NewLine, parts.Where(x => !string.IsNullOrWhiteSpace(x))));
+        }
+
+        private async void ApplyManualGaming_Click(object sender, RoutedEventArgs e)
+        {
+            await ApplyManualGamingCoreAsync();
+        }
+
+        private async void ApplyProcessControl_Click(object sender, RoutedEventArgs e)
+        {
+            await ApplyProcessTargetsAsync(GetManualProcessTargets(), "Process & App Control");
+        }
+
+        private async void ApplyOverlayControl_Click(object sender, RoutedEventArgs e)
+        {
+            await ApplyOverlayTargetsAsync();
+        }
+
+        private async void ApplyGamingNetwork_Click(object sender, RoutedEventArgs e)
+        {
+            var summary = await ApplyGamingNetworkSelectionsAsync();
+            ShowActionStatus(ActionState.Success, "Network Optimization", "Gaming network actions applied.", summary);
+        }
+
+        private async void ApplyGameUpdateControl_Click(object sender, RoutedEventArgs e)
+        {
+            var notes = new List<string>();
+            var updateResult = await SafeApiCall(() => _backendClient.ApplyTweakAsync("disable_updates"));
+            if (updateResult != null)
+            {
+                notes.Add("Windows Update pause tweak requested");
+            }
+
+            var processOutput = await ApplyProcessTargetsAsync(
+                new[] { "OneDrive", "Microsoft.Photos", "WinStore.App", "GamingServices" }.Where(x => !IsWhitelistedProcess(x)),
+                "Update Control");
+            notes.Add(processOutput);
+            notes.Add("Microsoft Store updates and launcher/cloud sync may still require manual review in Windows settings.");
+
+            ShowActionStatus(ActionState.Warning, "Update Control", "Temporary game-time update control applied.", string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x))));
+        }
+
+        private void AddWhitelist_Click(object sender, RoutedEventArgs e)
+        {
+            var value = NormalizeWhitelistEntry(WhitelistInput.Text);
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                ShowActionStatus(ActionState.Warning, "Whitelist Manager", "Masukkan nama proses/app terlebih dulu.");
+                return;
+            }
+
+            if (!_gamingWhitelist.Contains(value))
+            {
+                _gamingWhitelist.Add(value);
+                SaveGamingWhitelist();
+                RefreshGamingWhitelistView();
+            }
+
+            WhitelistInput.Clear();
+            ShowActionStatus(ActionState.Success, "Whitelist Manager", $"{value} ditambahkan ke whitelist.");
+        }
+
+        private void RemoveWhitelist_Click(object sender, RoutedEventArgs e)
+        {
+            var value = NormalizeWhitelistEntry(WhitelistInput.Text);
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                ShowActionStatus(ActionState.Warning, "Whitelist Manager", "Masukkan nama proses/app yang ingin dihapus.");
+                return;
+            }
+
+            _gamingWhitelist.RemoveAll(x => string.Equals(x, value, StringComparison.OrdinalIgnoreCase));
+            SaveGamingWhitelist();
+            RefreshGamingWhitelistView();
+            WhitelistInput.Clear();
+            ShowActionStatus(ActionState.Success, "Whitelist Manager", $"{value} dihapus dari whitelist.");
+        }
+
+        private void ResetWhitelist_Click(object sender, RoutedEventArgs e)
+        {
+            _gamingWhitelist = _defaultGamingWhitelist.ToList();
+            SaveGamingWhitelist();
+            RefreshGamingWhitelistView();
+            ShowActionStatus(ActionState.Success, "Whitelist Manager", "Whitelist dikembalikan ke default gaming-safe list.");
+        }
+
+        private void BrowseGame_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "Select Game Executable",
+                Filter = "Executable (*.exe)|*.exe|All files (*.*)|*.*"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                GameLaunchPathInput.Text = dialog.FileName;
+                ShowActionStatus(ActionState.Info, "Launch Game With Boost", "Game executable selected.", dialog.FileName);
+            }
+        }
+
+        private async void LaunchGameWithBoost_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(GameLaunchPathInput.Text) || !File.Exists(GameLaunchPathInput.Text))
+            {
+                ShowActionStatus(ActionState.Warning, "Launch Game With Boost", "Pilih file game .exe terlebih dulu.");
+                return;
+            }
+
+            var selectedMode = (GameLaunchModeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Quick Safe Gaming";
+            switch (selectedMode)
+            {
+                case "Quick Competitive Gaming":
+                    await ApplyQuickCompetitiveGamingAsync();
+                    break;
+                case "Quick Streaming Gaming":
+                    await ApplyQuickStreamingGamingAsync();
+                    break;
+                case "Manual Custom Mode":
+                    await ApplyManualGamingCoreAsync();
+                    break;
+                default:
+                    await ApplyQuickSafeGamingAsync();
+                    break;
+            }
+
+            try
+            {
+                Process.Start(new ProcessStartInfo(GameLaunchPathInput.Text) { UseShellExecute = true });
+                ShowActionStatus(ActionState.Success, "Launch Game With Boost", "Boost applied and game launched successfully.", GameLaunchPathInput.Text);
+            }
+            catch (Exception ex)
+            {
+                ShowActionStatus(ActionState.Error, "Launch Game With Boost", "Boost applied but game could not be launched.", ex.Message);
+            }
+        }
+
+        private async void RestoreNormalMode_Click(object sender, RoutedEventArgs e)
+        {
+            var notes = new List<string>();
+            var (powerSuccess, powerOutput) = await ExecutePowerShellScriptAsync("powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e");
+            notes.Add(powerSuccess ? "Balanced power plan restored" : powerOutput);
+
+            var (visualSuccess, visualOutput) = await ExecutePowerShellScriptAsync(
+                "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize\" /v EnableTransparency /t REG_DWORD /d 1 /f; " +
+                "reg add \"HKCU\\Control Panel\\Desktop\\WindowMetrics\" /v MinAnimate /t REG_SZ /d 1 /f; " +
+                "reg add \"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VisualEffects\" /v VisualFXSetting /t REG_DWORD /d 1 /f");
+            notes.Add(visualSuccess ? "Transparency and default visual effects restored" : visualOutput);
+
+            var flush = await SafeApiCall(() => _backendClient.FlushDnsAsync());
+            if (flush != null)
+            {
+                notes.Add("DNS cache refreshed");
+            }
+
+            notes.Add("Apps and services that were manually closed may need to be reopened manually.");
+            ShowActionStatus(ActionState.Success, "Restore Normal Mode", "Normal Windows mode restored as much as possible.", string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x))));
+        }
+
+        private async void BackFromGaming_Click(object sender, RoutedEventArgs e)
+        {
+            await ShowPage("Dashboard", DashboardBtn);
         }
 
         #endregion
@@ -1223,30 +2240,33 @@ namespace HyperBoostX
                 recommendationStatus);
         }
 
-        private string FormatStartupItems(dynamic startupData)
+        private string FormatStartupItems(IEnumerable<StartupEntry> items)
         {
             try
             {
                 var output = new System.Text.StringBuilder();
-                var items = startupData["items"] as Newtonsoft.Json.Linq.JArray;
+                var startupItems = items?.ToList() ?? new List<StartupEntry>();
 
-                if (items == null || items.Count == 0)
+                if (startupItems.Count == 0)
                 {
                     return "No startup items found.";
                 }
 
-                output.AppendLine($"Total Startup Items: {items.Count}");
+                output.AppendLine($"Total Startup Items: {startupItems.Count}");
                 output.AppendLine();
+                output.AppendLine("Name                 | Status   | Impact  | Source         | Type");
+                output.AppendLine("-----------------------------------------------------------------------");
 
-                foreach (var item in items)
+                foreach (var item in startupItems)
                 {
-                    var enabled = item.Value<bool?>("enabled") == true ? "Enabled" : "Disabled";
-                    output.AppendLine($"{item["name"]}");
-                    output.AppendLine($"  State: {enabled}");
-                    output.AppendLine($"  Impact: {item["impact"]}");
-                    output.AppendLine();
+                    var status = item.Enabled ? "Enabled" : "Disabled";
+                    output.AppendLine(
+                        $"{item.Name,-20} | {status,-8} | {item.Impact,-7} | {item.Source,-14} | {item.Type}");
+                    output.AppendLine(
+                        $"  Score {item.ImpactScore,-3} | RAM {item.EstimatedMemoryMb,6:0.#} MB | Load {item.EstimatedLoadTimeSeconds,4:0.#} s | Action: {item.RecommendedAction}");
                 }
 
+                output.AppendLine();
                 return output.ToString();
             }
             catch (Exception ex)
@@ -1348,13 +2368,14 @@ namespace HyperBoostX
         {
             try
             {
+                var encoded = Convert.ToBase64String(Encoding.Unicode.GetBytes(script));
                 var startInfo = new ProcessStartInfo("powershell.exe")
                 {
                     UseShellExecute = false,
                     CreateNoWindow = true,
                     RedirectStandardError = true,
                     RedirectStandardOutput = true,
-                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{script}\""
+                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -EncodedCommand {encoded}"
                 };
 
                 using var process = Process.Start(startInfo);
