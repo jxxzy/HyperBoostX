@@ -1,0 +1,210 @@
+﻿<Window x:Class="HyperBoostX.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="HyperBoost X - WPF Client"
+        Height="900"
+        Width="1400"
+        Background="#1e1e1e"
+        Foreground="#ffffff"
+        ResizeMode="CanResize"
+        WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded"
+        Closed="Window_Closed">
+
+    <Window.Resources>
+        <Style x:Key="NavButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#cccccc"/>
+            <Setter Property="BorderThickness" Value="3,0,0,0"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Padding" Value="15,12"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#3c3c3c"/>
+                    <Setter Property="Foreground" Value="#ffffff"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.55"/>
+                    <Setter Property="Cursor" Value="Arrow"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#2196F3"/>
+            <Setter Property="Foreground" Value="#ffffff"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="3"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1e88e5"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="240"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Background="#2c2c2c" BorderThickness="0,0,1,0" BorderBrush="#3c3c3c">
+            <DockPanel LastChildFill="True">
+                <Border DockPanel.Dock="Top" BorderThickness="0,0,0,1" BorderBrush="#3c3c3c" Padding="15,20">
+                    <TextBlock Text="HyperBoost X"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="#2196F3"
+                               TextAlignment="Center"/>
+                </Border>
+
+                <StackPanel DockPanel.Dock="Bottom">
+                    <Separator Background="#3c3c3c" Margin="0,10"/>
+                    <Border Padding="15,10,15,5">
+                        <TextBlock Text="Backend Status" FontSize="11" Foreground="#99ffffff"/>
+                    </Border>
+                    <Border Background="#2196F3" CornerRadius="3" Margin="15,5,15,10" Padding="8" Name="BackendHealthIndicator">
+                        <TextBlock Text="Connecting..." Foreground="#ffffff" FontSize="11"/>
+                    </Border>
+                    <Button Name="ExitBtn" Content="0. Exit" Click="ExitBtn_Click" Style="{StaticResource NavButtonStyle}" Margin="0,0,0,10"/>
+                </StackPanel>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="0,10,0,0">
+                        <Border Padding="15,8,15,4"><TextBlock Text="🔥 QUICK ACCESS" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Button Name="OneClickBoostBtn" Content="1. One Click Boost" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="GamingModeBtn" Content="2. Gaming Mode" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="SmartRecommendationBtn" Content="3. Smart Recommendation" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}" IsEnabled="False" ToolTip="Coming soon"/>
+
+                        <Border Padding="15,12,15,4"><TextBlock Text="📊 CORE SYSTEM" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Button Name="DashboardBtn" Content="4. Dashboard" Click="DashboardBtn_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="PerformanceBtn" Content="5. Performance" Click="PerformanceBtn_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="StartupBtn" Content="6. Startup" Click="StartupBtn_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="BackgroundAppsBtn" Content="7. Background Apps" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="CleanupBtn" Content="8. Cleanup" Click="CleanupBtn_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="StorageBtn" Content="9. Storage" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}" IsEnabled="False" ToolTip="Coming soon"/>
+
+                        <Border Padding="15,12,15,4"><TextBlock Text="🎮 GAMING &amp; CREATOR" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Button Name="GamingBoosterBtn" Content="10. Gaming Booster" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="StreamingModeBtn" Content="11. Streaming Mode" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="CreatorModeBtn" Content="12. Creator Mode" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+
+                        <Border Padding="15,12,15,4"><TextBlock Text="🌐 NETWORK" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Button Name="NetworkBoosterBtn" Content="13. Network Booster" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="DnsLatencyToolsBtn" Content="14. DNS &amp; Latency Tools" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+
+                        <Border Padding="15,12,15,4"><TextBlock Text="🔒 PRIVACY &amp; SECURITY" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Button Name="PrivacyCenterBtn" Content="15. Privacy Center" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="SecurityHealthBtn" Content="16. Security &amp; Health" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}" IsEnabled="False" ToolTip="Coming soon"/>
+
+                        <Border Padding="15,12,15,4"><TextBlock Text="📦 APP MANAGEMENT (WINUTIL)" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Button Name="AppsManagerBtn" Content="17. Apps Manager" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}" IsEnabled="False" ToolTip="Coming soon"/>
+
+                        <Border Padding="15,12,15,4"><TextBlock Text="⚙️ SYSTEM CONFIG (WINUTIL)" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Button Name="TweaksCenterBtn" Content="18. Tweaks Center" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="WindowsFeaturesBtn" Content="19. Windows Features" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}" IsEnabled="False" ToolTip="Coming soon"/>
+                        <Button Name="UpdateControlBtn" Content="20. Update Control" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}" IsEnabled="False" ToolTip="Coming soon"/>
+
+                        <Border Padding="15,12,15,4"><TextBlock Text="🛠️ SYSTEM TOOLS" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Button Name="RepairToolsBtn" Content="21. Repair Tools" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="DriverUpdateCenterBtn" Content="22. Driver &amp; Update Center" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="AppUninstallerBtn" Content="23. App Uninstaller" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}" IsEnabled="False" ToolTip="Coming soon"/>
+
+                        <Border Padding="15,12,15,4"><TextBlock Text="⚙️ ADVANCED SYSTEM" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Button Name="AdvancedTweaksBtn" Content="24. Advanced Tweaks" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="WindowsServicesBtn" Content="25. Windows Services" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}" IsEnabled="False" ToolTip="Coming soon"/>
+                        <Button Name="PowerOptimizationBtn" Content="26. Power Optimization" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}" IsEnabled="False" ToolTip="Coming soon"/>
+                        <Button Name="VisualEffectsBtn" Content="27. Visual Effects" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}" IsEnabled="False" ToolTip="Coming soon"/>
+
+                        <Border Padding="15,12,15,4"><TextBlock Text="♻️ BACKUP &amp; RESTORE" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Button Name="RestoreBackupBtn" Content="28. Restore &amp; Backup" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="RestorePointManagerBtn" Content="29. Restore Point Manager" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+
+                        <Border Padding="15,12,15,4"><TextBlock Text="🤖 AUTOMATION" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Button Name="ScheduledAutomationBtn" Content="30. Scheduled Automation" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}" IsEnabled="False" ToolTip="Coming soon"/>
+
+                        <Border Padding="15,12,15,4"><TextBlock Text="🧰 EXTRA TOOLS" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Button Name="UtilitiesToolsBtn" Content="31. Utilities Tools" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}" IsEnabled="False" ToolTip="Coming soon"/>
+
+                        <Border Padding="15,12,15,4"><TextBlock Text="⚙️ SETTINGS" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Button Name="SettingsBtn" Content="32. App Settings" Click="SettingsBtn_Click" Style="{StaticResource NavButtonStyle}"/>
+
+                        <Border Padding="15,12,15,4"><TextBlock Text="ℹ️ ABOUT" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Button Name="AboutAppBtn" Content="33. About App" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}" Margin="0,0,0,12"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+
+        <Grid Grid.Column="1" Background="#1e1e1e">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Background="#2c2c2c" BorderThickness="0,0,0,1" BorderBrush="#3c3c3c" Padding="20">
+                <TextBlock Name="PageTitle" Text="Dashboard" FontSize="24" FontWeight="Bold" Foreground="#2196F3"/>
+            </Border>
+
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20">
+                <StackPanel Name="ContentPanel">
+                    <StackPanel Name="DashboardContent" Visibility="Visible">
+                        <TextBlock Text="System Health Overview" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Background="#2c2c2c" CornerRadius="5" Padding="20" Margin="0,0,10,0" BorderThickness="1" BorderBrush="#3c3c3c"><StackPanel><TextBlock Text="CPU Usage" Foreground="#99ffffff" FontSize="12" Margin="0,0,0,10"/><TextBlock Name="CpuText" Text="-- %" FontSize="28" Foreground="#4CAF50" FontWeight="Bold"/><ProgressBar Name="CpuBar" Height="4" Background="#3c3c3c" Foreground="#4CAF50" Margin="0,10,0,0"/></StackPanel></Border>
+                            <Border Grid.Column="1" Background="#2c2c2c" CornerRadius="5" Padding="20" Margin="10,0,10,0" BorderThickness="1" BorderBrush="#3c3c3c"><StackPanel><TextBlock Text="Memory Usage" Foreground="#99ffffff" FontSize="12" Margin="0,0,0,10"/><TextBlock Name="MemoryText" Text="-- %" FontSize="28" Foreground="#4CAF50" FontWeight="Bold"/><ProgressBar Name="MemoryBar" Height="4" Background="#3c3c3c" Foreground="#4CAF50" Margin="0,10,0,0"/></StackPanel></Border>
+                            <Border Grid.Column="2" Background="#2c2c2c" CornerRadius="5" Padding="20" Margin="10,0,0,0" BorderThickness="1" BorderBrush="#3c3c3c"><StackPanel><TextBlock Text="Disk Usage" Foreground="#99ffffff" FontSize="12" Margin="0,0,0,10"/><TextBlock Name="DiskText" Text="-- %" FontSize="28" Foreground="#4CAF50" FontWeight="Bold"/><ProgressBar Name="DiskBar" Height="4" Background="#3c3c3c" Foreground="#4CAF50" Margin="0,10,0,0"/></StackPanel></Border>
+                        </Grid>
+                        <Separator Background="#3c3c3c" Margin="0,20"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Content="Apply FPS Mode" Click="ApplyFpsMode_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,10,0"/>
+                            <Button Grid.Column="1" Content="One-Click Optimize" Click="Optimize_Click" Style="{StaticResource ActionButtonStyle}" Margin="10,0,0,0"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Name="SystemContent" Visibility="Collapsed"><TextBlock Text="System Information" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/><Border Background="#2c2c2c" CornerRadius="5" BorderThickness="1" BorderBrush="#3c3c3c" Padding="15"><TextBlock Name="SystemInfoText" Text="Loading..." Foreground="#cccccc" FontSize="12" TextWrapping="Wrap" FontFamily="Courier New" LineHeight="18"/></Border><Button Content="Refresh" Click="RefreshSystemInfo_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,15,0,0"/></StackPanel>
+                    <StackPanel Name="BoosterContent" Visibility="Collapsed"><TextBlock Text="Booster Profiles" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/><StackPanel Name="BoosterProfilesPanel"/></StackPanel>
+                    <StackPanel Name="DriversContent" Visibility="Collapsed"><TextBlock Text="Installed Drivers" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/><Border Background="#2c2c2c" CornerRadius="5" BorderThickness="1" BorderBrush="#3c3c3c" Padding="15" Height="300"><TextBlock Name="DriversText" Text="Loading..." Foreground="#cccccc" FontSize="11" TextWrapping="Wrap" FontFamily="Courier New" LineHeight="16" VerticalAlignment="Top"/></Border><Grid Margin="0,15,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Button Grid.Column="0" Content="Refresh" Click="RefreshDrivers_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,10,0"/><Button Grid.Column="1" Content="Check for Updates" Click="CheckDriverUpdates_Click" Style="{StaticResource ActionButtonStyle}" Margin="10,0,0,0"/></Grid></StackPanel>
+                    <StackPanel Name="RepairContent" Visibility="Collapsed"><TextBlock Text="System Repair Tools" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><StackPanel Grid.Column="0"><Button Content="Run SFC Scan" Click="RunSfc_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,10,0"/><TextBlock Text="System File Checker" Foreground="#99ffffff" FontSize="11" Margin="0,5,0,0"/></StackPanel><StackPanel Grid.Column="1"><Button Content="Run DISM Repair" Click="RunDism_Click" Style="{StaticResource ActionButtonStyle}" Margin="10,0,0,0"/><TextBlock Text="DISM Image Repair" Foreground="#99ffffff" FontSize="11" Margin="0,5,0,0"/></StackPanel></Grid><Separator Background="#3c3c3c" Margin="0,15"/><Button Content="Cleanup Temporary Files" Click="Cleanup_Click" Style="{StaticResource ActionButtonStyle}"/></StackPanel>
+                    <StackPanel Name="TweaksContent" Visibility="Collapsed"><TextBlock Text="Windows Tweaks" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/><Border Background="#2c2c2c" CornerRadius="5" BorderThickness="1" BorderBrush="#3c3c3c" Padding="15" Height="400"><TextBlock Name="TweaksText" Text="Loading tweaks..." Foreground="#cccccc" FontSize="11" TextWrapping="Wrap" FontFamily="Courier New" LineHeight="16" VerticalAlignment="Top"/></Border><Button Content="Refresh Tweaks" Click="RefreshTweaks_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,15,0,0"/></StackPanel>
+                    <StackPanel Name="SettingsContent" Visibility="Collapsed"><TextBlock Text="Settings" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/><Border Background="#2c2c2c" CornerRadius="5" BorderThickness="1" BorderBrush="#3c3c3c" Padding="15" Margin="0,0,0,15"><StackPanel><TextBlock Text="Backend Configuration" Foreground="#2196F3" FontSize="13" FontWeight="Bold" Margin="0,0,0,15"/><TextBlock Text="Backend URL:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/><TextBox Name="BackendUrlInput" Text="http://127.0.0.1:5000" Background="#3c3c3c" Foreground="#ffffff" Padding="10" Margin="0,0,0,15" BorderThickness="1" BorderBrush="#4CAF50"/><Button Content="Update Backend URL" Click="UpdateBackendUrl_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,15"/><Button Content="Test Backend Connection" Click="TestBackend_Click" Style="{StaticResource ActionButtonStyle}"/></StackPanel></Border></StackPanel>
+                    <StackPanel Name="PerformanceContent" Visibility="Collapsed"><TextBlock Text="Performance Boost" FontSize="16" Foreground="#4CAF50" FontWeight="Bold" Margin="0,0,0,20"/><TextBlock Text="Choose optimization method:" Foreground="#cccccc" FontSize="12" Margin="0,0,0,15"/><Button Content="Optimize RAM" Click="OptimizeRAM_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Boost Gaming Mode" Click="BoostGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Auto Performance Profile" Click="AutoPerformance_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/></StackPanel>
+                    <StackPanel Name="StartupContent" Visibility="Collapsed"><TextBlock Text="Startup Manager" FontSize="16" Foreground="#ff9800" FontWeight="Bold" Margin="0,0,0,20"/><TextBlock Text="Manage startup applications to improve boot time" Foreground="#cccccc" FontSize="12" Margin="0,0,0,15"/><Border Background="#2c2c2c" CornerRadius="5" BorderThickness="1" BorderBrush="#3c3c3c" Padding="15" Margin="0,0,0,15"><TextBlock Name="StartupItemsText" Text="Loading startup items..." Foreground="#cccccc" FontSize="11" TextWrapping="Wrap" FontFamily="Courier New" LineHeight="16"/></Border><Button Content="Refresh Startup Items" Click="ViewStartup_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Enable/Disable Startup" Click="ManageStartup_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Delay Startup Apps" Click="DelayStartup_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/></StackPanel>
+                    <StackPanel Name="CleanupContent" Visibility="Collapsed"><TextBlock Text="Storage Cleaner" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/><TextBlock Text="Free up disk space safely" Foreground="#cccccc" FontSize="12" Margin="0,0,0,15"/><Button Content="Clean Temporary Files" Click="CleanTemp_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Clear Cache" Click="ClearCache_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Empty Recycle Bin" Click="EmptyRecycle_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Deep Disk Cleanup" Click="DeepCleanup_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/></StackPanel>
+                    <StackPanel Name="GamingContent" Visibility="Collapsed"><TextBlock Text="Gaming Booster" FontSize="16" Foreground="#e91e63" FontWeight="Bold" Margin="0,0,0,20"/><TextBlock Text="Optimize system for gaming performance" Foreground="#cccccc" FontSize="12" Margin="0,0,0,15"/><Button Content="One-Click Game Mode" Click="GameMode_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Disable Overlays" Click="DisableOverlays_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Free RAM Before Launch" Click="FreeRAM_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="FPS Stability Tweak" Click="FPSStability_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/></StackPanel>
+                    <StackPanel Name="NetworkContent" Visibility="Collapsed"><TextBlock Text="Network Booster" FontSize="16" Foreground="#00bcd4" FontWeight="Bold" Margin="0,0,0,20"/><TextBlock Text="Optimize network performance and latency" Foreground="#cccccc" FontSize="12" Margin="0,0,0,15"/><Border Background="#2c2c2c" CornerRadius="5" BorderThickness="1" BorderBrush="#3c3c3c" Padding="15" Margin="0,0,0,15"><TextBlock Name="NetworkDiagnosticsText" Text="Loading network diagnostics..." Foreground="#cccccc" FontSize="11" TextWrapping="Wrap" FontFamily="Courier New" LineHeight="16"/></Border><Button Content="Run DNS Test" Click="RunDnsTest_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Flush DNS" Click="FlushDNS_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Reset Network" Click="ResetNetwork_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Optimize TCP Settings" Click="OptimizeTCP_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Ping Stabilizer" Click="PingStabilizer_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/></StackPanel>
+                    <StackPanel Name="BackgroundAppsContent" Visibility="Collapsed"><TextBlock Text="Background Apps" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/><TextBlock Text="Top running processes by memory usage" Foreground="#cccccc" FontSize="12" Margin="0,0,0,15"/><Border Background="#2c2c2c" CornerRadius="5" BorderThickness="1" BorderBrush="#3c3c3c" Padding="15" Margin="0,0,0,15"><TextBlock Name="BackgroundAppsText" Text="Loading background processes..." Foreground="#cccccc" FontSize="11" TextWrapping="Wrap" FontFamily="Courier New" LineHeight="16"/></Border><Button Content="Refresh Process List" Click="RefreshBackgroundApps_Click" Style="{StaticResource ActionButtonStyle}"/></StackPanel>
+                    <StackPanel Name="PrivacyContent" Visibility="Collapsed"><TextBlock Text="Privacy Tweaks" FontSize="16" Foreground="#9c27b0" FontWeight="Bold" Margin="0,0,0,20"/><TextBlock Text="Control telemetry and privacy settings" Foreground="#cccccc" FontSize="12" Margin="0,0,0,15"/><Button Content="Disable Telemetry" Click="DisableTelemetry_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Disable Ads &amp; Suggestions" Click="DisableAds_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Activity Tracking Control" Click="ActivityTracking_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Privacy Settings Manager" Click="PrivacyManager_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/></StackPanel>
+                    <StackPanel Name="AdvancedContent" Visibility="Collapsed"><TextBlock Text="Advanced Tweaks" FontSize="16" Foreground="#ff5722" FontWeight="Bold" Margin="0,0,0,20"/><TextBlock Text="Advanced system tweaks for experts" Foreground="#cccccc" FontSize="12" Margin="0,0,0,15"/><Button Content="Context Menu Editor" Click="ContextMenu_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Explorer Tweaks" Click="ExplorerTweaks_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Taskbar Tweaks" Click="TaskbarTweaks_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Dark Mode Tweaks" Click="DarkMode_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/></StackPanel>
+                    <StackPanel Name="RestoreContent" Visibility="Collapsed"><TextBlock Text="Restore &amp; Backup" FontSize="16" Foreground="#4caf50" FontWeight="Bold" Margin="0,0,0,20"/><TextBlock Text="Restore system settings and manage backups" Foreground="#cccccc" FontSize="12" Margin="0,0,0,15"/><Button Content="Create Restore Point" Click="CreateRestore_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Backup Tweak Settings" Click="BackupSettings_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Restore Default Windows" Click="RestoreDefault_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/><Button Content="Undo Latest Optimization" Click="UndoOptimization_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,0,10"/></StackPanel>
+                    <StackPanel Name="PlaceholderContent" Visibility="Collapsed"><TextBlock Name="PlaceholderTitleText" Text="Feature Hub" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/><Border Background="#2c2c2c" CornerRadius="5" BorderThickness="1" BorderBrush="#3c3c3c" Padding="18" Margin="0,0,0,15"><StackPanel><TextBlock Name="PlaceholderDescriptionText" Text="This section is ready in the navigation and can be wired to backend actions next." Foreground="#cccccc" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/><TextBlock Name="PlaceholderStatusText" Text="Status: navigation available" Foreground="#99ffffff" FontSize="11" TextWrapping="Wrap"/></StackPanel></Border></StackPanel>
+                    <StackPanel Name="AboutContent" Visibility="Collapsed"><TextBlock Text="About App" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/><Border Background="#2c2c2c" CornerRadius="5" BorderThickness="1" BorderBrush="#3c3c3c" Padding="15"><StackPanel><TextBlock Text="HyperBoost X - C# WPF Client" Foreground="#cccccc" FontSize="12" Margin="0,0,0,5"/><TextBlock Text="Version: 1.0.0" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/><TextBlock Text="Communication: REST API (JSON) over HTTP" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/><TextBlock Text="Backend: Python Flask 2.3.0" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/><TextBlock Text="Menu Structure: 33 sections plus Exit" Foreground="#99ffffff" FontSize="11"/></StackPanel></Border></StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Window>

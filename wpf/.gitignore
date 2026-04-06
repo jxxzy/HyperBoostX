@@ -1,0 +1,51 @@
+# Ignore operating system files
+.DS_Store
+Thumbs.db
+.AppleDouble
+.LSOverride
+
+# Ignore build outputs
+bin/
+obj/
+.vs/
+.vscode/
+
+# Ignore user-specific files
+*.user
+*.suo
+*.vspscc
+.vs/
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+
+# Ignore NuGet packages
+.nuget/
+packages/
+*.nupkg
+*.snupkg
+
+# Ignore IDE files
+.idea/
+*.swp
+*.swo
+
+# Ignore temporary files
+*.log
+*.tmp
+*.bak
+*~
+
+# Ignore local configuration
+local.settings.json
+
+# Ignore compiled binaries (but keep if needed for distribution)
+*.pdb
+*.ilk
+
+# Ignore publish profiles
+PublishProfiles/
+
+# Ignore package lock file variations
+packages.lock.json

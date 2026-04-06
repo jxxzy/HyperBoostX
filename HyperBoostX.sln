@@ -1,0 +1,38 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "launcher", "launcher", "{740C5202-8AD2-6D86-0CA9-F95B1A2D697C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wpf", "wpf", "{2481DD90-4409-10B6-4FAC-38EB559C7BC3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HyperBoostLauncher", "launcher\HyperBoostLauncher.csproj", "{40D0568B-7407-F90A-5265-B3EBBEB7407C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HyperBoostX", "wpf\HyperBoostX.csproj", "{8923ABAE-E974-7678-F410-DBB4E2E3EB21}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{40D0568B-7407-F90A-5265-B3EBBEB7407C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40D0568B-7407-F90A-5265-B3EBBEB7407C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40D0568B-7407-F90A-5265-B3EBBEB7407C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40D0568B-7407-F90A-5265-B3EBBEB7407C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8923ABAE-E974-7678-F410-DBB4E2E3EB21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8923ABAE-E974-7678-F410-DBB4E2E3EB21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8923ABAE-E974-7678-F410-DBB4E2E3EB21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8923ABAE-E974-7678-F410-DBB4E2E3EB21}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{40D0568B-7407-F90A-5265-B3EBBEB7407C} = {740C5202-8AD2-6D86-0CA9-F95B1A2D697C}
+		{8923ABAE-E974-7678-F410-DBB4E2E3EB21} = {2481DD90-4409-10B6-4FAC-38EB559C7BC3}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BB81534A-204D-4975-AF5D-7745B52BEA0B}
+	EndGlobalSection
+EndGlobal

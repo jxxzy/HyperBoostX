@@ -1,0 +1,73 @@
+@echo off
+REM HyperBoost X - WPF Client Launcher
+REM This script builds and runs the C# WPF client
+
+echo.
+echo ╔════════════════════════════════════════════╗
+echo ║     HyperBoost X - WPF Client Launcher    ║
+echo ╚════════════════════════════════════════════╝
+echo.
+
+REM Check if .NET SDK is installed
+dotnet --version >nul 2>&1
+if errorlevel 1 (
+    echo ERROR: .NET SDK is not installed or not in PATH
+    echo Please install .NET 6.0 SDK from https://dotnet.microsoft.com/download/dotnet/6.0
+    pause
+    exit /b 1
+)
+
+REM Navigate to wpf directory
+cd /d "%~dp0wpf"
+if not exist "HyperBoostX.csproj" (
+    echo ERROR: HyperBoostX.csproj not found
+    echo Make sure you're running this from the HyperBoost X root directory
+    pause
+    exit /b 1
+)
+
+REM Show .NET version
+echo .NET Version:
+dotnet --version
+echo.
+
+REM Check if backend is running
+echo Checking backend server status...
+curl -s http://127.0.0.1:5000/api/health >nul 2>&1
+if errorlevel 1 (
+    echo WARNING: Backend server is not running!
+    echo Please start the backend first using: start_backend.bat
+    echo.
+)
+
+REM Restore NuGet packages
+echo Restoring NuGet packages...
+dotnet restore --quiet
+if errorlevel 1 (
+    echo ERROR: Failed to restore packages
+    echo Try running: dotnet nuget locals all --clear
+    pause
+    exit /b 1
+)
+
+REM Build project
+echo Building WPF client...
+dotnet build -c Debug --quiet
+if errorlevel 1 (
+    echo ERROR: Build failed
+    echo Try: dotnet clean && dotnet build
+    pause
+    exit /b 1
+)
+
+REM Run application
+echo.
+echo ✓ Launching HyperBoost X WPF Client...
+echo   Backend: http://127.0.0.1:5000
+echo.
+dotnet run --no-build
+
+REM Only pause if not called from master launcher
+if "%~1" neq "background" (
+    pause
+)

@@ -1,0 +1,47 @@
+{
+  "profiles": [
+    {
+      "id": "gaming",
+      "name": "Gaming Mode",
+      "description": "Optimized for maximum FPS and low latency",
+      "settings": {
+        "disable_background_apps": true,
+        "high_priority_cpu": true,
+        "disable_visual_effects": true,
+        "increase_timer_resolution": true,
+        "disable_xbox_overlay": true
+      }
+    },
+    {
+      "id": "streaming",
+      "name": "Streaming Mode",
+      "description": "Balanced for streaming with stable performance",
+      "settings": {
+        "optimize_gpu_performance": true,
+        "stable_frame_times": true,
+        "reduce_network_latency": true,
+        "background_recording": true
+      }
+    },
+    {
+      "id": "productivity",
+      "name": "Productivity Mode",
+      "description": "Optimized for work and multitasking",
+      "settings": {
+        "balanced_performance": true,
+        "enable_indexing": true,
+        "normal_visual_effects": true
+      }
+    },
+    {
+      "id": "battery",
+      "name": "Battery Saver Mode",
+      "description": "Extends battery life on laptops",
+      "settings": {
+        "reduce_cpu_frequency": true,
+        "dim_display": true,
+        "disable_background_sync": true
+      }
+    }
+  ]
+}
