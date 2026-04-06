@@ -1,0 +1,15 @@
+HyperBoostX v1.0.1
+
+Highlights
+- Improved WPF UI/UX with clearer page headers and inline action status cards.
+- Connected more frontend actions directly to backend optimizations and tweaks.
+- Refined backend/launcher integration so app feedback feels more consistent.
+- Updated About App content and presentation.
+
+Fixes
+- Better feedback for booster, tweak, repair, cleanup, and network actions.
+- Clearer backend connection status in the main window.
+- More user-friendly external Windows tool launching flow.
+
+Assets
+- HyperBoostXInstaller.exe

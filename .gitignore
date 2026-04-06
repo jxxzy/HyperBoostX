@@ -1,5 +1,7 @@
 app/venv/
 app/temp_pycache/
+app/build/
+app/hyperboost_backend.spec
 app/__pycache__/
 app/api/__pycache__/
 app/core/__pycache__/
