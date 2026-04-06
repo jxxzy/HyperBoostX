@@ -1,16 +1,27 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using HyperBoostX.Services;
+using Newtonsoft.Json;
+using System.Windows.Media;
 
 
 namespace HyperBoostX
 {
     public partial class MainWindow : Window
     {
+        private enum ActionState
+        {
+            Info,
+            Success,
+            Warning,
+            Error
+        }
+
         private HyperBoostBackendClient _backendClient;
         private string _currentBackendUrl = "http://127.0.0.1:5000";
         private Button _selectedNavButton;
@@ -94,75 +105,79 @@ namespace HyperBoostX
             switch (pageName)
             {
                 case "Dashboard":
-                    PageTitle.Text = "Dashboard";
+                    SetPageHeader("Dashboard", "Monitor live system health and launch the fastest actions from one place.");
                     DashboardContent.Visibility = Visibility.Visible;
                     await RefreshDashboard();
                     _dashboardTimer.Start();
                     break;
                 case "Performance":
-                    PageTitle.Text = "Performance Boost";
+                    SetPageHeader("Performance Boost", "Use guided actions to reduce overhead and apply the right optimization profile.");
                     PerformanceContent.Visibility = Visibility.Visible;
                     break;
                 case "Startup":
-                    PageTitle.Text = "Startup Manager";
+                    SetPageHeader("Startup Manager", "Review boot impact and jump straight to startup controls when your PC feels slow to open.");
                     StartupContent.Visibility = Visibility.Visible;
                     await RefreshStartupItems();
                     break;
                 case "Cleanup":
-                    PageTitle.Text = "Storage Cleaner";
+                    SetPageHeader("Storage Cleaner", "Free temporary files and run cleanup tools without guessing which step to use first.");
+                    CleanupContent.Visibility = Visibility.Visible;
+                    break;
+                case "Storage":
+                    SetPageHeader("Storage", "Check storage health and jump into Windows storage controls from the same workspace.");
                     CleanupContent.Visibility = Visibility.Visible;
                     break;
                 case "Gaming":
-                    PageTitle.Text = "Gaming Booster";
+                    SetPageHeader("Gaming Booster", "Prepare the system for lower latency and fewer interruptions before launching games.");
                     GamingContent.Visibility = Visibility.Visible;
                     break;
                 case "Network":
-                    PageTitle.Text = "Network Booster";
+                    SetPageHeader("Network Booster", "Run diagnostics first, then apply DNS and TCP actions with clear feedback.");
                     NetworkContent.Visibility = Visibility.Visible;
                     await RefreshNetworkDiagnostics();
                     break;
                 case "BackgroundApps":
-                    PageTitle.Text = "Background Apps";
+                    SetPageHeader("Background Apps", "See which processes are eating resources so the next cleanup decision is obvious.");
                     BackgroundAppsContent.Visibility = Visibility.Visible;
                     await RefreshBackgroundApps();
                     break;
                 case "Privacy":
-                    PageTitle.Text = "Privacy Tweaks";
+                    SetPageHeader("Privacy Center", "Reduce telemetry and open the right Windows privacy pages without hunting through settings.");
                     PrivacyContent.Visibility = Visibility.Visible;
                     break;
                 case "Repair":
-                    PageTitle.Text = "Repair Tools";
+                    SetPageHeader("Repair Tools", "Start built-in Windows repair actions and keep the result summary inside the app.");
                     RepairContent.Visibility = Visibility.Visible;
                     break;
                 case "Advanced":
-                    PageTitle.Text = "Advanced Tweaks";
+                    SetPageHeader("Advanced Tweaks", "Power-user controls with clear jumps into the Windows tools they depend on.");
                     AdvancedContent.Visibility = Visibility.Visible;
                     break;
                 case "Restore":
-                    PageTitle.Text = "Restore & Backup";
+                    SetPageHeader("Restore & Backup", "Create recovery checkpoints and keep simple snapshots before making bigger changes.");
                     RestoreContent.Visibility = Visibility.Visible;
                     break;
                 case "Settings":
-                    PageTitle.Text = "Settings";
+                    SetPageHeader("Settings", "Control backend connectivity and app behavior from one place.");
                     SettingsContent.Visibility = Visibility.Visible;
                     break;
                 case "Tweaks":
-                    PageTitle.Text = "Tweaks Center";
+                    SetPageHeader("Tweaks Center", "Browse available tweaks with clearer context before applying system-level changes.");
                     TweaksContent.Visibility = Visibility.Visible;
                     await RefreshTweaks();
                     break;
                 case "Drivers":
-                    PageTitle.Text = "Driver & Update Center";
+                    SetPageHeader("Driver & Update Center", "Inspect current driver inventory and start update checks when hardware acts up.");
                     DriversContent.Visibility = Visibility.Visible;
                     await RefreshDrivers();
                     break;
                 case "Booster":
-                    PageTitle.Text = "Booster Profiles";
+                    SetPageHeader("Booster Profiles", "Apply ready-made profiles for gaming, streaming, productivity, and power-saving scenarios.");
                     BoosterContent.Visibility = Visibility.Visible;
                     await LoadBoosterProfiles();
                     break;
                 case "About":
-                    PageTitle.Text = "About App";
+                    SetPageHeader("About App", "Project information, runtime overview, and what this build is wired to do.");
                     AboutContent.Visibility = Visibility.Visible;
                     break;
             }
@@ -170,14 +185,49 @@ namespace HyperBoostX
 
         private Task ShowPlaceholderPage(Button navButton, string title, string description, string status)
         {
+            _activePage = title;
             SelectNavButton(navButton);
             HideAllPages();
-            PageTitle.Text = title;
+            SetPageHeader(title, description);
             PlaceholderTitleText.Text = title;
             PlaceholderDescriptionText.Text = description;
             PlaceholderStatusText.Text = status;
             PlaceholderContent.Visibility = Visibility.Visible;
             return Task.CompletedTask;
+        }
+
+        private void SetPageHeader(string title, string subtitle)
+        {
+            PageTitle.Text = title;
+            PageSubtitle.Text = subtitle;
+        }
+
+        private void ShowActionStatus(ActionState state, string title, string message, string meta = null)
+        {
+            Brush accentBrush = (Brush)FindResource("AccentBrush");
+            Brush textBrush = Brushes.White;
+
+            switch (state)
+            {
+                case ActionState.Success:
+                    accentBrush = (Brush)FindResource("SuccessBrush");
+                    break;
+                case ActionState.Warning:
+                    accentBrush = (Brush)FindResource("WarningBrush");
+                    break;
+                case ActionState.Error:
+                    accentBrush = (Brush)FindResource("ErrorBrush");
+                    break;
+            }
+
+            ActionStatusAccent.Background = accentBrush;
+            ActionStatusTitle.Text = title;
+            ActionStatusTitle.Foreground = textBrush;
+            ActionStatusText.Text = message;
+            ActionStatusMeta.Text = string.IsNullOrWhiteSpace(meta)
+                ? $"Updated {DateTime.Now:HH:mm:ss}"
+                : $"{meta}  •  {DateTime.Now:HH:mm:ss}";
+            ActionStatusCard.Visibility = Visibility.Visible;
         }
 
         private async void DashboardBtn_Click(object sender, RoutedEventArgs e) => await ShowPage("Dashboard", DashboardBtn);
@@ -201,8 +251,15 @@ namespace HyperBoostX
                     await ApplyBoosterProfileAsync("gaming", "Gaming Mode");
                     await ShowPage("Gaming", button);
                     break;
+                case nameof(SmartRecommendationBtn):
+                    await ShowSmartRecommendationAsync(button);
+                    break;
                 case nameof(GamingBoosterBtn):
                     await ShowPage("Booster", button);
+                    break;
+                case nameof(StorageBtn):
+                    await ShowPage("Storage", button);
+                    LaunchWindowsUri("ms-settings:storagesense", "Storage");
                     break;
                 case nameof(BackgroundAppsBtn):
                     await ShowPage("BackgroundApps", button);
@@ -222,8 +279,40 @@ namespace HyperBoostX
                 case nameof(PrivacyCenterBtn):
                     await ShowPage("Privacy", button);
                     break;
+                case nameof(SecurityHealthBtn):
+                    await ShowPlaceholderPage(
+                        button,
+                        "Security & Health",
+                        "Opens Windows Security for antivirus, firewall, and device health checks.",
+                        "External tool: Windows Security");
+                    LaunchWindowsUri("windowsdefender:", "Security & Health");
+                    break;
+                case nameof(AppsManagerBtn):
+                    await ShowPlaceholderPage(
+                        button,
+                        "Apps Manager",
+                        "Opens Installed Apps so you can review, modify, or remove applications.",
+                        "External tool: Installed Apps");
+                    LaunchWindowsUri("ms-settings:appsfeatures", "Apps Manager");
+                    break;
                 case nameof(TweaksCenterBtn):
                     await ShowPage("Tweaks", button);
+                    break;
+                case nameof(WindowsFeaturesBtn):
+                    await ShowPlaceholderPage(
+                        button,
+                        "Windows Features",
+                        "Opens Optional Features so you can enable or disable Windows components.",
+                        "External tool: Optional Features");
+                    LaunchWindowsTool("optionalfeatures.exe", null, "Windows Features");
+                    break;
+                case nameof(UpdateControlBtn):
+                    await ShowPlaceholderPage(
+                        button,
+                        "Update Control",
+                        "Opens Windows Update settings for update checks, pause controls, and history.",
+                        "External tool: Windows Update");
+                    LaunchWindowsUri("ms-settings:windowsupdate", "Update Control");
                     break;
                 case nameof(RepairToolsBtn):
                     await ShowPage("Repair", button);
@@ -231,12 +320,61 @@ namespace HyperBoostX
                 case nameof(DriverUpdateCenterBtn):
                     await ShowPage("Drivers", button);
                     break;
+                case nameof(AppUninstallerBtn):
+                    await ShowPlaceholderPage(
+                        button,
+                        "App Uninstaller",
+                        "Opens Programs and Features for classic uninstall and repair tasks.",
+                        "External tool: Programs and Features");
+                    LaunchWindowsTool("appwiz.cpl", null, "App Uninstaller");
+                    break;
                 case nameof(AdvancedTweaksBtn):
                     await ShowPage("Advanced", button);
+                    break;
+                case nameof(WindowsServicesBtn):
+                    await ShowPlaceholderPage(
+                        button,
+                        "Windows Services",
+                        "Opens Services Manager to inspect startup types and running Windows services.",
+                        "External tool: services.msc");
+                    LaunchWindowsTool("services.msc", null, "Windows Services");
+                    break;
+                case nameof(PowerOptimizationBtn):
+                    await ShowPlaceholderPage(
+                        button,
+                        "Power Optimization",
+                        "Applies the Battery Saver optimization profile, then opens Power settings for fine tuning.",
+                        "Profile: battery + External tool: Power settings");
+                    await ApplyBoosterProfileAsync("battery", "Power Optimization");
+                    LaunchWindowsUri("ms-settings:powersleep", "Power Optimization");
+                    break;
+                case nameof(VisualEffectsBtn):
+                    await ShowPlaceholderPage(
+                        button,
+                        "Visual Effects",
+                        "Opens Windows performance options where visual effects can be tuned for speed or appearance.",
+                        "External tool: Performance Options");
+                    LaunchWindowsTool("SystemPropertiesPerformance.exe", null, "Visual Effects");
                     break;
                 case nameof(RestoreBackupBtn):
                 case nameof(RestorePointManagerBtn):
                     await ShowPage("Restore", button);
+                    break;
+                case nameof(ScheduledAutomationBtn):
+                    await ShowPlaceholderPage(
+                        button,
+                        "Scheduled Automation",
+                        "Opens Task Scheduler so automations and recurring maintenance tasks can be configured.",
+                        "External tool: Task Scheduler");
+                    LaunchWindowsTool("taskschd.msc", null, "Scheduled Automation");
+                    break;
+                case nameof(UtilitiesToolsBtn):
+                    await ShowPlaceholderPage(
+                        button,
+                        "Utilities Tools",
+                        "Opens Administrative Tools for advanced Windows utilities and diagnostics.",
+                        "External tool: Administrative Tools");
+                    LaunchWindowsTool("explorer.exe", "shell:Administrative Tools", "Utilities Tools");
                     break;
                 case nameof(AboutAppBtn):
                     await ShowPage("About", button);
@@ -293,12 +431,12 @@ namespace HyperBoostX
             try
             {
                 var result = await _backendClient.ApplyBoosterAsync("gaming");
-                MessageBox.Show($"Gaming profile applied.\n\n{HyperBoostBackendClient.FormatJson(result)}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowActionStatus(ActionState.Success, "Gaming profile applied", "FPS-focused optimization profile was applied.", HyperBoostBackendClient.FormatJson(result));
                 await RefreshDashboard();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowActionStatus(ActionState.Error, "Gaming profile failed", ex.Message);
             }
         }
 
@@ -307,12 +445,12 @@ namespace HyperBoostX
             try
             {
                 var result = await _backendClient.ApplyBoosterAsync("productivity");
-                MessageBox.Show($"Optimization applied.\n\n{HyperBoostBackendClient.FormatJson(result)}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowActionStatus(ActionState.Success, "One-click optimization applied", "Productivity optimization profile was applied.", HyperBoostBackendClient.FormatJson(result));
                 await RefreshDashboard();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowActionStatus(ActionState.Error, "Optimization failed", ex.Message);
             }
         }
 
@@ -402,15 +540,7 @@ namespace HyperBoostX
             var profileName = btn?.Tag as string;
             if (string.IsNullOrEmpty(profileName)) return;
 
-            try
-            {
-                var result = await _backendClient.ApplyBoosterAsync(profileName);
-                MessageBox.Show($"{profileName.ToUpper()} Mode Applied!\n\n{HyperBoostBackendClient.FormatJson(result)}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            await ApplyBoosterProfileAsync(profileName, profileName.ToUpperInvariant());
         }
 
         #endregion
@@ -436,11 +566,11 @@ namespace HyperBoostX
             var result = await SafeApiCall(() => _backendClient.CheckDriverUpdatesAsync());
             if (result == null)
             {
-                MessageBox.Show("Unable to check driver updates. Please try again later.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowActionStatus(ActionState.Error, "Driver check failed", "Unable to check driver updates right now.");
                 return;
             }
 
-            MessageBox.Show($"Driver Update Check Complete!\n\n{HyperBoostBackendClient.FormatJson(result)}", "Result", MessageBoxButton.OK, MessageBoxImage.Information);
+            ShowActionStatus(ActionState.Success, "Driver check complete", "Driver update scan finished successfully.", HyperBoostBackendClient.FormatJson(result));
         }
 
         #endregion
@@ -452,11 +582,11 @@ namespace HyperBoostX
             var result = await SafeApiCall(() => _backendClient.RunSfcAsync());
             if (result == null)
             {
-                MessageBox.Show("Unable to start SFC scan. Please try again later.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowActionStatus(ActionState.Error, "SFC scan failed", "Unable to start the SFC scan right now.");
                 return;
             }
 
-            MessageBox.Show($"SFC Scan Initiated!\n\n{HyperBoostBackendClient.FormatJson(result)}", "Result", MessageBoxButton.OK, MessageBoxImage.Information);
+            ShowActionStatus(ActionState.Success, "SFC scan started", "System File Checker has been launched.", HyperBoostBackendClient.FormatJson(result));
         }
 
         private async void RunDism_Click(object sender, RoutedEventArgs e)
@@ -464,11 +594,11 @@ namespace HyperBoostX
             var result = await SafeApiCall(() => _backendClient.RunDismAsync());
             if (result == null)
             {
-                MessageBox.Show("Unable to start DISM repair. Please try again later.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowActionStatus(ActionState.Error, "DISM repair failed", "Unable to start DISM repair right now.");
                 return;
             }
 
-            MessageBox.Show($"DISM Repair Initiated!\n\n{HyperBoostBackendClient.FormatJson(result)}", "Result", MessageBoxButton.OK, MessageBoxImage.Information);
+            ShowActionStatus(ActionState.Success, "DISM repair started", "DISM repair has been launched.", HyperBoostBackendClient.FormatJson(result));
         }
 
         private async void Cleanup_Click(object sender, RoutedEventArgs e)
@@ -476,11 +606,11 @@ namespace HyperBoostX
             var result = await SafeApiCall(() => _backendClient.CleanupAsync());
             if (result == null)
             {
-                MessageBox.Show("Unable to cleanup files. Please try again later.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowActionStatus(ActionState.Error, "Cleanup failed", "Unable to run cleanup right now.");
                 return;
             }
 
-            MessageBox.Show($"Cleanup Complete!\n\n{HyperBoostBackendClient.FormatJson(result)}", "Result", MessageBoxButton.OK, MessageBoxImage.Information);
+            ShowActionStatus(ActionState.Success, "Cleanup complete", "Temporary file cleanup finished.", HyperBoostBackendClient.FormatJson(result));
         }
 
         #endregion
@@ -510,13 +640,13 @@ namespace HyperBoostX
             var isHealthy = await SafeApiCall(() => _backendClient.HealthCheckAsync());
             if (isHealthy)
             {
-                MessageBox.Show("✓ Backend is running and responding!", "Connection Successful", MessageBoxButton.OK, MessageBoxImage.Information);
-                BackendHealthIndicator.Background = System.Windows.Media.Brushes.LimeGreen;
+                ShowActionStatus(ActionState.Success, "Backend connected", "Backend is running and responding normally.", $"URL: {_currentBackendUrl}");
+                BackendHealthIndicator.Background = Brushes.LimeGreen;
             }
             else
             {
-                MessageBox.Show("✗ Backend is not responding. Please ensure the Python backend is running.", "Connection Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
-                BackendHealthIndicator.Background = System.Windows.Media.Brushes.Red;
+                ShowActionStatus(ActionState.Error, "Backend unavailable", "Backend is not responding. Please make sure HyperBoost backend is running.", $"URL: {_currentBackendUrl}");
+                BackendHealthIndicator.Background = Brushes.IndianRed;
             }
         }
 
@@ -527,12 +657,12 @@ namespace HyperBoostX
                 _currentBackendUrl = BackendUrlInput.Text.Trim();
                 _backendClient.Dispose();
                 _backendClient = new HyperBoostBackendClient(_currentBackendUrl);
-                MessageBox.Show($"Backend URL updated to:\n{_currentBackendUrl}", "Updated", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowActionStatus(ActionState.Success, "Backend URL updated", "The frontend is now pointing to the new backend endpoint.", _currentBackendUrl);
                 await CheckBackendHealth();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowActionStatus(ActionState.Error, "Unable to update backend URL", ex.Message);
             }
         }
 
@@ -541,13 +671,17 @@ namespace HyperBoostX
             var isHealthy = await SafeApiCall(() => _backendClient.HealthCheckAsync());
             if (isHealthy)
             {
-                BackendHealthIndicator.Background = System.Windows.Media.Brushes.LimeGreen;
-                ((TextBlock)BackendHealthIndicator.Child).Text = "● Backend: Connected";
+                BackendHealthIndicator.Background = Brushes.LimeGreen;
+                HeaderBackendBadge.Background = Brushes.LimeGreen;
+                HeaderBackendText.Text = "Backend connected";
+                ((TextBlock)BackendHealthIndicator.Child).Text = "Connected and ready";
             }
             else
             {
-                BackendHealthIndicator.Background = System.Windows.Media.Brushes.Red;
-                ((TextBlock)BackendHealthIndicator.Child).Text = "● Backend: Disconnected";
+                BackendHealthIndicator.Background = Brushes.IndianRed;
+                HeaderBackendBadge.Background = Brushes.IndianRed;
+                HeaderBackendText.Text = "Backend disconnected";
+                ((TextBlock)BackendHealthIndicator.Child).Text = "Backend unavailable";
             }
         }
 
@@ -557,17 +691,22 @@ namespace HyperBoostX
 
         private void OptimizeRAM_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("RAM optimization initiated. This will clear standby memory and improve available RAM.", "Optimize RAM", MessageBoxButton.OK, MessageBoxImage.Information);
+            _ = ShowPlaceholderPage(
+                PerformanceBtn,
+                "Optimize RAM",
+                "Opening Resource Monitor so you can inspect and close the heaviest memory consumers immediately.",
+                "Action: Resource Monitor opened");
+            LaunchWindowsTool("resmon.exe", null, "Optimize RAM");
         }
 
-        private void BoostGaming_Click(object sender, RoutedEventArgs e)
+        private async void BoostGaming_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Gaming Mode activated! Background apps disabled, priority set to high.", "Gaming Mode", MessageBoxButton.OK, MessageBoxImage.Information);
+            await ApplyBoosterProfileAsync("gaming", "Boost Gaming");
         }
 
-        private void AutoPerformance_Click(object sender, RoutedEventArgs e)
+        private async void AutoPerformance_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Auto Performance Profile enabled. System will automatically adjust performance based on usage.", "Auto Profile", MessageBoxButton.OK, MessageBoxImage.Information);
+            await ApplyBoosterProfileAsync("productivity", "Auto Performance Profile");
         }
 
         #endregion
@@ -605,60 +744,86 @@ namespace HyperBoostX
 
         private void ManageStartup_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Opening Startup Manager. Manage which apps start with Windows.", "Manage Startup", MessageBoxButton.OK, MessageBoxImage.Information);
+            LaunchWindowsUri("ms-settings:startupapps", "Manage Startup");
         }
 
         private void DelayStartup_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Delaying startup apps. This can significantly reduce boot time.", "Delay Startup", MessageBoxButton.OK, MessageBoxImage.Information);
+            LaunchWindowsTool("taskschd.msc", null, "Delay Startup");
         }
 
         #endregion
 
         #region Storage Cleanup
 
-        private void CleanTemp_Click(object sender, RoutedEventArgs e)
+        private async void CleanTemp_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Cleaning temporary files. This is one of the safest optimizations.", "Clean Temp", MessageBoxButton.OK, MessageBoxImage.Information);
+            var result = await SafeApiCall(() => _backendClient.CleanupAsync());
+            if (result == null)
+            {
+                ShowActionStatus(ActionState.Error, "Clean Temp", "Unable to clean temporary files right now.");
+                return;
+            }
+
+            ShowActionStatus(ActionState.Success, "Clean Temp", "Temporary files cleaned successfully.", HyperBoostBackendClient.FormatJson(result));
         }
 
-        private void ClearCache_Click(object sender, RoutedEventArgs e)
+        private async void ClearCache_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Clearing system cache. Browser and application caches will be cleared.", "Clear Cache", MessageBoxButton.OK, MessageBoxImage.Information);
+            var result = await SafeApiCall(() => _backendClient.CleanupAsync());
+            if (result == null)
+            {
+                ShowActionStatus(ActionState.Error, "Clear Cache", "Unable to clear cache right now.");
+                return;
+            }
+
+            ShowActionStatus(ActionState.Success, "Clear Cache", "System cache cleanup completed.", HyperBoostBackendClient.FormatJson(result));
         }
 
-        private void EmptyRecycle_Click(object sender, RoutedEventArgs e)
+        private async void EmptyRecycle_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Emptying Recycle Bin to free up disk space.", "Empty Recycle Bin", MessageBoxButton.OK, MessageBoxImage.Information);
+            await RunPowerShellActionAsync(
+                "Clear-RecycleBin -Force",
+                "Empty Recycle Bin",
+                "Recycle Bin emptied successfully.");
         }
 
-        private void DeepCleanup_Click(object sender, RoutedEventArgs e)
+        private async void DeepCleanup_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Starting deep disk cleanup. Scanning for Windows leftovers and junk files.", "Deep Cleanup", MessageBoxButton.OK, MessageBoxImage.Information);
+            var result = await SafeApiCall(() => _backendClient.CleanupAsync());
+            LaunchWindowsTool("cleanmgr.exe", null, "Deep Cleanup");
+
+            if (result == null)
+            {
+                ShowActionStatus(ActionState.Warning, "Deep Cleanup", "Windows Disk Cleanup opened, but backend deep cleanup result is unavailable.");
+                return;
+            }
+
+            ShowActionStatus(ActionState.Success, "Deep Cleanup", "Deep cleanup started and Windows Disk Cleanup was opened.", HyperBoostBackendClient.FormatJson(result));
         }
 
         #endregion
 
         #region Gaming Optimization
 
-        private void GameMode_Click(object sender, RoutedEventArgs e)
+        private async void GameMode_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Game Mode activated! System will optimize for gaming performance.", "Game Mode", MessageBoxButton.OK, MessageBoxImage.Information);
+            await ApplyBoosterProfileAsync("gaming", "Game Mode");
         }
 
-        private void DisableOverlays_Click(object sender, RoutedEventArgs e)
+        private async void DisableOverlays_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Disabling Windows overlays (Discord, Xbox, etc.) to reduce resource usage.", "Disable Overlays", MessageBoxButton.OK, MessageBoxImage.Information);
+            await ApplyTweakWithFeedbackAsync("disable_xbox", "Disable Overlays");
         }
 
         private void FreeRAM_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Freeing RAM before game launch. Clearing standby memory for maximum performance.", "Free RAM", MessageBoxButton.OK, MessageBoxImage.Information);
+            LaunchWindowsTool("resmon.exe", null, "Free RAM");
         }
 
-        private void FPSStability_Click(object sender, RoutedEventArgs e)
+        private async void FPSStability_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Applying FPS stability tweaks. Disabling background updates and processes.", "FPS Stability", MessageBoxButton.OK, MessageBoxImage.Information);
+            await ApplyBoosterProfileAsync("streaming", "FPS Stability");
         }
 
         #endregion
@@ -682,11 +847,12 @@ namespace HyperBoostX
             var dns = await SafeApiCall(() => _backendClient.TestDnsAsync());
             if (dns == null)
             {
-                MessageBox.Show("Unable to run DNS test right now.", "DNS Test", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowActionStatus(ActionState.Warning, "DNS Test", "Unable to run DNS test right now.");
                 return;
             }
 
             NetworkDiagnosticsText.Text = FormatNetworkDiagnostics(dns);
+            ShowActionStatus(ActionState.Success, "DNS Test", "DNS diagnostics refreshed successfully.", HyperBoostBackendClient.FormatJson(dns));
         }
 
         private async Task RunNetworkAction(Func<Task<dynamic>> action, string actionName)
@@ -694,11 +860,11 @@ namespace HyperBoostX
             var result = await SafeApiCall(action);
             if (result == null)
             {
-                MessageBox.Show($"{actionName} failed. Please try again later.", "Network", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowActionStatus(ActionState.Error, actionName, $"{actionName} failed. Please try again later.");
                 return;
             }
 
-            MessageBox.Show($"{actionName} completed.\n\n{HyperBoostBackendClient.FormatJson(result)}", "Network", MessageBoxButton.OK, MessageBoxImage.Information);
+            ShowActionStatus(ActionState.Success, actionName, $"{actionName} completed successfully.", HyperBoostBackendClient.FormatJson(result));
         }
 
         private void FlushDNS_Click(object sender, RoutedEventArgs e)
@@ -733,7 +899,12 @@ namespace HyperBoostX
 
         private void PingStabilizer_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Applying ping stabilizer. Optimizing network latency for gaming.", "Ping Stabilizer", MessageBoxButton.OK, MessageBoxImage.Information);
+            _ = RunNetworkAction(async () =>
+            {
+                var result = await _backendClient.OptimizeTcpAsync();
+                await RefreshNetworkDiagnostics();
+                return result;
+            }, "Ping Stabilizer");
         }
 
         #endregion
@@ -745,24 +916,24 @@ namespace HyperBoostX
             _ = RefreshBackgroundApps();
         }
 
-        private void DisableTelemetry_Click(object sender, RoutedEventArgs e)
+        private async void DisableTelemetry_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Disabling Windows telemetry. This protects your privacy.", "Disable Telemetry", MessageBoxButton.OK, MessageBoxImage.Information);
+            await ApplyTweakWithFeedbackAsync("disable_telemetry", "Disable Telemetry");
         }
 
         private void DisableAds_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Disabling ads and suggestions. Removing personalized ads from Windows.", "Disable Ads", MessageBoxButton.OK, MessageBoxImage.Information);
+            LaunchWindowsUri("ms-settings:privacy-general", "Disable Ads");
         }
 
         private void ActivityTracking_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Controlling activity tracking. Disabling activity history collection.", "Activity Control", MessageBoxButton.OK, MessageBoxImage.Information);
+            LaunchWindowsUri("ms-settings:privacy-activityhistory", "Activity Tracking");
         }
 
         private void PrivacyManager_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Opening Privacy Settings Manager for detailed control.", "Privacy Manager", MessageBoxButton.OK, MessageBoxImage.Information);
+            LaunchWindowsUri("ms-settings:privacy", "Privacy Manager");
         }
 
         #endregion
@@ -771,46 +942,77 @@ namespace HyperBoostX
 
         private void ContextMenu_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Opening Context Menu Editor. Customize right-click menu.", "Context Menu", MessageBoxButton.OK, MessageBoxImage.Information);
+            LaunchWindowsTool("regedit.exe", null, "Context Menu Editor");
         }
 
         private void ExplorerTweaks_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Applying File Explorer tweaks for better usability.", "Explorer Tweaks", MessageBoxButton.OK, MessageBoxImage.Information);
+            LaunchWindowsTool("control.exe", "folders", "Explorer Tweaks");
         }
 
         private void TaskbarTweaks_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Applying Taskbar tweaks for improved functionality.", "Taskbar Tweaks", MessageBoxButton.OK, MessageBoxImage.Information);
+            LaunchWindowsUri("ms-settings:taskbar", "Taskbar Tweaks");
         }
 
         private void DarkMode_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Applying Dark Mode tweaks. Enabling dark theme system-wide.", "Dark Mode", MessageBoxButton.OK, MessageBoxImage.Information);
+            LaunchWindowsUri("ms-settings:colors", "Dark Mode");
         }
 
         #endregion
 
         #region Restore & Backup
 
-        private void CreateRestore_Click(object sender, RoutedEventArgs e)
+        private async void CreateRestore_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Creating Windows Restore Point. You can revert system changes if needed.", "Restore Point", MessageBoxButton.OK, MessageBoxImage.Information);
+            await RunPowerShellActionAsync(
+                "Checkpoint-Computer -Description 'HyperBoost X Manual Restore Point' -RestorePointType 'MODIFY_SETTINGS'",
+                "Create Restore Point",
+                "Windows restore point created successfully.");
         }
 
-        private void BackupSettings_Click(object sender, RoutedEventArgs e)
+        private async void BackupSettings_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Backing up all tweak settings. You can restore them later.", "Backup Settings", MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                var backupRoot = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "HyperBoost X",
+                    "backups");
+                Directory.CreateDirectory(backupRoot);
+
+                var stats = await SafeApiCall(() => _backendClient.GetSystemStatsAsync());
+                var payload = new
+                {
+                    created_at = DateTime.Now,
+                    backend_url = _currentBackendUrl,
+                    system_stats = stats
+                };
+
+                var fileName = $"hyperboost-backup-{DateTime.Now:yyyyMMdd-HHmmss}.json";
+                var filePath = Path.Combine(backupRoot, fileName);
+                File.WriteAllText(filePath, JsonConvert.SerializeObject(payload, Formatting.Indented));
+
+                ShowActionStatus(ActionState.Success, "Backup Settings", "Settings snapshot saved successfully.", filePath);
+            }
+            catch (Exception ex)
+            {
+                ShowActionStatus(ActionState.Error, "Backup Settings", "Backup failed.", ex.Message);
+            }
         }
 
-        private void RestoreDefault_Click(object sender, RoutedEventArgs e)
+        private async void RestoreDefault_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Restoring default Windows settings. All tweaks will be undone.", "Restore Default", MessageBoxButton.OK, MessageBoxImage.Warning);
+            await RunPowerShellActionAsync(
+                "$null = powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e; reg add \"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VisualEffects\" /v VisualFXSetting /t REG_DWORD /d 1 /f",
+                "Restore Default Windows",
+                "Balanced power plan and default visual effects restored.");
         }
 
         private void UndoOptimization_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Undoing latest optimization. Reverting to previous state.", "Undo", MessageBoxButton.OK, MessageBoxImage.Information);
+            LaunchWindowsTool("rstrui.exe", null, "Undo Optimization");
         }
 
         #endregion
@@ -946,13 +1148,79 @@ namespace HyperBoostX
             try
             {
                 var result = await _backendClient.ApplyBoosterAsync(profileId);
-                MessageBox.Show($"{modeName} applied.\n\n{HyperBoostBackendClient.FormatJson(result)}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                var json = result as Newtonsoft.Json.Linq.JObject;
+                var success = json?.Value<bool?>("success") == true;
+                var partialSuccess = json?.Value<bool?>("partial_success") == true;
+                var state = success
+                    ? (partialSuccess ? ActionState.Warning : ActionState.Success)
+                    : ActionState.Error;
+                var title = success ? (partialSuccess ? "Applied with warnings" : "Optimization applied") : "Unable to fully apply";
+
+                ShowActionStatus(state, title, $"{modeName} finished. Review the summary below for details.", HyperBoostBackendClient.FormatJson(result));
                 await RefreshDashboard();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowActionStatus(ActionState.Error, $"{modeName} failed", ex.Message);
             }
+        }
+
+        private async Task ShowSmartRecommendationAsync(Button sourceButton)
+        {
+            SelectNavButton(sourceButton);
+
+            var stats = await SafeApiCall(() => _backendClient.GetSystemStatsAsync());
+            var json = stats as Newtonsoft.Json.Linq.JObject;
+
+            if (json == null)
+            {
+                ShowActionStatus(ActionState.Warning, "Smart Recommendation unavailable", "Backend system stats are required before a recommendation can be generated.");
+                await ShowPlaceholderPage(
+                    sourceButton,
+                    "Smart Recommendation",
+                    "Unable to generate a recommendation because backend system stats are unavailable.",
+                    "Status: backend disconnected or stats unavailable");
+                return;
+            }
+
+            var cpu = json.Value<double?>("cpu") ?? json.Value<double?>("cpu_percent") ?? 0;
+            var memory = json.Value<double?>("memory") ?? json.Value<double?>("memory_percent") ?? 0;
+            var disk = json.Value<double?>("disk") ?? json.Value<double?>("disk_percent") ?? 0;
+
+            string recommendationTitle;
+            string recommendationBody;
+            string recommendationStatus;
+
+            if (disk >= 85)
+            {
+                recommendationTitle = "Storage cleanup recommended";
+                recommendationBody = $"Disk usage is {disk:0}%.\n\nRecommended next step:\nUse Cleanup and review Storage settings.";
+                recommendationStatus = "Recommended focus: Storage";
+            }
+            else if (memory >= 80)
+            {
+                recommendationTitle = "Background apps review recommended";
+                recommendationBody = $"Memory usage is {memory:0}%.\n\nRecommended next step:\nReview Background Apps and Startup items.";
+                recommendationStatus = "Recommended focus: Background Apps";
+            }
+            else if (cpu >= 75)
+            {
+                recommendationTitle = "Performance profile recommended";
+                recommendationBody = $"CPU usage is {cpu:0}%.\n\nRecommended next step:\nUse Gaming Mode for peak performance or Productivity Mode for balanced optimization.";
+                recommendationStatus = "Recommended focus: Performance";
+            }
+            else
+            {
+                recommendationTitle = "System looks healthy";
+                recommendationBody = $"CPU {cpu:0}% | Memory {memory:0}% | Disk {disk:0}%.\n\nRecommended next step:\nUse Dashboard for monitoring or Privacy Center for preventive tuning.";
+                recommendationStatus = "Recommended focus: Dashboard / Privacy";
+            }
+
+            await ShowPlaceholderPage(
+                sourceButton,
+                "Smart Recommendation",
+                $"{recommendationTitle}\n\n{recommendationBody}",
+                recommendationStatus);
         }
 
         private string FormatStartupItems(dynamic startupData)
@@ -1062,5 +1330,94 @@ namespace HyperBoostX
                 return default;
             }
         }
+
+        private async Task ApplyTweakWithFeedbackAsync(string tweakId, string actionName)
+        {
+            try
+            {
+                var result = await _backendClient.ApplyTweakAsync(tweakId);
+                ShowActionStatus(ActionState.Success, actionName, "Tweak applied successfully.", HyperBoostBackendClient.FormatJson(result));
+            }
+            catch (Exception ex)
+            {
+                ShowActionStatus(ActionState.Error, actionName, $"Unable to run {actionName}.", ex.Message);
+            }
+        }
+
+        private async Task RunPowerShellActionAsync(string script, string actionName, string successMessage)
+        {
+            try
+            {
+                var startInfo = new ProcessStartInfo("powershell.exe")
+                {
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true,
+                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{script}\""
+                };
+
+                using var process = Process.Start(startInfo);
+                if (process == null)
+                {
+                    throw new InvalidOperationException("Unable to start PowerShell process.");
+                }
+
+                var stdOut = await process.StandardOutput.ReadToEndAsync();
+                var stdErr = await process.StandardError.ReadToEndAsync();
+                await process.WaitForExitAsync();
+
+                if (process.ExitCode == 0)
+                {
+                    ShowActionStatus(ActionState.Success, actionName, successMessage);
+                }
+                else
+                {
+                    var details = string.IsNullOrWhiteSpace(stdErr) ? stdOut : stdErr;
+                    ShowActionStatus(ActionState.Error, actionName, $"{actionName} failed.", details);
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowActionStatus(ActionState.Error, actionName, $"{actionName} failed.", ex.Message);
+            }
+        }
+
+        private void LaunchWindowsUri(string uri, string featureName)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo(uri) { UseShellExecute = true });
+                ShowActionStatus(ActionState.Info, featureName, "Windows opened the requested settings page.", uri);
+            }
+            catch (Exception ex)
+            {
+                ShowActionStatus(ActionState.Error, featureName, $"Unable to open {featureName}.", ex.Message);
+            }
+        }
+
+        private void LaunchWindowsTool(string fileName, string arguments, string featureName)
+        {
+            try
+            {
+                var startInfo = new ProcessStartInfo(fileName)
+                {
+                    UseShellExecute = true
+                };
+
+                if (!string.IsNullOrWhiteSpace(arguments))
+                {
+                    startInfo.Arguments = arguments;
+                }
+
+                Process.Start(startInfo);
+                ShowActionStatus(ActionState.Info, featureName, "Windows tool opened successfully.", string.IsNullOrWhiteSpace(arguments) ? fileName : $"{fileName} {arguments}");
+            }
+            catch (Exception ex)
+            {
+                ShowActionStatus(ActionState.Error, featureName, $"Unable to open {featureName}.", ex.Message);
+            }
+        }
     }
 }
+

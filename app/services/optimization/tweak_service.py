@@ -40,6 +40,14 @@ class TweakService:
             "requires_admin": True
         },
         {
+            "id": "disable_xbox",
+            "name": "Disable Xbox Game Bar",
+            "description": "Disables Xbox Game Bar and related overlays",
+            "risk": "Low",
+            "category": "Gaming",
+            "requires_admin": False
+        },
+        {
             "id": "disable_updates",
             "name": "Disable Auto Updates",
             "description": "Disables automatic Windows updates",
@@ -70,6 +78,7 @@ class TweakService:
         "defender_realtime": r"SOFTWARE\Microsoft\Windows Defender\Real-Time Protection",
         "defender_reporting": r"SOFTWARE\Microsoft\Windows Defender Security Intelligence\UX Configuration",
         "visual_effects": r"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects",
+        "xbox_overlay": r"SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR",
         "telemetry_policy": r"SOFTWARE\Policies\Microsoft\Windows\DataCollection",
         "telemetry_consent": r"SOFTWARE\Microsoft\Windows\CurrentVersion\Diagnostics\DiagTrack",
         "updates_policy": r"SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU",
@@ -110,6 +119,8 @@ class TweakService:
                 success = TweakService._apply_optimize_visual(restore_point)
             elif tweak_id == "disable_telemetry":
                 success = TweakService._apply_disable_telemetry(restore_point)
+            elif tweak_id == "disable_xbox":
+                success = TweakService._apply_disable_xbox(restore_point)
             elif tweak_id == "disable_updates":
                 success = TweakService._apply_disable_updates(restore_point)
             elif tweak_id == "disable_superfetch":
@@ -245,6 +256,31 @@ class TweakService:
             return success1 and success2
         except Exception as e:
             logger.error(f"Failed to disable telemetry: {e}")
+            return False
+
+    @staticmethod
+    def _apply_disable_xbox(restore_point: RestorePoint) -> bool:
+        """Disable Xbox Game Bar overlay."""
+        try:
+            current_value = RegistryUtil.get_value(
+                TweakService.REG_PATHS["xbox_overlay"],
+                "AppCaptureEnabled",
+                hkey=winreg.HKEY_CURRENT_USER
+            )
+            if current_value is not None:
+                restore_point.files[
+                    f"reg:{TweakService.REG_PATHS['xbox_overlay']}\\AppCaptureEnabled"
+                ] = str(current_value)
+
+            return RegistryUtil.set_value(
+                TweakService.REG_PATHS["xbox_overlay"],
+                "AppCaptureEnabled",
+                0,
+                winreg.REG_DWORD,
+                hkey=winreg.HKEY_CURRENT_USER
+            )
+        except Exception as e:
+            logger.error(f"Failed to disable Xbox Game Bar: {e}")
             return False
     
     @staticmethod

@@ -1,9 +1,10 @@
 """Booster service for HyperBoost X."""
 
-import psutil
 import os
-import winreg
 from typing import Dict, Any, List
+
+import psutil
+import winreg
 from core.logger import Logger
 from core.profiles import ProfileManager
 from utils.shell import ShellUtil
@@ -65,21 +66,44 @@ class BoosterService:
             
             success_count = sum(1 for r in results if r["success"])
             total_count = len(results)
-            
+            failed_settings = [r["setting"] for r in results if not r["success"]]
+            partial_success = 0 < success_count < total_count
+
             if success_count == total_count:
                 logger.info(f"Successfully applied profile: {profile_id}")
                 return {
                     "success": True,
+                    "partial_success": False,
                     "message": f"Profile '{profile.name}' applied successfully",
                     "applied_settings": success_count,
-                    "total_settings": total_count
-                }
-            else:
-                return {
-                    "success": False,
-                    "error": f"Profile partially applied: {success_count}/{total_count} settings successful",
+                    "total_settings": total_count,
                     "results": results
                 }
+
+            if partial_success:
+                warning = (
+                    f"Profile '{profile.name}' applied with limited access. "
+                    f"{success_count}/{total_count} settings succeeded."
+                )
+                logger.warning(f"{warning} Failed settings: {failed_settings}")
+                return {
+                    "success": True,
+                    "partial_success": True,
+                    "message": warning,
+                    "warning": "Some tweaks require elevated permissions or are unavailable on this Windows setup.",
+                    "applied_settings": success_count,
+                    "total_settings": total_count,
+                    "failed_settings": failed_settings,
+                    "results": results
+                }
+
+            return {
+                "success": False,
+                "partial_success": False,
+                "error": f"Profile could not be applied: 0/{total_count} settings successful",
+                "failed_settings": failed_settings,
+                "results": results
+            }
                 
         except Exception as e:
             logger.error(f"Error applying profile {profile_id}: {e}")
@@ -149,11 +173,15 @@ class BoosterService:
     def _set_high_cpu_priority() -> bool:
         """Set current process to high priority."""
         try:
-            os.nice(-10)  # Higher priority (lower nice value)
+            process = psutil.Process(os.getpid())
+            process.nice(psutil.HIGH_PRIORITY_CLASS)
             return True
         except Exception:
-            # Try with shell command
-            success, _ = ShellUtil.execute_command("wmic process where name='python.exe' call setpriority 128", admin=True)
+            # Try with shell command as a fallback for restricted environments.
+            success, _ = ShellUtil.execute_command(
+                f"$p = Get-Process -Id {os.getpid()}; $p.PriorityClass = 'High'",
+                admin=True
+            )
             return success
     
     @staticmethod
