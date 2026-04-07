@@ -1,0 +1,241 @@
+## HyperBoost X v1.1.0-beta.1
+
+`v1.1.0-beta.1` is a beta stabilization update focused on testing readiness, safer service behavior, verification tooling, and release discipline across the entire HyperBoost X stack.
+
+This release continues the `1.1.0-beta` line by improving how the project is validated, how critical helpers are tested, and how new changes are verified before broader beta rollout.
+
+## Release focus
+
+The primary goals of this beta refresh are:
+
+- strengthen testability for backend, launcher, and desktop service logic
+- add real regression coverage for Python and .NET components
+- improve the in-app testing and audit experience
+- add a one-command verification path for local validation
+- establish CI and release-gate workflows for safer iteration
+- reduce the gap between feature growth and software quality assurance
+
+## Summary of improvements
+
+### Service testability and safer helper design
+
+Several core helper components were adjusted so they can be tested more directly and fail more safely in constrained environments.
+
+Updated areas include:
+
+- backend logger initialization
+- booster process filtering
+- app config persistence behavior
+- installer verification logic
+- Discord webhook payload generation
+- OpenAI copilot response parsing
+- launcher runtime layout resolution
+
+These changes improve maintainability and reduce reliance on manual-only validation.
+
+## Detailed changes
+
+### Backend and shared service improvements
+
+#### Logger hardening
+
+The backend logger path was improved so that restricted or test environments do not fail as aggressively when file logging cannot be initialized normally.
+
+#### Booster process safety filtering
+
+The optimization flow now uses a dedicated process filtering path for non-essential applications through a clearer `should_close_process` decision method.
+
+#### Config persistence testability
+
+`AppConfigService` now supports custom config directory injection, making save/load behavior easier to test without depending on fixed user profile paths.
+
+#### Installer verification hardening
+
+`AppUpdateService` now supports stronger verification logic through checksum-aware validation, including published checksum discovery and hash matching support.
+
+#### Discord webhook payload extraction
+
+Discord reporting logic now exposes a reusable payload builder so webhook formatting can be tested directly without relying only on live POST calls.
+
+#### OpenAI response parsing test hook
+
+OpenAI copilot response parsing is now accessible through a test-friendly entry point so response extraction logic can be validated in isolation.
+
+#### Launcher runtime layout extraction
+
+Launcher path resolution was extracted into a dedicated runtime layout helper, allowing runtime lookup behavior to be tested without relying on the full launcher entry flow.
+
+## Regression testing added
+
+### .NET regression test project
+
+A dedicated desktop-side test project was added:
+
+- `dotnet-tests/HyperBoostX.Tests`
+
+Covered areas include:
+
+- app config save/load round-trip behavior
+- updater checksum parsing behavior
+- installer validation contract behavior
+- Discord webhook payload structure
+- launcher runtime layout resolution
+- OpenAI copilot response parsing
+
+### Python regression tests
+
+Additional backend regression tests were added for:
+
+- booster safety behavior
+- tweak contract behavior
+- update contract behavior
+
+A test bootstrap helper was also added so tests can be run more consistently from the repository root.
+
+### Unified local verification
+
+A new verification script was added:
+
+- `scripts/verify_repo.ps1`
+
+This script provides a single entry point for:
+
+- Python backend tests
+- .NET desktop regression tests
+
+Example usage:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_repo.ps1
+```
+
+Supported options include:
+
+- `-Configuration Release`
+- `-SkipPython`
+- `-SkipDotnet`
+- `-NoRestore`
+
+## In-app testing and QA improvements
+
+The `Feature Audit / Testing` area was significantly expanded.
+
+### New execution modes
+
+The testing engine now supports:
+
+- `Mock Mode`
+- `Safe Read-Only`
+- `Live Read-Only`
+
+### Expanded suite model
+
+The testing area now includes dedicated suites for:
+
+- Unit
+- Integration
+- UI Flow
+- End-to-End
+- Regression
+- Performance
+- Stress
+- Stability
+- Security
+- Compatibility
+
+### Full QA Matrix
+
+A new `Run Full QA Matrix` flow was added to execute a broader test matrix from inside the WPF client.
+
+### Richer in-app reporting
+
+The WPF testing dashboard now includes richer sections for:
+
+- testing strategy summary
+- layer summary
+- suite matrix summary
+- metrics
+- compatibility review
+- testing report preview
+
+## CI and release workflow improvements
+
+### Added GitHub Actions workflows
+
+- `windows-ci.yml`
+- `release-gate.yml`
+- `windows-e2e-lab.yml`
+
+These workflows improve repeatability, release control, and validation discipline for Windows builds and update flows.
+
+## Repository and tooling cleanup
+
+Several changes were made to improve repository hygiene:
+
+- generated test and build artifacts are ignored more consistently
+- test project output was isolated to reduce tooling/output conflicts
+- the local validation story is now much clearer
+
+## Validation status for this beta
+
+This beta refresh has been validated through:
+
+- Python regression test execution
+- .NET desktop regression test execution
+- local unified verification flow
+
+Local one-command verification is available through:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_repo.ps1
+```
+
+## Current release maturity
+
+`v1.1.0-beta.1` is a stronger and better-validated beta than the earlier `v1.1.0-beta` snapshot, but it is still intentionally treated as a beta release.
+
+## Known remaining high-risk areas
+
+The following areas still require broader machine validation before a true stable release claim would be appropriate:
+
+- driver update and rollback flows
+- repair actions that affect services or system state
+- advanced tweaks and low-level configuration changes
+- restore and rollback scenarios after system changes
+- installer upgrade and uninstall paths
+- admin-required operations across different Windows environments
+- cross-machine compatibility and edge-case validation
+
+## Recommended use for this beta
+
+This release is recommended for:
+
+- internal QA
+- controlled beta testing
+- architecture review
+- feature validation
+- regression verification
+- release workflow testing
+
+It is not yet positioned as the final public-stable build.
+
+## Commits included in this beta refresh
+
+- `Improve testability for backend, updater, launcher, and service helpers`
+- `Add Python and .NET regression tests for core service contracts`
+- `Expand in-app testing dashboard with QA modes and suite matrix`
+- `Add one-command repo verification and Windows CI workflows`
+
+## Closing note
+
+`v1.1.0-beta.1` is an important quality-focused beta milestone for HyperBoost X.
+
+Rather than adding only more end-user features, this release invests in:
+
+- validation
+- repeatability
+- regression protection
+- release discipline
+- maintainability
+
+That makes it a stronger base for future beta iterations and a more credible step toward a true stable release.
