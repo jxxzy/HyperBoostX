@@ -9,6 +9,9 @@ All notable changes to HyperBoostX are documented here.
 - Discord webhook reporting for important errors and crash events.
 - Modular localization foundation with `en-US` and `id-ID` language packs.
 - Persistent app configuration shared across settings, automation, AI, and recovery-related modules.
+- In-app release checker for detecting newer author builds from GitHub.
+- Secure OpenAI API key and Discord webhook persistence via Windows Credential Manager.
+- Sociabuzz donation shortcut in About App.
 - `release-notes-v1.1.0-beta.txt` for beta release documentation.
 
 ### Changed
@@ -17,6 +20,7 @@ All notable changes to HyperBoostX are documented here.
 - Upgraded Scheduled Automation from summary UI to persistent rules, queue, deferred tasks, retry state, and audit tracking.
 - Updated About App, binary metadata, and installer metadata to `1.1.0-beta`.
 - Synced installer publisher/author metadata to `MR.4NONY`.
+- Updated the installer upgrade flow to remove the previous app version first while preserving user config, logs, backups, and runtime state in `%LocalAppData%\HyperBoost X`.
 - Improved runtime safety for PowerShell execution, backend API failure handling, and activity logging.
 - Refreshed README to document the beta architecture and current feature scope.
 

@@ -37,6 +37,10 @@ HyperBoost X is built from three main parts:
 - AI Assistant (HyperBoostX Copilot) with OpenAI integration, approval flow, safe action routing, and automation creation
 - Discord webhook reporting for important errors and crash events
 - Multi-language foundation with modular localization packs
+- In-app release checker that can detect the latest author build from GitHub
+- Installer upgrade flow that removes the old app version while preserving user config/state
+- Secure secret persistence for OpenAI and Discord via Windows Credential Manager
+- About App donation shortcut via Sociabuzz
 
 ## What changed in `1.1.0-beta`
 
@@ -47,6 +51,10 @@ HyperBoost X is built from three main parts:
 - Added OpenAI-powered Copilot foundation with context-aware suggestions and safe action approval
 - Added Discord webhook error reporting with filtering and cooldown
 - Added modular localization foundation with `en-US` and `id-ID` packs
+- Added in-app app-update checking against the latest GitHub release
+- Added automatic secret loading for OpenAI and Discord credentials with reinstall-safe Windows Credential Manager storage
+- Updated installer behavior so upgrades remove the previous app version first while preserving `%LocalAppData%\HyperBoost X\...`
+- Added About App donation shortcut for Sociabuzz support
 - Improved runtime safety around PowerShell execution, API failures, and activity logging
 - Synced About App, binary version metadata, and installer metadata to the latest beta build
 
@@ -75,6 +83,7 @@ HyperBoost X is built from three main parts:
 
 - Portable app: `release\app\HyperBoostX.exe`
 - Installer: `HyperBoostXInstaller.exe`
+- GitHub prerelease: `v1.1.0-beta`
 
 ## Documentation
 

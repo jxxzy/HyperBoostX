@@ -12,6 +12,10 @@ Highlights
 - Added OpenAI-based HyperBoostX Copilot foundation with safe action approval flow
 - Added Discord webhook reporting for important errors and crash events
 - Added modular localization foundation with en-US and id-ID language packs
+- Added in-app app-update checker for the latest GitHub release
+- Added reinstall-safe secret storage for OpenAI and Discord via Windows Credential Manager
+- Added installer upgrade flow that removes the old app version while keeping user config/state
+- Added Sociabuzz donation shortcut in About App
 - Improved runtime stability for PowerShell execution, backend API error handling, and UI activity logging
 
 Included areas
