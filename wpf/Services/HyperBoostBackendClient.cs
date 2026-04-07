@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 
 namespace HyperBoostX.Services
@@ -15,6 +17,14 @@ namespace HyperBoostX.Services
     {
         private readonly HttpClient _httpClient;
         private readonly string _baseUrl;
+        private readonly SemaphoreSlim _systemStatsLock = new(1, 1);
+        private readonly SemaphoreSlim _systemInfoLock = new(1, 1);
+        private JObject _cachedSystemStats;
+        private DateTime _cachedSystemStatsUtc = DateTime.MinValue;
+        private JObject _cachedSystemInfo;
+        private DateTime _cachedSystemInfoUtc = DateTime.MinValue;
+        private static readonly TimeSpan SystemStatsCacheLifetime = TimeSpan.FromMilliseconds(900);
+        private static readonly TimeSpan SystemInfoCacheLifetime = TimeSpan.FromSeconds(12);
 
         public HyperBoostBackendClient(string baseUrl = "http://127.0.0.1:5000")
         {
@@ -45,16 +55,33 @@ namespace HyperBoostX.Services
         /// </summary>
         public async Task<dynamic> GetSystemInfoAsync()
         {
+            if (TryGetFreshCache(_cachedSystemInfoUtc, SystemInfoCacheLifetime, _cachedSystemInfo, out var cachedInfo))
+                return cachedInfo;
+
+            await _systemInfoLock.WaitAsync();
             try
             {
+                if (TryGetFreshCache(_cachedSystemInfoUtc, SystemInfoCacheLifetime, _cachedSystemInfo, out cachedInfo))
+                    return cachedInfo;
+
                 var response = await _httpClient.GetAsync($"{_baseUrl}/api/system/info");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(json);
+                var parsed = JObject.Parse(json);
+                _cachedSystemInfo = parsed;
+                _cachedSystemInfoUtc = DateTime.UtcNow;
+                return CloneToken(parsed);
             }
             catch (Exception ex)
             {
+                if (_cachedSystemInfo != null)
+                    return CloneToken(_cachedSystemInfo);
+
                 throw new InvalidOperationException($"Failed to get system info: {ex.Message}", ex);
+            }
+            finally
+            {
+                _systemInfoLock.Release();
             }
         }
 
@@ -63,17 +90,51 @@ namespace HyperBoostX.Services
         /// </summary>
         public async Task<dynamic> GetSystemStatsAsync()
         {
+            if (TryGetFreshCache(_cachedSystemStatsUtc, SystemStatsCacheLifetime, _cachedSystemStats, out var cachedStats))
+                return cachedStats;
+
+            await _systemStatsLock.WaitAsync();
             try
             {
+                if (TryGetFreshCache(_cachedSystemStatsUtc, SystemStatsCacheLifetime, _cachedSystemStats, out cachedStats))
+                    return cachedStats;
+
                 var response = await _httpClient.GetAsync($"{_baseUrl}/api/system/stats");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(json);
+                var parsed = JObject.Parse(json);
+                _cachedSystemStats = parsed;
+                _cachedSystemStatsUtc = DateTime.UtcNow;
+                return CloneToken(parsed);
             }
             catch (Exception ex)
             {
+                if (_cachedSystemStats != null)
+                    return CloneToken(_cachedSystemStats);
+
                 throw new InvalidOperationException($"Failed to get system stats: {ex.Message}", ex);
             }
+            finally
+            {
+                _systemStatsLock.Release();
+            }
+        }
+
+        private static bool TryGetFreshCache(DateTime cachedUtc, TimeSpan lifetime, JObject cache, out JObject clone)
+        {
+            if (cache != null && DateTime.UtcNow - cachedUtc <= lifetime)
+            {
+                clone = (JObject)cache.DeepClone();
+                return true;
+            }
+
+            clone = null;
+            return false;
+        }
+
+        private static JObject CloneToken(JObject source)
+        {
+            return source == null ? null : (JObject)source.DeepClone();
         }
 
         /// <summary>
