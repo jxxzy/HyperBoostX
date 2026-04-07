@@ -5430,38 +5430,77 @@
                     </StackPanel>
                     <StackPanel Name="PlaceholderContent" Visibility="Collapsed"><TextBlock Name="PlaceholderTitleText" Text="Feature Hub" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/><Border Background="#2c2c2c" CornerRadius="5" BorderThickness="1" BorderBrush="#3c3c3c" Padding="18" Margin="0,0,0,15"><StackPanel><TextBlock Name="PlaceholderDescriptionText" Text="This section is ready in the navigation and can be wired to backend actions next." Foreground="#cccccc" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/><TextBlock Name="PlaceholderStatusText" Text="Status: navigation available" Foreground="#99ffffff" FontSize="11" TextWrapping="Wrap"/></StackPanel></Border></StackPanel>
                     <StackPanel Name="AboutContent" Visibility="Collapsed">
-                        <TextBlock Text="ABOUT APP — HyperBoostX" FontSize="16" Foreground="#38bdf8" FontWeight="Bold" Margin="0,0,0,20"/>
+                        <TextBlock Text="ABOUT HYPERBOOST X" FontSize="16" Foreground="#38bdf8" FontWeight="Bold" Margin="0,0,0,20"/>
                         <Border Style="{StaticResource InfoCardStyle}">
                             <StackPanel>
-                                <TextBlock Text="HyperBoostX adalah aplikasi optimasi Windows untuk meningkatkan performa secara cepat, ringan, dan efisien."
+                                <TextBlock Text="HyperBoost X adalah aplikasi Windows optimization suite yang menggabungkan performance tuning, cleanup, automation, repair tools, dan AI assistant dalam satu control center terintegrasi."
                                            Foreground="#e2e8f0"
                                            FontSize="13"
                                            TextWrapping="Wrap"
                                            Margin="0,0,0,18"/>
 
-                                <TextBlock Text="FITUR" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
-                                <TextBlock Text="Quick Boost (1 klik optimasi)" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
-                                <TextBlock Text="Performance Boost (CPU, RAM, background)" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
-                                <TextBlock Text="Startup Manager" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
-                                <TextBlock Text="Storage Cleaner" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
-                                <TextBlock Text="Gaming Mode" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
-                                <TextBlock Text="Advanced Tweaks" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,16"/>
+                                <TextBlock Text="Dibangun dengan arsitektur WPF desktop client + Python backend + .NET launcher, HyperBoost X dirancang untuk memberikan kontrol penuh terhadap sistem dengan pendekatan modular dan scalable."
+                                           Foreground="#cbd5e1"
+                                           FontSize="12"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,18"/>
 
-                                <TextBlock Text="TUJUAN" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
-                                <TextBlock Text="Mempercepat Windows" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
-                                <TextBlock Text="Mengurangi lag" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
-                                <TextBlock Text="Membersihkan sistem" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
-                                <TextBlock Text="Memberikan kontrol lebih ke user" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,16"/>
+                                <TextBlock Text="DESCRIPTION" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
+                                <TextBlock Text="HyperBoost X menyediakan berbagai modul untuk mengelola dan mengoptimalkan sistem Windows secara menyeluruh, termasuk performa, jaringan, service, dan recovery."
+                                           Foreground="#cbd5e1"
+                                           FontSize="12"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,8"/>
+                                <TextBlock Text="Aplikasi ini berfungsi sebagai all-in-one control panel yang menggabungkan optimasi manual, automation system, dan AI-assisted actions dalam satu platform."
+                                           Foreground="#cbd5e1"
+                                           FontSize="12"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,16"/>
 
-                                <TextBlock Text="DEVELOPER" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
+                                <TextBlock Text="FEATURES" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
+                                <TextBlock Text="Real-time Dashboard &amp; System Monitoring" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="One Click Boost &amp; Performance Optimization" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Startup Manager, Cleanup &amp; Storage Tools" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Network Optimization Module" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Gaming Booster, Streaming Mode, Creator Mode" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Privacy Center &amp; Security Health Tools" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Repair Tools &amp; Driver / Update Center" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Tweaks Center &amp; Advanced Tweaks" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Windows Features &amp; Services Manager" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Power Optimization &amp; Visual Effects Control" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Backup &amp; Restore + Restore Point Manager" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Scheduled Automation (task &amp; rule system)" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="AI Assistant (HyperBoostX Copilot - OpenAI integration)" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Discord Webhook Error Reporting" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Multi-language Support (Localization System)" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,16"/>
+
+                                <TextBlock Text="PURPOSE" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
+                                <TextBlock Text="Menjadi pusat kontrol utama untuk optimasi Windows" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Mengintegrasikan berbagai tools dalam satu aplikasi" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Menyediakan automation berbasis rule &amp; task" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Menghadirkan AI sebagai asisten sistem" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Meningkatkan performa dan efisiensi tanpa kompleksitas" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,16"/>
+
+                                <TextBlock Text="ARCHITECTURE" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
+                                <TextBlock Text="WPF Client -> UI &amp; core logic" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Python Backend (Flask) -> services &amp; optimization engine" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text=".NET Launcher -> lifecycle management (start, monitor, shutdown)" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,16"/>
+
+                                <TextBlock Text="DEVELOPER / AUTHOR" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
                                 <TextBlock Text="MR.4NONY" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,16"/>
 
                                 <TextBlock Text="VERSION" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
                                 <TextBlock Text="1.1.0 Beta — 2026" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,16"/>
 
                                 <TextBlock Text="NOTE" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
-                                <TextBlock Text="Gunakan dengan bijak." Foreground="#f8fafc" FontSize="12" Margin="0,0,0,4"/>
-                                <TextBlock Text="Disarankan membuat restore point sebelum fitur advanced." Foreground="#fbbf24" FontSize="12" TextWrapping="Wrap"/>
+                                <TextBlock Text="Masih dalam tahap beta (internal testing &amp; validation)" Foreground="#f8fafc" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Beberapa fitur membutuhkan akses administrator" Foreground="#f8fafc" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Disarankan membuat backup / restore point sebelum perubahan besar" Foreground="#fbbf24" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                                <TextBlock Text="AI Assistant memerlukan koneksi internet" Foreground="#f8fafc" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Fokus saat ini: stabilitas, automation system, dan runtime validation" Foreground="#f8fafc" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,16"/>
+
+                                <TextBlock Text="TAGLINE" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
+                                <TextBlock Text="Your System. Fully Controlled." Foreground="#e2e8f0" FontSize="12"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
