@@ -31,7 +31,7 @@ namespace HyperBoostX.Services
     {
         private static readonly HttpClient HttpClient = new HttpClient
         {
-            Timeout = TimeSpan.FromSeconds(30)
+            Timeout = TimeSpan.FromSeconds(45)
         };
 
         public async Task<OpenAiCopilotResponse> AskAsync(OpenAiCopilotRequest request)
@@ -50,6 +50,7 @@ namespace HyperBoostX.Services
             var payload = new
             {
                 model = string.IsNullOrWhiteSpace(request.Model) ? "gpt-4.1-mini" : request.Model,
+                max_output_tokens = 450,
                 input = new object[]
                 {
                     new
@@ -106,7 +107,9 @@ namespace HyperBoostX.Services
 
                         foreach (var block in content)
                         {
-                            var text = block["text"]?.ToString();
+                            var text = block["text"]?.ToString()
+                                ?? block["output_text"]?.ToString()
+                                ?? block["content"]?.ToString();
                             if (!string.IsNullOrWhiteSpace(text))
                             {
                                 outputText = text;

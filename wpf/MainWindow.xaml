@@ -460,7 +460,7 @@
                                 <TextBlock Name="AiCopilotStatusText" Text="AI Status: Offline&#10;Model: not configured&#10;Mode: Assistant&#10;Permission: Ask" Foreground="#38bdf8" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,12"/>
                                 <TextBox Name="AiCopilotInput" Text="Describe what you want, for example: PC feels heavy, prepare for gaming, fix my network." Background="#0f172a" Foreground="#ffffff" Padding="10" Margin="0,0,0,12" BorderThickness="1" BorderBrush="#334155" TextWrapping="Wrap" AcceptsReturn="True" Height="82"/>
                                 <WrapPanel Margin="0,0,0,12">
-                                    <Button Content="Ask AI" Click="AskAiCopilot_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Name="AskAiCopilotBtn" Content="Ask AI" Click="AskAiCopilot_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                     <Button Content="FIX MY PC" Click="AiFixMyPc_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                     <Button Content="PREPARE FOR GAMING" Click="AiPrepareGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                     <Button Content="CLEAN SAFELY" Click="AiCleanSafely_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>

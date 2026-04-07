@@ -259,6 +259,9 @@ namespace HyperBoostX
         private bool _isAppUpdateAvailable;
         private bool _appUpdateCheckInProgress;
         private OpenAiCopilotResponse _lastAiCopilotResponse;
+        private bool _aiRequestInProgress;
+        private DateTime _lastAiContextBuiltUtc = DateTime.MinValue;
+        private string _cachedAiSystemContext = "";
         private readonly Queue<string> _aiCopilotMemory = new();
         private string _lastAiPrompt = "";
         private string _lastAiSystemContext = "";
@@ -1909,16 +1912,32 @@ namespace HyperBoostX
 
         private async Task<string> BuildAiSystemContextAsync()
         {
-            var stats = await SafeApiCall(() => _backendClient.GetSystemStatsAsync());
-            var processes = await SafeApiCall(() => _backendClient.GetProcessesAsync());
-            var startup = await SafeApiCall(() => _backendClient.GetStartupItemsAsync());
+            if (!string.IsNullOrWhiteSpace(_cachedAiSystemContext) &&
+                DateTime.UtcNow - _lastAiContextBuiltUtc < TimeSpan.FromSeconds(8))
+            {
+                return _cachedAiSystemContext;
+            }
+
+            var statsTask = SafeApiCall(() => _backendClient.GetSystemStatsAsync());
+            var processesTask = SafeApiCall(() => _backendClient.GetProcessesAsync());
+            var startupTask = SafeApiCall(() => _backendClient.GetStartupItemsAsync());
+            await Task.WhenAll(statsTask, processesTask, startupTask);
+
+            var stats = await statsTask;
+            var processes = await processesTask;
+            var startup = await startupTask;
             var cpu = stats?["cpu"]?.Value<double?>() ?? stats?["cpu_percent"]?.Value<double?>() ?? 0d;
             var ram = stats?["memory"]?.Value<double?>() ?? stats?["memory_percent"]?.Value<double?>() ?? 0d;
             var disk = stats?["disk"]?.Value<double?>() ?? stats?["disk_percent"]?.Value<double?>() ?? 0d;
-            var processCount = processes is Newtonsoft.Json.Linq.JArray processArray ? processArray.Count : 0;
-            var startupCount = startup is Newtonsoft.Json.Linq.JArray startupArray ? startupArray.Count : 0;
+            var processCount = (processes?["processes"] as Newtonsoft.Json.Linq.JArray)?.Count
+                ?? (processes as Newtonsoft.Json.Linq.JArray)?.Count
+                ?? 0;
+            var startupCount = (startup?["startup_items"] as Newtonsoft.Json.Linq.JArray)?.Count
+                ?? (startup?["items"] as Newtonsoft.Json.Linq.JArray)?.Count
+                ?? (startup as Newtonsoft.Json.Linq.JArray)?.Count
+                ?? 0;
 
-            return
+            _cachedAiSystemContext =
                 $"Active page: {_activePage}\n" +
                 $"CPU: {cpu:0}%\n" +
                 $"RAM: {ram:0}%\n" +
@@ -1931,6 +1950,8 @@ namespace HyperBoostX
                 $"User mode: {_settingsUserMode}\n" +
                 $"Last boost result: {_lastBoostScore}\n" +
                 $"Cleanup safety mode: {_cleanupSafetyMode}";
+            _lastAiContextBuiltUtc = DateTime.UtcNow;
+            return _cachedAiSystemContext;
         }
 
         private static string MapAiActionToAutomationActionLabel(string action)
@@ -2362,6 +2383,12 @@ namespace HyperBoostX
 
         private async Task HandleAiCopilotPromptAsync(string prompt)
         {
+            if (_aiRequestInProgress)
+            {
+                ShowActionStatus(ActionState.Info, "AI Copilot", "AI masih memproses permintaan sebelumnya.");
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(prompt))
             {
                 ShowActionStatus(ActionState.Warning, "AI Copilot", "Masukkan permintaan untuk AI dulu.");
@@ -2375,9 +2402,17 @@ namespace HyperBoostX
                 return;
             }
 
+            _aiRequestInProgress = true;
             try
             {
-                AiCopilotReplyText.Text = "AI sedang menganalisis context sistem dan menyusun jawaban...";
+                if (AskAiCopilotBtn != null)
+                {
+                    AskAiCopilotBtn.IsEnabled = false;
+                    AskAiCopilotBtn.Content = "AI Working...";
+                }
+
+                AiCopilotReplyText.Text = "AI sedang menganalisis context sistem, membaca snapshot ringan, lalu menyusun jawaban...";
+                AiCopilotActionPlanText.Text = "Preparing context and action plan...";
                 _lastAiPrompt = prompt.Trim();
                 var context = await BuildAiSystemContextAsync();
                 _lastAiSystemContext = context;
@@ -2443,6 +2478,15 @@ namespace HyperBoostX
                     $"Reason: {ex.Message}";
                 await RefreshAiCopilotDiagnosticsAsync(refreshContext: false);
                 ShowActionStatus(ActionState.Error, "AI Copilot", "Gagal menghubungi OpenAI atau memproses response.", ex.Message);
+            }
+            finally
+            {
+                _aiRequestInProgress = false;
+                if (AskAiCopilotBtn != null)
+                {
+                    AskAiCopilotBtn.IsEnabled = true;
+                    AskAiCopilotBtn.Content = "Ask AI";
+                }
             }
         }
 

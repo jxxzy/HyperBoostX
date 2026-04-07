@@ -20,9 +20,19 @@ class BoosterService:
     # Non-essential processes to potentially close
     NON_ESSENTIAL_PROCESSES = [
         "OneDrive.exe", "Teams.exe", "SkypeApp.exe", "Spotify.exe",
-        "Discord.exe", "Steam.exe", "EpicGamesLauncher.exe", "uTorrent.exe",
-        "chrome.exe", "firefox.exe", "msedge.exe", "iexplore.exe"
+        "uTorrent.exe"
     ]
+
+    # Processes that should never be closed by default gaming boost.
+    PROTECTED_INTERACTIVE_PROCESSES = {
+        "Discord.exe",
+        "Steam.exe",
+        "EpicGamesLauncher.exe",
+        "chrome.exe",
+        "firefox.exe",
+        "msedge.exe",
+        "iexplore.exe"
+    }
     
     # Registry paths for optimizations
     REG_PATHS = {
@@ -158,9 +168,16 @@ class BoosterService:
     def _disable_background_apps() -> bool:
         """Close non-essential background applications."""
         closed_count = 0
+        non_essential = {p.lower() for p in BoosterService.NON_ESSENTIAL_PROCESSES}
+        protected = {p.lower() for p in BoosterService.PROTECTED_INTERACTIVE_PROCESSES}
+
         for proc in psutil.process_iter(['pid', 'name']):
             try:
-                if proc.info['name'].lower() in [p.lower() for p in BoosterService.NON_ESSENTIAL_PROCESSES]:
+                process_name = (proc.info.get('name') or '').lower()
+                if not process_name or process_name in protected:
+                    continue
+
+                if process_name in non_essential:
                     proc.kill()
                     closed_count += 1
                     logger.info(f"Closed process: {proc.info['name']}")

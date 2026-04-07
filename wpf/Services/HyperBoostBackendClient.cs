@@ -19,12 +19,20 @@ namespace HyperBoostX.Services
         private readonly string _baseUrl;
         private readonly SemaphoreSlim _systemStatsLock = new(1, 1);
         private readonly SemaphoreSlim _systemInfoLock = new(1, 1);
+        private readonly SemaphoreSlim _startupItemsLock = new(1, 1);
+        private readonly SemaphoreSlim _processesLock = new(1, 1);
         private JObject _cachedSystemStats;
         private DateTime _cachedSystemStatsUtc = DateTime.MinValue;
         private JObject _cachedSystemInfo;
         private DateTime _cachedSystemInfoUtc = DateTime.MinValue;
+        private JToken _cachedStartupItems;
+        private DateTime _cachedStartupItemsUtc = DateTime.MinValue;
+        private JToken _cachedProcesses;
+        private DateTime _cachedProcessesUtc = DateTime.MinValue;
         private static readonly TimeSpan SystemStatsCacheLifetime = TimeSpan.FromMilliseconds(900);
         private static readonly TimeSpan SystemInfoCacheLifetime = TimeSpan.FromSeconds(12);
+        private static readonly TimeSpan StartupItemsCacheLifetime = TimeSpan.FromSeconds(6);
+        private static readonly TimeSpan ProcessesCacheLifetime = TimeSpan.FromSeconds(2);
 
         public HyperBoostBackendClient(string baseUrl = "http://127.0.0.1:5000")
         {
@@ -135,6 +143,23 @@ namespace HyperBoostX.Services
         private static JObject CloneToken(JObject source)
         {
             return source == null ? null : (JObject)source.DeepClone();
+        }
+
+        private static bool TryGetFreshCache(DateTime cachedUtc, TimeSpan lifetime, JToken cache, out JToken clone)
+        {
+            if (cache != null && DateTime.UtcNow - cachedUtc <= lifetime)
+            {
+                clone = cache.DeepClone();
+                return true;
+            }
+
+            clone = null;
+            return false;
+        }
+
+        private static JToken CloneToken(JToken source)
+        {
+            return source?.DeepClone();
         }
 
         /// <summary>
@@ -316,16 +341,33 @@ namespace HyperBoostX.Services
         /// </summary>
         public async Task<dynamic> GetStartupItemsAsync()
         {
+            if (TryGetFreshCache(_cachedStartupItemsUtc, StartupItemsCacheLifetime, _cachedStartupItems, out var cachedStartupItems))
+                return cachedStartupItems;
+
+            await _startupItemsLock.WaitAsync();
             try
             {
+                if (TryGetFreshCache(_cachedStartupItemsUtc, StartupItemsCacheLifetime, _cachedStartupItems, out cachedStartupItems))
+                    return cachedStartupItems;
+
                 var response = await _httpClient.GetAsync($"{_baseUrl}/api/startup/list");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(json);
+                var parsed = JToken.Parse(json);
+                _cachedStartupItems = parsed;
+                _cachedStartupItemsUtc = DateTime.UtcNow;
+                return CloneToken(parsed);
             }
             catch (Exception ex)
             {
+                if (_cachedStartupItems != null)
+                    return CloneToken(_cachedStartupItems);
+
                 throw new InvalidOperationException($"Failed to get startup items: {ex.Message}", ex);
+            }
+            finally
+            {
+                _startupItemsLock.Release();
             }
         }
 
@@ -334,16 +376,33 @@ namespace HyperBoostX.Services
         /// </summary>
         public async Task<dynamic> GetProcessesAsync()
         {
+            if (TryGetFreshCache(_cachedProcessesUtc, ProcessesCacheLifetime, _cachedProcesses, out var cachedProcesses))
+                return cachedProcesses;
+
+            await _processesLock.WaitAsync();
             try
             {
+                if (TryGetFreshCache(_cachedProcessesUtc, ProcessesCacheLifetime, _cachedProcesses, out cachedProcesses))
+                    return cachedProcesses;
+
                 var response = await _httpClient.GetAsync($"{_baseUrl}/api/system/processes");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(json);
+                var parsed = JToken.Parse(json);
+                _cachedProcesses = parsed;
+                _cachedProcessesUtc = DateTime.UtcNow;
+                return CloneToken(parsed);
             }
             catch (Exception ex)
             {
+                if (_cachedProcesses != null)
+                    return CloneToken(_cachedProcesses);
+
                 throw new InvalidOperationException($"Failed to get process list: {ex.Message}", ex);
+            }
+            finally
+            {
+                _processesLock.Release();
             }
         }
 
