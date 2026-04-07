@@ -8,9 +8,11 @@
     <Nullable>enable</Nullable>
     <ApplicationIcon>..\wpf\Assets\HyperBoostX.ico</ApplicationIcon>
     <AssemblyTitle>HyperBoost X Launcher</AssemblyTitle>
-    <AssemblyDescription>One-click launcher for HyperBoost X</AssemblyDescription>
-    <AssemblyCompany>HyperBoost</AssemblyCompany>
+    <AssemblyDescription>Launcher and lifecycle manager for HyperBoost X</AssemblyDescription>
+    <AssemblyCompany>MR.4NONY</AssemblyCompany>
     <AssemblyProduct>HyperBoost X</AssemblyProduct>
+    <Authors>MR.4NONY</Authors>
+    <Copyright>Copyright (c) MR.4NONY</Copyright>
     <Version>1.1.0-beta</Version>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <FileVersion>1.1.0.0</FileVersion>

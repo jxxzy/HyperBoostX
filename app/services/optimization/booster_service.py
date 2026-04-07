@@ -1,6 +1,7 @@
 """Booster service for HyperBoost X."""
 
 import os
+import time
 from typing import Dict, Any, List
 
 import psutil
@@ -16,6 +17,10 @@ logger = Logger.get_logger(__name__)
 
 class BoosterService:
     """Service for game and performance boosting."""
+
+    _last_profile_id = ""
+    _last_profile_started_at = 0.0
+    _profile_cooldown_seconds = 5.0
     
     # Non-essential processes to potentially close
     NON_ESSENTIAL_PROCESSES = [
@@ -62,6 +67,27 @@ class BoosterService:
         logger.info(f"Applying profile: {profile_id}")
         
         try:
+            normalized_profile = (profile_id or "").strip().lower()
+            now = time.time()
+            if (
+                normalized_profile
+                and BoosterService._last_profile_id == normalized_profile
+                and now - BoosterService._last_profile_started_at < BoosterService._profile_cooldown_seconds
+            ):
+                logger.warning(
+                    "Skipped duplicate booster apply for profile '%s' inside cooldown window.",
+                    normalized_profile
+                )
+                return {
+                    "success": True,
+                    "partial_success": False,
+                    "duplicate_request": True,
+                    "message": f"Profile '{normalized_profile}' already applied recently. Duplicate trigger skipped."
+                }
+
+            BoosterService._last_profile_id = normalized_profile
+            BoosterService._last_profile_started_at = now
+
             profile = ProfileManager.PROFILES.get(profile_id.lower())
             if not profile:
                 return {"success": False, "error": f"Profile not found: {profile_id}"}

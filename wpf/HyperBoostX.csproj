@@ -10,6 +10,12 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <ApplicationIcon>Assets\HyperBoostX.ico</ApplicationIcon>
     <LangVersion>latest</LangVersion>
+    <AssemblyTitle>HyperBoost X</AssemblyTitle>
+    <Description>All-in-one Windows optimization, automation, repair, and AI-assisted control center.</Description>
+    <Company>MR.4NONY</Company>
+    <Authors>MR.4NONY</Authors>
+    <Product>HyperBoost X</Product>
+    <Copyright>Copyright (c) MR.4NONY</Copyright>
     <Version>1.1.0-beta</Version>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <FileVersion>1.1.0.0</FileVersion>

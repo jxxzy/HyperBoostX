@@ -5,6 +5,13 @@ Name "HyperBoost X"
 OutFile "HyperBoostXInstaller.exe"
 InstallDir "$PROGRAMFILES64\HyperBoost X"
 RequestExecutionLevel admin
+VIProductVersion "1.1.0.0"
+VIAddVersionKey "ProductName" "HyperBoost X"
+VIAddVersionKey "CompanyName" "MR.4NONY"
+VIAddVersionKey "FileDescription" "HyperBoost X Installer"
+VIAddVersionKey "FileVersion" "1.1.0-beta"
+VIAddVersionKey "ProductVersion" "1.1.0-beta"
+VIAddVersionKey "LegalCopyright" "Copyright (c) MR.4NONY"
 !define MUI_ICON "wpf\Assets\HyperBoostX.ico"
 !define MUI_UNICON "wpf\Assets\HyperBoostX.ico"
 

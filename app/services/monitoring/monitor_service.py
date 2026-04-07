@@ -19,6 +19,8 @@ class MonitorService:
     _last_net = None
     _last_disk = None
     _last_time = None
+    _last_process_snapshot = []
+    _last_process_snapshot_utc = 0.0
 
     @classmethod
     def _delta_counters(cls):
@@ -124,20 +126,32 @@ class MonitorService:
             processes = []
             for proc in psutil.process_iter(['pid', 'name', 'memory_percent', 'cpu_percent', 'io_counters', 'num_threads']):
                 try:
-                    io_counters = proc.info.get('io_counters')
+                    proc_info = proc.info or {}
+                    pid = proc_info.get('pid')
+                    if pid is None:
+                        pid = proc.pid
+                    if pid is None:
+                        continue
+
+                    io_counters = proc_info.get('io_counters')
                     processes.append({
-                        'pid': proc.info['pid'],
-                        'name': proc.info['name'] or 'Unknown',
-                        'memory': proc.info['memory_percent'] or 0,
-                        'cpu': proc.info['cpu_percent'] or 0,
-                        'threads': proc.info.get('num_threads', 0) or 0,
+                        'pid': pid,
+                        'name': proc_info.get('name') or 'Unknown',
+                        'memory': proc_info.get('memory_percent') or 0,
+                        'cpu': proc_info.get('cpu_percent') or 0,
+                        'threads': proc_info.get('num_threads', 0) or 0,
                         'disk_io_mb': (io_counters.read_bytes + io_counters.write_bytes) / (1024**2) if io_counters else 0,
                     })
-                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                except (psutil.NoSuchProcess, psutil.AccessDenied, KeyError, AttributeError):
                     pass
-            return sorted(processes, key=lambda x: x['memory'], reverse=True)[:limit]
+            sorted_processes = sorted(processes, key=lambda x: x['memory'], reverse=True)[:limit]
+            MonitorService._last_process_snapshot = sorted_processes
+            MonitorService._last_process_snapshot_utc = time.time()
+            return sorted_processes
         except Exception as e:
             logger.error(f"Error getting process list: {e}")
+            if MonitorService._last_process_snapshot and (time.time() - MonitorService._last_process_snapshot_utc) <= 10:
+                return MonitorService._last_process_snapshot[:limit]
             return []
 
     @staticmethod

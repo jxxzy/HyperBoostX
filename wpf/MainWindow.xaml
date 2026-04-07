@@ -160,12 +160,13 @@
 
                         <Border Padding="15,12,15,4"><TextBlock Text="🧰 EXTRA TOOLS" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
                         <Button Name="UtilitiesToolsBtn" Content="31. Utilities Tools" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="FeatureAuditBtn" Content="32. Feature Audit" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
                         <Border Padding="15,12,15,4"><TextBlock Text="⚙️ SETTINGS" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
-                        <Button Name="SettingsBtn" Content="32. App Settings" Click="SettingsBtn_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="SettingsBtn" Content="33. App Settings" Click="SettingsBtn_Click" Style="{StaticResource NavButtonStyle}"/>
 
                         <Border Padding="15,12,15,4"><TextBlock Text="ℹ️ ABOUT" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
-                        <Button Name="AboutAppBtn" Content="33. About App" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}" Margin="0,0,0,12"/>
+                        <Button Name="AboutAppBtn" Content="34. About App" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}" Margin="0,0,0,12"/>
                     </StackPanel>
                 </ScrollViewer>
             </DockPanel>
@@ -5541,6 +5542,72 @@
                                 </StackPanel>
                             </Border>
                         </Grid>
+                    </StackPanel>
+                    <StackPanel Name="TestingContent" Visibility="Collapsed">
+                        <TextBlock Text="FEATURE AUDIT / TEST CENTER" FontSize="18" Foreground="#38bdf8" FontWeight="Bold" Margin="0,0,0,8"/>
+                        <TextBlock Text="Audit otomatis untuk memastikan semua menu inti hidup, refresh path aman, dan summary hasil test langsung dikirim ke Discord jika webhook aktif." Foreground="#cbd5e1" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,18"/>
+
+                        <Border Style="{StaticResource InfoCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="MASTER TEST ENGINE" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                <WrapPanel Margin="0,0,0,12">
+                                    <Button Content="RUN QUICK AUDIT" Click="RunQuickFeatureAudit_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="RUN FULL FEATURE AUDIT" Click="RunFullFeatureAudit_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="SEND LAST REPORT TO DISCORD" Click="SendFeatureAuditReport_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="OPEN AUDIT LOGS" Click="OpenFeatureAuditLogs_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                </WrapPanel>
+                                <TextBlock Name="TestingQuickResultText" Text="Feature audit engine ready&#10;No audit executed yet." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.05*"/>
+                                <ColumnDefinition Width="0.95*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Style="{StaticResource InfoCardStyle}" Margin="0,0,12,0">
+                                <StackPanel>
+                                    <TextBlock Text="1. Audit Dashboard" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <TextBlock Name="TestingDashboardText" Text="Audit status, backend health, total tested menu, failed modules, Discord routing, dan last run summary akan tampil di sini." Foreground="#38bdf8" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="1" Style="{StaticResource InfoCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="2. Runtime Status" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <TextBlock Name="TestingStatusText" Text="Automation-ready status, Discord webhook state, active page, dan execution mode akan tampil di sini." Foreground="#22c55e" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Style="{StaticResource InfoCardStyle}" Margin="0,0,12,0">
+                                <StackPanel>
+                                    <TextBlock Text="3. Module Audit Results" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <TextBlock Name="TestingModulesText" Text="Per-module audit result akan tampil di sini." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="1" Style="{StaticResource InfoCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="4. Audit History &amp; Delivery" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <TextBlock Name="TestingHistoryText" Text="History audit lokal dan delivery status ke Discord akan tampil di sini." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Border Style="{StaticResource InfoCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="5. Audit Report Preview" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                <TextBlock Name="TestingReportPreviewText" Text="Report preview akan tampil di sini setelah audit berjalan." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                     <StackPanel Name="PlaceholderContent" Visibility="Collapsed"><TextBlock Name="PlaceholderTitleText" Text="Feature Hub" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/><Border Background="#2c2c2c" CornerRadius="5" BorderThickness="1" BorderBrush="#3c3c3c" Padding="18" Margin="0,0,0,15"><StackPanel><TextBlock Name="PlaceholderDescriptionText" Text="This section is ready in the navigation and can be wired to backend actions next." Foreground="#cccccc" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/><TextBlock Name="PlaceholderStatusText" Text="Status: navigation available" Foreground="#99ffffff" FontSize="11" TextWrapping="Wrap"/></StackPanel></Border></StackPanel>
                     <StackPanel Name="AboutContent" Visibility="Collapsed">

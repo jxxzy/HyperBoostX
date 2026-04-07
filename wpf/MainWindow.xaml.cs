@@ -125,6 +125,21 @@ namespace HyperBoostX
             public bool ShouldCreateRestorePoint { get; set; }
         }
 
+        private sealed class FeatureAuditTarget
+        {
+            public string Name { get; set; } = "";
+            public Func<Task> ExecuteAsync { get; set; } = () => Task.CompletedTask;
+            public Func<string> Snapshot { get; set; } = () => "No snapshot.";
+        }
+
+        private sealed class FeatureAuditResult
+        {
+            public string Name { get; set; } = "";
+            public bool Success { get; set; }
+            public long DurationMs { get; set; }
+            public string Details { get; set; } = "";
+        }
+
         private HyperBoostBackendClient _backendClient;
         private string _currentBackendUrl = "http://127.0.0.1:5000";
         private Button _selectedNavButton;
@@ -196,7 +211,13 @@ namespace HyperBoostX
         private readonly List<AutomationTaskRecord> _automationTasks = new();
         private readonly List<AutomationAuditEntry> _automationAudit = new();
         private readonly Queue<string> _utilitiesHistory = new();
+        private readonly Queue<string> _featureAuditHistory = new();
         private string _utilitiesMode = "Smart Assist";
+        private readonly List<FeatureAuditResult> _lastFeatureAuditResults = new();
+        private string _lastFeatureAuditSummary = "No audit has been executed yet.";
+        private string _lastFeatureAuditMode = "Quick";
+        private DateTime? _lastFeatureAuditUtc;
+        private bool _featureAuditRunning;
         private readonly Queue<string> _settingsHistory = new();
         private string _settingsUserMode = "Beginner";
         private string _settingsPerformanceLevel = "Balanced";
@@ -1129,6 +1150,7 @@ namespace HyperBoostX
                 "Visual" => TimeSpan.FromSeconds(2),
                 "Automation" => TimeSpan.FromSeconds(2),
                 "Utilities" => TimeSpan.FromSeconds(3),
+                "Testing" => TimeSpan.FromSeconds(4),
                 "About" => TimeSpan.FromSeconds(5),
                 _ => TimeSpan.Zero
             };
@@ -1173,6 +1195,9 @@ namespace HyperBoostX
                     break;
                 case "Utilities":
                     await RefreshUtilitiesViewAsync();
+                    break;
+                case "Testing":
+                    await RefreshFeatureAuditViewAsync();
                     break;
                 case "About":
                     await RefreshAboutViewAsync();
@@ -1558,6 +1583,7 @@ namespace HyperBoostX
             RestorePointContent.Visibility = Visibility.Collapsed;
             AutomationContent.Visibility = Visibility.Collapsed;
             UtilitiesContent.Visibility = Visibility.Collapsed;
+            TestingContent.Visibility = Visibility.Collapsed;
             SettingsContent.Visibility = Visibility.Collapsed;
             TweaksContent.Visibility = Visibility.Collapsed;
             DriversContent.Visibility = Visibility.Collapsed;
@@ -1737,6 +1763,11 @@ namespace HyperBoostX
                     SetLocalizedPageHeader("Utilities", "Utilities Tools", "Toolbox utama untuk cleanup, diagnostics, repair, network fix, system control, monitoring, workflow, analytics, dan autonomous maintenance.");
                     UtilitiesContent.Visibility = Visibility.Visible;
                     await RefreshUtilitiesViewAsync();
+                    break;
+                case "Testing":
+                    SetLocalizedPageHeader("Testing", "Feature Audit", "Audit otomatis untuk memastikan semua menu inti hidup, refresh path aman, dan summary hasil test langsung dikirim ke Discord.");
+                    TestingContent.Visibility = Visibility.Visible;
+                    await RefreshFeatureAuditViewAsync();
                     break;
                 case "Settings":
                     SetLocalizedPageHeader("Settings", "Settings", "Otak + aturan hidup aplikasi: UI, automation brain, system control, safety, engine, logging, update, dan master switch HyperBoostX.");
@@ -2704,6 +2735,9 @@ namespace HyperBoostX
                     break;
                 case nameof(UtilitiesToolsBtn):
                     await ShowPage("Utilities", button);
+                    break;
+                case nameof(FeatureAuditBtn):
+                    await ShowPage("Testing", button);
                     break;
                 case nameof(AboutAppBtn):
                     await ShowPage("About", button);
@@ -13816,6 +13850,504 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             AppendUtilitiesHistory("FULL SYSTEM MAINTENANCE executed.");
             UtilitiesQuickResultText.Text = "Full maintenance executed\nDeep clean + repair + optimize requested";
             await RefreshUtilitiesViewAsync();
+        }
+
+        #endregion
+
+        #region Feature Audit
+
+        private string GetAppLogsDirectory()
+        {
+            var directory = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "HyperBoost X",
+                "logs");
+            Directory.CreateDirectory(directory);
+            return directory;
+        }
+
+        private string GetFeatureAuditLogPath()
+        {
+            return Path.Combine(GetAppLogsDirectory(), "feature-audit.log");
+        }
+
+        private void AppendFeatureAuditHistory(string entry)
+        {
+            if (string.IsNullOrWhiteSpace(entry))
+                return;
+
+            if (_featureAuditHistory.Count >= 16)
+                _featureAuditHistory.Dequeue();
+
+            _featureAuditHistory.Enqueue($"{DateTime.Now:HH:mm:ss} - {entry}");
+            if (TestingHistoryText != null)
+                TestingHistoryText.Text = string.Join(Environment.NewLine, _featureAuditHistory.Reverse());
+        }
+
+        private static string TrimFeatureAuditText(string value, int maxLength = 220)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return "Refresh completed.";
+
+            var normalized = value.Replace("\r", " ").Replace("\n", " ").Trim();
+            if (normalized.Length <= maxLength)
+                return normalized;
+
+            return normalized.Substring(0, maxLength - 3) + "...";
+        }
+
+        private List<FeatureAuditTarget> BuildFeatureAuditTargets(bool fullAudit)
+        {
+            var targets = new List<FeatureAuditTarget>
+            {
+                new()
+                {
+                    Name = "Dashboard",
+                    ExecuteAsync = RefreshDashboard,
+                    Snapshot = () => $"CPU {CpuText?.Text ?? "--"} | RAM {MemoryText?.Text ?? "--"} | Disk {DiskText?.Text ?? "--"}"
+                },
+                new()
+                {
+                    Name = "One Click Boost",
+                    ExecuteAsync = () =>
+                    {
+                        InitializeOneClickBoostDefaults();
+                        RefreshLastBoostView();
+                        return Task.CompletedTask;
+                    },
+                    Snapshot = () => _lastBoostScore
+                },
+                new()
+                {
+                    Name = "Startup Manager",
+                    ExecuteAsync = RefreshStartupItems,
+                    Snapshot = () => StartupScoreText?.Text ?? StartupSummaryText?.Text
+                },
+                new()
+                {
+                    Name = "Cleanup",
+                    ExecuteAsync = RefreshCleanupViewAsync,
+                    Snapshot = () => CleanupScanText?.Text ?? CleanupSmartRecommendationText?.Text
+                },
+                new()
+                {
+                    Name = "Network Booster",
+                    ExecuteAsync = async () =>
+                    {
+                        await RefreshNetworkDiagnostics();
+                        await RefreshNetworkBoosterViewAsync();
+                    },
+                    Snapshot = () => NetworkDiagnosticsText?.Text ?? NetworkAdapterText?.Text
+                },
+                new()
+                {
+                    Name = "Privacy Center",
+                    ExecuteAsync = RefreshPrivacyViewAsync,
+                    Snapshot = () => PrivacyDashboardText?.Text ?? PrivacyRecommendationText?.Text
+                },
+                new()
+                {
+                    Name = "Security & Health",
+                    ExecuteAsync = RefreshSecurityHealthViewAsync,
+                    Snapshot = () => SecurityHealthDashboardText?.Text ?? SecurityRecommendationText?.Text
+                },
+                new()
+                {
+                    Name = "Apps Manager",
+                    ExecuteAsync = RefreshAppsManagerViewAsync,
+                    Snapshot = () => RunningAppsManagerText?.Text ?? BackgroundAppsManagerText?.Text
+                },
+                new()
+                {
+                    Name = "Scheduled Automation",
+                    ExecuteAsync = RefreshAutomationViewAsync,
+                    Snapshot = () => AutomationDashboardText?.Text ?? AutomationAnalyticsText?.Text
+                },
+                new()
+                {
+                    Name = "Utilities Tools",
+                    ExecuteAsync = RefreshUtilitiesViewAsync,
+                    Snapshot = () => UtilitiesDashboardText?.Text ?? UtilitiesQuickResultText?.Text
+                },
+                new()
+                {
+                    Name = "Settings",
+                    ExecuteAsync = RefreshSettingsViewAsync,
+                    Snapshot = () => SettingsQuickResultText?.Text ?? SettingsSpecOverviewText?.Text
+                },
+                new()
+                {
+                    Name = "About App",
+                    ExecuteAsync = RefreshAboutViewAsync,
+                    Snapshot = () => AboutVersionText?.Text ?? "About page refreshed."
+                }
+            };
+
+            if (!fullAudit)
+                return targets;
+
+            targets.Insert(2, new FeatureAuditTarget
+            {
+                Name = "Smart Recommendation",
+                ExecuteAsync = async () =>
+                {
+                    await RunSmartRecommendationScanAsync();
+                    await RefreshAiCopilotDiagnosticsAsync(refreshContext: true);
+                },
+                Snapshot = () => SmartOverallScoreText?.Text ?? AiCopilotStatusText?.Text
+            });
+
+            targets.AddRange(new[]
+            {
+                new FeatureAuditTarget
+                {
+                    Name = "Performance Boost",
+                    ExecuteAsync = RefreshPerformanceBoostViewAsync,
+                    Snapshot = () => PerformanceScoreText?.Text ?? PerformanceResultsText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Storage",
+                    ExecuteAsync = RefreshStorageViewAsync,
+                    Snapshot = () => StorageUnifiedOverviewText?.Text ?? StorageHealthText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Gaming Booster",
+                    ExecuteAsync = async () =>
+                    {
+                        InitializeGamingDefaults();
+                        await RefreshGamingBoosterViewAsync();
+                    },
+                    Snapshot = () => GamingMonitorText?.Text ?? GamingRecommendationText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Streaming Mode",
+                    ExecuteAsync = async () =>
+                    {
+                        InitializeStreamingDefaults();
+                        await RefreshStreamingViewAsync();
+                    },
+                    Snapshot = () => StreamingDetectedAppText?.Text ?? StreamingRecommendationText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Creator Mode",
+                    ExecuteAsync = async () =>
+                    {
+                        InitializeCreatorDefaults();
+                        await RefreshCreatorViewAsync();
+                    },
+                    Snapshot = () => CreatorDetectedAppText?.Text ?? CreatorRecommendationText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "DNS & Latency Tools",
+                    ExecuteAsync = RefreshDnsLatencyViewAsync,
+                    Snapshot = () => DnsSpeedTesterText?.Text ?? LatencyTesterText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Background Apps",
+                    ExecuteAsync = RefreshBackgroundApps,
+                    Snapshot = () => BackgroundAppsText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Tweaks Center",
+                    ExecuteAsync = RefreshTweaksCenterViewAsync,
+                    Snapshot = () => TweaksText?.Text ?? TweaksLogText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Windows Features",
+                    ExecuteAsync = RefreshWindowsFeaturesViewAsync,
+                    Snapshot = () => WindowsFeaturesQuickResultText?.Text ?? WindowsFeaturesListText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Update Control",
+                    ExecuteAsync = RefreshUpdateControlViewAsync,
+                    Snapshot = () => UpdateDashboardText?.Text ?? UpdateRecommendationText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Repair Tools",
+                    ExecuteAsync = RefreshRepairViewAsync,
+                    Snapshot = () => RepairDashboardText?.Text ?? RepairRecommendationText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Driver & Update Center",
+                    ExecuteAsync = RefreshDrivers,
+                    Snapshot = () => DriversScannerText?.Text ?? DriversText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "App Uninstaller",
+                    ExecuteAsync = RefreshAppUninstallerViewAsync,
+                    Snapshot = () => AppUninstallerDashboardText?.Text ?? AppUninstallerInventoryText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Advanced Tweaks",
+                    ExecuteAsync = RefreshAdvancedTweaksViewAsync,
+                    Snapshot = () => AdvancedQuickResultText?.Text ?? AdvancedMonitorText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Windows Services",
+                    ExecuteAsync = RefreshServicesViewAsync,
+                    Snapshot = () => ServicesQuickResultText?.Text ?? ServicesListText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Power Optimization",
+                    ExecuteAsync = RefreshPowerOptimizationViewAsync,
+                    Snapshot = () => PowerDashboardText?.Text ?? PowerTelemetryText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Visual Effects",
+                    ExecuteAsync = RefreshVisualEffectsViewAsync,
+                    Snapshot = () => VisualDashboardText?.Text ?? VisualRecommendationText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Restore & Backup",
+                    ExecuteAsync = RefreshRestoreBackupViewAsync,
+                    Snapshot = () => RestoreDashboardText?.Text ?? RestoreHistoryText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Restore Point Manager",
+                    ExecuteAsync = RefreshRestorePointManagerViewAsync,
+                    Snapshot = () => RestorePointDashboardText?.Text ?? RestorePointAuditText?.Text
+                }
+            });
+
+            return targets;
+        }
+
+        private async Task<FeatureAuditResult> RunFeatureAuditTargetAsync(FeatureAuditTarget target)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            try
+            {
+                TestingStatusText.Text =
+                    $"Audit running: {target.Name}{Environment.NewLine}" +
+                    $"Mode: {_lastFeatureAuditMode}{Environment.NewLine}" +
+                    $"Discord webhook: {(_discordWebhookEnabled && !string.IsNullOrWhiteSpace(_discordWebhookUrl) ? "Ready" : "Not configured")}{Environment.NewLine}" +
+                    $"Current page: {_activePage}";
+
+                await target.ExecuteAsync();
+                stopwatch.Stop();
+
+                return new FeatureAuditResult
+                {
+                    Name = target.Name,
+                    Success = true,
+                    DurationMs = stopwatch.ElapsedMilliseconds,
+                    Details = TrimFeatureAuditText(target.Snapshot())
+                };
+            }
+            catch (Exception ex)
+            {
+                stopwatch.Stop();
+                return new FeatureAuditResult
+                {
+                    Name = target.Name,
+                    Success = false,
+                    DurationMs = stopwatch.ElapsedMilliseconds,
+                    Details = TrimFeatureAuditText(ex.Message)
+                };
+            }
+        }
+
+        private string BuildFeatureAuditReport(IReadOnlyCollection<FeatureAuditResult> results)
+        {
+            var passed = results.Count(x => x.Success);
+            var failed = results.Count - passed;
+            var totalMs = results.Sum(x => x.DurationMs);
+            var lines = new List<string>
+            {
+                $"Feature Audit Mode: {_lastFeatureAuditMode}",
+                $"Executed: {_lastFeatureAuditUtc?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}",
+                $"Backend URL: {_currentBackendUrl}",
+                $"Total modules tested: {results.Count}",
+                $"Passed: {passed}",
+                $"Failed: {failed}",
+                $"Total audit time: {totalMs} ms",
+                ""
+            };
+
+            foreach (var result in results)
+            {
+                lines.Add($"{(result.Success ? "[OK]" : "[FAIL]")} {result.Name} | {result.DurationMs} ms | {result.Details}");
+            }
+
+            return string.Join(Environment.NewLine, lines);
+        }
+
+        private async Task WriteFeatureAuditLogAsync(string report)
+        {
+            var logPath = GetFeatureAuditLogPath();
+            await File.AppendAllTextAsync(
+                logPath,
+                $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Feature audit report{Environment.NewLine}{report}{Environment.NewLine}{Environment.NewLine}");
+        }
+
+        private async Task SendFeatureAuditReportToDiscordAsync(string report)
+        {
+            if (!_discordWebhookEnabled || string.IsNullOrWhiteSpace(_discordWebhookUrl))
+            {
+                AppendFeatureAuditHistory("Discord delivery skipped: webhook not configured.");
+                return;
+            }
+
+            var failed = _lastFeatureAuditResults.Count(x => !x.Success);
+            var severity = failed > 0 ? "error" : "warning";
+            var fields = BuildDiscordReportFields(severity, "Automated feature audit report");
+            fields["Audit Mode"] = _lastFeatureAuditMode;
+            fields["Modules Tested"] = _lastFeatureAuditResults.Count.ToString(CultureInfo.InvariantCulture);
+            fields["Failed Modules"] = failed.ToString(CultureInfo.InvariantCulture);
+            fields["Audit Log"] = GetFeatureAuditLogPath();
+
+            var sent = await _discordWebhookService.SendAsync(
+                _discordWebhookUrl,
+                $"HyperBoostX Feature Audit - {_lastFeatureAuditMode}",
+                report,
+                severity,
+                fields);
+
+            AppendFeatureAuditHistory(sent
+                ? "Audit report delivered to Discord."
+                : "Audit report failed to send to Discord.");
+        }
+
+        private async Task RefreshFeatureAuditViewAsync()
+        {
+            var backendHealthy = await _backendClient.HealthCheckAsync();
+            var passed = _lastFeatureAuditResults.Count(x => x.Success);
+            var failed = _lastFeatureAuditResults.Count - passed;
+
+            TestingQuickResultText.Text =
+                (_featureAuditRunning ? "Feature audit running" : "Feature audit engine ready") + Environment.NewLine +
+                _lastFeatureAuditSummary;
+
+            TestingDashboardText.Text =
+                $"Last Audit Mode: {_lastFeatureAuditMode}{Environment.NewLine}" +
+                $"Last Audit Time: {_lastFeatureAuditUtc?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") ?? "Never"}{Environment.NewLine}" +
+                $"Backend Health: {(backendHealthy ? "Healthy" : "Offline / Degraded")}{Environment.NewLine}" +
+                $"Total Modules Tested: {_lastFeatureAuditResults.Count}{Environment.NewLine}" +
+                $"Pass / Fail: {passed} / {failed}{Environment.NewLine}" +
+                $"Logs Path: {GetFeatureAuditLogPath()}";
+
+            TestingStatusText.Text =
+                $"Audit Running: {(_featureAuditRunning ? "Yes" : "No")}{Environment.NewLine}" +
+                $"Discord Webhook: {(_discordWebhookEnabled && !string.IsNullOrWhiteSpace(_discordWebhookUrl) ? "Configured" : "Not configured")}{Environment.NewLine}" +
+                $"Discord Auto Delivery: {(_discordWebhookEnabled ? "Enabled" : "Disabled")}{Environment.NewLine}" +
+                $"Active Page: {_activePage}{Environment.NewLine}" +
+                $"Automation Mode: {_automationMode}";
+
+            TestingModulesText.Text = _lastFeatureAuditResults.Count == 0
+                ? "Per-module audit result akan tampil di sini."
+                : string.Join(Environment.NewLine, _lastFeatureAuditResults
+                    .Select(result => $"{(result.Success ? "[OK]" : "[FAIL]")} {result.Name} | {result.DurationMs} ms | {result.Details}"));
+
+            if (_featureAuditHistory.Count == 0)
+                AppendFeatureAuditHistory("Feature audit center initialized.");
+
+            TestingReportPreviewText.Text = string.IsNullOrWhiteSpace(_lastFeatureAuditSummary)
+                ? "Report preview akan tampil di sini setelah audit berjalan."
+                : BuildFeatureAuditReport(_lastFeatureAuditResults);
+        }
+
+        private async Task RunFeatureAuditAsync(bool fullAudit)
+        {
+            if (_featureAuditRunning)
+            {
+                ShowActionStatus(ActionState.Info, "Feature Audit", "Audit masih berjalan. Tunggu proses saat ini selesai.");
+                return;
+            }
+
+            _featureAuditRunning = true;
+            _lastFeatureAuditMode = fullAudit ? "Full" : "Quick";
+            _lastFeatureAuditUtc = DateTime.UtcNow;
+            _lastFeatureAuditResults.Clear();
+            AppendFeatureAuditHistory($"{_lastFeatureAuditMode} feature audit started.");
+
+            try
+            {
+                await CheckBackendHealth();
+                var targets = BuildFeatureAuditTargets(fullAudit);
+
+                foreach (var target in targets)
+                {
+                    var result = await RunFeatureAuditTargetAsync(target);
+                    _lastFeatureAuditResults.Add(result);
+                    AppendFeatureAuditHistory($"{target.Name}: {(result.Success ? "PASS" : "FAIL")} ({result.DurationMs} ms)");
+                    await RefreshFeatureAuditViewAsync();
+                    await Dispatcher.Yield(DispatcherPriority.Background);
+                }
+
+                var passed = _lastFeatureAuditResults.Count(x => x.Success);
+                var failed = _lastFeatureAuditResults.Count - passed;
+                _lastFeatureAuditSummary = $"Audit complete | Passed {passed} | Failed {failed} | Mode {_lastFeatureAuditMode}";
+
+                var report = BuildFeatureAuditReport(_lastFeatureAuditResults);
+                await WriteFeatureAuditLogAsync(report);
+                await SendFeatureAuditReportToDiscordAsync(report);
+                await RefreshFeatureAuditViewAsync();
+
+                ShowActionStatus(
+                    failed == 0 ? ActionState.Success : ActionState.Warning,
+                    "Feature Audit",
+                    failed == 0
+                        ? $"{_lastFeatureAuditMode} feature audit completed successfully."
+                        : $"{_lastFeatureAuditMode} feature audit completed with {failed} failing module(s).",
+                    report);
+            }
+            catch (Exception ex)
+            {
+                _lastFeatureAuditSummary = $"Audit failed unexpectedly: {ex.Message}";
+                AppendFeatureAuditHistory($"Audit engine error: {ex.Message}");
+                ShowActionStatus(ActionState.Error, "Feature Audit", "Feature audit gagal dijalankan.", ex.Message);
+            }
+            finally
+            {
+                _featureAuditRunning = false;
+                await RefreshFeatureAuditViewAsync();
+            }
+        }
+
+        private async void RunQuickFeatureAudit_Click(object sender, RoutedEventArgs e)
+        {
+            await RunFeatureAuditAsync(fullAudit: false);
+        }
+
+        private async void RunFullFeatureAudit_Click(object sender, RoutedEventArgs e)
+        {
+            await RunFeatureAuditAsync(fullAudit: true);
+        }
+
+        private async void SendFeatureAuditReport_Click(object sender, RoutedEventArgs e)
+        {
+            if (_lastFeatureAuditResults.Count == 0)
+            {
+                ShowActionStatus(ActionState.Warning, "Feature Audit", "Belum ada audit report yang bisa dikirim.");
+                return;
+            }
+
+            await SendFeatureAuditReportToDiscordAsync(BuildFeatureAuditReport(_lastFeatureAuditResults));
+            await RefreshFeatureAuditViewAsync();
+            ShowActionStatus(ActionState.Info, "Feature Audit", "Percobaan kirim report terakhir ke Discord sudah dijalankan.", TestingHistoryText?.Text);
+        }
+
+        private void OpenFeatureAuditLogs_Click(object sender, RoutedEventArgs e)
+        {
+            LaunchWindowsTool("explorer.exe", $"\"{GetAppLogsDirectory()}\"", "Feature Audit Logs");
         }
 
         #endregion
