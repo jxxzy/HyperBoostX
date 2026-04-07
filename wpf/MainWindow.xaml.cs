@@ -213,6 +213,8 @@ namespace HyperBoostX
         private List<ServiceEntry> _serviceEntries = new();
         private readonly LocalizationService _localizationService = new();
         private readonly AppConfigService _appConfigService = new();
+        private readonly SecureSecretStoreService _secureSecretStoreService = new();
+        private readonly AppUpdateService _appUpdateService = new();
         private readonly DiscordWebhookService _discordWebhookService = new();
         private readonly OpenAiCopilotService _openAiCopilotService = new();
         private PersistedAppConfig _appConfig = new();
@@ -227,6 +229,22 @@ namespace HyperBoostX
         private string _openAiModel = "gpt-4.1-mini";
         private string _openAiMode = "Assistant";
         private string _openAiPermissionLevel = "Ask";
+        private const string SociabuzzDonateUrl = "https://sociabuzz.com/jxxzyshn69";
+        private readonly string _currentAppVersion = System.Reflection.Assembly.GetExecutingAssembly()
+            .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
+            .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
+            .FirstOrDefault()?.InformationalVersion
+            ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
+            ?? "1.1.0-beta";
+        private bool _autoCheckAppUpdates = true;
+        private string _latestKnownAppVersion = "";
+        private string _latestKnownReleaseUrl = "https://github.com/jxxzy/HyperBoostX/releases";
+        private string _latestKnownReleaseChannel = "Stable";
+        private string _lastAppUpdateSummary = "Update status has not been checked yet.";
+        private DateTime? _lastAppUpdateCheckUtc;
+        private DateTime? _latestKnownReleasePublishedUtc;
+        private bool _isAppUpdateAvailable;
+        private bool _appUpdateCheckInProgress;
         private OpenAiCopilotResponse _lastAiCopilotResponse;
         private readonly Queue<string> _aiCopilotMemory = new();
         private string _lastAiPrompt = "";
@@ -282,10 +300,12 @@ namespace HyperBoostX
             ApplyLocalizationToUi();
             _appConfig = await _appConfigService.LoadAsync();
             ApplyPersistedConfiguration();
+            await LoadSensitiveConfigurationAsync();
 
             LoadGamingWhitelist();
             await CheckBackendHealth();
             await ShowPage("Dashboard", DashboardBtn);
+            _ = EnsureAppUpdateStatusAsync(force: false, userInitiated: false);
             _automationRuntimeTimer.Start();
             AppendDashboardActivity("Dashboard initialized and ready.");
         }
@@ -470,14 +490,24 @@ namespace HyperBoostX
             _settingsSafetyEnabled = settings.SafetyEnabled;
             _settingsMonitoringEnabled = settings.MonitoringEnabled;
             _discordWebhookEnabled = settings.DiscordWebhookEnabled;
-            _discordWebhookUrl = settings.DiscordWebhookUrl ?? "";
             _discordWebhookMinimumLevel = string.IsNullOrWhiteSpace(settings.DiscordWebhookMinimumLevel) ? "Error" : settings.DiscordWebhookMinimumLevel;
             _discordWebhookCooldownSeconds = Math.Max(15, settings.DiscordWebhookCooldownSeconds);
             _openAiEnabled = settings.OpenAiEnabled;
-            _openAiApiKey = settings.OpenAiApiKey ?? "";
             _openAiModel = string.IsNullOrWhiteSpace(settings.OpenAiModel) ? "gpt-4.1-mini" : settings.OpenAiModel;
             _openAiMode = string.IsNullOrWhiteSpace(settings.OpenAiMode) ? "Assistant" : settings.OpenAiMode;
             _openAiPermissionLevel = string.IsNullOrWhiteSpace(settings.OpenAiPermissionLevel) ? "Ask" : settings.OpenAiPermissionLevel;
+            _autoCheckAppUpdates = settings.AutoCheckAppUpdates;
+            _latestKnownAppVersion = settings.LastKnownLatestVersion ?? "";
+            _latestKnownReleaseUrl = string.IsNullOrWhiteSpace(settings.LastKnownReleaseUrl)
+                ? "https://github.com/jxxzy/HyperBoostX/releases"
+                : settings.LastKnownReleaseUrl;
+            _latestKnownReleaseChannel = string.IsNullOrWhiteSpace(settings.LastKnownReleaseChannel) ? "Stable" : settings.LastKnownReleaseChannel;
+            _lastAppUpdateSummary = string.IsNullOrWhiteSpace(settings.LastAppUpdateSummary)
+                ? "Update status has not been checked yet."
+                : settings.LastAppUpdateSummary;
+            _lastAppUpdateCheckUtc = settings.LastAppUpdateCheckUtc;
+            if (DateTime.TryParse(settings.LastKnownReleasePublishedUtc, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var releasePublishedUtc))
+                _latestKnownReleasePublishedUtc = releasePublishedUtc;
             _automationMode = settings.AutomationMode;
             _automationPolicyProfile = settings.AutomationPolicyProfile;
             _autonomousModeEnabled = settings.AutonomousEnabled;
@@ -549,6 +579,58 @@ namespace HyperBoostX
                 OpenAiModelInput.Text = _openAiModel;
             SelectComboItemByContent(OpenAiModeCombo, _openAiMode);
             SelectComboItemByContent(OpenAiPermissionCombo, _openAiPermissionLevel);
+            if (ToggleAutoAppUpdateBtn != null)
+                ToggleAutoAppUpdateBtn.Content = _autoCheckAppUpdates ? "Auto Check Updates: ON" : "Auto Check Updates: OFF";
+        }
+
+        private async Task LoadSensitiveConfigurationAsync()
+        {
+            var settings = _appConfig.Settings ?? new PersistedSettingsState();
+            var secrets = await _secureSecretStoreService.LoadAsync();
+
+            var envOpenAi = Environment.GetEnvironmentVariable("HYPERBOOSTX_OPENAI_API_KEY")?.Trim() ?? "";
+            var envDiscord = Environment.GetEnvironmentVariable("HYPERBOOSTX_DISCORD_WEBHOOK_URL")?.Trim() ?? "";
+
+            var legacyOpenAi = settings.OpenAiApiKey?.Trim() ?? "";
+            var legacyDiscord = settings.DiscordWebhookUrl?.Trim() ?? "";
+
+            _openAiApiKey = !string.IsNullOrWhiteSpace(envOpenAi)
+                ? envOpenAi
+                : !string.IsNullOrWhiteSpace(secrets.OpenAiApiKey)
+                    ? secrets.OpenAiApiKey
+                    : legacyOpenAi;
+
+            _discordWebhookUrl = !string.IsNullOrWhiteSpace(envDiscord)
+                ? envDiscord
+                : !string.IsNullOrWhiteSpace(secrets.DiscordWebhookUrl)
+                    ? secrets.DiscordWebhookUrl
+                    : legacyDiscord;
+
+            if (OpenAiApiKeyInput != null)
+                OpenAiApiKeyInput.Text = _openAiApiKey;
+
+            if (DiscordWebhookUrlInput != null)
+                DiscordWebhookUrlInput.Text = _discordWebhookUrl;
+
+            var shouldMigrateLegacySecrets =
+                string.IsNullOrWhiteSpace(envOpenAi) &&
+                string.IsNullOrWhiteSpace(envDiscord) &&
+                ((!string.IsNullOrWhiteSpace(legacyOpenAi) && string.IsNullOrWhiteSpace(secrets.OpenAiApiKey)) ||
+                 (!string.IsNullOrWhiteSpace(legacyDiscord) && string.IsNullOrWhiteSpace(secrets.DiscordWebhookUrl)));
+
+            if (shouldMigrateLegacySecrets)
+            {
+                await _secureSecretStoreService.SaveAsync(new PersistedSecureSecrets
+                {
+                    OpenAiApiKey = legacyOpenAi,
+                    DiscordWebhookUrl = legacyDiscord
+                });
+
+                settings.OpenAiApiKey = "";
+                settings.DiscordWebhookUrl = "";
+                _appConfig.Settings = settings;
+                await _appConfigService.SaveAsync(_appConfig);
+            }
         }
 
         private void SelectComboItemByContent(ComboBox comboBox, string value)
@@ -605,14 +687,21 @@ namespace HyperBoostX
             settings.AutoBackupEnabled = _autoBackupEnabled;
             settings.AutoRestorePointEnabled = _autoRestorePointEngineEnabled;
             settings.DiscordWebhookEnabled = _discordWebhookEnabled;
-            settings.DiscordWebhookUrl = _discordWebhookUrl;
+            settings.DiscordWebhookUrl = "";
             settings.DiscordWebhookMinimumLevel = _discordWebhookMinimumLevel;
             settings.DiscordWebhookCooldownSeconds = _discordWebhookCooldownSeconds;
             settings.OpenAiEnabled = _openAiEnabled;
-            settings.OpenAiApiKey = _openAiApiKey;
+            settings.OpenAiApiKey = "";
             settings.OpenAiModel = _openAiModel;
             settings.OpenAiMode = _openAiMode;
             settings.OpenAiPermissionLevel = _openAiPermissionLevel;
+            settings.AutoCheckAppUpdates = _autoCheckAppUpdates;
+            settings.LastKnownLatestVersion = _latestKnownAppVersion;
+            settings.LastKnownReleaseUrl = _latestKnownReleaseUrl;
+            settings.LastKnownReleaseChannel = _latestKnownReleaseChannel;
+            settings.LastKnownReleasePublishedUtc = _latestKnownReleasePublishedUtc?.ToString("o", CultureInfo.InvariantCulture) ?? "";
+            settings.LastAppUpdateSummary = _lastAppUpdateSummary;
+            settings.LastAppUpdateCheckUtc = _lastAppUpdateCheckUtc;
 
             var automation = _appConfig.Automation ?? new PersistedAutomationState();
             automation.Goal = _automationGoal;
@@ -663,6 +752,11 @@ namespace HyperBoostX
             _appConfig.Automation = automation;
             _appConfig.Ai = ai;
             await _appConfigService.SaveAsync(_appConfig);
+            await _secureSecretStoreService.SaveAsync(new PersistedSecureSecrets
+            {
+                DiscordWebhookUrl = _discordWebhookUrl,
+                OpenAiApiKey = _openAiApiKey
+            });
         }
 
         private static AutomationRuleDefinition CloneRule(AutomationRuleDefinition rule)
@@ -1518,6 +1612,7 @@ namespace HyperBoostX
                 case "About":
                     SetLocalizedPageHeader("About", "About App", "Project information, runtime overview, and what this build is wired to do.");
                     AboutContent.Visibility = Visibility.Visible;
+                    await RefreshAboutViewAsync();
                     break;
             }
         }
@@ -4310,6 +4405,169 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
 
             if (_settingsHistory.Count == 0)
                 AppendSettingsHistory("Settings center initialized.");
+
+            RefreshAppUpdatePanels();
+        }
+
+        private async Task RefreshAboutViewAsync()
+        {
+            if (AboutVersionText != null)
+                AboutVersionText.Text = $"{NormalizeVersionLabel(_currentAppVersion)} — 2026";
+
+            RefreshAppUpdatePanels();
+            await Task.CompletedTask;
+        }
+
+        private void RefreshAppUpdatePanels()
+        {
+            var lastCheck = _lastAppUpdateCheckUtc.HasValue
+                ? _lastAppUpdateCheckUtc.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm")
+                : "Never";
+            var published = _latestKnownReleasePublishedUtc.HasValue
+                ? _latestKnownReleasePublishedUtc.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm")
+                : "Unknown";
+            var latestVersion = string.IsNullOrWhiteSpace(_latestKnownAppVersion) ? "Unknown" : _latestKnownAppVersion;
+            var releaseUrl = string.IsNullOrWhiteSpace(_latestKnownReleaseUrl) ? "https://github.com/jxxzy/HyperBoostX/releases" : _latestKnownReleaseUrl;
+            var statusText =
+                $"Current version: {NormalizeVersionLabel(_currentAppVersion)}{Environment.NewLine}" +
+                $"Latest known release: {latestVersion}{Environment.NewLine}" +
+                $"Channel: {_latestKnownReleaseChannel}{Environment.NewLine}" +
+                $"Auto check: {(_autoCheckAppUpdates ? "ON" : "OFF")}{Environment.NewLine}" +
+                $"Last check: {lastCheck}{Environment.NewLine}" +
+                $"Published: {published}{Environment.NewLine}" +
+                $"{_lastAppUpdateSummary}{Environment.NewLine}" +
+                $"Download page: {releaseUrl}";
+
+            if (SettingsAppUpdateStatusText != null)
+                SettingsAppUpdateStatusText.Text = statusText;
+
+            if (AboutUpdateStatusText != null)
+                AboutUpdateStatusText.Text = statusText;
+
+            if (ToggleAutoAppUpdateBtn != null)
+                ToggleAutoAppUpdateBtn.Content = _autoCheckAppUpdates ? "Auto Check Updates: ON" : "Auto Check Updates: OFF";
+
+            if (OpenLatestReleaseBtn != null)
+                OpenLatestReleaseBtn.Content = _isAppUpdateAvailable ? "Download Latest Update" : "Open Release Page";
+        }
+
+        private async Task EnsureAppUpdateStatusAsync(bool force, bool userInitiated)
+        {
+            if (_appUpdateCheckInProgress)
+                return;
+
+            if (!force)
+            {
+                if (!_autoCheckAppUpdates)
+                    return;
+
+                if (_lastAppUpdateCheckUtc.HasValue && DateTime.UtcNow - _lastAppUpdateCheckUtc.Value < TimeSpan.FromHours(6))
+                {
+                    RefreshAppUpdatePanels();
+                    return;
+                }
+            }
+
+            _appUpdateCheckInProgress = true;
+            try
+            {
+                var result = await _appUpdateService.CheckLatestReleaseAsync(_currentAppVersion);
+                _lastAppUpdateCheckUtc = DateTime.UtcNow;
+                _latestKnownAppVersion = result.LatestVersion;
+                _latestKnownReleaseUrl = string.IsNullOrWhiteSpace(result.LatestReleaseUrl)
+                    ? "https://github.com/jxxzy/HyperBoostX/releases"
+                    : result.LatestReleaseUrl;
+                _latestKnownReleaseChannel = result.ReleaseChannel;
+                _latestKnownReleasePublishedUtc = result.PublishedUtc;
+                _isAppUpdateAvailable = result.IsUpdateAvailable;
+                _lastAppUpdateSummary = result.Summary;
+                RefreshAppUpdatePanels();
+                await SavePersistedConfigurationAsync();
+
+                if (userInitiated)
+                {
+                    var state = result.Success
+                        ? result.IsUpdateAvailable ? ActionState.Warning : ActionState.Success
+                        : ActionState.Warning;
+                    ShowActionStatus(
+                        state,
+                        "App Update",
+                        result.Success
+                            ? result.IsUpdateAvailable
+                                ? $"Versi baru tersedia: {result.LatestVersion}"
+                                : "Aplikasi ini sudah memakai rilis terbaru yang diketahui."
+                            : "Gagal memeriksa rilis terbaru.",
+                        result.Success
+                            ? $"{result.ReleaseChannel} | {_latestKnownReleaseUrl}"
+                            : result.ErrorMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                _lastAppUpdateCheckUtc = DateTime.UtcNow;
+                _lastAppUpdateSummary = $"Update check failed: {ex.Message}";
+                RefreshAppUpdatePanels();
+                if (userInitiated)
+                    ShowActionStatus(ActionState.Warning, "App Update", "Gagal memeriksa update aplikasi.", ex.Message);
+            }
+            finally
+            {
+                _appUpdateCheckInProgress = false;
+            }
+        }
+
+        private static string NormalizeVersionLabel(string version)
+        {
+            var text = (version ?? "").Trim();
+            return text.StartsWith("v", StringComparison.OrdinalIgnoreCase) ? text[1..] : text;
+        }
+
+        private void OpenReleasePage()
+        {
+            var target = string.IsNullOrWhiteSpace(_latestKnownReleaseUrl)
+                ? "https://github.com/jxxzy/HyperBoostX/releases"
+                : _latestKnownReleaseUrl;
+            LaunchExternalUrl(target, "App Update");
+        }
+
+        private void LaunchExternalUrl(string url, string featureName)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+                ShowActionStatus(ActionState.Info, featureName, "External page opened successfully.", url);
+            }
+            catch (Exception ex)
+            {
+                ShowActionStatus(ActionState.Error, featureName, $"Unable to open {featureName}.", ex.Message);
+            }
+        }
+
+        private async void CheckAppUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            await EnsureAppUpdateStatusAsync(force: true, userInitiated: true);
+        }
+
+        private void OpenLatestRelease_Click(object sender, RoutedEventArgs e)
+        {
+            OpenReleasePage();
+        }
+
+        private void OpenSociabuzzDonate_Click(object sender, RoutedEventArgs e)
+        {
+            LaunchExternalUrl(SociabuzzDonateUrl, "Donation / Sociabuzz");
+        }
+
+        private async void ToggleAutoAppUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            _autoCheckAppUpdates = !_autoCheckAppUpdates;
+            _lastAppUpdateSummary = _autoCheckAppUpdates
+                ? "Automatic app update checks enabled."
+                : "Automatic app update checks disabled.";
+            RefreshAppUpdatePanels();
+            AppendSettingsHistory($"App update auto-check {(_autoCheckAppUpdates ? "enabled" : "disabled")}.");
+            await SavePersistedConfigurationAsync();
+            ShowActionStatus(ActionState.Info, "App Update", $"Auto app update check sekarang {(_autoCheckAppUpdates ? "ON" : "OFF")}.");
         }
 
         private async void TestBackend_Click(object sender, RoutedEventArgs e)

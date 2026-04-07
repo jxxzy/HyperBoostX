@@ -1,4 +1,5 @@
 !include "MUI2.nsh"
+!include "LogicLib.nsh"
 
 Name "HyperBoost X"
 OutFile "HyperBoostXInstaller.exe"
@@ -17,8 +18,32 @@ RequestExecutionLevel admin
 !insertmacro MUI_UNPAGE_FINISH
 !insertmacro MUI_LANGUAGE "English"
 
+Var ExistingInstallDir
+Var ExistingUninstaller
+
+Function UninstallPreviousVersion
+  StrCpy $ExistingInstallDir ""
+  StrCpy $ExistingUninstaller ""
+
+  ReadRegStr $ExistingInstallDir HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "InstallLocation"
+  ${If} $ExistingInstallDir == ""
+    StrCpy $ExistingInstallDir "$INSTDIR"
+  ${EndIf}
+
+  StrCpy $ExistingUninstaller "$ExistingInstallDir\Uninstall.exe"
+  IfFileExists "$ExistingUninstaller" 0 done
+
+  MessageBox MB_ICONINFORMATION|MB_OK "HyperBoost X versi lama terdeteksi.$\r$\n$\r$\nInstaller akan menghapus aplikasi lama terlebih dulu, lalu memasang versi terbaru.$\r$\n$\r$\nConfig, backup, dan setting user di %LocalAppData% akan tetap disimpan."
+  DetailPrint "Previous HyperBoost X installation detected."
+  DetailPrint "Removing old application files from $ExistingInstallDir and keeping user config in %LocalAppData%."
+  ExecWait '"$ExistingUninstaller" /S _?=$ExistingInstallDir'
+
+done:
+FunctionEnd
+
 Section "Install"
   SetShellVarContext all
+  Call UninstallPreviousVersion
   ExecWait 'taskkill /IM HyperBoostLauncher.exe /F'
   ExecWait 'taskkill /IM HyperBoostX.exe /F'
   ExecWait 'taskkill /IM HyperBoostUI.exe /F'
@@ -61,6 +86,9 @@ Section "Uninstall"
   ExecWait 'taskkill /IM HyperBoostX.exe /F'
   ExecWait 'taskkill /IM HyperBoostUI.exe /F'
   ExecWait 'taskkill /IM hyperboost_backend.exe /F'
+
+  DetailPrint "Removing installed application files only."
+  DetailPrint "User config, backups, logs, and automation state under %LocalAppData%\\HyperBoost X are preserved."
 
   Delete "$DESKTOP\HyperBoost X.lnk"
   Delete "$SMPROGRAMS\HyperBoost X\HyperBoost X.lnk"

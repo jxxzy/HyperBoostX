@@ -2221,6 +2221,14 @@
                                         <Button Content="Test Backend Connection" Click="TestBackend_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                     </WrapPanel>
                                     <Separator Margin="0,4,0,12" Background="#1e293b"/>
+                                    <TextBlock Text="App Update / Release Manager" Foreground="#f8fafc" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
+                                    <WrapPanel>
+                                        <Button Name="CheckAppUpdateBtn" Content="Check App Update" Click="CheckAppUpdate_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Name="OpenLatestReleaseBtn" Content="Open Latest Release" Click="OpenLatestRelease_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Name="ToggleAutoAppUpdateBtn" Content="Auto Check Updates: ON" Click="ToggleAutoAppUpdate_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    </WrapPanel>
+                                    <TextBlock Name="SettingsAppUpdateStatusText" Text="App update status will appear here." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                    <Separator Margin="0,4,0,12" Background="#1e293b"/>
                                     <TextBlock Text="OpenAI / ChatGPT Copilot" Foreground="#f8fafc" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
                                     <TextBlock Text="OpenAI API Key:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/>
                                     <TextBox Name="OpenAiApiKeyInput" Text="" Background="#0f172a" Foreground="#ffffff" Padding="10" Margin="0,0,0,12" BorderThickness="1" BorderBrush="#0ea5e9"/>
@@ -5490,7 +5498,12 @@
                                 <TextBlock Text="MR.4NONY" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,16"/>
 
                                 <TextBlock Text="VERSION" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
-                                <TextBlock Text="1.1.0 Beta — 2026" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,16"/>
+                                <TextBlock Name="AboutVersionText" Text="1.1.0 Beta — 2026" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,8"/>
+                                <TextBlock Name="AboutUpdateStatusText" Text="Update status will appear here." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                <WrapPanel Margin="0,0,0,16">
+                                    <Button Content="Check Latest Release" Click="CheckAppUpdate_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="Open Download Page" Click="OpenLatestRelease_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                </WrapPanel>
 
                                 <TextBlock Text="NOTE" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
                                 <TextBlock Text="Masih dalam tahap beta (internal testing &amp; validation)" Foreground="#f8fafc" FontSize="12" Margin="0,0,0,4"/>
@@ -5498,6 +5511,12 @@
                                 <TextBlock Text="Disarankan membuat backup / restore point sebelum perubahan besar" Foreground="#fbbf24" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,4"/>
                                 <TextBlock Text="AI Assistant memerlukan koneksi internet" Foreground="#f8fafc" FontSize="12" Margin="0,0,0,4"/>
                                 <TextBlock Text="Fokus saat ini: stabilitas, automation system, dan runtime validation" Foreground="#f8fafc" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,16"/>
+
+                                <TextBlock Text="DONATION" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
+                                <TextBlock Text="Kalau HyperBoost X membantu workflow kamu, kamu bisa support pengembangan project ini lewat Sociabuzz." Foreground="#cbd5e1" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                <WrapPanel Margin="0,0,0,16">
+                                    <Button Content="Beri Dukungan via Sociabuzz" Click="OpenSociabuzzDonate_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                </WrapPanel>
 
                                 <TextBlock Text="TAGLINE" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
                                 <TextBlock Text="Your System. Fully Controlled." Foreground="#e2e8f0" FontSize="12"/>

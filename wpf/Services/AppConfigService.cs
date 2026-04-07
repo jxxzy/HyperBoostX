@@ -38,6 +38,13 @@ namespace HyperBoostX.Services
         public string OpenAiModel { get; set; } = "gpt-4.1-mini";
         public string OpenAiMode { get; set; } = "Assistant";
         public string OpenAiPermissionLevel { get; set; } = "Ask";
+        public bool AutoCheckAppUpdates { get; set; } = true;
+        public string LastKnownLatestVersion { get; set; } = "";
+        public string LastKnownReleaseUrl { get; set; } = "";
+        public string LastKnownReleaseChannel { get; set; } = "";
+        public string LastKnownReleasePublishedUtc { get; set; } = "";
+        public string LastAppUpdateSummary { get; set; } = "Update status has not been checked yet.";
+        public DateTime? LastAppUpdateCheckUtc { get; set; }
         public int CpuThreshold { get; set; } = 80;
         public int RamThreshold { get; set; } = 80;
         public int DiskThreshold { get; set; } = 85;
