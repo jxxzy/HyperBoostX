@@ -1,0 +1,31 @@
+HyperBoostX v1.1.0
+
+Author: MR.4NONY
+Build line: Stable
+
+Highlights
+- Promoted the new native in-app control center architecture to stable.
+- Included persistent settings, automation runtime rules, and shared app state across major modules.
+- Included HyperBoostX Copilot foundation with safe action routing and approval flow.
+- Included Discord webhook reporting for important errors and crash events.
+- Included modular localization foundation and cleaner runtime safety around backend and PowerShell actions.
+
+Core areas
+- Dashboard
+- Performance and cleanup modules
+- Startup, storage, network, privacy, security, repair
+- Gaming, streaming, creator
+- Tweaks, Windows features, services, power, visual effects
+- Restore, backup, restore point management
+- Scheduled automation
+- Utilities tools
+- AI Assistant
+
+Stable focus
+- Cleaner runtime behavior
+- Better persistence across sessions
+- Safer execution and recovery flow
+- Broader module coverage inside the app
+
+Notes
+- This release is intended to replace the `v1.1.0-beta` prerelease after QA sign-off.
