@@ -1,0 +1,41 @@
+HyperBoostX v1.1.0-beta
+
+Author: MR.4NONY
+Build line: Beta
+
+Highlights
+- Updated major menu modules into native in-app panels
+- Synced About App, binary metadata, and installer metadata to 1.1.0-beta
+- Added persistent app config shared across automation, AI, and settings
+- Separated automation runtime mode from policy profile
+- Upgraded Scheduled Automation to use persistent rules, queue, deferred tasks, and audit state
+- Added OpenAI-based HyperBoostX Copilot foundation with safe action approval flow
+- Added Discord webhook reporting for important errors and crash events
+- Added modular localization foundation with en-US and id-ID language packs
+- Improved runtime stability for PowerShell execution, backend API error handling, and UI activity logging
+
+Included areas
+- Dashboard
+- One Click Boost
+- Performance Boost
+- Startup Manager
+- Cleanup / Storage
+- Gaming / Streaming / Creator
+- Network and DNS tools
+- Privacy / Security / Repair
+- Tweaks / Advanced Tweaks / Windows Features / Services
+- Power Optimization / Visual Effects
+- Restore & Backup / Restore Point Manager
+- Scheduled Automation
+- Utilities Tools
+- AI Assistant
+
+Beta focus
+- Internal testing
+- Feature validation
+- Installer smoke testing
+- Runtime hardening
+
+Known beta caution
+- Some advanced Windows actions still depend on admin rights, local policy, service state, and machine-specific Windows configuration.
+- Public stable release should still be preceded by broader end-to-end QA.

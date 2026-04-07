@@ -1,26 +1,61 @@
 # HyperBoost X
 
-HyperBoost X is a Windows optimization app built from three parts:
+HyperBoost X is a Windows optimization suite with a native WPF desktop client, a Python backend, and a .NET launcher. The current beta is focused on turning the app into a single control center for performance, cleanup, automation, repair, AI-assisted actions, and recovery.
 
-- a WPF desktop UI in `wpf`
-- a Python Flask backend in `app`
-- a .NET launcher in `launcher`
+Current beta version:
+- `1.1.0-beta`
 
-The launcher starts the backend, waits for health check readiness, opens the WPF UI, and shuts the backend down again when the UI exits.
+Author:
+- `MR.4NONY`
 
-## Runtime layout
+## Architecture
+
+HyperBoost X is built from three main parts:
+
+- `wpf` - WPF desktop UI and core client logic
+- `app` - Python Flask backend and optimization services
+- `launcher` - .NET launcher that boots the backend, waits for health readiness, opens the UI, and shuts the backend down when the UI exits
+
+## Core runtime layout
 
 - Installed app entrypoint: `HyperBoostX.exe`
 - Internal UI runtime: `runtime\wpf\HyperBoostUI.exe`
 - Internal backend runtime: `runtime\backend\hyperboost_backend.exe`
 - User logs: `%LocalAppData%\HyperBoost X\logs`
+- App config and state: `%LocalAppData%\HyperBoost X\config`
+- Local backups and automation state: `%LocalAppData%\HyperBoost X\backups`
+
+## Major feature areas
+
+- Core dashboard with real-time system monitoring and quick actions
+- One Click Boost, Performance Boost, Startup Manager, Cleanup, Storage, and Network modules
+- Gaming Booster, Streaming Mode, and Creator Mode
+- Privacy Center, Security & Health, Repair Tools, Driver & Update Center
+- Tweaks Center, Advanced Tweaks, Windows Features, Windows Services, Power Optimization, and Visual Effects
+- Restore & Backup plus Restore Point Manager
+- Scheduled Automation with persistent runtime rules and task queue
+- AI Assistant (HyperBoostX Copilot) with OpenAI integration, approval flow, safe action routing, and automation creation
+- Discord webhook reporting for important errors and crash events
+- Multi-language foundation with modular localization packs
+
+## What changed in `1.1.0-beta`
+
+- Reworked most major menu modules into native in-app panels instead of external shortcuts
+- Added persistent settings and shared app state across modules
+- Separated automation mode from policy profile
+- Upgraded Scheduled Automation from summary UI into real task and rule storage
+- Added OpenAI-powered Copilot foundation with context-aware suggestions and safe action approval
+- Added Discord webhook error reporting with filtering and cooldown
+- Added modular localization foundation with `en-US` and `id-ID` packs
+- Improved runtime safety around PowerShell execution, API failures, and activity logging
+- Synced About App, binary version metadata, and installer metadata to the latest beta build
 
 ## Main folders
 
-- `app` - Python backend and services
-- `wpf` - WPF frontend
-- `launcher` - launcher/entrypoint
-- `release` - packaged outputs
+- `app` - backend API, services, and Python runtime code
+- `wpf` - WPF UI, services, localization, and app orchestration
+- `launcher` - launcher/entrypoint application
+- `release` - packaged runtime outputs
 - `tests` - tests and support assets
 
 ## Build scripts
@@ -46,4 +81,6 @@ The launcher starts the backend, waits for health check readiness, opens the WPF
 - `API_REFERENCE.md` - API overview
 - `DIRECTORY_MAP.md` - current repo map
 
-Older one-click batch launchers and snapshot-style docs were removed so the repository matches the current installer and launcher architecture.
+## Beta status
+
+This build is suitable for internal beta testing and feature validation. It is not yet declared fully public-stable. The highest-value remaining work is end-to-end QA on admin-required flows, restore/update/service operations, installer upgrade paths, and cross-machine runtime validation.
