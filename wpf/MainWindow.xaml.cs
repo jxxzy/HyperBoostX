@@ -271,14 +271,18 @@ namespace HyperBoostX
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
             ?? "1.1.0-beta";
         private bool _autoCheckAppUpdates = true;
+        private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
         private string _latestKnownReleaseUrl = "https://github.com/jxxzy/HyperBoostX/releases";
+        private string _latestKnownInstallerAssetName = "";
+        private string _latestKnownInstallerDownloadUrl = "";
         private string _latestKnownReleaseChannel = "Stable";
         private string _lastAppUpdateSummary = "Update status has not been checked yet.";
         private DateTime? _lastAppUpdateCheckUtc;
         private DateTime? _latestKnownReleasePublishedUtc;
         private bool _isAppUpdateAvailable;
         private bool _appUpdateCheckInProgress;
+        private bool _appUpdateInstallInProgress;
         private OpenAiCopilotResponse _lastAiCopilotResponse;
         private bool _aiRequestInProgress;
         private DateTime _lastAiContextBuiltUtc = DateTime.MinValue;
@@ -548,6 +552,7 @@ namespace HyperBoostX
             _openAiMode = string.IsNullOrWhiteSpace(settings.OpenAiMode) ? "Assistant" : settings.OpenAiMode;
             _openAiPermissionLevel = string.IsNullOrWhiteSpace(settings.OpenAiPermissionLevel) ? "Ask" : settings.OpenAiPermissionLevel;
             _autoCheckAppUpdates = settings.AutoCheckAppUpdates;
+            _autoInstallAppUpdates = settings.AutoInstallAppUpdates;
             _latestKnownAppVersion = settings.LastKnownLatestVersion ?? "";
             _latestKnownReleaseUrl = string.IsNullOrWhiteSpace(settings.LastKnownReleaseUrl)
                 ? "https://github.com/jxxzy/HyperBoostX/releases"
@@ -747,6 +752,7 @@ namespace HyperBoostX
             settings.OpenAiMode = _openAiMode;
             settings.OpenAiPermissionLevel = _openAiPermissionLevel;
             settings.AutoCheckAppUpdates = _autoCheckAppUpdates;
+            settings.AutoInstallAppUpdates = _autoInstallAppUpdates;
             settings.LastKnownLatestVersion = _latestKnownAppVersion;
             settings.LastKnownReleaseUrl = _latestKnownReleaseUrl;
             settings.LastKnownReleaseChannel = _latestKnownReleaseChannel;
@@ -1212,7 +1218,17 @@ namespace HyperBoostX
             var cpu = json?.Value<double?>("cpu") ?? json?.Value<double?>("cpu_percent") ?? 0d;
             var ram = json?.Value<double?>("memory") ?? json?.Value<double?>("memory_percent") ?? 0d;
             var disk = json?.Value<double?>("disk") ?? json?.Value<double?>("disk_percent") ?? 0d;
-            var gpu = json?.Value<double?>("gpu") ?? json?.Value<double?>("gpu_percent") ?? 0d;
+            var gpuToken = json?["gpu"];
+            var gpu = gpuToken switch
+            {
+                JObject gpuObject => gpuObject.Value<double?>("load")
+                    ?? gpuObject.Value<double?>("usage")
+                    ?? gpuObject.Value<double?>("memory_percent")
+                    ?? gpuObject.Value<double?>("percent")
+                    ?? 0d,
+                JValue gpuValue => gpuValue.Value<double?>() ?? 0d,
+                _ => json?.Value<double?>("gpu_percent") ?? 0d
+            };
             var hasBattery = _powerDynamicMode.Contains("Battery", StringComparison.OrdinalIgnoreCase);
             var batteryPercent = hasBattery ? 35d : 100d;
             var temperature = ExtractTemperature(json?["temperatures"] as Newtonsoft.Json.Linq.JObject) ?? (cpu > 80 ? 86 : cpu > 55 ? 72 : 56);
@@ -4656,13 +4672,16 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
                 : "Unknown";
             var latestVersion = string.IsNullOrWhiteSpace(_latestKnownAppVersion) ? "Unknown" : _latestKnownAppVersion;
             var releaseUrl = string.IsNullOrWhiteSpace(_latestKnownReleaseUrl) ? "https://github.com/jxxzy/HyperBoostX/releases" : _latestKnownReleaseUrl;
+            var installerAsset = string.IsNullOrWhiteSpace(_latestKnownInstallerAssetName) ? "Unavailable" : _latestKnownInstallerAssetName;
             var statusText =
                 $"Current version: {NormalizeVersionLabel(_currentAppVersion)}{Environment.NewLine}" +
                 $"Latest known release: {latestVersion}{Environment.NewLine}" +
                 $"Channel: {_latestKnownReleaseChannel}{Environment.NewLine}" +
                 $"Auto check: {(_autoCheckAppUpdates ? "ON" : "OFF")}{Environment.NewLine}" +
+                $"Auto install: {(_autoInstallAppUpdates ? "ON" : "OFF")}{Environment.NewLine}" +
                 $"Last check: {lastCheck}{Environment.NewLine}" +
                 $"Published: {published}{Environment.NewLine}" +
+                $"Installer asset: {installerAsset}{Environment.NewLine}" +
                 $"{_lastAppUpdateSummary}{Environment.NewLine}" +
                 $"Download page: {releaseUrl}";
 
@@ -4675,8 +4694,27 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
             if (ToggleAutoAppUpdateBtn != null)
                 ToggleAutoAppUpdateBtn.Content = _autoCheckAppUpdates ? "Auto Check Updates: ON" : "Auto Check Updates: OFF";
 
+            if (ToggleAutoInstallUpdateBtn != null)
+                ToggleAutoInstallUpdateBtn.Content = _autoInstallAppUpdates ? "Auto Install Updates: ON" : "Auto Install Updates: OFF";
+
             if (OpenLatestReleaseBtn != null)
                 OpenLatestReleaseBtn.Content = _isAppUpdateAvailable ? "Download Latest Update" : "Open Release Page";
+
+            var installContent = _appUpdateInstallInProgress
+                ? "Installing Update..."
+                : _isAppUpdateAvailable ? "Download && Install Update" : "Reinstall Current Version";
+
+            if (InstallLatestUpdateBtn != null)
+            {
+                InstallLatestUpdateBtn.Content = installContent;
+                InstallLatestUpdateBtn.IsEnabled = !_appUpdateInstallInProgress && (!_appUpdateCheckInProgress || _isAppUpdateAvailable);
+            }
+
+            if (AboutInstallLatestUpdateBtn != null)
+            {
+                AboutInstallLatestUpdateBtn.Content = installContent;
+                AboutInstallLatestUpdateBtn.IsEnabled = !_appUpdateInstallInProgress && (!_appUpdateCheckInProgress || _isAppUpdateAvailable);
+            }
         }
 
         private async Task RefreshSettingsPcSpecAsync(JObject stats, JObject systemInfo)
@@ -5031,7 +5069,20 @@ if (-not $result) { 'Unavailable'; return }
                     return addr;
             }
 
-            return addresses.FirstOrDefault()?["address"]?.ToString() ?? "Unavailable";
+            foreach (var token in addresses)
+            {
+                var addr = token switch
+                {
+                    JObject obj => obj.Value<string>("address") ?? "",
+                    JValue value => value.ToString(),
+                    _ => token?.ToString() ?? ""
+                };
+
+                if (!string.IsNullOrWhiteSpace(addr) && !addr.Contains("::1") && !addr.StartsWith("127."))
+                    return addr;
+            }
+
+            return "Unavailable";
         }
 
         private static (string Overview, string DriveLines, string HardwareLines) BuildStorageSummary(JObject diskInfo, JArray physicalDisks)
@@ -5100,12 +5151,22 @@ if (-not $result) { 'Unavailable'; return }
                 _latestKnownReleaseUrl = string.IsNullOrWhiteSpace(result.LatestReleaseUrl)
                     ? "https://github.com/jxxzy/HyperBoostX/releases"
                     : result.LatestReleaseUrl;
+                _latestKnownInstallerAssetName = result.InstallerAssetName ?? "";
+                _latestKnownInstallerDownloadUrl = result.InstallerDownloadUrl ?? "";
                 _latestKnownReleaseChannel = result.ReleaseChannel;
                 _latestKnownReleasePublishedUtc = result.PublishedUtc;
                 _isAppUpdateAvailable = result.IsUpdateAvailable;
                 _lastAppUpdateSummary = result.Summary;
                 RefreshAppUpdatePanels();
                 await SavePersistedConfigurationAsync();
+
+                if (!userInitiated && _autoInstallAppUpdates && result.Success && result.IsUpdateAvailable)
+                {
+                    _ = Dispatcher.BeginInvoke(new Action(async () =>
+                    {
+                        await DownloadAndInstallLatestAppUpdateAsync(autoTriggered: true);
+                    }));
+                }
 
                 if (userInitiated)
                 {
@@ -5153,6 +5214,123 @@ if (-not $result) { 'Unavailable'; return }
             LaunchExternalUrl(target, "App Update");
         }
 
+        private string GetAppUpdatesDirectory()
+        {
+            var path = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "HyperBoost X",
+                "updates");
+            Directory.CreateDirectory(path);
+            return path;
+        }
+
+        private string CreateAppUpdateLauncherScript(string installerPath)
+        {
+            var updatesDirectory = GetAppUpdatesDirectory();
+            var scriptPath = Path.Combine(updatesDirectory, "apply-update.cmd");
+            var escapedInstallerPath = installerPath.Replace("\"", "\"\"");
+            var script = string.Join(Environment.NewLine, new[]
+            {
+                "@echo off",
+                "ping 127.0.0.1 -n 3 > nul",
+                $"start \"\" \"{escapedInstallerPath}\" /S",
+                "exit /b 0"
+            });
+            File.WriteAllText(scriptPath, script, Encoding.ASCII);
+            return scriptPath;
+        }
+
+        private async Task DownloadAndInstallLatestAppUpdateAsync(bool autoTriggered)
+        {
+            if (_appUpdateInstallInProgress)
+                return;
+
+            if (!_isAppUpdateAvailable && !autoTriggered)
+            {
+                ShowActionStatus(ActionState.Info, "App Update", "Belum ada versi baru yang diketahui untuk diinstal.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(_latestKnownInstallerDownloadUrl))
+            {
+                ShowActionStatus(ActionState.Warning, "App Update", "Installer asset belum tersedia. Halaman release akan dibuka sebagai fallback.", _latestKnownReleaseUrl);
+                OpenReleasePage();
+                return;
+            }
+
+            _appUpdateInstallInProgress = true;
+            RefreshAppUpdatePanels();
+
+            try
+            {
+                var targetVersion = string.IsNullOrWhiteSpace(_latestKnownAppVersion) ? NormalizeVersionLabel(_currentAppVersion) : _latestKnownAppVersion;
+                ShowActionStatus(ActionState.Info, "App Update", $"Downloading installer {targetVersion}...");
+
+                var progress = new Progress<double>(percent =>
+                {
+                    _lastAppUpdateSummary = $"Downloading installer... {percent:0}%";
+                    RefreshAppUpdatePanels();
+                });
+
+                var installerPath = await _appUpdateService.DownloadInstallerAsync(
+                    _latestKnownInstallerDownloadUrl,
+                    targetVersion,
+                    GetAppUpdatesDirectory(),
+                    progress);
+
+                var verification = _appUpdateService.VerifyInstaller(installerPath, _latestKnownInstallerDownloadUrl, _latestKnownInstallerAssetName);
+                if (!verification.AllowManualInstall)
+                {
+                    _lastAppUpdateSummary = $"Installer verification failed. {verification.Summary}";
+                    RefreshAppUpdatePanels();
+                    ShowActionStatus(ActionState.Error, "App Update", "Installer verification failed. Update will not run automatically.", verification.Summary);
+                    return;
+                }
+
+                if (autoTriggered && !verification.AllowAutomaticInstall)
+                {
+                    _lastAppUpdateSummary = $"Auto-install blocked. {verification.Summary}";
+                    RefreshAppUpdatePanels();
+                    ShowActionStatus(ActionState.Warning, "App Update", "Auto-install diblokir karena installer belum lolos verifikasi otomatis penuh.", verification.Summary);
+                    return;
+                }
+
+                var launcherScript = CreateAppUpdateLauncherScript(installerPath);
+                _lastAppUpdateSummary = $"Installer downloaded: {Path.GetFileName(installerPath)}. Update will continue automatically.";
+                RefreshAppUpdatePanels();
+                await SavePersistedConfigurationAsync();
+
+                Process.Start(new ProcessStartInfo("cmd.exe", $"/c \"{launcherScript}\"")
+                {
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                });
+
+                ShowActionStatus(ActionState.Info, "App Update", "Installer sudah diunduh. Aplikasi akan ditutup agar update berjalan mandiri.", $"{installerPath}{Environment.NewLine}{verification.Summary}{Environment.NewLine}SHA256: {verification.Sha256}");
+                AppendSettingsHistory($"App self-update started for {targetVersion}{(autoTriggered ? " (auto)" : "")}.");
+
+                var shutdownTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1200) };
+                shutdownTimer.Tick += (_, _) =>
+                {
+                    shutdownTimer.Stop();
+                    Close();
+                };
+                shutdownTimer.Start();
+            }
+            catch (Exception ex)
+            {
+                _lastAppUpdateSummary = $"Self-update failed: {ex.Message}";
+                RefreshAppUpdatePanels();
+                ShowActionStatus(ActionState.Error, "App Update", "Gagal mengunduh atau menjalankan installer update.", ex.Message);
+            }
+            finally
+            {
+                _appUpdateInstallInProgress = false;
+                RefreshAppUpdatePanels();
+            }
+        }
+
         private void LaunchExternalUrl(string url, string featureName)
         {
             try
@@ -5169,6 +5347,14 @@ if (-not $result) { 'Unavailable'; return }
         private async void CheckAppUpdate_Click(object sender, RoutedEventArgs e)
         {
             await EnsureAppUpdateStatusAsync(force: true, userInitiated: true);
+        }
+
+        private async void InstallLatestAppUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            if (!_isAppUpdateAvailable)
+                await EnsureAppUpdateStatusAsync(force: true, userInitiated: false);
+
+            await DownloadAndInstallLatestAppUpdateAsync(autoTriggered: false);
         }
 
         private void OpenLatestRelease_Click(object sender, RoutedEventArgs e)
@@ -5191,6 +5377,18 @@ if (-not $result) { 'Unavailable'; return }
             AppendSettingsHistory($"App update auto-check {(_autoCheckAppUpdates ? "enabled" : "disabled")}.");
             await SavePersistedConfigurationAsync();
             ShowActionStatus(ActionState.Info, "App Update", $"Auto app update check sekarang {(_autoCheckAppUpdates ? "ON" : "OFF")}.");
+        }
+
+        private async void ToggleAutoInstallAppUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            _autoInstallAppUpdates = !_autoInstallAppUpdates;
+            _lastAppUpdateSummary = _autoInstallAppUpdates
+                ? "Automatic self-update install enabled."
+                : "Automatic self-update install disabled.";
+            RefreshAppUpdatePanels();
+            AppendSettingsHistory($"App auto-install update {(_autoInstallAppUpdates ? "enabled" : "disabled")}.");
+            await SavePersistedConfigurationAsync();
+            ShowActionStatus(ActionState.Info, "App Update", $"Auto install update sekarang {(_autoInstallAppUpdates ? "ON" : "OFF")}.");
         }
 
         private async void TestBackend_Click(object sender, RoutedEventArgs e)
@@ -13233,93 +13431,109 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
 
         private async Task RefreshAutomationViewAsync()
         {
-            var snapshot = await BuildAutomationSnapshotAsync();
-            var cpu = snapshot.Cpu;
-            var ram = snapshot.Ram;
-            var disk = snapshot.Disk;
-            var temperature = snapshot.Temperature;
-            var state = snapshot.State;
-            var nextQueuedTask = _automationTasks
-                .Where(task => task.Status.Equals("Queued", StringComparison.OrdinalIgnoreCase) ||
-                               task.Status.Equals("Retrying", StringComparison.OrdinalIgnoreCase) ||
-                               task.Status.Equals("Waiting for Safe Window", StringComparison.OrdinalIgnoreCase))
-                .OrderBy(task => task.ScheduledForUtc ?? task.CreatedUtc)
-                .FirstOrDefault();
-            var nextAction = nextQueuedTask?.Name ?? PredictNextAutomationAction(state, cpu, ram, disk);
-            var activeAutomations = _automationPaused ? 0 : _automationRules.Count(rule => rule.Enabled);
-            var conditionalTasks = _automationTasks.Count(task =>
-                task.Status.Equals("Queued", StringComparison.OrdinalIgnoreCase) ||
-                task.Status.Equals("Retrying", StringComparison.OrdinalIgnoreCase) ||
-                task.Status.Equals("Waiting for Safe Window", StringComparison.OrdinalIgnoreCase));
-            var lastAudit = _automationAudit.LastOrDefault();
-            var completed = _automationTasks.Count(task => task.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase));
-            var failed = _automationTasks.Count(task => task.Status.Equals("Failed", StringComparison.OrdinalIgnoreCase));
-            var deferred = _automationTasks.Count(task => task.Status.Equals("Waiting for Safe Window", StringComparison.OrdinalIgnoreCase));
+            try
+            {
+                var snapshot = await BuildAutomationSnapshotAsync();
+                var cpu = snapshot.Cpu;
+                var ram = snapshot.Ram;
+                var disk = snapshot.Disk;
+                var temperature = snapshot.Temperature;
+                var state = snapshot.State;
+                var nextQueuedTask = _automationTasks
+                    .Where(task => task.Status.Equals("Queued", StringComparison.OrdinalIgnoreCase) ||
+                                   task.Status.Equals("Retrying", StringComparison.OrdinalIgnoreCase) ||
+                                   task.Status.Equals("Waiting for Safe Window", StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(task => task.ScheduledForUtc ?? task.CreatedUtc)
+                    .FirstOrDefault();
+                var nextAction = nextQueuedTask?.Name ?? PredictNextAutomationAction(state, cpu, ram, disk);
+                var activeAutomations = _automationPaused ? 0 : _automationRules.Count(rule => rule.Enabled);
+                var conditionalTasks = _automationTasks.Count(task =>
+                    task.Status.Equals("Queued", StringComparison.OrdinalIgnoreCase) ||
+                    task.Status.Equals("Retrying", StringComparison.OrdinalIgnoreCase) ||
+                    task.Status.Equals("Waiting for Safe Window", StringComparison.OrdinalIgnoreCase));
+                var lastAudit = _automationAudit.LastOrDefault();
+                var completed = _automationTasks.Count(task => task.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase));
+                var failed = _automationTasks.Count(task => task.Status.Equals("Failed", StringComparison.OrdinalIgnoreCase));
+                var deferred = _automationTasks.Count(task => task.Status.Equals("Waiting for Safe Window", StringComparison.OrdinalIgnoreCase));
 
-            AutomationQuickResultText.Text =
-                "Automation engine ready" + Environment.NewLine +
-                $"Current mode: {_automationMode}" + Environment.NewLine +
-                $"Policy: {_automationPolicyProfile}";
+                AutomationQuickResultText.Text =
+                    "Automation engine ready" + Environment.NewLine +
+                    $"Current mode: {_automationMode}" + Environment.NewLine +
+                    $"Policy: {_automationPolicyProfile}";
 
-            AutomationDashboardText.Text =
-                $"Automation Engine Status: {(_automationPaused ? "Paused" : "Active")}{Environment.NewLine}" +
-                $"Autonomous Mode: {(_autonomousModeEnabled ? "ON" : "OFF")}{Environment.NewLine}" +
-                $"Total Active Automations: {activeAutomations}{Environment.NewLine}" +
-                $"Total Conditional Tasks: {conditionalTasks}{Environment.NewLine}" +
-                $"Last Decision Taken: {(lastAudit == null ? "Initial scan" : $"{lastAudit.Level}: {lastAudit.Message}")}{Environment.NewLine}" +
-                $"Next Predicted Action: {nextAction}{Environment.NewLine}" +
-                $"Current System State: {state}";
+                AutomationDashboardText.Text =
+                    $"Automation Engine Status: {(_automationPaused ? "Paused" : "Active")}{Environment.NewLine}" +
+                    $"Autonomous Mode: {(_autonomousModeEnabled ? "ON" : "OFF")}{Environment.NewLine}" +
+                    $"Total Active Automations: {activeAutomations}{Environment.NewLine}" +
+                    $"Total Conditional Tasks: {conditionalTasks}{Environment.NewLine}" +
+                    $"Last Decision Taken: {(lastAudit == null ? "Initial scan" : $"{lastAudit.Level}: {lastAudit.Message}")}{Environment.NewLine}" +
+                    $"Next Predicted Action: {nextAction}{Environment.NewLine}" +
+                    $"Current System State: {state}";
 
-            AutomationModeText.Text =
-                $"Mode aktif: {_automationMode}{Environment.NewLine}" +
-                $"Policy profile: {_automationPolicyProfile}{Environment.NewLine}" +
-                $"Learning engine: {(_automationLearningEnabled ? "ON" : "OFF")}{Environment.NewLine}" +
-                $"Execution policy: {(_automationPaused ? "No-run / paused" : _automationMode.Contains("Full", StringComparison.OrdinalIgnoreCase) ? "Auto-run safe + moderate" : _automationMode.Contains("Assisted", StringComparison.OrdinalIgnoreCase) ? "Suggest first, approve later" : "Safe autonomous")}";
+                AutomationModeText.Text =
+                    $"Mode aktif: {_automationMode}{Environment.NewLine}" +
+                    $"Policy profile: {_automationPolicyProfile}{Environment.NewLine}" +
+                    $"Learning engine: {(_automationLearningEnabled ? "ON" : "OFF")}{Environment.NewLine}" +
+                    $"Execution policy: {(_automationPaused ? "No-run / paused" : _automationMode.Contains("Full", StringComparison.OrdinalIgnoreCase) ? "Auto-run safe + moderate" : _automationMode.Contains("Assisted", StringComparison.OrdinalIgnoreCase) ? "Suggest first, approve later" : "Safe autonomous")}";
 
-            AutomationContextText.Text =
-                $"Context awareness:{Environment.NewLine}" +
-                $"- CPU {cpu:0}%{Environment.NewLine}" +
-                $"- RAM {ram:0}%{Environment.NewLine}" +
-                $"- Disk {disk:0}%{Environment.NewLine}" +
-                $"- Temperature {temperature:0}C{Environment.NewLine}" +
-                $"- Active scenario: {state}{Environment.NewLine}" +
-                $"{(_automationLearningEnabled ? "Behavior learning active: usage pattern adapts future tasks." : "Behavior learning paused.")}";
+                AutomationContextText.Text =
+                    $"Context awareness:{Environment.NewLine}" +
+                    $"- CPU {cpu:0}%{Environment.NewLine}" +
+                    $"- RAM {ram:0}%{Environment.NewLine}" +
+                    $"- Disk {disk:0}%{Environment.NewLine}" +
+                    $"- GPU {snapshot.Gpu:0}%{Environment.NewLine}" +
+                    $"- Temperature {temperature:0}C{Environment.NewLine}" +
+                    $"- Active scenario: {state}{Environment.NewLine}" +
+                    $"{(_automationLearningEnabled ? "Behavior learning active: usage pattern adapts future tasks." : "Behavior learning paused.")}";
 
-            AutomationScenarioText.Text =
-                $"Goal active: {_automationGoal}{Environment.NewLine}" +
-                "Scenario automation:" + Environment.NewLine +
-                "- Gaming Session" + Environment.NewLine +
-                "- Streaming Session" + Environment.NewLine +
-                "- Creator Session" + Environment.NewLine +
-                "- Idle Maintenance" + Environment.NewLine +
-                "- Thermal Recovery";
+                AutomationScenarioText.Text =
+                    $"Goal active: {_automationGoal}{Environment.NewLine}" +
+                    "Scenario automation:" + Environment.NewLine +
+                    "- Gaming Session" + Environment.NewLine +
+                    "- Streaming Session" + Environment.NewLine +
+                    "- Creator Session" + Environment.NewLine +
+                    "- Idle Maintenance" + Environment.NewLine +
+                    "- Thermal Recovery";
 
-            var workflowEntries = _automationTasks
-                .OrderByDescending(task => task.CreatedUtc)
-                .Take(6)
-                .Select(task => $"- {task.Name}: {task.Status} ({task.TriggerReason})")
-                .ToList();
-            AutomationWorkflowText.Text =
-                "Workflow builder / chain automation:" + Environment.NewLine +
-                (workflowEntries.Count == 0 ? "- No workflow tasks queued yet" : string.Join(Environment.NewLine, workflowEntries));
+                var workflowEntries = _automationTasks
+                    .OrderByDescending(task => task.CreatedUtc)
+                    .Take(6)
+                    .Select(task => $"- {task.Name}: {task.Status} ({task.TriggerReason})")
+                    .ToList();
+                AutomationWorkflowText.Text =
+                    "Workflow builder / chain automation:" + Environment.NewLine +
+                    (workflowEntries.Count == 0 ? "- No workflow tasks queued yet" : string.Join(Environment.NewLine, workflowEntries));
 
-            AutomationSafetyText.Text =
-                "Safety Intelligence Layer:" + Environment.NewLine +
-                "- Safe task whitelist" + Environment.NewLine +
-                "- Thermal / battery / service protection" + Environment.NewLine +
-                "- High-risk tasks require review" + Environment.NewLine +
-                "- Maintenance windows control heavy jobs" + Environment.NewLine +
-                $"Completed: {completed} | Deferred: {deferred} | Failed: {failed}";
+                AutomationSafetyText.Text =
+                    "Safety Intelligence Layer:" + Environment.NewLine +
+                    "- Safe task whitelist" + Environment.NewLine +
+                    "- Thermal / battery / service protection" + Environment.NewLine +
+                    "- High-risk tasks require review" + Environment.NewLine +
+                    "- Maintenance windows control heavy jobs" + Environment.NewLine +
+                    $"Completed: {completed} | Deferred: {deferred} | Failed: {failed}";
 
-            AutomationOverrideText.Text =
-                $"Manual override: {(_automationPaused ? "Paused by user" : "Available")}{Environment.NewLine}" +
-                "- Pause all automation" + Environment.NewLine +
-                "- Skip next task" + Environment.NewLine +
-                "- Lock current mode" + Environment.NewLine +
-                "- Recovery & rollback if automation misbehaves";
+                AutomationOverrideText.Text =
+                    $"Manual override: {(_automationPaused ? "Paused by user" : "Available")}{Environment.NewLine}" +
+                    "- Pause all automation" + Environment.NewLine +
+                    "- Skip next task" + Environment.NewLine +
+                    "- Lock current mode" + Environment.NewLine +
+                    "- Recovery & rollback if automation misbehaves";
 
-            if (_automationHistory.Count == 0)
-                AppendAutomationHistory("Automation center initialized.");
+                if (_automationHistory.Count == 0)
+                    AppendAutomationHistory("Automation center initialized.");
+            }
+            catch (Exception ex)
+            {
+                AutomationQuickResultText.Text = "Automation engine warning\nSnapshot parsing failed";
+                AutomationDashboardText.Text = "Automation dashboard is temporarily unavailable.";
+                AutomationModeText.Text = $"Mode aktif: {_automationMode}\nPolicy profile: {_automationPolicyProfile}";
+                AutomationContextText.Text = $"Automation context refresh warning: {ex.Message}";
+                AutomationScenarioText.Text = $"Goal active: {_automationGoal}\nScenario summary unavailable while snapshot recovers.";
+                AutomationWorkflowText.Text = "Workflow view temporarily unavailable.";
+                AutomationSafetyText.Text = "Safety layer kept active while automation view recovers.";
+                AutomationOverrideText.Text = "Manual override remains available.";
+                AppendAutomationHistory($"Automation refresh warning: {ex.Message}");
+            }
         }
 
         private async void RunAutonomousCheck_Click(object sender, RoutedEventArgs e)

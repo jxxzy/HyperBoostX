@@ -2331,8 +2331,10 @@
                                     <TextBlock Text="App Update / Release Manager" Foreground="#f8fafc" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
                                     <WrapPanel>
                                         <Button Name="CheckAppUpdateBtn" Content="Check App Update" Click="CheckAppUpdate_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Name="InstallLatestUpdateBtn" Content="Download and Install Update" Click="InstallLatestAppUpdate_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Name="OpenLatestReleaseBtn" Content="Open Latest Release" Click="OpenLatestRelease_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Name="ToggleAutoAppUpdateBtn" Content="Auto Check Updates: ON" Click="ToggleAutoAppUpdate_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Name="ToggleAutoInstallUpdateBtn" Content="Auto Install Updates: OFF" Click="ToggleAutoInstallAppUpdate_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                     </WrapPanel>
                                     <TextBlock Name="SettingsAppUpdateStatusText" Text="App update status will appear here." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,12"/>
                                     <Separator Margin="0,4,0,12" Background="#1e293b"/>
@@ -5675,6 +5677,7 @@
                                 <TextBlock Name="AboutUpdateStatusText" Text="Update status will appear here." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,12"/>
                                 <WrapPanel Margin="0,0,0,16">
                                     <Button Content="Check Latest Release" Click="CheckAppUpdate_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Name="AboutInstallLatestUpdateBtn" Content="Download and Install Update" Click="InstallLatestAppUpdate_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                     <Button Content="Open Download Page" Click="OpenLatestRelease_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                 </WrapPanel>
 

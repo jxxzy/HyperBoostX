@@ -39,6 +39,7 @@ namespace HyperBoostX.Services
         public string OpenAiMode { get; set; } = "Assistant";
         public string OpenAiPermissionLevel { get; set; } = "Ask";
         public bool AutoCheckAppUpdates { get; set; } = true;
+        public bool AutoInstallAppUpdates { get; set; }
         public string LastKnownLatestVersion { get; set; } = "";
         public string LastKnownReleaseUrl { get; set; } = "";
         public string LastKnownReleaseChannel { get; set; } = "";

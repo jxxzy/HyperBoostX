@@ -1,8 +1,12 @@
 using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
@@ -14,6 +18,8 @@ namespace HyperBoostX.Services
         public string CurrentVersion { get; set; } = "";
         public string LatestVersion { get; set; } = "";
         public string LatestReleaseUrl { get; set; } = "";
+        public string InstallerAssetName { get; set; } = "";
+        public string InstallerDownloadUrl { get; set; } = "";
         public string ReleaseChannel { get; set; } = "Stable";
         public DateTime? PublishedUtc { get; set; }
         public bool IsUpdateAvailable { get; set; }
@@ -25,7 +31,23 @@ namespace HyperBoostX.Services
     {
         private const string ReleasesApiUrl = "https://api.github.com/repos/jxxzy/HyperBoostX/releases";
         private const string ReleasesPageUrl = "https://github.com/jxxzy/HyperBoostX/releases";
+        private const string ExpectedRepoDownloadPrefix = "https://github.com/jxxzy/HyperBoostX/releases/download/";
         private static readonly HttpClient HttpClient = CreateHttpClient();
+
+        public sealed class InstallerVerificationResult
+        {
+            public bool SourceTrusted { get; set; }
+            public bool FilePresent { get; set; }
+            public bool AssetNameValid { get; set; }
+            public bool FileSizeValid { get; set; }
+            public bool IsSigned { get; set; }
+            public bool PublisherTrusted { get; set; }
+            public string Publisher { get; set; } = "Unsigned";
+            public string Sha256 { get; set; } = "";
+            public string Summary { get; set; } = "Verification not executed.";
+            public bool AllowAutomaticInstall => SourceTrusted && FilePresent && AssetNameValid && FileSizeValid && IsSigned && PublisherTrusted;
+            public bool AllowManualInstall => SourceTrusted && FilePresent && AssetNameValid && FileSizeValid;
+        }
 
         public async Task<AppReleaseCheckResult> CheckLatestReleaseAsync(string currentVersion)
         {
@@ -81,6 +103,16 @@ namespace HyperBoostX.Services
                 result.LatestReleaseUrl = selected.Value<string>("html_url") ?? ReleasesPageUrl;
                 result.ReleaseChannel = isPrerelease ? "Prerelease" : "Stable";
                 result.PublishedUtc = publishedUtc;
+                var installerAsset = selected["assets"]?
+                    .OfType<JObject>()
+                    .FirstOrDefault(asset =>
+                    {
+                        var assetName = asset.Value<string>("name") ?? "";
+                        return assetName.EndsWith("Installer.exe", StringComparison.OrdinalIgnoreCase)
+                            || assetName.Contains("installer", StringComparison.OrdinalIgnoreCase);
+                    });
+                result.InstallerAssetName = installerAsset?.Value<string>("name") ?? "";
+                result.InstallerDownloadUrl = installerAsset?.Value<string>("browser_download_url") ?? "";
                 result.IsUpdateAvailable = CompareVersions(latestVersion, normalizedCurrent) > 0;
                 result.Summary = result.IsUpdateAvailable
                     ? $"New version available: {latestVersion} ({result.ReleaseChannel})."
@@ -94,6 +126,107 @@ namespace HyperBoostX.Services
                 result.Summary = "Unable to reach the release server.";
                 return result;
             }
+        }
+
+        public async Task<string> DownloadInstallerAsync(string downloadUrl, string versionLabel, string destinationDirectory, IProgress<double> progress = null, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(downloadUrl))
+                throw new InvalidOperationException("Installer download URL is not available.");
+
+            Directory.CreateDirectory(destinationDirectory);
+            var safeVersion = NormalizeVersionLabel(versionLabel).Replace(" ", "-");
+            var destinationPath = Path.Combine(destinationDirectory, $"HyperBoostXInstaller-{safeVersion}.exe");
+
+            using var response = await HttpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            var totalBytes = response.Content.Headers.ContentLength;
+            await using var sourceStream = await response.Content.ReadAsStreamAsync(cancellationToken);
+            await using var destinationStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None, 81920, useAsync: true);
+
+            var buffer = new byte[81920];
+            long totalRead = 0;
+            while (true)
+            {
+                var bytesRead = await sourceStream.ReadAsync(buffer.AsMemory(0, buffer.Length), cancellationToken);
+                if (bytesRead <= 0)
+                    break;
+
+                await destinationStream.WriteAsync(buffer.AsMemory(0, bytesRead), cancellationToken);
+                totalRead += bytesRead;
+                if (totalBytes.HasValue && totalBytes.Value > 0)
+                {
+                    progress?.Report(totalRead * 100d / totalBytes.Value);
+                }
+            }
+
+            progress?.Report(100);
+            return destinationPath;
+        }
+
+        public InstallerVerificationResult VerifyInstaller(string installerPath, string downloadUrl, string assetName)
+        {
+            var result = new InstallerVerificationResult
+            {
+                SourceTrusted = IsTrustedReleaseDownloadUrl(downloadUrl),
+                FilePresent = File.Exists(installerPath),
+                AssetNameValid = !string.IsNullOrWhiteSpace(assetName)
+                    && assetName.StartsWith("HyperBoostXInstaller", StringComparison.OrdinalIgnoreCase)
+                    && assetName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+            };
+
+            if (result.FilePresent)
+            {
+                var fileInfo = new FileInfo(installerPath);
+                result.FileSizeValid = fileInfo.Length > 1024 * 1024;
+                result.Sha256 = ComputeSha256(installerPath);
+            }
+
+            try
+            {
+                var certificate = X509Certificate.CreateFromSignedFile(installerPath);
+                var x509 = new X509Certificate2(certificate);
+                result.IsSigned = true;
+                result.Publisher = x509.Subject;
+                result.PublisherTrusted =
+                    x509.Subject.Contains("MR.4NONY", StringComparison.OrdinalIgnoreCase) ||
+                    x509.Subject.Contains("HyperBoost", StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                result.IsSigned = false;
+                result.PublisherTrusted = false;
+                result.Publisher = "Unsigned";
+            }
+
+            result.Summary =
+                $"Source trusted: {(result.SourceTrusted ? "Yes" : "No")}; " +
+                $"Asset name valid: {(result.AssetNameValid ? "Yes" : "No")}; " +
+                $"File present: {(result.FilePresent ? "Yes" : "No")}; " +
+                $"File size valid: {(result.FileSizeValid ? "Yes" : "No")}; " +
+                $"Signed: {(result.IsSigned ? "Yes" : "No")} ({result.Publisher})";
+
+            return result;
+        }
+
+        private static bool IsTrustedReleaseDownloadUrl(string downloadUrl)
+        {
+            if (string.IsNullOrWhiteSpace(downloadUrl))
+                return false;
+
+            if (!Uri.TryCreate(downloadUrl, UriKind.Absolute, out var uri))
+                return false;
+
+            return uri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase)
+                && downloadUrl.StartsWith(ExpectedRepoDownloadPrefix, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string ComputeSha256(string path)
+        {
+            using var stream = File.OpenRead(path);
+            using var sha = SHA256.Create();
+            var hash = sha.ComputeHash(stream);
+            return string.Concat(hash.Select(x => x.ToString("x2", CultureInfo.InvariantCulture)));
         }
 
         private static HttpClient CreateHttpClient()
