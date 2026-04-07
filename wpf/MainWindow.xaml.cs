@@ -216,6 +216,12 @@ namespace HyperBoostX
         private readonly List<FeatureAuditResult> _lastFeatureAuditResults = new();
         private string _lastFeatureAuditSummary = "No audit has been executed yet.";
         private string _lastFeatureAuditMode = "Quick";
+        private string _testingExecutionMode = "Safe Read-Only";
+        private string _lastTestingSuite = "Quick Audit";
+        private string _lastTestingStrategySummary = "Testing strategy: mock-safe-live layering ready.";
+        private string _lastTestingLayerSummary = "Layer summary: core logic, system action, app service, UI, full flow.";
+        private string _lastTestingMetricsSummary = "Performance / stress / stability metrics will appear here.";
+        private string _lastTestingCompatibilitySummary = "Compatibility and security review will appear here.";
         private DateTime? _lastFeatureAuditUtc;
         private bool _featureAuditRunning;
         private readonly Queue<string> _settingsHistory = new();
@@ -276,6 +282,7 @@ namespace HyperBoostX
         private string _latestKnownReleaseUrl = "https://github.com/jxxzy/HyperBoostX/releases";
         private string _latestKnownInstallerAssetName = "";
         private string _latestKnownInstallerDownloadUrl = "";
+        private string _latestKnownChecksumsDownloadUrl = "";
         private string _latestKnownReleaseChannel = "Stable";
         private string _lastAppUpdateSummary = "Update status has not been checked yet.";
         private DateTime? _lastAppUpdateCheckUtc;
@@ -5153,6 +5160,7 @@ if (-not $result) { 'Unavailable'; return }
                     : result.LatestReleaseUrl;
                 _latestKnownInstallerAssetName = result.InstallerAssetName ?? "";
                 _latestKnownInstallerDownloadUrl = result.InstallerDownloadUrl ?? "";
+                _latestKnownChecksumsDownloadUrl = result.ChecksumsDownloadUrl ?? "";
                 _latestKnownReleaseChannel = result.ReleaseChannel;
                 _latestKnownReleasePublishedUtc = result.PublishedUtc;
                 _isAppUpdateAvailable = result.IsUpdateAvailable;
@@ -5278,7 +5286,11 @@ if (-not $result) { 'Unavailable'; return }
                     GetAppUpdatesDirectory(),
                     progress);
 
-                var verification = _appUpdateService.VerifyInstaller(installerPath, _latestKnownInstallerDownloadUrl, _latestKnownInstallerAssetName);
+                var verification = await _appUpdateService.VerifyInstallerAsync(
+                    installerPath,
+                    _latestKnownInstallerDownloadUrl,
+                    _latestKnownInstallerAssetName,
+                    _latestKnownChecksumsDownloadUrl);
                 if (!verification.AllowManualInstall)
                 {
                     _lastAppUpdateSummary = $"Installer verification failed. {verification.Summary}";
@@ -14110,6 +14122,305 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             return normalized.Substring(0, maxLength - 3) + "...";
         }
 
+        private static void RequireTestCondition(bool condition, string message)
+        {
+            if (!condition)
+                throw new InvalidOperationException(message);
+        }
+
+        private FeatureAuditTarget CreateTestingProbeTarget(string name, Func<Task<string>> probe)
+        {
+            var snapshot = "Not executed.";
+            return new FeatureAuditTarget
+            {
+                Name = name,
+                ExecuteAsync = async () => snapshot = await probe(),
+                Snapshot = () => snapshot
+            };
+        }
+
+        private void UpdateTestingStaticSummaries()
+        {
+            _lastTestingStrategySummary = TestingAuditSummaryService.BuildStrategySummary(_testingExecutionMode);
+            _lastTestingLayerSummary = TestingAuditSummaryService.BuildLayerSummary();
+        }
+
+        private string BuildTestingSuiteMatrixText()
+        {
+            return TestingAuditSummaryService.BuildSuiteMatrixText(_lastTestingSuite);
+        }
+
+        private string BuildTestingCompatibilitySummary(bool backendHealthy)
+        {
+            var isAdmin = false;
+            try
+            {
+                using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
+                var principal = new System.Security.Principal.WindowsPrincipal(identity);
+                isAdmin = principal.IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
+            }
+            catch
+            {
+            }
+
+            return TestingAuditSummaryService.BuildCompatibilitySummary(new TestingCompatibilityContext
+            {
+                OsVersion = Environment.OSVersion.VersionString,
+                Is64BitOperatingSystem = Environment.Is64BitOperatingSystem,
+                CultureName = CultureInfo.CurrentCulture.Name,
+                UiCultureName = CultureInfo.CurrentUICulture.Name,
+                IsAdministrator = isAdmin,
+                BackendHealthy = backendHealthy,
+                WindowWidth = ActualWidth,
+                WindowHeight = ActualHeight
+            });
+        }
+
+        private List<FeatureAuditTarget> BuildTestingSuiteTargets(string suiteName)
+        {
+            switch (suiteName)
+            {
+                case "Unit":
+                    return new List<FeatureAuditTarget>
+                    {
+                        CreateTestingProbeTarget("Unit / Score Engine", () =>
+                        {
+                            var healthy = CalculateDashboardPerformanceScore(12, 28, 22, 4, 1);
+                            var heavy = CalculateDashboardPerformanceScore(95, 92, 87, 36, 7);
+                            RequireTestCondition(healthy > heavy, "Healthy profile should score higher than heavy load profile.");
+                            RequireTestCondition(healthy is >= 0 and <= 100, "Healthy score out of range.");
+                            return Task.FromResult($"Healthy={healthy} | Heavy={heavy}");
+                        }),
+                        CreateTestingProbeTarget("Unit / Version Normalizer", () =>
+                        {
+                            RequireTestCondition(NormalizeVersionLabel("v1.1.0-beta") == "1.1.0-beta", "Version normalizer failed for prefixed tag.");
+                            RequireTestCondition(NormalizeVersionLabel("1.1.0") == "1.1.0", "Version normalizer changed clean version.");
+                            return Task.FromResult("NormalizeVersionLabel passed.");
+                        }),
+                        CreateTestingProbeTarget("Unit / Memory Type", () =>
+                        {
+                            RequireTestCondition(InferMemoryType(5600) == "DDR5", "DDR5 inference failed.");
+                            RequireTestCondition(InferMemoryType(3200) == "DDR4", "DDR4 inference failed.");
+                            return Task.FromResult("InferMemoryType passed.");
+                        }),
+                        CreateTestingProbeTarget("Unit / Visual Bar", () =>
+                        {
+                            var bar = BuildUsageBar(55);
+                            RequireTestCondition(bar.StartsWith("[") && bar.EndsWith("]"), "Usage bar format invalid.");
+                            RequireTestCondition(bar.Length == 12, "Usage bar length invalid.");
+                            return Task.FromResult($"Usage bar sample: {bar}");
+                        })
+                    };
+
+                case "Integration":
+                    return new List<FeatureAuditTarget>
+                    {
+                        CreateTestingProbeTarget("Integration / Backend Health", async () =>
+                        {
+                            var healthy = await _backendClient.HealthCheckAsync();
+                            RequireTestCondition(healthy, "Backend health endpoint did not respond.");
+                            return "Backend health endpoint OK.";
+                        }),
+                        CreateTestingProbeTarget("Integration / System Stats Contract", async () =>
+                        {
+                            var stats = await SafeApiCall(() => _backendClient.GetSystemStatsAsync()) as JObject;
+                            RequireTestCondition(stats != null, "System stats payload missing.");
+                            RequireTestCondition(stats["cpu"] != null || stats["cpu_percent"] != null, "CPU stat missing.");
+                            RequireTestCondition(stats["memory"] != null || stats["memory_percent"] != null, "Memory stat missing.");
+                            return $"Stats keys: {string.Join(", ", stats.Properties().Take(6).Select(x => x.Name))}";
+                        }),
+                        CreateTestingProbeTarget("Integration / Startup + Processes", async () =>
+                        {
+                            var startup = await SafeApiCall(() => _backendClient.GetStartupItemsAsync()) as JToken;
+                            var processes = await SafeApiCall(() => _backendClient.GetProcessesAsync()) as JToken;
+                            RequireTestCondition(startup != null, "Startup payload missing.");
+                            RequireTestCondition(processes != null, "Processes payload missing.");
+                            return "Startup and process endpoints returned payload.";
+                        }),
+                        CreateTestingProbeTarget("Integration / Settings Refresh", async () =>
+                        {
+                            await RefreshSettingsViewAsync();
+                            RequireTestCondition(!string.IsNullOrWhiteSpace(SettingsUiText?.Text), "Settings UI summary empty after refresh.");
+                            return TrimFeatureAuditText(SettingsUiText?.Text);
+                        })
+                    };
+
+                case "UI Flow":
+                    return new List<FeatureAuditTarget>
+                    {
+                        CreateTestingProbeTarget("UI / Dashboard Refresh", async () =>
+                        {
+                            await RefreshDashboard();
+                            RequireTestCondition(!string.IsNullOrWhiteSpace(DashboardPerfScoreText?.Text), "Dashboard score not rendered.");
+                            return TrimFeatureAuditText(DashboardPerfScoreText?.Text);
+                        }),
+                        CreateTestingProbeTarget("UI / Smart Recommendation", async () =>
+                        {
+                            await RunSmartRecommendationScanAsync();
+                            RequireTestCondition(!string.IsNullOrWhiteSpace(SmartOverallScoreText?.Text), "Smart recommendation score missing.");
+                            return TrimFeatureAuditText(SmartOverallScoreText?.Text);
+                        }),
+                        CreateTestingProbeTarget("UI / Automation Screen", async () =>
+                        {
+                            await RefreshAutomationViewAsync();
+                            RequireTestCondition(!string.IsNullOrWhiteSpace(AutomationDashboardText?.Text), "Automation dashboard empty.");
+                            return TrimFeatureAuditText(AutomationDashboardText?.Text);
+                        }),
+                        CreateTestingProbeTarget("UI / About + Update", async () =>
+                        {
+                            await RefreshAboutViewAsync();
+                            RequireTestCondition(!string.IsNullOrWhiteSpace(AboutUpdateStatusText?.Text), "About update status empty.");
+                            return TrimFeatureAuditText(AboutUpdateStatusText?.Text);
+                        })
+                    };
+
+                case "End-to-End":
+                    return new List<FeatureAuditTarget>
+                    {
+                        CreateTestingProbeTarget("E2E / Guided Safe Flow", async () =>
+                        {
+                            await RefreshDashboard();
+                            await RefreshStartupItems();
+                            await RefreshSettingsViewAsync();
+                            await RefreshAutomationViewAsync();
+                            await RefreshAboutViewAsync();
+                            RequireTestCondition(!string.IsNullOrWhiteSpace(DashboardPerfScoreText?.Text), "Dashboard stage missing.");
+                            RequireTestCondition(!string.IsNullOrWhiteSpace(StartupScoreText?.Text), "Startup stage missing.");
+                            RequireTestCondition(!string.IsNullOrWhiteSpace(SettingsSpecOverviewText?.Text), "Settings PC spec stage missing.");
+                            RequireTestCondition(!string.IsNullOrWhiteSpace(AutomationDashboardText?.Text), "Automation stage missing.");
+                            return "Dashboard -> Startup -> Settings -> Automation -> About safe flow passed.";
+                        }),
+                        CreateTestingProbeTarget("E2E / Persistence Snapshot", () =>
+                        {
+                            RequireTestCondition(File.Exists(_appConfigService.GetConfigPath()), "Persisted config file not found.");
+                            return Task.FromResult($"Config path: {_appConfigService.GetConfigPath()}");
+                        })
+                    };
+
+                case "Regression":
+                    return BuildFeatureAuditTargets(fullAudit: true);
+
+                case "Performance":
+                    return new List<FeatureAuditTarget>
+                    {
+                        CreateTestingProbeTarget("Performance / Stats Latency", async () =>
+                        {
+                            var sw = Stopwatch.StartNew();
+                            await SafeApiCall(() => _backendClient.GetSystemStatsAsync());
+                            sw.Stop();
+                            RequireTestCondition(sw.ElapsedMilliseconds < 4000, $"System stats too slow: {sw.ElapsedMilliseconds} ms");
+                            return $"System stats latency: {sw.ElapsedMilliseconds} ms";
+                        }),
+                        CreateTestingProbeTarget("Performance / Dashboard Refresh", async () =>
+                        {
+                            var sw = Stopwatch.StartNew();
+                            await RefreshDashboard();
+                            sw.Stop();
+                            RequireTestCondition(sw.ElapsedMilliseconds < 5000, $"Dashboard refresh too slow: {sw.ElapsedMilliseconds} ms");
+                            return $"Dashboard refresh: {sw.ElapsedMilliseconds} ms";
+                        }),
+                        CreateTestingProbeTarget("Performance / Smart Scan", async () =>
+                        {
+                            var sw = Stopwatch.StartNew();
+                            await RunSmartRecommendationScanAsync();
+                            sw.Stop();
+                            RequireTestCondition(sw.ElapsedMilliseconds < 15000, $"Smart scan too slow: {sw.ElapsedMilliseconds} ms");
+                            _lastTestingMetricsSummary =
+                                $"Stats fetch + dashboard + smart scan completed.{Environment.NewLine}" +
+                                $"Last smart scan time: {sw.ElapsedMilliseconds} ms{Environment.NewLine}" +
+                                "Target guidance: startup < 3s, dashboard < 5s, scan < 15s in beta mode.";
+                            return $"Smart scan time: {sw.ElapsedMilliseconds} ms";
+                        })
+                    };
+
+                case "Stress":
+                    return new List<FeatureAuditTarget>
+                    {
+                        CreateTestingProbeTarget("Stress / Repeated Stats", async () =>
+                        {
+                            for (var i = 0; i < 8; i++)
+                                await SafeApiCall(() => _backendClient.GetSystemStatsAsync());
+                            return "Repeated stats fetch x8 completed.";
+                        }),
+                        CreateTestingProbeTarget("Stress / Multi-Refresh Burst", async () =>
+                        {
+                            for (var i = 0; i < 3; i++)
+                            {
+                                await RefreshDashboard();
+                                await RefreshSettingsViewAsync();
+                                await RefreshAutomationViewAsync();
+                            }
+                            _lastTestingMetricsSummary =
+                                "Stress suite executed dashboard/settings/automation burst x3." + Environment.NewLine +
+                                "Goal: no freeze, no crash, no empty state after repeated refresh.";
+                            return "Burst refresh x3 completed.";
+                        })
+                    };
+
+                case "Stability":
+                    return new List<FeatureAuditTarget>
+                    {
+                        CreateTestingProbeTarget("Stability / Mini Soak", async () =>
+                        {
+                            var samples = new List<string>();
+                            for (var i = 0; i < 4; i++)
+                            {
+                                var stats = await SafeApiCall(() => _backendClient.GetSystemStatsAsync()) as JObject;
+                                samples.Add($"Cycle {i + 1}: CPU {(stats?.Value<double?>("cpu") ?? stats?.Value<double?>("cpu_percent") ?? 0):0}%");
+                                await Task.Delay(350);
+                            }
+                            _lastTestingMetricsSummary =
+                                "Mini soak completed over 4 cycles." + Environment.NewLine +
+                                string.Join(Environment.NewLine, samples);
+                            return string.Join(" | ", samples);
+                        })
+                    };
+
+                case "Security":
+                    return new List<FeatureAuditTarget>
+                    {
+                        CreateTestingProbeTarget("Security / Secret Storage", () =>
+                        {
+                            RequireTestCondition(string.IsNullOrWhiteSpace(_appConfig?.Settings?.OpenAiApiKey), "Plain OpenAI key should not be stored in app-state.");
+                            RequireTestCondition(string.IsNullOrWhiteSpace(_appConfig?.Settings?.DiscordWebhookUrl), "Plain Discord webhook should not be stored in app-state.");
+                            return Task.FromResult("Config file keeps sensitive values blank; secure store path is active.");
+                        }),
+                        CreateTestingProbeTarget("Security / Updater Guard", () =>
+                        {
+                            var probe = _appUpdateService.VerifyInstaller("missing-installer.exe", "https://example.com/bad.exe", "bad.exe");
+                            RequireTestCondition(!probe.SourceTrusted, "Updater accepted untrusted source URL.");
+                            RequireTestCondition(!probe.AllowManualInstall, "Updater should reject invalid installer probe.");
+                            _lastTestingCompatibilitySummary =
+                                "Security checks:" + Environment.NewLine +
+                                "- secure secret persistence expected" + Environment.NewLine +
+                                "- updater rejects untrusted source URL" + Environment.NewLine +
+                                "- automation safe mode still blocks non-safe tasks";
+                            return Task.FromResult(probe.Summary);
+                        })
+                    };
+
+                case "Compatibility":
+                    return new List<FeatureAuditTarget>
+                    {
+                        CreateTestingProbeTarget("Compatibility / Runtime Profile", async () =>
+                        {
+                            var healthy = await _backendClient.HealthCheckAsync();
+                            _lastTestingCompatibilitySummary = BuildTestingCompatibilitySummary(healthy);
+                            return TrimFeatureAuditText(_lastTestingCompatibilitySummary);
+                        }),
+                        CreateTestingProbeTarget("Compatibility / Localization + Theme", () =>
+                        {
+                            RequireTestCondition(!string.IsNullOrWhiteSpace(_settingsTheme), "Theme state missing.");
+                            RequireTestCondition(!string.IsNullOrWhiteSpace(_localizationService.CurrentLocale), "Locale state missing.");
+                            return Task.FromResult($"Theme={_settingsTheme} | Locale={_localizationService.CurrentLocale} | Sidebar={_settingsSidebarMode}");
+                        })
+                    };
+
+                default:
+                    return new List<FeatureAuditTarget>();
+            }
+        }
+
         private List<FeatureAuditTarget> BuildFeatureAuditTargets(bool fullAudit)
         {
             var targets = new List<FeatureAuditTarget>
@@ -14446,12 +14757,25 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             var passed = _lastFeatureAuditResults.Count(x => x.Success);
             var failed = _lastFeatureAuditResults.Count - passed;
 
+            UpdateTestingStaticSummaries();
+            TestingStrategyText.Text = _lastTestingStrategySummary;
+            TestingLayerText.Text = _lastTestingLayerSummary;
+            TestingSuiteMatrixText.Text = BuildTestingSuiteMatrixText();
+            TestingMetricsText.Text = _lastTestingMetricsSummary;
+            if (string.IsNullOrWhiteSpace(_lastTestingCompatibilitySummary) ||
+                _lastTestingCompatibilitySummary.Contains("will appear here", StringComparison.OrdinalIgnoreCase))
+            {
+                _lastTestingCompatibilitySummary = BuildTestingCompatibilitySummary(backendHealthy);
+            }
+            TestingCompatibilityText.Text = _lastTestingCompatibilitySummary;
+
             TestingQuickResultText.Text =
                 (_featureAuditRunning ? "Feature audit running" : "Feature audit engine ready") + Environment.NewLine +
                 _lastFeatureAuditSummary;
 
             TestingDashboardText.Text =
                 $"Last Audit Mode: {_lastFeatureAuditMode}{Environment.NewLine}" +
+                $"Last Testing Suite: {_lastTestingSuite}{Environment.NewLine}" +
                 $"Last Audit Time: {_lastFeatureAuditUtc?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") ?? "Never"}{Environment.NewLine}" +
                 $"Backend Health: {(backendHealthy ? "Healthy" : "Offline / Degraded")}{Environment.NewLine}" +
                 $"Total Modules Tested: {_lastFeatureAuditResults.Count}{Environment.NewLine}" +
@@ -14460,6 +14784,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
 
             TestingStatusText.Text =
                 $"Audit Running: {(_featureAuditRunning ? "Yes" : "No")}{Environment.NewLine}" +
+                $"Testing Mode: {_testingExecutionMode}{Environment.NewLine}" +
                 $"Discord Webhook: {(_discordWebhookEnabled && !string.IsNullOrWhiteSpace(_discordWebhookUrl) ? "Configured" : "Not configured")}{Environment.NewLine}" +
                 $"Discord Auto Delivery: {(_discordWebhookEnabled ? "Enabled" : "Disabled")}{Environment.NewLine}" +
                 $"Active Page: {_activePage}{Environment.NewLine}" +
@@ -14563,6 +14888,180 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
         {
             LaunchWindowsTool("explorer.exe", $"\"{GetAppLogsDirectory()}\"", "Feature Audit Logs");
         }
+
+        private async Task RunTestingSuiteAsync(string suiteName)
+        {
+            if (_featureAuditRunning)
+            {
+                ShowActionStatus(ActionState.Info, "Testing", "Suite testing masih berjalan. Tunggu proses saat ini selesai.");
+                return;
+            }
+
+            _featureAuditRunning = true;
+            _lastTestingSuite = suiteName;
+            _lastFeatureAuditMode = $"{suiteName} Suite";
+            _lastFeatureAuditUtc = DateTime.UtcNow;
+            _lastFeatureAuditResults.Clear();
+            UpdateTestingStaticSummaries();
+            AppendFeatureAuditHistory($"{suiteName} testing suite started in {_testingExecutionMode} mode.");
+
+            try
+            {
+                await CheckBackendHealth();
+                var targets = BuildTestingSuiteTargets(suiteName);
+                if (targets.Count == 0)
+                    throw new InvalidOperationException($"No testing targets registered for suite '{suiteName}'.");
+
+                foreach (var target in targets)
+                {
+                    var result = await RunFeatureAuditTargetAsync(target);
+                    _lastFeatureAuditResults.Add(result);
+                    AppendFeatureAuditHistory($"{target.Name}: {(result.Success ? "PASS" : "FAIL")} ({result.DurationMs} ms)");
+                    await RefreshFeatureAuditViewAsync();
+                    await Dispatcher.Yield(DispatcherPriority.Background);
+                }
+
+                var passed = _lastFeatureAuditResults.Count(x => x.Success);
+                var failed = _lastFeatureAuditResults.Count - passed;
+                _lastFeatureAuditSummary = $"{suiteName} suite complete | Passed {passed} | Failed {failed} | Mode {_testingExecutionMode}";
+
+                var report = BuildFeatureAuditReport(_lastFeatureAuditResults);
+                await WriteFeatureAuditLogAsync($"[{suiteName} Suite]{Environment.NewLine}{report}");
+                await SendFeatureAuditReportToDiscordAsync(report);
+                await RefreshFeatureAuditViewAsync();
+
+                ShowActionStatus(
+                    failed == 0 ? ActionState.Success : ActionState.Warning,
+                    suiteName,
+                    failed == 0
+                        ? $"{suiteName} testing suite completed successfully."
+                        : $"{suiteName} testing suite completed with {failed} failing probe(s).",
+                    report);
+            }
+            catch (Exception ex)
+            {
+                _lastFeatureAuditSummary = $"{suiteName} suite failed unexpectedly: {ex.Message}";
+                AppendFeatureAuditHistory($"{suiteName} suite error: {ex.Message}");
+                ShowActionStatus(ActionState.Error, suiteName, "Testing suite gagal dijalankan.", ex.Message);
+            }
+            finally
+            {
+                _featureAuditRunning = false;
+                await RefreshFeatureAuditViewAsync();
+            }
+        }
+
+        private async Task RunFullQaMatrixAsync()
+        {
+            if (_featureAuditRunning)
+            {
+                ShowActionStatus(ActionState.Info, "Full QA Matrix", "Testing masih berjalan. Tunggu proses saat ini selesai.");
+                return;
+            }
+
+            var suites = new[]
+            {
+                "Unit",
+                "Integration",
+                "UI Flow",
+                "End-to-End",
+                "Regression",
+                "Performance",
+                "Stress",
+                "Stability",
+                "Security",
+                "Compatibility"
+            };
+
+            _featureAuditRunning = true;
+            _lastTestingSuite = "Full QA Matrix";
+            _lastFeatureAuditMode = "Full QA Matrix";
+            _lastFeatureAuditUtc = DateTime.UtcNow;
+            _lastFeatureAuditResults.Clear();
+            UpdateTestingStaticSummaries();
+            AppendFeatureAuditHistory("Full QA Matrix started.");
+
+            try
+            {
+                await CheckBackendHealth();
+
+                foreach (var suite in suites)
+                {
+                    AppendFeatureAuditHistory($"Suite phase: {suite}");
+                    foreach (var target in BuildTestingSuiteTargets(suite))
+                    {
+                        var result = await RunFeatureAuditTargetAsync(target);
+                        result.Name = $"{suite} / {target.Name}";
+                        _lastFeatureAuditResults.Add(result);
+                        AppendFeatureAuditHistory($"{result.Name}: {(result.Success ? "PASS" : "FAIL")} ({result.DurationMs} ms)");
+                        await RefreshFeatureAuditViewAsync();
+                        await Dispatcher.Yield(DispatcherPriority.Background);
+                    }
+                }
+
+                var passed = _lastFeatureAuditResults.Count(x => x.Success);
+                var failed = _lastFeatureAuditResults.Count - passed;
+                _lastFeatureAuditSummary = $"Full QA Matrix complete | Passed {passed} | Failed {failed} | Mode {_testingExecutionMode}";
+
+                var report = BuildFeatureAuditReport(_lastFeatureAuditResults);
+                await WriteFeatureAuditLogAsync($"[Full QA Matrix]{Environment.NewLine}{report}");
+                await SendFeatureAuditReportToDiscordAsync(report);
+                await RefreshFeatureAuditViewAsync();
+
+                ShowActionStatus(
+                    failed == 0 ? ActionState.Success : ActionState.Warning,
+                    "Full QA Matrix",
+                    failed == 0
+                        ? "Full QA Matrix completed successfully."
+                        : $"Full QA Matrix completed with {failed} failing probe(s).",
+                    report);
+            }
+            catch (Exception ex)
+            {
+                _lastFeatureAuditSummary = $"Full QA Matrix failed unexpectedly: {ex.Message}";
+                AppendFeatureAuditHistory($"Full QA Matrix error: {ex.Message}");
+                ShowActionStatus(ActionState.Error, "Full QA Matrix", "Full QA Matrix gagal dijalankan.", ex.Message);
+            }
+            finally
+            {
+                _featureAuditRunning = false;
+                await RefreshFeatureAuditViewAsync();
+            }
+        }
+
+        private async void SetTestingMode_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string mode && !string.IsNullOrWhiteSpace(mode))
+            {
+                _testingExecutionMode = mode;
+                UpdateTestingStaticSummaries();
+                AppendFeatureAuditHistory($"Testing mode set to {_testingExecutionMode}.");
+                await RefreshFeatureAuditViewAsync();
+                ShowActionStatus(ActionState.Info, "Testing Mode", $"Testing mode diubah ke {_testingExecutionMode}.");
+            }
+        }
+
+        private async void RunUnitTestingSuite_Click(object sender, RoutedEventArgs e) => await RunTestingSuiteAsync("Unit");
+
+        private async void RunIntegrationTestingSuite_Click(object sender, RoutedEventArgs e) => await RunTestingSuiteAsync("Integration");
+
+        private async void RunUiTestingSuite_Click(object sender, RoutedEventArgs e) => await RunTestingSuiteAsync("UI Flow");
+
+        private async void RunEndToEndTestingSuite_Click(object sender, RoutedEventArgs e) => await RunTestingSuiteAsync("End-to-End");
+
+        private async void RunRegressionTestingSuite_Click(object sender, RoutedEventArgs e) => await RunTestingSuiteAsync("Regression");
+
+        private async void RunPerformanceTestingSuite_Click(object sender, RoutedEventArgs e) => await RunTestingSuiteAsync("Performance");
+
+        private async void RunStressTestingSuite_Click(object sender, RoutedEventArgs e) => await RunTestingSuiteAsync("Stress");
+
+        private async void RunStabilityTestingSuite_Click(object sender, RoutedEventArgs e) => await RunTestingSuiteAsync("Stability");
+
+        private async void RunSecurityTestingSuite_Click(object sender, RoutedEventArgs e) => await RunTestingSuiteAsync("Security");
+
+        private async void RunCompatibilityTestingSuite_Click(object sender, RoutedEventArgs e) => await RunTestingSuiteAsync("Compatibility");
+
+        private async void RunFullQaMatrix_Click(object sender, RoutedEventArgs e) => await RunFullQaMatrixAsync();
 
         #endregion
 

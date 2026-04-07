@@ -5553,8 +5553,12 @@
                             <StackPanel>
                                 <TextBlock Text="MASTER TEST ENGINE" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                 <WrapPanel Margin="0,0,0,12">
+                                    <Button Content="MOCK MODE" Click="SetTestingMode_Click" Tag="Mock Mode" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="SAFE MODE" Click="SetTestingMode_Click" Tag="Safe Read-Only" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="LIVE READ-ONLY" Click="SetTestingMode_Click" Tag="Live Read-Only" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                     <Button Content="RUN QUICK AUDIT" Click="RunQuickFeatureAudit_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                     <Button Content="RUN FULL FEATURE AUDIT" Click="RunFullFeatureAudit_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="RUN FULL QA MATRIX" Click="RunFullQaMatrix_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                     <Button Content="SEND LAST REPORT TO DISCORD" Click="SendFeatureAuditReport_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                     <Button Content="OPEN AUDIT LOGS" Click="OpenFeatureAuditLogs_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                 </WrapPanel>
@@ -5604,9 +5608,64 @@
                             </Border>
                         </Grid>
 
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Style="{StaticResource InfoCardStyle}" Margin="0,0,12,0">
+                                <StackPanel>
+                                    <TextBlock Text="6. Testing Strategy &amp; Layering" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <TextBlock Name="TestingStrategyText" Text="Testing strategy summary akan tampil di sini." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                    <TextBlock Name="TestingLayerText" Text="Layer testing summary akan tampil di sini." Foreground="#38bdf8" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="1" Style="{StaticResource InfoCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="7. Test Suites" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <WrapPanel Margin="0,0,0,12">
+                                        <Button Content="Unit" Click="RunUnitTestingSuite_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Integration" Click="RunIntegrationTestingSuite_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="UI Flow" Click="RunUiTestingSuite_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="End-to-End" Click="RunEndToEndTestingSuite_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Regression" Click="RunRegressionTestingSuite_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Performance" Click="RunPerformanceTestingSuite_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Stress" Click="RunStressTestingSuite_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Stability" Click="RunStabilityTestingSuite_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Security" Click="RunSecurityTestingSuite_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Compatibility" Click="RunCompatibilityTestingSuite_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    </WrapPanel>
+                                    <TextBlock Name="TestingSuiteMatrixText" Text="Suite status matrix akan tampil di sini." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Style="{StaticResource InfoCardStyle}" Margin="0,0,12,0">
+                                <StackPanel>
+                                    <TextBlock Text="8. Performance / Stress / Stability" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <TextBlock Name="TestingMetricsText" Text="Performance threshold, stress result, dan mini soak summary akan tampil di sini." Foreground="#22c55e" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="1" Style="{StaticResource InfoCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="9. Security / Compatibility" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <TextBlock Name="TestingCompatibilityText" Text="Security validation, compatibility review, OS/profile/environment summary akan tampil di sini." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
                         <Border Style="{StaticResource InfoCardStyle}">
                             <StackPanel>
-                                <TextBlock Text="5. Audit Report Preview" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                <TextBlock Text="10. Audit Report Preview" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                 <TextBlock Name="TestingReportPreviewText" Text="Report preview akan tampil di sini setelah audit berjalan." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
