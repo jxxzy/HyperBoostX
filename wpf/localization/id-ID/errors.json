@@ -1,0 +1,7 @@
+{
+  "error": {
+    "language_pack_missing": "Paket bahasa yang dipilih belum lengkap. Fallback English sedang dipakai.",
+    "language_apply_failed": "Bahasa yang dipilih tidak bisa diterapkan.",
+    "report_export_failed": "Laporan lokalisasi tidak bisa diekspor."
+  }
+}

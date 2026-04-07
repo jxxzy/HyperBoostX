@@ -1,6 +1,7 @@
 app/venv/
 app/temp_pycache/
 app/build/
+app/dist/
 app/hyperboost_backend.spec
 app/__pycache__/
 app/api/__pycache__/
@@ -16,6 +17,8 @@ launcher/obj/
 wpf/bin/
 wpf/obj/
 wpf/temp_obj/
+wpf/temp_build_check/
+build_tmp/
 
 release/
 *.exe

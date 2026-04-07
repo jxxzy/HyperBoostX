@@ -1,0 +1,10 @@
+{
+  "automation": {
+    "status": {
+      "completed": "Selesai",
+      "queued": "Masuk antrean",
+      "deferred": "Ditunda",
+      "waiting": "Menunggu waktu aman"
+    }
+  }
+}

@@ -10,6 +10,10 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <ApplicationIcon>Assets\HyperBoostX.ico</ApplicationIcon>
     <LangVersion>latest</LangVersion>
+    <Version>1.1.0-beta</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <InformationalVersion>1.1.0-beta</InformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,6 +35,12 @@
     <None Remove="temp_obj\**\*" />
     <Page Remove="temp_obj\**\*" />
     <ApplicationDefinition Remove="temp_obj\**\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="localization\**\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

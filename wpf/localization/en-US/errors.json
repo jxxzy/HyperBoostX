@@ -1,0 +1,7 @@
+{
+  "error": {
+    "language_pack_missing": "The selected language pack is incomplete. English fallback is active.",
+    "language_apply_failed": "Unable to apply the selected language.",
+    "report_export_failed": "Unable to export localization report."
+  }
+}

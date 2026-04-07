@@ -11,8 +11,10 @@
     <AssemblyDescription>One-click launcher for HyperBoost X</AssemblyDescription>
     <AssemblyCompany>HyperBoost</AssemblyCompany>
     <AssemblyProduct>HyperBoost X</AssemblyProduct>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.1.0-beta</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <InformationalVersion>1.1.0-beta</InformationalVersion>
   </PropertyGroup>
 
 </Project>
