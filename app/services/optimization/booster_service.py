@@ -194,23 +194,31 @@ class BoosterService:
     def _disable_background_apps() -> bool:
         """Close non-essential background applications."""
         closed_count = 0
-        non_essential = {p.lower() for p in BoosterService.NON_ESSENTIAL_PROCESSES}
-        protected = {p.lower() for p in BoosterService.PROTECTED_INTERACTIVE_PROCESSES}
 
         for proc in psutil.process_iter(['pid', 'name']):
             try:
                 process_name = (proc.info.get('name') or '').lower()
-                if not process_name or process_name in protected:
+                if not BoosterService.should_close_process(process_name):
                     continue
 
-                if process_name in non_essential:
-                    proc.kill()
-                    closed_count += 1
-                    logger.info(f"Closed process: {proc.info['name']}")
+                proc.kill()
+                closed_count += 1
+                logger.info(f"Closed process: {proc.info['name']}")
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 pass
         logger.info(f"Closed {closed_count} background applications")
         return True
+
+    @staticmethod
+    def should_close_process(process_name: str) -> bool:
+        normalized = (process_name or "").strip().lower()
+        if not normalized:
+            return False
+
+        if normalized in {p.lower() for p in BoosterService.PROTECTED_INTERACTIVE_PROCESSES}:
+            return False
+
+        return normalized in {p.lower() for p in BoosterService.NON_ESSENTIAL_PROCESSES}
     
     @staticmethod
     def _set_high_cpu_priority() -> bool:

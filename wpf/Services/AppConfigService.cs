@@ -151,12 +151,21 @@ namespace HyperBoostX.Services
         private readonly string _configDirectory;
         private readonly string _configPath;
 
-        public AppConfigService()
+        public AppConfigService() : this(Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "HyperBoost X",
+            "config"))
         {
-            _configDirectory = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "HyperBoost X",
-                "config");
+        }
+
+        public AppConfigService(string configDirectory)
+        {
+            _configDirectory = string.IsNullOrWhiteSpace(configDirectory)
+                ? Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "HyperBoost X",
+                    "config")
+                : configDirectory;
             _configPath = Path.Combine(_configDirectory, "app-state.json");
         }
 

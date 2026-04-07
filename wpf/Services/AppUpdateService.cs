@@ -20,6 +20,8 @@ namespace HyperBoostX.Services
         public string LatestReleaseUrl { get; set; } = "";
         public string InstallerAssetName { get; set; } = "";
         public string InstallerDownloadUrl { get; set; } = "";
+        public string ChecksumsAssetName { get; set; } = "";
+        public string ChecksumsDownloadUrl { get; set; } = "";
         public string ReleaseChannel { get; set; } = "Stable";
         public DateTime? PublishedUtc { get; set; }
         public bool IsUpdateAvailable { get; set; }
@@ -40,13 +42,16 @@ namespace HyperBoostX.Services
             public bool FilePresent { get; set; }
             public bool AssetNameValid { get; set; }
             public bool FileSizeValid { get; set; }
+            public bool ChecksumPublished { get; set; }
+            public bool ChecksumMatched { get; set; }
             public bool IsSigned { get; set; }
             public bool PublisherTrusted { get; set; }
             public string Publisher { get; set; } = "Unsigned";
             public string Sha256 { get; set; } = "";
+            public string ExpectedSha256 { get; set; } = "";
             public string Summary { get; set; } = "Verification not executed.";
-            public bool AllowAutomaticInstall => SourceTrusted && FilePresent && AssetNameValid && FileSizeValid && IsSigned && PublisherTrusted;
-            public bool AllowManualInstall => SourceTrusted && FilePresent && AssetNameValid && FileSizeValid;
+            public bool AllowAutomaticInstall => SourceTrusted && FilePresent && AssetNameValid && FileSizeValid && ChecksumMatched && IsSigned && PublisherTrusted;
+            public bool AllowManualInstall => SourceTrusted && FilePresent && AssetNameValid && FileSizeValid && (!ChecksumPublished || ChecksumMatched);
         }
 
         public async Task<AppReleaseCheckResult> CheckLatestReleaseAsync(string currentVersion)
@@ -113,6 +118,16 @@ namespace HyperBoostX.Services
                     });
                 result.InstallerAssetName = installerAsset?.Value<string>("name") ?? "";
                 result.InstallerDownloadUrl = installerAsset?.Value<string>("browser_download_url") ?? "";
+                var checksumAsset = selected["assets"]?
+                    .OfType<JObject>()
+                    .FirstOrDefault(asset =>
+                    {
+                        var assetName = asset.Value<string>("name") ?? "";
+                        return assetName.Equals("SHA256SUMS.txt", StringComparison.OrdinalIgnoreCase)
+                            || assetName.Contains("sha256", StringComparison.OrdinalIgnoreCase);
+                    });
+                result.ChecksumsAssetName = checksumAsset?.Value<string>("name") ?? "";
+                result.ChecksumsDownloadUrl = checksumAsset?.Value<string>("browser_download_url") ?? "";
                 result.IsUpdateAvailable = CompareVersions(latestVersion, normalizedCurrent) > 0;
                 result.Summary = result.IsUpdateAvailable
                     ? $"New version available: {latestVersion} ({result.ReleaseChannel})."
@@ -209,6 +224,47 @@ namespace HyperBoostX.Services
             return result;
         }
 
+        public async Task<InstallerVerificationResult> VerifyInstallerAsync(string installerPath, string downloadUrl, string assetName, string checksumsDownloadUrl, CancellationToken cancellationToken = default)
+        {
+            var result = VerifyInstaller(installerPath, downloadUrl, assetName);
+            if (!result.FilePresent || string.IsNullOrWhiteSpace(assetName))
+                return result;
+
+            if (string.IsNullOrWhiteSpace(checksumsDownloadUrl))
+            {
+                result.ChecksumPublished = false;
+                result.ChecksumMatched = false;
+                result.Summary += "; Published checksum: No";
+                return result;
+            }
+
+            try
+            {
+                using var response = await HttpClient.GetAsync(checksumsDownloadUrl, cancellationToken);
+                response.EnsureSuccessStatusCode();
+                var checksumText = await response.Content.ReadAsStringAsync(cancellationToken);
+                var expectedSha256 = FindSha256ForAsset(checksumText, assetName);
+
+                result.ChecksumPublished = !string.IsNullOrWhiteSpace(expectedSha256);
+                result.ExpectedSha256 = expectedSha256 ?? "";
+                result.ChecksumMatched = result.ChecksumPublished &&
+                                         result.Sha256.Equals(result.ExpectedSha256, StringComparison.OrdinalIgnoreCase);
+
+                result.Summary =
+                    $"{result.Summary}; " +
+                    $"Published checksum: {(result.ChecksumPublished ? "Yes" : "No")}; " +
+                    $"Checksum match: {(result.ChecksumMatched ? "Yes" : "No")}";
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.ChecksumPublished = false;
+                result.ChecksumMatched = false;
+                result.Summary = $"{result.Summary}; Checksum verification failed: {ex.Message}";
+                return result;
+            }
+        }
+
         private static bool IsTrustedReleaseDownloadUrl(string downloadUrl)
         {
             if (string.IsNullOrWhiteSpace(downloadUrl))
@@ -219,6 +275,30 @@ namespace HyperBoostX.Services
 
             return uri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase)
                 && downloadUrl.StartsWith(ExpectedRepoDownloadPrefix, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public static string FindSha256ForAsset(string checksumText, string assetName)
+        {
+            if (string.IsNullOrWhiteSpace(checksumText) || string.IsNullOrWhiteSpace(assetName))
+                return "";
+
+            var lines = checksumText.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var line in lines)
+            {
+                var trimmed = line.Trim();
+                if (trimmed.Length < 70)
+                    continue;
+
+                var parts = trimmed.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length < 2)
+                    continue;
+
+                var fileName = parts[^1].TrimStart('*');
+                if (fileName.Equals(assetName, StringComparison.OrdinalIgnoreCase))
+                    return parts[0].Trim();
+            }
+
+            return "";
         }
 
         private static string ComputeSha256(string path)

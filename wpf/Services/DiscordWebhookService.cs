@@ -19,6 +19,15 @@ namespace HyperBoostX.Services
             if (string.IsNullOrWhiteSpace(webhookUrl))
                 return false;
 
+            var response = await HttpClient.PostAsync(
+                webhookUrl,
+                new StringContent(BuildPayloadJson(title, message, severity, fields), Encoding.UTF8, "application/json"));
+
+            return response.IsSuccessStatusCode;
+        }
+
+        public static string BuildPayloadJson(string title, string message, string severity, IDictionary<string, string> fields = null)
+        {
             var embedFields = new List<object>();
             if (fields != null)
             {
@@ -52,11 +61,7 @@ namespace HyperBoostX.Services
                 }
             };
 
-            var response = await HttpClient.PostAsync(
-                webhookUrl,
-                new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json"));
-
-            return response.IsSuccessStatusCode;
+            return JsonConvert.SerializeObject(payload);
         }
 
         private static string Trim(string value, int maxLength)

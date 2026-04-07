@@ -89,6 +89,11 @@ namespace HyperBoostX.Services
             return ParseResponse(responseText);
         }
 
+        public static OpenAiCopilotResponse ParseResponseForTesting(string responseText)
+        {
+            return ParseResponse(responseText);
+        }
+
         private static OpenAiCopilotResponse ParseResponse(string responseText)
         {
             var root = JsonConvert.DeserializeObject<JObject>(responseText) ?? new JObject();

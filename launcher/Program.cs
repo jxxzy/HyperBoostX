@@ -17,10 +17,10 @@ namespace HyperBoostLauncher
             "HyperBoost X",
             "logs");
         private static readonly string LogFile = Path.Combine(LogDirectory, "hyperboost-launcher.log");
-        private static readonly string BackendDir = ResolveDirectory(@"runtime\backend", "backend");
-        private static readonly string WpfDir = ResolveDirectory(@"runtime\wpf", "wpf");
-        private static readonly string BackendExe = ResolveFile("hyperboost_backend.exe", @"runtime\backend", "backend");
-        private static readonly string WpfExe = ResolveFile("HyperBoostUI.exe", @"runtime\wpf", "wpf", "HyperBoostX.exe");
+        private static readonly string BackendDir = LauncherRuntimeLayout.ResolveDirectory(AppRoot, InstallRoot, @"runtime\backend", "backend");
+        private static readonly string WpfDir = LauncherRuntimeLayout.ResolveDirectory(AppRoot, InstallRoot, @"runtime\wpf", "wpf");
+        private static readonly string BackendExe = LauncherRuntimeLayout.ResolveFile(AppRoot, InstallRoot, "hyperboost_backend.exe", @"runtime\backend", "backend");
+        private static readonly string WpfExe = LauncherRuntimeLayout.ResolveFile(AppRoot, InstallRoot, "HyperBoostUI.exe", @"runtime\wpf", "wpf", "HyperBoostX.exe");
         private static Process? _managedBackendProcess;
         private static bool _backendStartedByLauncher;
         private static Mutex? _singleInstanceMutex;
@@ -234,52 +234,6 @@ namespace HyperBoostLauncher
             {
                 return false;
             }
-        }
-
-        private static string ResolveDirectory(params string[] candidateSubdirs)
-        {
-            foreach (var subdir in candidateSubdirs)
-            {
-                var preferred = Path.Combine(AppRoot, subdir);
-                if (Directory.Exists(preferred))
-                {
-                    return preferred;
-                }
-
-                var sibling = Path.Combine(InstallRoot, subdir);
-                if (Directory.Exists(sibling))
-                {
-                    return sibling;
-                }
-            }
-
-            return AppRoot;
-        }
-
-        private static string ResolveFile(string fileName, params string[] candidateSubdirs)
-        {
-            foreach (var subdir in candidateSubdirs)
-            {
-                var nested = Path.Combine(AppRoot, subdir, fileName);
-                if (File.Exists(nested))
-                {
-                    return nested;
-                }
-
-                var sibling = Path.Combine(InstallRoot, subdir, fileName);
-                if (File.Exists(sibling))
-                {
-                    return sibling;
-                }
-            }
-
-            var root = Path.Combine(AppRoot, fileName);
-            if (File.Exists(root))
-            {
-                return root;
-            }
-
-            return Path.Combine(AppRoot, candidateSubdirs.Length > 0 ? candidateSubdirs[0] : string.Empty, fileName);
         }
 
         private static void Log(string message)
