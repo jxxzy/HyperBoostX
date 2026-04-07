@@ -22,11 +22,13 @@ def get_system_info():
     """Get comprehensive system information."""
     try:
         return jsonify({
+            "identity": system_info_service.get_system_identity(),
             "cpu": system_info_service.get_cpu_info(),
             "memory": system_info_service.get_memory_info(),
             "disk": system_info_service.get_disk_info(),
             "network": system_info_service.get_network_info(),
             "os": system_info_service.get_os_info(),
+            "bios": system_info_service.get_bios_info(),
             "gpu": system_info_service.get_gpu_info(),
             "temperatures": system_info_service.get_temperature_info(),
         })

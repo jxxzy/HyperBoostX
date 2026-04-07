@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
@@ -21,12 +22,32 @@ namespace HyperBoostX
             "logs");
         private static readonly string LogFile = Path.Combine(LogDirectory, "hyperboost-wpf.log");
         private readonly DiscordWebhookService _discordWebhookService = new DiscordWebhookService();
+        private readonly SecureSecretStoreService _secureSecretStoreService = new SecureSecretStoreService();
+        private readonly DispatcherTimer _logWatcherTimer = new DispatcherTimer();
+        private readonly Dictionary<string, long> _logOffsets = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, DateTime> _discordReportCooldown = new Dictionary<string, DateTime>(StringComparer.OrdinalIgnoreCase);
+        private bool _logScanInProgress;
 
         public App()
         {
             DispatcherUnhandledException += App_DispatcherUnhandledException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+            _logWatcherTimer.Interval = TimeSpan.FromSeconds(12);
+            _logWatcherTimer.Tick += LogWatcherTimer_Tick;
+        }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+            InitializeLogOffsets();
+            _logWatcherTimer.Start();
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            _logWatcherTimer.Stop();
+            base.OnExit(e);
         }
 
         private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
@@ -55,18 +76,44 @@ namespace HyperBoostX
             e.SetObserved();
         }
 
+        private async void LogWatcherTimer_Tick(object sender, EventArgs e)
+        {
+            if (_logScanInProgress)
+                return;
+
+            _logScanInProgress = true;
+            try
+            {
+                await ScanLogsAndReportAsync();
+            }
+            catch
+            {
+                // Never let background reporting crash the app.
+            }
+            finally
+            {
+                _logScanInProgress = false;
+            }
+        }
+
         private void TryReportCriticalError(string source, string details)
         {
             try
             {
-                var configService = new AppConfigService();
-                var config = configService.LoadAsync().GetAwaiter().GetResult();
-                if (config?.Settings?.DiscordWebhookEnabled != true || string.IsNullOrWhiteSpace(config.Settings.DiscordWebhookUrl))
+                var settings = LoadDiscordReportingSettingsAsync().GetAwaiter().GetResult();
+                if (!settings.Enabled || string.IsNullOrWhiteSpace(settings.WebhookUrl))
+                    return;
+
+                if (!ShouldSendForSeverity("critical", settings.MinimumLevel))
                     return;
 
                 var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
+                var signature = $"critical|{source}|{details}";
+                if (!ShouldSendByCooldown(signature, settings.CooldownSeconds))
+                    return;
+
                 _discordWebhookService.SendAsync(
-                    config.Settings.DiscordWebhookUrl,
+                    settings.WebhookUrl,
                     "HyperBoostX critical error",
                     details,
                     "critical",
@@ -81,6 +128,177 @@ namespace HyperBoostX
             {
                 // Never let error reporting crash the app.
             }
+        }
+
+        private void InitializeLogOffsets()
+        {
+            foreach (var file in GetMonitoredLogFiles())
+            {
+                try
+                {
+                    _logOffsets[file] = File.Exists(file) ? new FileInfo(file).Length : 0L;
+                }
+                catch
+                {
+                    _logOffsets[file] = 0L;
+                }
+            }
+        }
+
+        private IEnumerable<string> GetMonitoredLogFiles()
+        {
+            yield return Path.Combine(LogDirectory, "hyperboost-wpf.log");
+            yield return Path.Combine(LogDirectory, "hyperboost-launcher.log");
+            yield return Path.Combine(LogDirectory, "hyperboost.log");
+        }
+
+        private async Task ScanLogsAndReportAsync()
+        {
+            var settings = await LoadDiscordReportingSettingsAsync();
+            if (!settings.Enabled || string.IsNullOrWhiteSpace(settings.WebhookUrl))
+                return;
+
+            foreach (var logPath in GetMonitoredLogFiles())
+            {
+                if (!File.Exists(logPath))
+                    continue;
+
+                var newEntries = ReadNewLogLines(logPath);
+                if (newEntries.Count == 0)
+                    continue;
+
+                var recentContext = new Queue<string>();
+                foreach (var entry in newEntries)
+                {
+                    if (recentContext.Count >= 6)
+                        recentContext.Dequeue();
+                    recentContext.Enqueue(entry);
+
+                    var severity = DetectLogSeverity(entry);
+                    if (severity == null || !ShouldSendForSeverity(severity, settings.MinimumLevel))
+                        continue;
+
+                    var signature = $"{Path.GetFileName(logPath)}|{severity}|{entry.Trim()}";
+                    if (!ShouldSendByCooldown(signature, settings.CooldownSeconds))
+                        continue;
+
+                    var contextBlock = string.Join(Environment.NewLine, recentContext.Where(x => !string.IsNullOrWhiteSpace(x)));
+                    await _discordWebhookService.SendAsync(
+                        settings.WebhookUrl,
+                        $"HyperBoostX auto log alert ({Path.GetFileName(logPath)})",
+                        entry,
+                        severity,
+                        new Dictionary<string, string>
+                        {
+                            ["Source Log"] = Path.GetFileName(logPath),
+                            ["Severity"] = severity,
+                            ["Recent Context"] = contextBlock,
+                            ["App Version"] = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown",
+                            ["Timestamp"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                        });
+                }
+            }
+        }
+
+        private List<string> ReadNewLogLines(string logPath)
+        {
+            var lines = new List<string>();
+            try
+            {
+                var previousOffset = _logOffsets.TryGetValue(logPath, out var existingOffset) ? existingOffset : 0L;
+                using var stream = new FileStream(logPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                if (previousOffset > stream.Length)
+                    previousOffset = 0L;
+
+                stream.Seek(previousOffset, SeekOrigin.Begin);
+                using var reader = new StreamReader(stream);
+                while (!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    if (!string.IsNullOrWhiteSpace(line))
+                        lines.Add(line);
+                }
+
+                _logOffsets[logPath] = stream.Length;
+            }
+            catch
+            {
+                // Ignore transient log-read failures.
+            }
+
+            return lines;
+        }
+
+        private static string DetectLogSeverity(string line)
+        {
+            var text = line?.Trim() ?? "";
+            if (string.IsNullOrWhiteSpace(text))
+                return null;
+
+            var upper = text.ToUpperInvariant();
+            if (upper.Contains("UNHANDLEDEXCEPTION") || upper.Contains("DISPATCHERUNHANDLEDEXCEPTION") || upper.Contains("TRACEBACK") || upper.Contains("CRITICAL"))
+                return "critical";
+            if (upper.Contains("ERROR") || upper.Contains("EXCEPTION") || upper.Contains("FAILED"))
+                return "error";
+            if (upper.Contains("WARNING") || upper.Contains("WARN"))
+                return "warning";
+
+            return null;
+        }
+
+        private async Task<(bool Enabled, string WebhookUrl, string MinimumLevel, int CooldownSeconds)> LoadDiscordReportingSettingsAsync()
+        {
+            try
+            {
+                var configService = new AppConfigService();
+                var config = await configService.LoadAsync();
+                var secrets = await _secureSecretStoreService.LoadAsync();
+                var envWebhook = Environment.GetEnvironmentVariable("HYPERBOOSTX_DISCORD_WEBHOOK_URL")?.Trim() ?? "";
+
+                var webhookUrl = !string.IsNullOrWhiteSpace(envWebhook)
+                    ? envWebhook
+                    : !string.IsNullOrWhiteSpace(secrets.DiscordWebhookUrl)
+                        ? secrets.DiscordWebhookUrl
+                        : config?.Settings?.DiscordWebhookUrl ?? "";
+
+                return (
+                    config?.Settings?.DiscordWebhookEnabled == true,
+                    webhookUrl,
+                    string.IsNullOrWhiteSpace(config?.Settings?.DiscordWebhookMinimumLevel) ? "Error" : config.Settings.DiscordWebhookMinimumLevel,
+                    Math.Max(15, config?.Settings?.DiscordWebhookCooldownSeconds ?? 120));
+            }
+            catch
+            {
+                return (false, "", "Error", 120);
+            }
+        }
+
+        private bool ShouldSendByCooldown(string signature, int cooldownSeconds)
+        {
+            if (_discordReportCooldown.TryGetValue(signature, out var lastSentUtc) &&
+                DateTime.UtcNow - lastSentUtc < TimeSpan.FromSeconds(Math.Max(15, cooldownSeconds)))
+            {
+                return false;
+            }
+
+            _discordReportCooldown[signature] = DateTime.UtcNow;
+            return true;
+        }
+
+        private static bool ShouldSendForSeverity(string severity, string minimumLevel)
+        {
+            return GetSeverityRank(severity) >= GetSeverityRank(minimumLevel);
+        }
+
+        private static int GetSeverityRank(string severity)
+        {
+            return severity?.Trim().ToLowerInvariant() switch
+            {
+                "warning" => 1,
+                "error" => 2,
+                "critical" => 3,
+                _ => 2
+            };
         }
 
         private static void Log(string message)

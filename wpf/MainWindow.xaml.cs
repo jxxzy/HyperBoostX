@@ -134,6 +134,8 @@ namespace HyperBoostX
         private DispatcherTimer _streamingTimer;
         private DispatcherTimer _creatorTimer;
         private DispatcherTimer _networkTimer;
+        private DispatcherTimer _settingsTimer;
+        private DispatcherTimer _realtimePageTimer;
         private bool _isUpdating;
         private string _activePage = "Dashboard";
         private readonly List<string> _defaultGamingWhitelist = new()
@@ -205,6 +207,17 @@ namespace HyperBoostX
         private bool _settingsEngineEnabled = true;
         private bool _settingsSafetyEnabled = true;
         private bool _settingsMonitoringEnabled = true;
+        private bool _settingsRefreshInProgress;
+        private bool _realtimePageRefreshInProgress;
+        private DateTime _lastRealtimePageRefreshUtc = DateTime.MinValue;
+        private DateTime _settingsPcStaticCacheUtc = DateTime.MinValue;
+        private JObject _settingsPcStaticCache;
+        private DateTime _settingsSystemInfoCacheUtc = DateTime.MinValue;
+        private JObject _settingsSystemInfoCache;
+        private DateTime _settingsBatteryCacheUtc = DateTime.MinValue;
+        private string _settingsBatteryCache = "Battery info loading...";
+        private DateTime _settingsPingCacheUtc = DateTime.MinValue;
+        private string _settingsPingCache = "Checking latency...";
         private readonly Queue<string> _windowsFeaturesHistory = new();
         private readonly Queue<string> _updateControlHistory = new();
         private readonly Queue<string> _driversHistory = new();
@@ -283,11 +296,20 @@ namespace HyperBoostX
             _streamingTimer.Interval = TimeSpan.FromSeconds(3);
             _streamingTimer.Tick += StreamingTimer_Tick;
             _creatorTimer = new DispatcherTimer();
-            _creatorTimer.Interval = TimeSpan.FromSeconds(3);
+            _creatorTimer.Interval = TimeSpan.FromSeconds(1);
             _creatorTimer.Tick += CreatorTimer_Tick;
             _networkTimer = new DispatcherTimer();
-            _networkTimer.Interval = TimeSpan.FromSeconds(4);
+            _networkTimer.Interval = TimeSpan.FromMilliseconds(1500);
             _networkTimer.Tick += NetworkTimer_Tick;
+            _settingsTimer = new DispatcherTimer();
+            _settingsTimer.Interval = TimeSpan.FromSeconds(1);
+            _settingsTimer.Tick += SettingsTimer_Tick;
+            _storageTimer.Interval = TimeSpan.FromSeconds(2);
+            _gamingTimer.Interval = TimeSpan.FromSeconds(1);
+            _streamingTimer.Interval = TimeSpan.FromSeconds(1);
+            _realtimePageTimer = new DispatcherTimer();
+            _realtimePageTimer.Interval = TimeSpan.FromSeconds(1);
+            _realtimePageTimer.Tick += RealtimePageTimer_Tick;
             _automationRuntimeTimer = new DispatcherTimer();
             _automationRuntimeTimer.Interval = TimeSpan.FromSeconds(15);
             _automationRuntimeTimer.Tick += AutomationRuntimeTimer_Tick;
@@ -307,6 +329,7 @@ namespace HyperBoostX
             await ShowPage("Dashboard", DashboardBtn);
             _ = EnsureAppUpdateStatusAsync(force: false, userInitiated: false);
             _automationRuntimeTimer.Start();
+            _realtimePageTimer.Start();
             AppendDashboardActivity("Dashboard initialized and ready.");
         }
 
@@ -318,7 +341,9 @@ namespace HyperBoostX
             _streamingTimer.Stop();
             _creatorTimer.Stop();
             _networkTimer.Stop();
+            _settingsTimer.Stop();
             _automationRuntimeTimer.Stop();
+            _realtimePageTimer.Stop();
         }
 
         protected override void OnClosed(EventArgs e)
@@ -329,7 +354,9 @@ namespace HyperBoostX
             _streamingTimer.Stop();
             _creatorTimer.Stop();
             _networkTimer.Stop();
+            _settingsTimer.Stop();
             _automationRuntimeTimer.Stop();
+            _realtimePageTimer.Stop();
             _backendClient?.Dispose();
             base.OnClosed(e);
         }
@@ -1020,8 +1047,6 @@ namespace HyperBoostX
                     await RefreshAutomationViewAsync();
                 else if (string.Equals(_activePage, "SmartRecommendation", StringComparison.OrdinalIgnoreCase))
                     await RefreshAiCopilotDiagnosticsAsync(refreshContext: true);
-                else if (string.Equals(_activePage, "Settings", StringComparison.OrdinalIgnoreCase))
-                    await RefreshSettingsViewAsync();
             }
             catch (Exception ex)
             {
@@ -1030,6 +1055,125 @@ namespace HyperBoostX
             finally
             {
                 _automationRuntimeTimer.Start();
+            }
+        }
+
+        private async void SettingsTimer_Tick(object sender, EventArgs e)
+        {
+            if (_settingsRefreshInProgress || !IsLoaded || _activePage != "Settings")
+                return;
+
+            _settingsRefreshInProgress = true;
+            try
+            {
+                await RefreshSettingsViewAsync();
+            }
+            finally
+            {
+                _settingsRefreshInProgress = false;
+            }
+        }
+
+        private async void RealtimePageTimer_Tick(object sender, EventArgs e)
+        {
+            if (_realtimePageRefreshInProgress || !IsLoaded || string.IsNullOrWhiteSpace(_activePage))
+                return;
+
+            if (HasDedicatedRealtimeTimer(_activePage))
+                return;
+
+            var interval = GetActivePageRealtimeInterval(_activePage);
+            if (interval <= TimeSpan.Zero)
+                return;
+
+            if (_lastRealtimePageRefreshUtc != DateTime.MinValue && DateTime.UtcNow - _lastRealtimePageRefreshUtc < interval)
+                return;
+
+            _realtimePageRefreshInProgress = true;
+            try
+            {
+                await RefreshActivePageRealtimeAsync(_activePage);
+                _lastRealtimePageRefreshUtc = DateTime.UtcNow;
+            }
+            catch (Exception ex)
+            {
+                AppendDashboardActivity($"Realtime page refresh warning on {_activePage}: {ex.Message}");
+            }
+            finally
+            {
+                _realtimePageRefreshInProgress = false;
+            }
+        }
+
+        private static bool HasDedicatedRealtimeTimer(string pageName)
+        {
+            return pageName is "Dashboard" or "Storage" or "Gaming" or "Streaming" or "Creator" or "Network" or "DnsLatency" or "Settings";
+        }
+
+        private static TimeSpan GetActivePageRealtimeInterval(string pageName)
+        {
+            return pageName switch
+            {
+                "Startup" => TimeSpan.FromSeconds(2),
+                "BackgroundApps" => TimeSpan.FromSeconds(2),
+                "Performance" => TimeSpan.FromSeconds(2),
+                "Cleanup" => TimeSpan.FromSeconds(3),
+                "SecurityHealth" => TimeSpan.FromSeconds(2),
+                "Privacy" => TimeSpan.FromSeconds(4),
+                "AppsManager" => TimeSpan.FromSeconds(4),
+                "Services" => TimeSpan.FromSeconds(3),
+                "Power" => TimeSpan.FromSeconds(2),
+                "Visual" => TimeSpan.FromSeconds(2),
+                "Automation" => TimeSpan.FromSeconds(2),
+                "Utilities" => TimeSpan.FromSeconds(3),
+                "About" => TimeSpan.FromSeconds(5),
+                _ => TimeSpan.Zero
+            };
+        }
+
+        private async Task RefreshActivePageRealtimeAsync(string pageName)
+        {
+            switch (pageName)
+            {
+                case "Startup":
+                    await RefreshStartupItems();
+                    break;
+                case "BackgroundApps":
+                    await RefreshBackgroundApps();
+                    break;
+                case "Performance":
+                    await RefreshPerformanceBoostViewAsync();
+                    break;
+                case "Cleanup":
+                    await RefreshCleanupViewAsync();
+                    break;
+                case "SecurityHealth":
+                    await RefreshSecurityHealthViewAsync();
+                    break;
+                case "Privacy":
+                    await RefreshPrivacyViewAsync();
+                    break;
+                case "AppsManager":
+                    await RefreshAppsManagerViewAsync();
+                    break;
+                case "Services":
+                    await RefreshServicesViewAsync();
+                    break;
+                case "Power":
+                    await RefreshPowerOptimizationViewAsync();
+                    break;
+                case "Visual":
+                    await RefreshVisualEffectsViewAsync();
+                    break;
+                case "Automation":
+                    await RefreshAutomationViewAsync();
+                    break;
+                case "Utilities":
+                    await RefreshUtilitiesViewAsync();
+                    break;
+                case "About":
+                    await RefreshAboutViewAsync();
+                    break;
             }
         }
 
@@ -1424,6 +1568,7 @@ namespace HyperBoostX
         private async Task ShowPage(string pageName, Button navButton)
         {
             _activePage = pageName;
+            _lastRealtimePageRefreshUtc = DateTime.MinValue;
             SelectNavButton(navButton);
             HideAllPages();
             _dashboardTimer.Stop();
@@ -1432,6 +1577,7 @@ namespace HyperBoostX
             _streamingTimer.Stop();
             _creatorTimer.Stop();
             _networkTimer.Stop();
+            _settingsTimer.Stop();
 
             // Show selected page
             switch (pageName)
@@ -1593,6 +1739,7 @@ namespace HyperBoostX
                     SetLocalizedPageHeader("Settings", "Settings", "Otak + aturan hidup aplikasi: UI, automation brain, system control, safety, engine, logging, update, dan master switch HyperBoostX.");
                     SettingsContent.Visibility = Visibility.Visible;
                     await RefreshSettingsViewAsync();
+                    _settingsTimer.Start();
                     break;
                 case "Tweaks":
                     SetLocalizedPageHeader("Tweaks", "Tweaks Center", "Browse available tweaks with clearer context before applying system-level changes.");
@@ -4300,7 +4447,9 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
         private async Task RefreshSettingsViewAsync()
         {
             var stats = await SafeApiCall(() => _backendClient.GetSystemStatsAsync());
+            var systemInfo = await GetSettingsSystemInfoCachedAsync();
             var json = stats as Newtonsoft.Json.Linq.JObject;
+            var systemJson = systemInfo as Newtonsoft.Json.Linq.JObject;
             var cpu = json?.Value<double?>("cpu") ?? json?.Value<double?>("cpu_percent") ?? 0d;
             var ram = json?.Value<double?>("memory") ?? json?.Value<double?>("memory_percent") ?? 0d;
             var disk = json?.Value<double?>("disk") ?? json?.Value<double?>("disk_percent") ?? 0d;
@@ -4406,6 +4555,7 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
             if (_settingsHistory.Count == 0)
                 AppendSettingsHistory("Settings center initialized.");
 
+            await RefreshSettingsPcSpecAsync(json, systemJson);
             RefreshAppUpdatePanels();
         }
 
@@ -4449,6 +4599,401 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
 
             if (OpenLatestReleaseBtn != null)
                 OpenLatestReleaseBtn.Content = _isAppUpdateAvailable ? "Download Latest Update" : "Open Release Page";
+        }
+
+        private async Task RefreshSettingsPcSpecAsync(JObject stats, JObject systemInfo)
+        {
+            if (SettingsSpecOverviewText == null)
+                return;
+
+            try
+            {
+                var staticInfo = await QuerySettingsPcStaticInfoAsync();
+                var cpuInfo = systemInfo?["cpu"] as JObject;
+                var memoryInfo = systemInfo?["memory"] as JObject;
+                var gpuInfo = systemInfo?["gpu"] as JObject;
+                var gpuPrimary = gpuInfo?["gpus"]?.FirstOrDefault() as JObject;
+                var diskInfo = systemInfo?["disk"] as JObject;
+                var networkInfo = systemInfo?["network"] as JObject;
+                var osInfo = systemInfo?["os"] as JObject;
+                var identityInfo = systemInfo?["identity"] as JObject;
+                var biosInfo = systemInfo?["bios"] as JObject;
+                var temperatures = systemInfo?["temperatures"] as JObject;
+                var batteryText = await QuerySettingsBatterySummaryCachedAsync();
+                var pingText = await QuerySettingsPingSummaryCachedAsync();
+
+                var cpuUsage = stats?.Value<double?>("cpu") ?? stats?.Value<double?>("cpu_percent") ?? cpuInfo?.Value<double?>("usage") ?? 0d;
+                var ramUsage = stats?.Value<double?>("memory") ?? stats?.Value<double?>("memory_percent") ?? memoryInfo?.Value<double?>("percent") ?? 0d;
+                var diskUsage = stats?.Value<double?>("disk") ?? stats?.Value<double?>("disk_percent") ?? 0d;
+                var gpuUsage = (stats?["gpu"] as JObject)?.Value<double?>("load")
+                    ?? (stats?["gpu"] as JObject)?.Value<double?>("memory_percent")
+                    ?? 0d;
+                var cpuTemp = ExtractTemperatureByKeyword(temperatures, "cpu", "package", "core") ?? ExtractTemperature(temperatures);
+                var gpuTemp = (stats?["gpu"] as JObject)?.Value<double?>("temperature")
+                    ?? ExtractTemperatureByKeyword(temperatures, "gpu", "graphics");
+                var diskTemp = ExtractTemperatureByKeyword(temperatures, "disk", "nvme", "ssd", "hdd", "storage");
+                var uptime = identityInfo?["uptime"]?["formatted"]?.ToString()
+                    ?? BuildUptimeSummary(stats?.Value<double?>("boot_time"));
+                var hostname = identityInfo?.Value<string>("hostname") ?? Environment.MachineName;
+                var windowsVersion = $"{osInfo?.Value<string>("system") ?? "Windows"} {osInfo?.Value<string>("release") ?? ""}".Trim();
+                var windowsBuild = osInfo?.Value<string>("version") ?? identityInfo?.Value<string>("build") ?? "Unknown build";
+                var cpuName = cpuInfo?.Value<string>("processor") ?? "Unknown CPU";
+                var cpuCurrentClock = cpuInfo?.Value<double?>("frequency_current") ?? stats?.Value<double?>("cpu_freq_current") ?? 0d;
+                var cpuBoostClock = cpuInfo?.Value<double?>("frequency_max") ?? stats?.Value<double?>("cpu_freq_max") ?? 0d;
+                var totalRam = memoryInfo?.Value<long?>("total") ?? 0L;
+                var usedRam = memoryInfo?.Value<long?>("used") ?? 0L;
+                var freeRam = memoryInfo?.Value<long?>("available") ?? 0L;
+                var ramSpeed = memoryInfo?.Value<int?>("speed_mhz") ?? 0;
+                var ramType = InferMemoryType(ramSpeed);
+                var slotsUsed = memoryInfo?.Value<int?>("slots_used") ?? 0;
+                var totalSlots = memoryInfo?["modules"] is JArray modules && modules.Count > 0 ? modules.Count : 0;
+                var gpuName = gpuPrimary?.Value<string>("name") ?? (stats?["gpu"] as JObject)?.Value<string>("name") ?? "Integrated / unavailable";
+                var gpuVramBytes = gpuPrimary?.Value<long?>("vram") ?? 0L;
+                var gpuDriver = gpuPrimary?.Value<string>("driver_version") ?? "Unknown";
+                var gpuFan = (stats?["gpu"] as JObject)?.Value<double?>("fan_speed");
+                var motherboard = staticInfo?["board"] as JObject;
+                var systemSummary = staticInfo?["system"] as JObject;
+                var disks = staticInfo?["disks"] as JArray;
+                var networkPrimary = PickPrimaryNetworkAdapter(networkInfo);
+                var ipAddress = PickPrimaryIpAddress(networkPrimary);
+                var linkSpeed = networkPrimary?["stats"]?.Value<double?>("speed_mbps") ?? 0d;
+                var connectionType = DetectConnectionType(networkPrimary);
+                var storageSummary = BuildStorageSummary(diskInfo, disks);
+
+                SettingsSpecOverviewText.Text =
+                    $"Device: {hostname}{Environment.NewLine}" +
+                    $"OS: {windowsVersion} | {windowsBuild}{Environment.NewLine}" +
+                    $"CPU: {cpuName} @ {cpuCurrentClock:0} MHz{Environment.NewLine}" +
+                    $"RAM: {FormatBytes(totalRam)} total | {FormatBytes(usedRam)} used ({ramUsage:0}%) {Environment.NewLine}" +
+                    $"GPU: {gpuName} | VRAM {FormatBytes(gpuVramBytes)}{Environment.NewLine}" +
+                    $"Storage: {storageSummary.Overview}{Environment.NewLine}" +
+                    $"Uptime: {uptime}";
+
+                SettingsCpuInfoText.Text =
+                    $"Name: {cpuName}{Environment.NewLine}" +
+                    $"Core / Thread: {cpuInfo?.Value<int?>("cores") ?? 0} / {cpuInfo?.Value<int?>("threads") ?? 0}{Environment.NewLine}" +
+                    $"Base / Boost: {cpuCurrentClock:0} / {cpuBoostClock:0} MHz{Environment.NewLine}" +
+                    $"Usage: {cpuUsage:0}% {BuildUsageBar(cpuUsage)}{Environment.NewLine}" +
+                    $"Temperature: {FormatTemperatureLine(cpuTemp)}{Environment.NewLine}" +
+                    $"Cache: L1/L2/L3 info not exposed by backend{Environment.NewLine}" +
+                    $"Live graph: {BuildTelemetryGraph(cpuUsage, "CPU")}";
+
+                SettingsRamInfoText.Text =
+                    $"Total: {FormatBytes(totalRam)}{Environment.NewLine}" +
+                    $"Used / Free: {FormatBytes(usedRam)} / {FormatBytes(freeRam)}{Environment.NewLine}" +
+                    $"Usage: {ramUsage:0}% {BuildUsageBar(ramUsage)}{Environment.NewLine}" +
+                    $"Speed: {(ramSpeed > 0 ? $"{ramSpeed} MHz" : "Unknown")}{Environment.NewLine}" +
+                    $"Type: {ramType}{Environment.NewLine}" +
+                    $"Slots used / available: {slotsUsed} / {(totalSlots > 0 ? totalSlots.ToString() : "Unknown")}";
+
+                SettingsGpuInfoText.Text =
+                    $"GPU: {gpuName}{Environment.NewLine}" +
+                    $"VRAM: {FormatBytes(gpuVramBytes)}{Environment.NewLine}" +
+                    $"Driver: {gpuDriver}{Environment.NewLine}" +
+                    $"Usage: {gpuUsage:0}% {BuildUsageBar(gpuUsage)}{Environment.NewLine}" +
+                    $"Temperature: {FormatTemperatureLine(gpuTemp)}{Environment.NewLine}" +
+                    $"Fan speed: {(gpuFan.HasValue && gpuFan.Value > 0 ? $"{gpuFan:0}%" : "Unavailable")}";
+
+                SettingsStorageInfoText.Text =
+                    $"{storageSummary.Overview}{Environment.NewLine}" +
+                    $"{storageSummary.DriveLines}{Environment.NewLine}" +
+                    $"{storageSummary.HardwareLines}";
+
+                SettingsBoardInfoText.Text =
+                    $"Motherboard: {motherboard?.Value<string>("manufacturer") ?? systemSummary?.Value<string>("manufacturer") ?? "Unknown"} {motherboard?.Value<string>("product") ?? systemSummary?.Value<string>("model") ?? ""}".Trim() + Environment.NewLine +
+                    $"BIOS / UEFI: {biosInfo?.Value<string>("version") ?? staticInfo?["bios"]?["version"]?.ToString() ?? "Unknown"}{Environment.NewLine}" +
+                    $"Serial: {motherboard?.Value<string>("serial_number") ?? biosInfo?.Value<string>("serial_number") ?? "Hidden / unavailable"}{Environment.NewLine}" +
+                    $"System manufacturer: {systemSummary?.Value<string>("manufacturer") ?? "Unknown"}{Environment.NewLine}" +
+                    $"Model: {systemSummary?.Value<string>("model") ?? "Unknown"}";
+
+                SettingsPowerInfoText.Text = batteryText;
+
+                SettingsNetworkInfoText.Text =
+                    $"Adapter: {networkPrimary?.Path?.TrimStart('/') ?? "Unknown"}{Environment.NewLine}" +
+                    $"Connection: {connectionType}{Environment.NewLine}" +
+                    $"IP Address: {ipAddress}{Environment.NewLine}" +
+                    $"Link speed: {(linkSpeed > 0 ? $"{linkSpeed:0} Mbps" : "Unknown")}{Environment.NewLine}" +
+                    $"Latency: {pingText}";
+
+                SettingsTemperatureInfoText.Text =
+                    $"CPU Temp: {FormatTemperatureLine(cpuTemp)}{Environment.NewLine}" +
+                    $"GPU Temp: {FormatTemperatureLine(gpuTemp)}{Environment.NewLine}" +
+                    $"Disk Temp: {FormatTemperatureLine(diskTemp)}{Environment.NewLine}" +
+                    $"Status: {BuildTemperatureStatus(cpuTemp, gpuTemp, diskTemp)}";
+
+                SettingsRealtimeInfoText.Text =
+                    $"{BuildTelemetryGraph(cpuUsage, "CPU")} {cpuUsage:0}%{Environment.NewLine}" +
+                    $"{BuildTelemetryGraph(ramUsage, "RAM")} {ramUsage:0}%{Environment.NewLine}" +
+                    $"{BuildTelemetryGraph(gpuUsage, "GPU")} {gpuUsage:0}%{Environment.NewLine}" +
+                    $"{BuildTelemetryGraph(diskUsage, "DSK")} {diskUsage:0}%{Environment.NewLine}" +
+                    $"Processes: {stats?.Value<int?>("process_count") ?? 0} | Threads: {stats?.Value<int?>("thread_count") ?? 0}";
+            }
+            catch (Exception ex)
+            {
+                SettingsSpecOverviewText.Text = "Unable to load PC spec panel.";
+                SettingsCpuInfoText.Text = ex.Message;
+                SettingsRamInfoText.Text = "System info refresh encountered an error.";
+                SettingsGpuInfoText.Text = "System info refresh encountered an error.";
+                SettingsStorageInfoText.Text = "System info refresh encountered an error.";
+                SettingsBoardInfoText.Text = "System info refresh encountered an error.";
+                SettingsPowerInfoText.Text = "System info refresh encountered an error.";
+                SettingsNetworkInfoText.Text = "System info refresh encountered an error.";
+                SettingsTemperatureInfoText.Text = "System info refresh encountered an error.";
+                SettingsRealtimeInfoText.Text = "System info refresh encountered an error.";
+            }
+        }
+
+        private async Task<JObject> GetSettingsSystemInfoCachedAsync()
+        {
+            if (_settingsSystemInfoCache != null && DateTime.UtcNow - _settingsSystemInfoCacheUtc < TimeSpan.FromSeconds(20))
+                return _settingsSystemInfoCache;
+
+            var result = await SafeApiCall(() => _backendClient.GetSystemInfoAsync());
+            if (result is JObject json)
+            {
+                _settingsSystemInfoCache = json;
+                _settingsSystemInfoCacheUtc = DateTime.UtcNow;
+            }
+
+            return _settingsSystemInfoCache;
+        }
+
+        private async Task<JObject> QuerySettingsPcStaticInfoAsync()
+        {
+            if (_settingsPcStaticCache != null && DateTime.UtcNow - _settingsPcStaticCacheUtc < TimeSpan.FromMinutes(5))
+                return _settingsPcStaticCache;
+
+            var script = @"
+$board = Get-CimInstance Win32_BaseBoard -ErrorAction SilentlyContinue | Select-Object -First 1 Product, Manufacturer, SerialNumber
+$bios = Get-CimInstance Win32_BIOS -ErrorAction SilentlyContinue | Select-Object -First 1 SMBIOSBIOSVersion, SerialNumber
+$system = Get-CimInstance Win32_ComputerSystem -ErrorAction SilentlyContinue | Select-Object -First 1 Manufacturer, Model
+$disks = Get-PhysicalDisk -ErrorAction SilentlyContinue | Select-Object FriendlyName, MediaType, BusType, HealthStatus, Size
+[pscustomobject]@{
+    board = $board
+    bios = $bios
+    system = $system
+    disks = $disks
+} | ConvertTo-Json -Depth 6 -Compress
+";
+            var (success, output) = await ExecutePowerShellScriptAsync(script);
+            if (!success || string.IsNullOrWhiteSpace(output))
+                return _settingsPcStaticCache;
+
+            try
+            {
+                _settingsPcStaticCache = JObject.Parse(output.Trim());
+                _settingsPcStaticCacheUtc = DateTime.UtcNow;
+                return _settingsPcStaticCache;
+            }
+            catch
+            {
+                return _settingsPcStaticCache;
+            }
+        }
+
+        private async Task<string> QuerySettingsBatterySummaryCachedAsync()
+        {
+            if (!string.IsNullOrWhiteSpace(_settingsBatteryCache) && DateTime.UtcNow - _settingsBatteryCacheUtc < TimeSpan.FromSeconds(20))
+                return _settingsBatteryCache;
+
+            _settingsBatteryCache = await QueryBatterySummaryAsync();
+            _settingsBatteryCacheUtc = DateTime.UtcNow;
+            return _settingsBatteryCache;
+        }
+
+        private async Task<string> QuerySettingsPingSummaryCachedAsync()
+        {
+            if (!string.IsNullOrWhiteSpace(_settingsPingCache) && DateTime.UtcNow - _settingsPingCacheUtc < TimeSpan.FromSeconds(15))
+                return _settingsPingCache;
+
+            _settingsPingCache = await QuerySettingsPingSummaryAsync();
+            _settingsPingCacheUtc = DateTime.UtcNow;
+            return _settingsPingCache;
+        }
+
+        private async Task<string> QuerySettingsPingSummaryAsync()
+        {
+            var script = @"
+$result = Test-Connection -TargetName 1.1.1.1 -Count 1 -ErrorAction SilentlyContinue | Select-Object -First 1
+if (-not $result) { 'Unavailable'; return }
+'{0} ms' -f [math]::Round($result.Latency, 0)
+";
+            var (success, output) = await ExecutePowerShellScriptAsync(script);
+            return success && !string.IsNullOrWhiteSpace(output)
+                ? output.Trim()
+                : "Unavailable";
+        }
+
+        private static string BuildUptimeSummary(double? bootUnixTime)
+        {
+            if (!bootUnixTime.HasValue || bootUnixTime.Value <= 0)
+                return "Unknown";
+
+            try
+            {
+                var boot = DateTimeOffset.FromUnixTimeSeconds((long)bootUnixTime.Value);
+                var span = DateTimeOffset.UtcNow - boot;
+                return $"{(int)span.TotalDays}d {span.Hours}h {span.Minutes}m";
+            }
+            catch
+            {
+                return "Unknown";
+            }
+        }
+
+        private static double? ExtractTemperatureByKeyword(JObject temperatures, params string[] keywords)
+        {
+            if (temperatures == null || keywords == null || keywords.Length == 0)
+                return null;
+
+            foreach (var property in temperatures.Properties())
+            {
+                if (!keywords.Any(keyword => property.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase)))
+                    continue;
+
+                var direct = ExtractTemperature(new JObject { [property.Name] = property.Value });
+                if (direct.HasValue)
+                    return direct;
+            }
+
+            return null;
+        }
+
+        private static string FormatBytes(long bytes)
+        {
+            if (bytes <= 0)
+                return "0 B";
+
+            string[] suffix = { "B", "KB", "MB", "GB", "TB" };
+            double value = bytes;
+            var index = 0;
+            while (value >= 1024 && index < suffix.Length - 1)
+            {
+                value /= 1024;
+                index++;
+            }
+
+            return $"{value:0.#} {suffix[index]}";
+        }
+
+        private static string BuildUsageBar(double percent)
+        {
+            var clamped = Math.Max(0, Math.Min(100, percent));
+            var filled = (int)Math.Round(clamped / 10);
+            return "[" + new string('#', filled) + new string('-', 10 - filled) + "]";
+        }
+
+        private static string BuildTelemetryGraph(double percent, string label)
+        {
+            return $"{label} {BuildUsageBar(percent)}";
+        }
+
+        private static string InferMemoryType(int speedMhz)
+        {
+            if (speedMhz >= 4800)
+                return "DDR5";
+            if (speedMhz >= 1600)
+                return "DDR4";
+            if (speedMhz >= 800)
+                return "DDR3";
+            return "Unknown";
+        }
+
+        private static string FormatTemperatureLine(double? value)
+        {
+            if (!value.HasValue || value.Value <= 0)
+                return "Unavailable";
+
+            var color = value.Value >= 85 ? "Red" : value.Value >= 70 ? "Yellow" : "Green";
+            return $"{value.Value:0} C ({color})";
+        }
+
+        private static string BuildTemperatureStatus(double? cpu, double? gpu, double? disk)
+        {
+            var max = new[] { cpu ?? 0, gpu ?? 0, disk ?? 0 }.Max();
+            if (max >= 85)
+                return "Red / Critical";
+            if (max >= 70)
+                return "Yellow / Warm";
+            return "Green / Normal";
+        }
+
+        private static string DetectConnectionType(JToken adapter)
+        {
+            var name = adapter?.Path?.TrimStart('/') ?? "";
+            return name.Contains("wi-fi", StringComparison.OrdinalIgnoreCase) || name.Contains("wireless", StringComparison.OrdinalIgnoreCase)
+                ? "WiFi"
+                : "LAN / Ethernet";
+        }
+
+        private static JProperty PickPrimaryNetworkAdapter(JObject networkInfo)
+        {
+            if (networkInfo == null)
+                return null;
+
+            foreach (var property in networkInfo.Properties())
+            {
+                if (property.Value?["stats"]?.Value<bool?>("is_up") == true)
+                    return property;
+            }
+
+            return networkInfo.Properties().FirstOrDefault();
+        }
+
+        private static string PickPrimaryIpAddress(JProperty adapter)
+        {
+            var addresses = adapter?.Value?["addresses"] as JArray;
+            if (addresses == null)
+                return "Unavailable";
+
+            foreach (var entry in addresses.OfType<JObject>())
+            {
+                var addr = entry.Value<string>("address");
+                if (!string.IsNullOrWhiteSpace(addr) && !addr.Contains("::1") && !addr.StartsWith("127."))
+                    return addr;
+            }
+
+            return addresses.FirstOrDefault()?["address"]?.ToString() ?? "Unavailable";
+        }
+
+        private static (string Overview, string DriveLines, string HardwareLines) BuildStorageSummary(JObject diskInfo, JArray physicalDisks)
+        {
+            if (diskInfo == null || !diskInfo.Properties().Any())
+                return ("Storage information unavailable.", "No mounted volumes detected.", "Physical disk data unavailable.");
+
+            long total = 0;
+            long used = 0;
+            long free = 0;
+            var driveLines = new List<string>();
+
+            foreach (var property in diskInfo.Properties())
+            {
+                if (property.Value is not JObject disk)
+                    continue;
+
+                var mount = disk.Value<string>("mountpoint") ?? property.Name;
+                var mountTotal = disk.Value<long?>("total") ?? 0;
+                var mountUsed = disk.Value<long?>("used") ?? 0;
+                var mountFree = disk.Value<long?>("free") ?? 0;
+                var percent = disk.Value<double?>("percent") ?? 0d;
+                total += mountTotal;
+                used += mountUsed;
+                free += mountFree;
+                driveLines.Add($"{mount}: {FormatBytes(mountFree)} free / {FormatBytes(mountTotal)} total ({percent:0}% used)");
+            }
+
+            var hardwareLines = "Disk hardware profile unavailable.";
+            if (physicalDisks != null && physicalDisks.Count > 0)
+            {
+                hardwareLines = string.Join(Environment.NewLine,
+                    physicalDisks.OfType<JObject>().Take(3).Select(d =>
+                        $"{d.Value<string>("FriendlyName") ?? "Disk"} | {d.Value<string>("MediaType") ?? "Unknown"} | {d.Value<string>("BusType") ?? "Unknown"} | {d.Value<string>("HealthStatus") ?? "Unknown"}"));
+            }
+
+            return (
+                $"{FormatBytes(total)} total | {FormatBytes(used)} used | {FormatBytes(free)} free",
+                string.Join(Environment.NewLine, driveLines),
+                hardwareLines);
         }
 
         private async Task EnsureAppUpdateStatusAsync(bool force, bool userInitiated)
@@ -5487,6 +6032,38 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
                 "Opening Resource Monitor so you can inspect and close the heaviest memory consumers immediately.",
                 "Action: Resource Monitor opened");
             LaunchWindowsTool("resmon.exe", null, "Optimize RAM");
+        }
+
+        private async void RefreshSettingsPcSpec_Click(object sender, RoutedEventArgs e)
+        {
+            _settingsPcStaticCacheUtc = DateTime.MinValue;
+            _settingsPcStaticCache = null;
+            _settingsSystemInfoCacheUtc = DateTime.MinValue;
+            _settingsSystemInfoCache = null;
+            _settingsBatteryCacheUtc = DateTime.MinValue;
+            _settingsPingCacheUtc = DateTime.MinValue;
+            await RefreshSettingsViewAsync();
+            ShowActionStatus(ActionState.Success, "System Info / PC Spec", "PC specification panel refreshed.", SettingsSpecOverviewText?.Text);
+        }
+
+        private async void SettingsCleanJunkFiles_Click(object sender, RoutedEventArgs e)
+        {
+            var result = await SafeApiCall(() => _backendClient.CleanupAsync());
+            if (result == null)
+            {
+                ShowActionStatus(ActionState.Error, "Clean Junk Files", "Unable to run junk cleanup right now.");
+                return;
+            }
+
+            await RefreshSettingsViewAsync();
+            ShowActionStatus(ActionState.Success, "Clean Junk Files", "Safe junk cleanup finished.", HyperBoostBackendClient.FormatJson(result));
+        }
+
+        private async void SettingsNetworkBoost_Click(object sender, RoutedEventArgs e)
+        {
+            var success = await BoostNetworkNow_Click_Internal();
+            await RefreshSettingsViewAsync();
+            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Network Boost", success ? "Network boost completed." : "Network boost completed with warnings.", SettingsNetworkInfoText?.Text);
         }
 
         private async void BoostGaming_Click(object sender, RoutedEventArgs e)
