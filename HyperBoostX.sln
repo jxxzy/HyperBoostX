@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HyperBoostLauncher", "launc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HyperBoostX", "wpf\HyperBoostX.csproj", "{8923ABAE-E974-7678-F410-DBB4E2E3EB21}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HyperBoostX.Tests", "dotnet-tests\HyperBoostX.Tests\HyperBoostX.Tests.csproj", "{D5E85D4D-0D6D-4D6A-8B60-9F9C8A7A4F13}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +26,10 @@ Global
 		{8923ABAE-E974-7678-F410-DBB4E2E3EB21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8923ABAE-E974-7678-F410-DBB4E2E3EB21}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8923ABAE-E974-7678-F410-DBB4E2E3EB21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5E85D4D-0D6D-4D6A-8B60-9F9C8A7A4F13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5E85D4D-0D6D-4D6A-8B60-9F9C8A7A4F13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5E85D4D-0D6D-4D6A-8B60-9F9C8A7A4F13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5E85D4D-0D6D-4D6A-8B60-9F9C8A7A4F13}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
