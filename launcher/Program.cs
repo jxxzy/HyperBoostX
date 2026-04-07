@@ -2,12 +2,14 @@
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HyperBoostLauncher
 {
     internal class Program
     {
+        private const string SingleInstanceMutexName = @"Global\HyperBoostXLauncherSingleInstance";
         private static readonly string AppRoot = Path.GetDirectoryName(AppContext.BaseDirectory) ?? "";
         private static readonly string InstallRoot = Directory.GetParent(AppRoot)?.FullName ?? AppRoot;
         private static readonly string LogDirectory = Path.Combine(
@@ -21,11 +23,18 @@ namespace HyperBoostLauncher
         private static readonly string WpfExe = ResolveFile("HyperBoostUI.exe", @"runtime\wpf", "wpf", "HyperBoostX.exe");
         private static Process? _managedBackendProcess;
         private static bool _backendStartedByLauncher;
+        private static Mutex? _singleInstanceMutex;
 
         static async Task Main(string[] args)
         {
             try
             {
+                if (!AcquireSingleInstance())
+                {
+                    Environment.ExitCode = 0;
+                    return;
+                }
+
                 AppDomain.CurrentDomain.ProcessExit += (_, _) => StopManagedBackend();
                 Log("Launcher started.");
 
@@ -59,6 +68,49 @@ namespace HyperBoostLauncher
                 Log($"Launcher error: {ex}");
                 StopManagedBackend();
                 Environment.ExitCode = 1;
+            }
+            finally
+            {
+                ReleaseSingleInstance();
+            }
+        }
+
+        private static bool AcquireSingleInstance()
+        {
+            try
+            {
+                _singleInstanceMutex = new Mutex(initiallyOwned: true, name: SingleInstanceMutexName, createdNew: out var createdNew);
+                if (createdNew)
+                {
+                    return true;
+                }
+
+                Log("Launcher already running. Ignoring duplicate launch request.");
+                _singleInstanceMutex.Dispose();
+                _singleInstanceMutex = null;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Log($"WARNING: Failed to acquire single-instance mutex: {ex}");
+                return true;
+            }
+        }
+
+        private static void ReleaseSingleInstance()
+        {
+            try
+            {
+                _singleInstanceMutex?.ReleaseMutex();
+            }
+            catch
+            {
+                // Ignore release failures when mutex ownership is uncertain.
+            }
+            finally
+            {
+                _singleInstanceMutex?.Dispose();
+                _singleInstanceMutex = null;
             }
         }
 

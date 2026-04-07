@@ -28,8 +28,8 @@ def dns_test():
 @log_requests
 def flush_dns():
     """Flush DNS resolver cache."""
-    success = network_service.flush_dns()
-    return jsonify({"success": success})
+    result = network_service.flush_dns()
+    return jsonify(result if isinstance(result, dict) else {"success": result})
 
 
 @network_bp.route('/optimize-tcp', methods=['POST'])
@@ -37,5 +37,5 @@ def flush_dns():
 @log_requests
 def optimize_tcp():
     """Optimize TCP settings."""
-    success = network_service.optimize_tcp()
-    return jsonify({"success": success})
+    result = network_service.optimize_tcp()
+    return jsonify(result if isinstance(result, dict) else {"success": result})

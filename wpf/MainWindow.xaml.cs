@@ -13,6 +13,7 @@ using System.Globalization;
 using HyperBoostX.Services;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Windows.Media;
 
 
@@ -9005,6 +9006,44 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
             ShowActionStatus(ActionState.Success, "DNS Test", "DNS diagnostics refreshed successfully.", HyperBoostBackendClient.FormatJson(dns));
         }
 
+        private static bool IsBackendOperationSuccessful(dynamic result)
+        {
+            try
+            {
+                var token = result?["success"];
+                if (token == null)
+                    return true;
+
+                if (token is JValue)
+                    return token.Value<bool?>() ?? false;
+
+                return token.Value<bool?>() ?? false;
+            }
+            catch
+            {
+                return true;
+            }
+        }
+
+        private static string ReadBackendOperationOutput(dynamic result)
+        {
+            try
+            {
+                var token = result?["output"];
+                if (token == null)
+                    return HyperBoostBackendClient.FormatJson(result);
+
+                if (token is JValue)
+                    return token.Value<string>() ?? HyperBoostBackendClient.FormatJson(result);
+
+                return token.ToString();
+            }
+            catch
+            {
+                return HyperBoostBackendClient.FormatJson(result);
+            }
+        }
+
         private async Task RunNetworkAction(Func<Task<dynamic>> action, string actionName)
         {
             var result = await SafeApiCall(action);
@@ -9014,8 +9053,14 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
                 return;
             }
 
-            ShowActionStatus(ActionState.Success, actionName, $"{actionName} completed successfully.", HyperBoostBackendClient.FormatJson(result));
-            AppendNetworkHistory($"{actionName} completed.");
+            var success = IsBackendOperationSuccessful(result);
+            var details = ReadBackendOperationOutput(result);
+            ShowActionStatus(
+                success ? ActionState.Success : ActionState.Warning,
+                actionName,
+                success ? $"{actionName} completed successfully." : $"{actionName} reported a warning or partial failure.",
+                details);
+            AppendNetworkHistory(success ? $"{actionName} completed." : $"{actionName} returned warning state.");
         }
 
         private void FlushDNS_Click(object sender, RoutedEventArgs e)
@@ -9060,8 +9105,8 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
 
         private async void ApplyNetworkRecommendation_Click(object sender, RoutedEventArgs e)
         {
-            await BoostNetworkNow_Click_Internal();
-            ShowActionStatus(ActionState.Success, "Smart Network Recommendation", "Recommended network fixes berhasil diterapkan.", NetworkRecommendationText.Text);
+            var success = await BoostNetworkNow_Click_Internal();
+            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Smart Network Recommendation", success ? "Recommended network fixes berhasil diterapkan." : "Beberapa network fix tidak berhasil diterapkan sepenuhnya.", NetworkRecommendationText.Text);
         }
 
         private void ReviewNetworkRecommendation_Click(object sender, RoutedEventArgs e)
@@ -9069,12 +9114,13 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
             ShowActionStatus(ActionState.Info, "Review Network Recommendation", NetworkRecommendationText.Text);
         }
 
-        private async Task BoostNetworkNow_Click_Internal()
+        private async Task<bool> BoostNetworkNow_Click_Internal()
         {
-            await SafeApiCall(() => _backendClient.FlushDnsAsync());
-            await SafeApiCall(() => _backendClient.OptimizeTcpAsync());
+            var flush = await SafeApiCall(() => _backendClient.FlushDnsAsync());
+            var optimize = await SafeApiCall(() => _backendClient.OptimizeTcpAsync());
             await RefreshNetworkDiagnostics();
             await RefreshNetworkBoosterViewAsync();
+            return IsBackendOperationSuccessful(flush) && IsBackendOperationSuccessful(optimize);
         }
 
         private void ToggleNetworkAdapter_Click(object sender, RoutedEventArgs e)
@@ -9107,16 +9153,18 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
 
         private async void ActivateGamingNetworkMode_Click(object sender, RoutedEventArgs e)
         {
-            await SafeApiCall(() => _backendClient.OptimizeTcpAsync());
-            AppendNetworkHistory("Gaming Network Mode activated.");
-            ShowActionStatus(ActionState.Success, "Gaming Network Mode", "Low latency gaming network mode diaktifkan.");
+            var result = await SafeApiCall(() => _backendClient.OptimizeTcpAsync());
+            var success = IsBackendOperationSuccessful(result);
+            AppendNetworkHistory(success ? "Gaming Network Mode activated." : "Gaming Network Mode warning.");
+            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Gaming Network Mode", success ? "Low latency gaming network mode diaktifkan." : "Gaming network mode requested, but TCP optimization returned a warning.", ReadBackendOperationOutput(result));
         }
 
         private async void ActivateStreamingNetworkMode_Click(object sender, RoutedEventArgs e)
         {
-            await SafeApiCall(() => _backendClient.OptimizeTcpAsync());
-            AppendNetworkHistory("Streaming Network Mode activated.");
-            ShowActionStatus(ActionState.Success, "Streaming Network Mode", "Upload-oriented streaming network mode diaktifkan.");
+            var result = await SafeApiCall(() => _backendClient.OptimizeTcpAsync());
+            var success = IsBackendOperationSuccessful(result);
+            AppendNetworkHistory(success ? "Streaming Network Mode activated." : "Streaming Network Mode warning.");
+            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Streaming Network Mode", success ? "Upload-oriented streaming network mode diaktifkan." : "Streaming network mode requested, but TCP optimization returned a warning.", ReadBackendOperationOutput(result));
         }
 
         private async void ApplyDnsProfile_Click(object sender, RoutedEventArgs e)
@@ -9317,13 +9365,57 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
                 HealthHistoryText.Text = string.Join(Environment.NewLine, _securityHealthHistory.Reverse());
         }
 
+        private static double ReadNumericStat(dynamic stats, string key)
+        {
+            try
+            {
+                var direct = stats?[key];
+                if (direct == null)
+                    return 0;
+
+                if (direct is JValue)
+                    return direct.Value<double?>() ?? 0;
+
+                return direct["usage"]?.Value<double?>()
+                    ?? direct["percent"]?.Value<double?>()
+                    ?? direct["value"]?.Value<double?>()
+                    ?? 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        private static double ReadTemperatureStat(dynamic stats)
+        {
+            try
+            {
+                var temp = stats?["temperature"];
+                if (temp == null)
+                    return 0;
+
+                if (temp is JValue)
+                    return temp.Value<double?>() ?? 0;
+
+                return temp["current"]?.Value<double?>()
+                    ?? temp["cpu"]?.Value<double?>()
+                    ?? temp["value"]?.Value<double?>()
+                    ?? 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
         private async Task RefreshSecurityHealthViewAsync()
         {
             var stats = await SafeApiCall(() => _backendClient.GetSystemStatsAsync());
-            var cpu = stats?["cpu"]?["usage"]?.Value<double?>() ?? 0;
-            var ram = stats?["memory"]?["percent"]?.Value<double?>() ?? 0;
-            var disk = stats?["disk"]?["percent"]?.Value<double?>() ?? 0;
-            var temp = stats?["temperature"]?.Value<double?>() ?? 0;
+            var cpu = ReadNumericStat(stats, "cpu");
+            var ram = ReadNumericStat(stats, "memory");
+            var disk = ReadNumericStat(stats, "disk");
+            var temp = ReadTemperatureStat(stats);
             var systemStatus = (cpu > 90 || ram > 90 || disk > 95 || temp > 85) ? "Critical" :
                                (cpu > 75 || ram > 80 || disk > 85 || temp > 75) ? "Warning" : "Good";
 

@@ -23,26 +23,32 @@ class NetworkService:
         return {"response_time": response_time, "status": status}
     
     @staticmethod
-    def flush_dns() -> bool:
+    def flush_dns() -> dict:
         """Flush DNS cache."""
         logger.info("Flushing DNS")
         try:
-            success, _ = ShellUtil.execute_command("ipconfig /flushdns", admin=True)
-            return success
+            success, output = ShellUtil.execute_command("ipconfig /flushdns", admin=True)
+            return {
+                "success": success,
+                "output": output.strip() if output else "",
+            }
         except Exception as e:
             logger.error(f"Failed to flush DNS: {e}")
-            return False
+            return {"success": False, "output": str(e)}
     
     @staticmethod
-    def optimize_tcp() -> bool:
+    def optimize_tcp() -> dict:
         """Optimize TCP settings."""
         logger.info("Optimizing TCP")
         try:
-            success, _ = ShellUtil.execute_command(
+            success, output = ShellUtil.execute_command(
                 "netsh int tcp set global autotuninglevel=normal",
                 admin=True
             )
-            return success
+            return {
+                "success": success,
+                "output": output.strip() if output else "",
+            }
         except Exception as e:
             logger.error(f"Failed to optimize TCP: {e}")
-            return False
+            return {"success": False, "output": str(e)}
