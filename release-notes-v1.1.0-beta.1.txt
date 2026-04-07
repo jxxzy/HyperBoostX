@@ -4,6 +4,18 @@
 
 This release continues the `1.1.0-beta` line by improving how the project is validated, how critical helpers are tested, and how new changes are verified before broader beta rollout.
 
+## Recommended download
+
+For most users, the recommended file is:
+
+- `HyperBoostXInstaller-v1.1.0-beta.1.exe`
+
+Other assets:
+
+- `HyperBoostX-Portable-v1.1.0-beta.1.zip` for portable/manual extraction use
+- `HyperBoostX-Package-v1.1.0-beta.1.zip` for technical packaging or runtime inspection
+- `SHA256SUMS.txt` for checksum verification
+
 ## Release focus
 
 The primary goals of this beta refresh are:
