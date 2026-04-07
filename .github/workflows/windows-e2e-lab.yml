@@ -1,0 +1,49 @@
+name: Windows E2E Lab
+
+on:
+  workflow_dispatch:
+    inputs:
+      installer_path:
+        description: Path to the initial installer on the self-hosted runner
+        required: true
+        type: string
+      upgrade_installer_path:
+        description: Optional path to a newer installer for upgrade validation
+        required: false
+        type: string
+      launch_seconds:
+        description: Seconds to keep the app alive during launch checks
+        required: false
+        default: "12"
+        type: string
+  workflow_call:
+    inputs:
+      installer_path:
+        required: true
+        type: string
+      upgrade_installer_path:
+        required: false
+        type: string
+      launch_seconds:
+        required: false
+        default: "12"
+        type: string
+
+jobs:
+  e2e-lab:
+    runs-on:
+      - self-hosted
+      - windows
+      - hyperboostx-lab
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run installer/update E2E harness
+        shell: powershell
+        run: >
+          .\scripts\test_installer_update_e2e.ps1
+          -InstallerPath "${{ inputs.installer_path }}"
+          -UpgradeInstallerPath "${{ inputs.upgrade_installer_path }}"
+          -LaunchSeconds ([int]"${{ inputs.launch_seconds }}")

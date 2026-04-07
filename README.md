@@ -74,10 +74,40 @@ HyperBoost X is built from three main parts:
 - `package_release.bat` - assembles `release\package` and `release\app`
 - `build_installer.bat` - builds `HyperBoostXInstaller.exe`
 
+## Automated testing
+
+- In-app `Feature Audit / Testing` includes:
+  - `Mock Mode`
+  - `Safe Read-Only`
+  - `Live Read-Only`
+  - `Unit`, `Integration`, `UI Flow`, `End-to-End`, `Regression`, `Performance`, `Stress`, `Stability`, `Security`, `Compatibility`
+  - `Run Full QA Matrix`
+- GitHub Actions CI:
+  - `.github/workflows/windows-ci.yml`
+  - validates backend tests plus WPF and launcher builds on Windows
+- Installer/update lab harness:
+  - `.github/workflows/windows-e2e-lab.yml`
+  - `scripts/test_installer_update_e2e.ps1`
+  - intended for a self-hosted Windows lab runner, not a normal user machine
+
 ## Development scripts
 
 - `start_backend.bat` - run backend only
 - `start_wpf_client.bat` - run WPF client only against a running backend
+- `scripts\verify_repo.ps1` - one-command verification for Python backend tests plus .NET desktop tests
+
+Run the unified verification from PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_repo.ps1
+```
+
+Useful flags:
+
+- `-Configuration Release`
+- `-SkipPython`
+- `-SkipDotnet`
+- `-NoRestore`
 
 ## Release outputs
 

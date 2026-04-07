@@ -11,11 +11,16 @@ app/services/monitoring/__pycache__/
 app/services/optimization/__pycache__/
 app/services/repair/__pycache__/
 app/utils/__pycache__/
+tests/__pycache__/
+.pytest_cache/
 
 launcher/bin/
 launcher/obj/
 wpf/bin/
 wpf/obj/
+dotnet-tests/**/bin/
+dotnet-tests/**/obj/
+dotnet-tests/**/*.log
 wpf/temp_obj/
 wpf/temp_build_check/
 build_tmp/

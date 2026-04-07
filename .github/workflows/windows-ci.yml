@@ -1,0 +1,65 @@
+name: Windows CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r app/requirements.txt pytest pyinstaller
+
+      - name: Run backend tests
+        run: |
+          python -m pytest tests -q
+
+      - name: Setup NSIS
+        run: choco install nsis -y
+
+      - name: Restore launcher
+        run: dotnet restore launcher/HyperBoostLauncher.csproj -r win-x64
+
+      - name: Build launcher
+        run: dotnet build launcher/HyperBoostLauncher.csproj -c Release
+
+      - name: Build WPF
+        run: dotnet build wpf/HyperBoostX.csproj -c Release
+
+      - name: Run .NET tests
+        run: dotnet test dotnet-tests/HyperBoostX.Tests/HyperBoostX.Tests.csproj -c Release
+
+      - name: Build release artifacts
+        shell: powershell
+        run: .\scripts\build_release_ci.ps1
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: hyperboostx-release-artifacts
+          path: |
+            HyperBoostXInstaller.exe
+            SHA256SUMS.txt
+            release/backend/hyperboost_backend.exe
+            release/launcher/HyperBoostLauncher.exe
+            release/wpf/HyperBoostX.exe
