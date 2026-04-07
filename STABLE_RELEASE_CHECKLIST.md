@@ -20,9 +20,15 @@ Use this checklist after beta QA is complete and before flipping the project to 
 
 - [ ] Update `wpf/HyperBoostX.csproj` from `1.1.0-beta` to `1.1.0`.
 - [ ] Update `launcher/HyperBoostLauncher.csproj` from `1.1.0-beta` to `1.1.0`.
-- [ ] Update backend version strings from `1.1.0-beta` to `1.1.0`.
+- [ ] Update backend version strings from `1.1.0-beta` to `1.1.0` in:
+  - `app/__init__.py`
+  - `app/core/config.py`
+  - `app/api/health.py`
+  - `app/dev_client.py`
 - [ ] Update installer `DisplayVersion` from `1.1.0-beta` to `1.1.0`.
 - [ ] Update About App text from `1.1.0 Beta` to `1.1.0`.
+- [ ] Update release-checker metadata in `wpf/MainWindow.xaml.cs` and `wpf/Services/AppUpdateService.cs`.
+- [ ] Optional: run `prepare_stable_release_final.ps1 -WhatIfOnly` first, then `prepare_stable_release_final.ps1` after QA sign-off.
 
 ## 3. Documentation
 

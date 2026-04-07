@@ -8,6 +8,10 @@ Highlights
 - Included persistent settings, automation runtime rules, and shared app state across major modules.
 - Included HyperBoostX Copilot foundation with safe action routing and approval flow.
 - Included Discord webhook reporting for important errors and crash events.
+- Included in-app release checking against the latest GitHub author build.
+- Included reinstall-safe OpenAI and Discord secret persistence via Windows Credential Manager.
+- Included installer upgrade flow that replaces the old app version while keeping user config and runtime state.
+- Included About App support shortcut for Sociabuzz.
 - Included modular localization foundation and cleaner runtime safety around backend and PowerShell actions.
 
 Core areas
