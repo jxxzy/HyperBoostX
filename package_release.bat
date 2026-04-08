@@ -39,13 +39,11 @@ mkdir "%appDir%\runtime\wpf" >nul 2>&1
 copy /y "%releaseDir%\backend\hyperboost_backend.exe" "%packageDir%\backend\hyperboost_backend.exe" >nul
 copy /y "%releaseDir%\launcher\HyperBoostLauncher.exe" "%packageDir%\launcher\HyperBoostLauncher.exe" >nul
 if exist "%releaseDir%\launcher\HyperBoostLauncher.pdb" copy /y "%releaseDir%\launcher\HyperBoostLauncher.pdb" "%packageDir%\launcher\HyperBoostLauncher.pdb" >nul
-copy /y "%releaseDir%\wpf\HyperBoostX.exe" "%packageDir%\wpf\HyperBoostX.exe" >nul
-if exist "%releaseDir%\wpf\HyperBoostX.pdb" copy /y "%releaseDir%\wpf\HyperBoostX.pdb" "%packageDir%\wpf\HyperBoostX.pdb" >nul
+xcopy "%releaseDir%\wpf\*" "%packageDir%\wpf\" /e /i /y /q >nul
 
 copy /y "%releaseDir%\launcher\HyperBoostLauncher.exe" "%appDir%\HyperBoostX.exe" >nul
 copy /y "%releaseDir%\backend\hyperboost_backend.exe" "%appDir%\runtime\backend\hyperboost_backend.exe" >nul
-copy /y "%releaseDir%\wpf\HyperBoostX.exe" "%appDir%\runtime\wpf\HyperBoostUI.exe" >nul
-if exist "%releaseDir%\wpf\HyperBoostX.pdb" copy /y "%releaseDir%\wpf\HyperBoostX.pdb" "%appDir%\runtime\wpf\HyperBoostUI.pdb" >nul
+xcopy "%releaseDir%\wpf\*" "%appDir%\runtime\wpf\" /e /i /y /q >nul
 
 echo.
 echo Final release package created successfully.

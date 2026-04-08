@@ -20,7 +20,12 @@ namespace HyperBoostLauncher
         private static readonly string BackendDir = LauncherRuntimeLayout.ResolveDirectory(AppRoot, InstallRoot, @"runtime\backend", "backend");
         private static readonly string WpfDir = LauncherRuntimeLayout.ResolveDirectory(AppRoot, InstallRoot, @"runtime\wpf", "wpf");
         private static readonly string BackendExe = LauncherRuntimeLayout.ResolveFile(AppRoot, InstallRoot, "hyperboost_backend.exe", @"runtime\backend", "backend");
-        private static readonly string WpfExe = LauncherRuntimeLayout.ResolveFile(AppRoot, InstallRoot, "HyperBoostUI.exe", @"runtime\wpf", "wpf", "HyperBoostX.exe");
+        private static readonly string WpfExe = LauncherRuntimeLayout.ResolveFileFromCandidates(
+            AppRoot,
+            InstallRoot,
+            new[] { "HyperBoostX.exe", "HyperBoostUI.exe" },
+            @"runtime\wpf",
+            "wpf");
         private static Process? _managedBackendProcess;
         private static bool _backendStartedByLauncher;
         private static Mutex? _singleInstanceMutex;

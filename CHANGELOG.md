@@ -2,6 +2,22 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.1.5 - 2026-04-08
+
+### Changed
+- Reduced backend `/api/health` churn by caching WPF health checks briefly instead of letting every panel and QA path hit the backend immediately.
+- Normalized backend JSON payload handling in the WPF client so automation, startup, process, cleanup, and network flows consume consistent `JToken` objects.
+- Switched WPF release packaging away from single-file publish so the installed runtime keeps its full dependency set, reducing exit-time native teardown risk and runtime assembly loss.
+- Updated installer and release packaging to ship the full WPF runtime folder instead of only the UI executable.
+- Updated runtime/app metadata from `1.1.4` to `1.1.5`.
+
+### Validation
+- `dotnet build wpf\\HyperBoostX.csproj`
+- `dotnet build wpf\\HyperBoostX.csproj -c Release`
+
+### Notes
+- This hotfix focuses on deeper runtime hardening after the full audit passed, especially shutdown stability, JSON contract resilience, and release packaging correctness.
+
 ## v1.1.3 - 2026-04-08
 
 ### Changed

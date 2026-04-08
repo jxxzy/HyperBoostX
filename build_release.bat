@@ -1,6 +1,6 @@
 @echo off
 REM HyperBoost X - Build Release Executable
-REM Publishes the WPF frontend as a self-contained Windows executable.
+REM Publishes the WPF frontend as a self-contained Windows runtime folder.
 
 cd /d "%~dp0"
 echo Checking .NET SDK...
@@ -14,7 +14,7 @@ if errorlevel 1 (
 
 echo Publishing WPF release...
 cd /d "%~dp0wpf"
-dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeAllContentForSelfExtract=true
+dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=false
 if errorlevel 1 (
     echo.
     echo ERROR: Publish failed.

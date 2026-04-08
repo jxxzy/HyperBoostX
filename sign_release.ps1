@@ -28,7 +28,7 @@ $targets = @(
     "release\package\wpf\HyperBoostX.exe",
     "release\package\backend\hyperboost_backend.exe",
     "release\app\HyperBoostX.exe",
-    "release\app\runtime\wpf\HyperBoostUI.exe",
+    "release\app\runtime\wpf\HyperBoostX.exe",
     "release\app\runtime\backend\hyperboost_backend.exe"
 ) | Where-Object { Test-Path $_ }
 

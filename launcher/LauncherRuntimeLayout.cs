@@ -39,5 +39,18 @@ namespace HyperBoostLauncher
 
             return Path.Combine(appRoot, candidateSubdirs.Length > 0 ? candidateSubdirs[0] : string.Empty, fileName);
         }
+
+        public static string ResolveFileFromCandidates(string appRoot, string installRoot, string[] fileNames, params string[] candidateSubdirs)
+        {
+            foreach (var fileName in fileNames)
+            {
+                var resolved = ResolveFile(appRoot, installRoot, fileName, candidateSubdirs);
+                if (File.Exists(resolved))
+                    return resolved;
+            }
+
+            var firstFile = fileNames.Length > 0 ? fileNames[0] : string.Empty;
+            return Path.Combine(appRoot, candidateSubdirs.Length > 0 ? candidateSubdirs[0] : string.Empty, firstFile);
+        }
     }
 }

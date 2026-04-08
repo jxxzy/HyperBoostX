@@ -3,7 +3,7 @@
 HyperBoost X is a Windows optimization suite with a native WPF desktop client, a Python backend, and a .NET launcher. The current stable release turns the app into a single control center for performance, cleanup, automation, repair, AI-assisted actions, and recovery.
 
 Current stable version:
-- `1.1.4`
+- `1.1.5`
 
 Author:
 - `MR.4NONY`
@@ -19,7 +19,7 @@ HyperBoost X is built from three main parts:
 ## Core runtime layout
 
 - Installed app entrypoint: `HyperBoostX.exe`
-- Internal UI runtime: `runtime\wpf\HyperBoostUI.exe`
+- Internal UI runtime: `runtime\wpf\HyperBoostX.exe`
 - Internal backend runtime: `runtime\backend\hyperboost_backend.exe`
 - User logs: `%LocalAppData%\HyperBoost X\logs`
 - App config and state: `%LocalAppData%\HyperBoost X\config`
@@ -41,6 +41,14 @@ HyperBoost X is built from three main parts:
 - Installer upgrade flow that removes the old app version while preserving user config/state
 - Secure secret persistence for OpenAI and Discord via Windows Credential Manager
 - About App donation shortcut via Sociabuzz
+
+## What changed in `1.1.5`
+
+- Reduced backend `/api/health` spam by caching health checks inside the WPF client
+- Normalized backend JSON handling in the WPF client for automation, startup, process, cleanup, and network paths
+- Switched the WPF release layout from single-file publish to a full runtime folder to reduce exit-time native teardown and missing-dependency failures
+- Updated installer and package assembly so the full WPF runtime folder is shipped correctly
+- Synced installer, launcher, backend, and update metadata to `1.1.5`
 
 ## What changed in `1.1.4`
 
@@ -156,7 +164,7 @@ Useful flags:
 
 - Portable app: `release\app\HyperBoostX.exe`
 - Installer: `HyperBoostXInstaller.exe`
-- GitHub release: `v1.1.4`
+- GitHub release: `v1.1.5`
 
 ## Documentation
 
@@ -165,4 +173,4 @@ Useful flags:
 
 ## Release status
 
-`v1.1.4` is the current stable release. Ongoing work after this milestone remains focused on deeper cross-machine validation, admin-required flows, installer/update polish, and long-run UI/runtime hardening.
+`v1.1.5` is the current stable release. Ongoing work after this milestone remains focused on deeper cross-machine validation, admin-required flows, installer/update polish, and long-run UI/runtime hardening.

@@ -72,7 +72,7 @@ Write-Host "Publishing launcher into isolated artifacts..."
 dotnet publish launcher\HyperBoostLauncher.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true -o $launcherOut
 
 Write-Host "Publishing WPF into isolated artifacts..."
-dotnet publish wpf\HyperBoostX.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeAllContentForSelfExtract=true -o $wpfOut
+dotnet publish wpf\HyperBoostX.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=false -o $wpfOut
 
 Write-Host "Assembling portable/runtime layout..."
 Ensure-Dir (Join-Path $portableOut "runtime\backend")
@@ -83,15 +83,11 @@ Ensure-Dir (Join-Path $packageOut "wpf")
 
 Copy-Item (Join-Path $launcherOut "HyperBoostLauncher.exe") (Join-Path $portableOut "HyperBoostX.exe") -Force
 Copy-Item (Join-Path $backendOut "hyperboost_backend.exe") (Join-Path $portableOut "runtime\backend\hyperboost_backend.exe") -Force
-Copy-Item (Join-Path $wpfOut "HyperBoostX.exe") (Join-Path $portableOut "runtime\wpf\HyperBoostUI.exe") -Force
+Copy-Item (Join-Path $wpfOut "*") (Join-Path $portableOut "runtime\wpf") -Recurse -Force
 
 Copy-Item (Join-Path $backendOut "hyperboost_backend.exe") (Join-Path $packageOut "backend\hyperboost_backend.exe") -Force
 Copy-Item (Join-Path $launcherOut "HyperBoostLauncher.exe") (Join-Path $packageOut "launcher\HyperBoostLauncher.exe") -Force
-Copy-Item (Join-Path $wpfOut "HyperBoostX.exe") (Join-Path $packageOut "wpf\HyperBoostX.exe") -Force
-
-if (Test-Path (Join-Path $wpfOut "HyperBoostX.pdb")) {
-    Copy-Item (Join-Path $wpfOut "HyperBoostX.pdb") (Join-Path $packageOut "wpf\HyperBoostX.pdb") -Force
-}
+Copy-Item (Join-Path $wpfOut "*") (Join-Path $packageOut "wpf") -Recurse -Force
 
 Write-Host "Local deploy artifacts ready."
 Write-Host "Portable runtime: $(Join-Path $portableOut 'HyperBoostX.exe')"

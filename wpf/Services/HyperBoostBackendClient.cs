@@ -17,18 +17,22 @@ namespace HyperBoostX.Services
     {
         private readonly HttpClient _httpClient;
         private readonly string _baseUrl;
+        private readonly SemaphoreSlim _healthCheckLock = new(1, 1);
         private readonly SemaphoreSlim _systemStatsLock = new(1, 1);
         private readonly SemaphoreSlim _systemInfoLock = new(1, 1);
         private readonly SemaphoreSlim _startupItemsLock = new(1, 1);
         private readonly SemaphoreSlim _processesLock = new(1, 1);
+        private bool? _cachedBackendHealth;
+        private DateTime _cachedBackendHealthUtc = DateTime.MinValue;
         private JObject _cachedSystemStats;
         private DateTime _cachedSystemStatsUtc = DateTime.MinValue;
         private JObject _cachedSystemInfo;
         private DateTime _cachedSystemInfoUtc = DateTime.MinValue;
-        private JToken _cachedStartupItems;
+        private JObject _cachedStartupItems;
         private DateTime _cachedStartupItemsUtc = DateTime.MinValue;
-        private JToken _cachedProcesses;
+        private JObject _cachedProcesses;
         private DateTime _cachedProcessesUtc = DateTime.MinValue;
+        private static readonly TimeSpan HealthCheckCacheLifetime = TimeSpan.FromMilliseconds(1500);
         private static readonly TimeSpan SystemStatsCacheLifetime = TimeSpan.FromMilliseconds(900);
         private static readonly TimeSpan SystemInfoCacheLifetime = TimeSpan.FromSeconds(12);
         private static readonly TimeSpan StartupItemsCacheLifetime = TimeSpan.FromSeconds(6);
@@ -47,14 +51,29 @@ namespace HyperBoostX.Services
         /// </summary>
         public async Task<bool> HealthCheckAsync()
         {
+            if (_cachedBackendHealth.HasValue && DateTime.UtcNow - _cachedBackendHealthUtc <= HealthCheckCacheLifetime)
+                return _cachedBackendHealth.Value;
+
+            await _healthCheckLock.WaitAsync();
             try
             {
+                if (_cachedBackendHealth.HasValue && DateTime.UtcNow - _cachedBackendHealthUtc <= HealthCheckCacheLifetime)
+                    return _cachedBackendHealth.Value;
+
                 var response = await _httpClient.GetAsync($"{_baseUrl}/api/health");
-                return response.IsSuccessStatusCode;
+                _cachedBackendHealth = response.IsSuccessStatusCode;
+                _cachedBackendHealthUtc = DateTime.UtcNow;
+                return _cachedBackendHealth.Value;
             }
             catch
             {
+                _cachedBackendHealth = false;
+                _cachedBackendHealthUtc = DateTime.UtcNow;
                 return false;
+            }
+            finally
+            {
+                _healthCheckLock.Release();
             }
         }
 
@@ -145,21 +164,33 @@ namespace HyperBoostX.Services
             return source == null ? null : (JObject)source.DeepClone();
         }
 
-        private static bool TryGetFreshCache(DateTime cachedUtc, TimeSpan lifetime, JToken cache, out JToken clone)
+        private static JToken ParseJsonToken(string json)
         {
-            if (cache != null && DateTime.UtcNow - cachedUtc <= lifetime)
-            {
-                clone = cache.DeepClone();
-                return true;
-            }
-
-            clone = null;
-            return false;
+            return string.IsNullOrWhiteSpace(json) ? JValue.CreateNull() : JToken.Parse(json);
         }
 
-        private static JToken CloneToken(JToken source)
+        private static JObject NormalizeNamedArrayPayload(JToken payload, params string[] preferredKeys)
         {
-            return source?.DeepClone();
+            if (payload is JObject obj)
+            {
+                if (preferredKeys.Length >= 2 && obj[preferredKeys[0]] is JArray primary && obj[preferredKeys[1]] == null)
+                    obj[preferredKeys[1]] = primary.DeepClone();
+                else if (preferredKeys.Length >= 2 && obj[preferredKeys[1]] is JArray secondary && obj[preferredKeys[0]] == null)
+                    obj[preferredKeys[0]] = secondary.DeepClone();
+
+                if (preferredKeys.Length >= 1 && obj[preferredKeys[0]] == null)
+                    obj[preferredKeys[0]] = new JArray();
+
+                return obj;
+            }
+
+            var array = payload as JArray ?? new JArray();
+            var normalized = new JObject();
+            foreach (var key in preferredKeys)
+                normalized[key] = array.DeepClone();
+
+            normalized["count"] = array.Count;
+            return normalized;
         }
 
         /// <summary>
@@ -172,7 +203,7 @@ namespace HyperBoostX.Services
                 var response = await _httpClient.GetAsync($"{_baseUrl}/api/tweaks/list");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(json);
+                return ParseJsonToken(json);
             }
             catch (Exception ex)
             {
@@ -196,7 +227,7 @@ namespace HyperBoostX.Services
                 var response = await _httpClient.PostAsync($"{_baseUrl}/api/tweaks/apply", content);
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(json);
+                return ParseJsonToken(json);
             }
             catch (Exception ex)
             {
@@ -214,7 +245,7 @@ namespace HyperBoostX.Services
                 var response = await _httpClient.GetAsync($"{_baseUrl}/api/booster/profiles");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(json);
+                return ParseJsonToken(json);
             }
             catch (Exception ex)
             {
@@ -238,7 +269,7 @@ namespace HyperBoostX.Services
                 var response = await _httpClient.PostAsync($"{_baseUrl}/api/booster/apply", content);
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(json);
+                return ParseJsonToken(json);
             }
             catch (Exception ex)
             {
@@ -256,7 +287,7 @@ namespace HyperBoostX.Services
                 var response = await _httpClient.GetAsync($"{_baseUrl}/api/drivers/list");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(json);
+                return ParseJsonToken(json);
             }
             catch (Exception ex)
             {
@@ -274,7 +305,7 @@ namespace HyperBoostX.Services
                 var response = await _httpClient.PostAsync($"{_baseUrl}/api/drivers/check-updates", null);
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(json);
+                return ParseJsonToken(json);
             }
             catch (Exception ex)
             {
@@ -292,7 +323,7 @@ namespace HyperBoostX.Services
                 var response = await _httpClient.PostAsync($"{_baseUrl}/api/repair/run-sfc", null);
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(json);
+                return ParseJsonToken(json);
             }
             catch (Exception ex)
             {
@@ -310,7 +341,7 @@ namespace HyperBoostX.Services
                 var response = await _httpClient.PostAsync($"{_baseUrl}/api/repair/cleanup", null);
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(json);
+                return ParseJsonToken(json);
             }
             catch (Exception ex)
             {
@@ -328,7 +359,7 @@ namespace HyperBoostX.Services
                 var response = await _httpClient.PostAsync($"{_baseUrl}/api/repair/run-dism", null);
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(json);
+                return ParseJsonToken(json);
             }
             catch (Exception ex)
             {
@@ -353,7 +384,7 @@ namespace HyperBoostX.Services
                 var response = await _httpClient.GetAsync($"{_baseUrl}/api/startup/list");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                var parsed = JToken.Parse(json);
+                var parsed = NormalizeNamedArrayPayload(ParseJsonToken(json), "startup_items", "items");
                 _cachedStartupItems = parsed;
                 _cachedStartupItemsUtc = DateTime.UtcNow;
                 return CloneToken(parsed);
@@ -388,7 +419,7 @@ namespace HyperBoostX.Services
                 var response = await _httpClient.GetAsync($"{_baseUrl}/api/system/processes");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                var parsed = JToken.Parse(json);
+                var parsed = NormalizeNamedArrayPayload(ParseJsonToken(json), "processes");
                 _cachedProcesses = parsed;
                 _cachedProcessesUtc = DateTime.UtcNow;
                 return CloneToken(parsed);
@@ -416,7 +447,7 @@ namespace HyperBoostX.Services
                 var response = await _httpClient.GetAsync($"{_baseUrl}/api/network/dns-test");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(json);
+                return ParseJsonToken(json);
             }
             catch (Exception ex)
             {
@@ -434,7 +465,7 @@ namespace HyperBoostX.Services
                 var response = await _httpClient.PostAsync($"{_baseUrl}/api/network/flush-dns", null);
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(json);
+                return ParseJsonToken(json);
             }
             catch (Exception ex)
             {
@@ -452,7 +483,7 @@ namespace HyperBoostX.Services
                 var response = await _httpClient.PostAsync($"{_baseUrl}/api/network/optimize-tcp", null);
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(json);
+                return ParseJsonToken(json);
             }
             catch (Exception ex)
             {
@@ -470,7 +501,7 @@ namespace HyperBoostX.Services
                 var response = await _httpClient.PostAsync($"{_baseUrl}/api/repair/reset-network", null);
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject(json);
+                return ParseJsonToken(json);
             }
             catch (Exception ex)
             {
@@ -495,6 +526,11 @@ namespace HyperBoostX.Services
 
         public void Dispose()
         {
+            _healthCheckLock.Dispose();
+            _systemStatsLock.Dispose();
+            _systemInfoLock.Dispose();
+            _startupItemsLock.Dispose();
+            _processesLock.Dispose();
             _httpClient?.Dispose();
         }
     }

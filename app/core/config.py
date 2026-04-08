@@ -13,7 +13,7 @@ class Config:
     """Application configuration handler."""
     
     APP_NAME = "HyperBoost X"
-    VERSION = "1.1.4"
+    VERSION = "1.1.5"
     
     # Default paths
     APP_DIR = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "HyperBoost X"

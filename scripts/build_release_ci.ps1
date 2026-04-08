@@ -13,7 +13,6 @@ $portableDir = Join-Path $releaseDir "app"
 $backendReleaseDir = Join-Path $releaseDir "backend"
 $launcherReleaseDir = Join-Path $releaseDir "launcher"
 $wpfReleaseDir = Join-Path $releaseDir "wpf"
-
 function Remove-IfExists {
     param([string]$PathValue)
     if (Test-Path $PathValue) {
@@ -66,13 +65,11 @@ Remove-IfExists $launcherReleaseDir
 Remove-IfExists $wpfReleaseDir
 Remove-IfExists $packageDir
 Remove-IfExists $portableDir
-
 Ensure-Dir $backendReleaseDir
 Ensure-Dir $launcherReleaseDir
 Ensure-Dir $wpfReleaseDir
 Ensure-Dir $packageDir
 Ensure-Dir $portableDir
-
 Write-Host "Building Python backend with PyInstaller..."
 Push-Location (Join-Path $projectRoot "app")
 try {
@@ -97,7 +94,7 @@ dotnet publish launcher\HyperBoostLauncher.csproj -c Release -r win-x64 --self-c
 Copy-Item "launcher\bin\Release\net8.0-windows\win-x64\publish\*" $launcherReleaseDir -Recurse -Force
 
 Write-Host "Publishing WPF..."
-dotnet publish wpf\HyperBoostX.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeAllContentForSelfExtract=true
+dotnet publish wpf\HyperBoostX.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=false
 Copy-Item "wpf\bin\Release\net8.0-windows\win-x64\publish\*" $wpfReleaseDir -Recurse -Force
 
 Write-Host "Assembling packaged release..."
@@ -109,14 +106,11 @@ Ensure-Dir (Join-Path $portableDir "runtime\wpf")
 
 Copy-Item (Join-Path $backendReleaseDir "hyperboost_backend.exe") (Join-Path $packageDir "backend\hyperboost_backend.exe") -Force
 Copy-Item (Join-Path $launcherReleaseDir "HyperBoostLauncher.exe") (Join-Path $packageDir "launcher\HyperBoostLauncher.exe") -Force
-Copy-Item (Join-Path $wpfReleaseDir "HyperBoostX.exe") (Join-Path $packageDir "wpf\HyperBoostX.exe") -Force
-if (Test-Path (Join-Path $wpfReleaseDir "HyperBoostX.pdb")) {
-    Copy-Item (Join-Path $wpfReleaseDir "HyperBoostX.pdb") (Join-Path $packageDir "wpf\HyperBoostX.pdb") -Force
-}
+Copy-Item (Join-Path $wpfReleaseDir "*") (Join-Path $packageDir "wpf") -Recurse -Force
 
 Copy-Item (Join-Path $launcherReleaseDir "HyperBoostLauncher.exe") (Join-Path $portableDir "HyperBoostX.exe") -Force
 Copy-Item (Join-Path $backendReleaseDir "hyperboost_backend.exe") (Join-Path $portableDir "runtime\backend\hyperboost_backend.exe") -Force
-Copy-Item (Join-Path $wpfReleaseDir "HyperBoostX.exe") (Join-Path $portableDir "runtime\wpf\HyperBoostUI.exe") -Force
+Copy-Item (Join-Path $wpfReleaseDir "*") (Join-Path $portableDir "runtime\wpf") -Recurse -Force
 
 Write-Host "Building installer..."
 $nsisExe = Get-NsisExe

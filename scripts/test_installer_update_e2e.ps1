@@ -96,7 +96,7 @@ function Invoke-Installer {
 function Assert-InstallLayout {
     $installDir = Join-Path $env:ProgramFiles "HyperBoost X"
     $launcherPath = Join-Path $installDir "HyperBoostX.exe"
-    $uiPath = Join-Path $installDir "runtime\wpf\HyperBoostUI.exe"
+    $uiPath = Join-Path $installDir "runtime\wpf\HyperBoostX.exe"
     $backendPath = Join-Path $installDir "runtime\backend\hyperboost_backend.exe"
 
     Require-Condition (Test-Path $launcherPath) "Installed launcher not found: $launcherPath"

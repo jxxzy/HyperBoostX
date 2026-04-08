@@ -47,7 +47,7 @@ Quick reference for the current HyperBoost X repository layout.
 - `release\app`
   - portable end-user layout
   - `HyperBoostX.exe`
-  - `runtime\wpf\HyperBoostUI.exe`
+  - `runtime\wpf\HyperBoostX.exe`
   - `runtime\backend\hyperboost_backend.exe`
 
 ## Runtime notes
