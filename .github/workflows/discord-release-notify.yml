@@ -9,7 +9,6 @@ on:
 jobs:
   notify-discord:
     runs-on: ubuntu-latest
-    if: ${{ secrets.DISCORD_RELEASE_WEBHOOK_URL != '' }}
     steps:
       - name: Send release notification to Discord
         env:
@@ -21,7 +20,10 @@ jobs:
           import os
           import urllib.request
 
-          webhook_url = os.environ["DISCORD_WEBHOOK_URL"]
+          webhook_url = (os.environ.get("DISCORD_WEBHOOK_URL") or "").strip()
+          if not webhook_url:
+              raise SystemExit("DISCORD_RELEASE_WEBHOOK_URL is not configured.")
+
           release = json.loads(os.environ.get("RELEASE_EVENT_JSON") or "{}")
           release_name = (release.get("name") or "").strip()
           release_tag = (release.get("tag_name") or "").strip()
