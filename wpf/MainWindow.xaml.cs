@@ -7322,8 +7322,23 @@ if (-not $result) { 'Unavailable'; return }
                 var selectedDrive = GetSelectedDrive(drives);
                 if (selectedDrive != null)
                 {
-                    StorageBreakdownText.Text = await BuildStorageBreakdownAsync(selectedDrive);
-                    StorageDeepAnalyzerText.Text = await BuildStorageAnalyzerAsync(selectedDrive, deep: false);
+                    try
+                    {
+                        StorageBreakdownText.Text = await BuildStorageBreakdownAsync(selectedDrive);
+                    }
+                    catch (Exception ex)
+                    {
+                        StorageBreakdownText.Text = $"Storage breakdown unavailable: {ex.GetType().Name}";
+                    }
+
+                    try
+                    {
+                        StorageDeepAnalyzerText.Text = await BuildStorageAnalyzerAsync(selectedDrive, deep: false);
+                    }
+                    catch (Exception ex)
+                    {
+                        StorageDeepAnalyzerText.Text = $"Storage analyzer unavailable: {ex.GetType().Name}";
+                    }
                 }
                 else
                 {
@@ -7394,16 +7409,33 @@ if (-not $result) { 'Unavailable'; return }
 
         private string GetDriveLabel(DriveInfo drive)
         {
-            var type = drive.DriveType switch
+            string type;
+            try
             {
-                DriveType.Fixed => "Internal Disk",
-                DriveType.Removable => "USB / Removable",
-                DriveType.Network => "Network Drive",
-                DriveType.CDRom => "Optical Drive",
-                _ => drive.DriveType.ToString()
-            };
+                type = drive.DriveType switch
+                {
+                    DriveType.Fixed => "Internal Disk",
+                    DriveType.Removable => "USB / Removable",
+                    DriveType.Network => "Network Drive",
+                    DriveType.CDRom => "Optical Drive",
+                    _ => drive.DriveType.ToString()
+                };
+            }
+            catch
+            {
+                type = "Unknown Drive";
+            }
 
-            var volume = string.IsNullOrWhiteSpace(drive.VolumeLabel) ? "(No Label)" : drive.VolumeLabel;
+            string volume;
+            try
+            {
+                volume = string.IsNullOrWhiteSpace(drive.VolumeLabel) ? "(No Label)" : drive.VolumeLabel;
+            }
+            catch
+            {
+                volume = "(Label Unavailable)";
+            }
+
             return $"{volume} - {type}";
         }
 
@@ -7433,18 +7465,36 @@ if (-not $result) { 'Unavailable'; return }
             var lines = new List<string>();
             foreach (var drive in drives)
             {
-                if (!drive.IsReady)
+                bool isReady;
+                try
+                {
+                    isReady = drive.IsReady;
+                }
+                catch (Exception ex)
+                {
+                    lines.Add($"{drive.Name} - {GetDriveLabel(drive)} | Drive info unavailable ({ex.GetType().Name})");
+                    continue;
+                }
+
+                if (!isReady)
                 {
                     lines.Add($"{drive.Name} - {GetDriveLabel(drive)} | Not ready");
                     continue;
                 }
 
-                var total = drive.TotalSize / 1024d / 1024d / 1024d;
-                var free = drive.TotalFreeSpace / 1024d / 1024d / 1024d;
-                var used = total - free;
-                var usedPercent = total > 0 ? used / total * 100 : 0;
-                lines.Add($"{drive.Name} - {GetDriveLabel(drive)}");
-                lines.Add($"  Total {total:0.0} GB | Used {used:0.0} GB | Free {free:0.0} GB | {usedPercent:0}% used | FS {drive.DriveFormat}");
+                try
+                {
+                    var total = drive.TotalSize / 1024d / 1024d / 1024d;
+                    var free = drive.TotalFreeSpace / 1024d / 1024d / 1024d;
+                    var used = total - free;
+                    var usedPercent = total > 0 ? used / total * 100 : 0;
+                    lines.Add($"{drive.Name} - {GetDriveLabel(drive)}");
+                    lines.Add($"  Total {total:0.0} GB | Used {used:0.0} GB | Free {free:0.0} GB | {usedPercent:0}% used | FS {drive.DriveFormat}");
+                }
+                catch (Exception ex)
+                {
+                    lines.Add($"{drive.Name} - {GetDriveLabel(drive)} | Drive metrics unavailable ({ex.GetType().Name})");
+                }
             }
 
             return string.Join(Environment.NewLine, lines);
@@ -7458,15 +7508,33 @@ if (-not $result) { 'Unavailable'; return }
             var lines = new List<string>();
             foreach (var drive in drives)
             {
-                if (!drive.IsReady)
+                bool isReady;
+                try
+                {
+                    isReady = drive.IsReady;
+                }
+                catch (Exception ex)
+                {
+                    lines.Add($"{drive.Name} | Warning | Drive info unavailable ({ex.GetType().Name})");
+                    continue;
+                }
+
+                if (!isReady)
                 {
                     lines.Add($"{drive.Name} | Warning | Not accessible / Not ready");
                     continue;
                 }
 
-                var usedPercent = drive.TotalSize > 0 ? ((double)(drive.TotalSize - drive.TotalFreeSpace) / drive.TotalSize) * 100 : 0;
-                var health = usedPercent >= 95 ? "Critical" : usedPercent >= 85 ? "Warning" : "Healthy";
-                lines.Add($"{drive.Name} | {health} | {(drive.IsReady ? "Available" : "Not accessible")} | {drive.DriveFormat} | {(drive.DriveType == DriveType.Network ? "Mapped / Read-Write varies" : "Read/Write")}");
+                try
+                {
+                    var usedPercent = drive.TotalSize > 0 ? ((double)(drive.TotalSize - drive.TotalFreeSpace) / drive.TotalSize) * 100 : 0;
+                    var health = usedPercent >= 95 ? "Critical" : usedPercent >= 85 ? "Warning" : "Healthy";
+                    lines.Add($"{drive.Name} | {health} | Available | {drive.DriveFormat} | {(drive.DriveType == DriveType.Network ? "Mapped / Read-Write varies" : "Read/Write")}");
+                }
+                catch (Exception ex)
+                {
+                    lines.Add($"{drive.Name} | Warning | Drive metrics unavailable ({ex.GetType().Name})");
+                }
             }
 
             return string.Join(Environment.NewLine, lines);
@@ -7475,13 +7543,22 @@ if (-not $result) { 'Unavailable'; return }
         private string BuildStorageRecommendation(List<DriveInfo> drives)
         {
             var lines = new List<string>();
-            foreach (var drive in drives.Where(x => x.IsReady))
+            foreach (var drive in drives)
             {
-                var total = drive.TotalSize / 1024d / 1024d / 1024d;
-                var free = drive.TotalFreeSpace / 1024d / 1024d / 1024d;
-                var usedPercent = total > 0 ? ((total - free) / total) * 100 : 0;
-                if (usedPercent >= 90) lines.Add($"- Drive {drive.Name} hampir penuh.");
-                if (drive.DriveType == DriveType.Removable) lines.Add($"- Removable storage {drive.Name} sebaiknya di-scan untuk file besar / duplicate.");
+                try
+                {
+                    if (!drive.IsReady)
+                        continue;
+
+                    var total = drive.TotalSize / 1024d / 1024d / 1024d;
+                    var free = drive.TotalFreeSpace / 1024d / 1024d / 1024d;
+                    var usedPercent = total > 0 ? ((total - free) / total) * 100 : 0;
+                    if (usedPercent >= 90) lines.Add($"- Drive {drive.Name} hampir penuh.");
+                    if (drive.DriveType == DriveType.Removable) lines.Add($"- Removable storage {drive.Name} sebaiknya di-scan untuk file besar / duplicate.");
+                }
+                catch
+                {
+                }
             }
 
             if (lines.Count == 0)
@@ -10164,9 +10241,17 @@ if (-not $result) { 'Unavailable'; return }
 
         private string BuildNetworkAdapterSummary()
         {
-            var adapters = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces()
-                .Where(x => x.NetworkInterfaceType != System.Net.NetworkInformation.NetworkInterfaceType.Loopback)
-                .ToList();
+            List<System.Net.NetworkInformation.NetworkInterface> adapters;
+            try
+            {
+                adapters = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces()
+                    .Where(x => x.NetworkInterfaceType != System.Net.NetworkInformation.NetworkInterfaceType.Loopback)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                return $"Adapter summary unavailable: {ex.GetType().Name}";
+            }
 
             if (adapters.Count == 0)
                 return "Tidak ada adapter jaringan yang terdeteksi.";
@@ -10174,10 +10259,17 @@ if (-not $result) { 'Unavailable'; return }
             var lines = new List<string>();
             foreach (var adapter in adapters.Take(8))
             {
-                var props = adapter.GetIPProperties();
-                var ip = props.UnicastAddresses
-                    .FirstOrDefault(x => x.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)?.Address.ToString() ?? "-";
-                lines.Add($"{adapter.Name} | {adapter.NetworkInterfaceType} | {adapter.OperationalStatus} | {adapter.Speed / 1_000_000} Mbps | {ip}");
+                try
+                {
+                    var props = adapter.GetIPProperties();
+                    var ip = props.UnicastAddresses
+                        .FirstOrDefault(x => x.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)?.Address.ToString() ?? "-";
+                    lines.Add($"{adapter.Name} | {adapter.NetworkInterfaceType} | {adapter.OperationalStatus} | {adapter.Speed / 1_000_000} Mbps | {ip}");
+                }
+                catch (Exception ex)
+                {
+                    lines.Add($"{adapter.Name} | Adapter info unavailable ({ex.GetType().Name})");
+                }
             }
 
             return string.Join(Environment.NewLine, lines);
@@ -10186,40 +10278,73 @@ if (-not $result) { 'Unavailable'; return }
         private string BuildBandwidthMonitorText()
         {
             var interesting = new[] { "chrome", "msedge", "steam", "discord", "obs64", "streamlabs", "tiktoklive", "onedrive", "googledrivefs", "dropbox" };
-            var processes = Process.GetProcesses()
-                .Where(p =>
-                {
-                    try { return interesting.Any(x => p.ProcessName.Contains(x, StringComparison.OrdinalIgnoreCase)); }
-                    catch { return false; }
-                })
-                .OrderByDescending(p =>
-                {
-                    try { return p.WorkingSet64; }
-                    catch { return 0; }
-                })
-                .Take(8)
-                .ToList();
+            List<Process> processes;
+            try
+            {
+                processes = Process.GetProcesses()
+                    .Where(p =>
+                    {
+                        try { return interesting.Any(x => p.ProcessName.Contains(x, StringComparison.OrdinalIgnoreCase)); }
+                        catch { return false; }
+                    })
+                    .OrderByDescending(p =>
+                    {
+                        try { return p.WorkingSet64; }
+                        catch { return 0; }
+                    })
+                    .Take(8)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                return $"Bandwidth monitor unavailable: {ex.GetType().Name}";
+            }
 
             if (processes.Count == 0)
                 return "Tidak ada app internet-heavy yang terdeteksi saat ini.";
 
             return string.Join(Environment.NewLine, processes.Select(p =>
             {
-                var memory = p.WorkingSet64 / 1024d / 1024d;
-                return $"{p.ProcessName}.exe | Basic usage estimate | RAM {memory:0} MB";
+                try
+                {
+                    var memory = p.WorkingSet64 / 1024d / 1024d;
+                    return $"{p.ProcessName}.exe | Basic usage estimate | RAM {memory:0} MB";
+                }
+                catch (Exception ex)
+                {
+                    return $"Process sample unavailable ({ex.GetType().Name})";
+                }
             }));
         }
 
         private string BuildWifiText()
         {
-            var wifi = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces()
-                .Where(x => x.NetworkInterfaceType == System.Net.NetworkInformation.NetworkInterfaceType.Wireless80211)
-                .ToList();
+            List<System.Net.NetworkInformation.NetworkInterface> wifi;
+            try
+            {
+                wifi = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces()
+                    .Where(x => x.NetworkInterfaceType == System.Net.NetworkInformation.NetworkInterfaceType.Wireless80211)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                return $"WiFi summary unavailable: {ex.GetType().Name}";
+            }
 
             if (wifi.Count == 0)
                 return "WiFi adapter tidak terdeteksi. Gunakan Ethernet / adapter lain.";
 
-            return string.Join(Environment.NewLine, wifi.Select(x => $"{x.Name} | {x.OperationalStatus} | Signal/channel optimization basic only"));
+            return string.Join(Environment.NewLine, wifi.Select(x =>
+            {
+                try
+                {
+                    return $"{x.Name} | {x.OperationalStatus} | Signal/channel optimization basic only";
+                }
+                catch (Exception ex)
+                {
+                    return $"WiFi adapter unavailable ({ex.GetType().Name})";
+                }
+            }));
         }
 
         private string BuildNetworkRecommendation(dynamic dns)
@@ -10260,11 +10385,24 @@ if (-not $result) { 'Unavailable'; return }
             {
             }
 
-            var active = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces()
-                .Where(x => x.OperationalStatus == System.Net.NetworkInformation.OperationalStatus.Up &&
-                            x.NetworkInterfaceType != System.Net.NetworkInformation.NetworkInterfaceType.Loopback)
-                .ToList();
-            var download = active.Sum(x => Math.Max(0, x.Speed)) / 1_000_000d;
+            List<System.Net.NetworkInformation.NetworkInterface> active;
+            try
+            {
+                active = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces()
+                    .Where(x => x.OperationalStatus == System.Net.NetworkInformation.OperationalStatus.Up &&
+                                x.NetworkInterfaceType != System.Net.NetworkInformation.NetworkInterfaceType.Loopback)
+                    .ToList();
+            }
+            catch
+            {
+                active = new List<System.Net.NetworkInformation.NetworkInterface>();
+            }
+
+            var download = active.Sum(x =>
+            {
+                try { return Math.Max(0, x.Speed); }
+                catch { return 0; }
+            }) / 1_000_000d;
             var upload = Math.Max(5, download * 0.15);
 
             return
@@ -10278,28 +10416,47 @@ if (-not $result) { 'Unavailable'; return }
 
         private async Task RefreshNetworkBoosterViewAsync()
         {
-            var dns = await SafeApiCall(() => _backendClient.TestDnsAsync());
-            NetworkStatusText.Text = BuildRealtimeNetworkStatus(dns);
-            NetworkAdapterText.Text = BuildNetworkAdapterSummary();
-            NetworkBandwidthText.Text = BuildBandwidthMonitorText();
-            NetworkWifiText.Text = BuildWifiText();
-            NetworkRecommendationText.Text = BuildNetworkRecommendation(dns);
-            if (_networkHistory.Count == 0)
+            try
             {
-                AppendNetworkHistory("Network monitor initialized.");
+                var dns = await SafeApiCall(() => _backendClient.TestDnsAsync());
+                NetworkStatusText.Text = BuildRealtimeNetworkStatus(dns);
+                NetworkAdapterText.Text = BuildNetworkAdapterSummary();
+                NetworkBandwidthText.Text = BuildBandwidthMonitorText();
+                NetworkWifiText.Text = BuildWifiText();
+                NetworkRecommendationText.Text = BuildNetworkRecommendation(dns);
+                if (_networkHistory.Count == 0)
+                {
+                    AppendNetworkHistory("Network monitor initialized.");
+                }
+            }
+            catch (Exception ex)
+            {
+                NetworkStatusText.Text = $"Network status unavailable: {ex.GetType().Name}";
+                NetworkAdapterText.Text = "Adapter summary unavailable.";
+                NetworkBandwidthText.Text = "Bandwidth monitor unavailable.";
+                NetworkWifiText.Text = "WiFi summary unavailable.";
+                NetworkRecommendationText.Text = "Retry network diagnostics after runtime dependencies are ready.";
+                AppendNetworkHistory($"Network refresh warning: {ex.GetType().Name}");
             }
         }
 
         private async Task RefreshNetworkDiagnostics()
         {
-            var dns = await SafeApiCall(() => _backendClient.TestDnsAsync());
-            if (dns == null)
+            try
             {
-                NetworkDiagnosticsText.Text = "Unable to load network diagnostics.";
-                return;
-            }
+                var dns = await SafeApiCall(() => _backendClient.TestDnsAsync());
+                if (dns == null)
+                {
+                    NetworkDiagnosticsText.Text = "Unable to load network diagnostics.";
+                    return;
+                }
 
-            NetworkDiagnosticsText.Text = FormatNetworkDiagnostics(dns);
+                NetworkDiagnosticsText.Text = FormatNetworkDiagnostics(dns);
+            }
+            catch (Exception ex)
+            {
+                NetworkDiagnosticsText.Text = $"Network diagnostics unavailable: {ex.GetType().Name}";
+            }
         }
 
         private async void BoostNetworkNow_Click(object sender, RoutedEventArgs e)
