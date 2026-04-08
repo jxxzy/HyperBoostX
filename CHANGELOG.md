@@ -2,6 +2,22 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.1.0-beta.4 - 2026-04-08
+
+### Added
+- `tests\test_shell_util.py` to verify admin-required commands return a clear message when HyperBoost X is not elevated.
+
+### Changed
+- Updated runtime/app metadata from `1.1.0-beta.3` to `1.1.0-beta.4`.
+- Improved `ShellUtil.execute_command(..., admin=True)` so blocked admin commands now return a clear privilege message instead of a misleading generic shell failure.
+- Added a more consistent PowerShell invocation profile for admin-targeted shell execution.
+
+### Validation
+- `app\venv\Scripts\pytest.exe tests/test_shell_util.py tests/test_startup_api.py tests/test_monitor_service.py tests/test_health_api.py`
+
+### Notes
+- This hotfix is mainly for clearer runtime diagnostics in non-admin sessions.
+
 ## v1.1.0-beta.3 - 2026-04-08
 
 ### Added

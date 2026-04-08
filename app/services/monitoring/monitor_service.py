@@ -27,6 +27,8 @@ class MonitorService:
     _last_gpu_snapshot_utc = 0.0
     _last_temperature_snapshot = {}
     _last_temperature_snapshot_utc = 0.0
+    _last_stats_snapshot = {}
+    _last_stats_snapshot_utc = 0.0
 
     @classmethod
     def _get_system_drive_root(cls) -> str:
@@ -74,6 +76,9 @@ class MonitorService:
     @classmethod
     def get_current_stats(cls) -> Dict:
         """Get current system statistics (non-blocking)."""
+        if cls._last_stats_snapshot and (time.time() - cls._last_stats_snapshot_utc) <= 2.5:
+            return dict(cls._last_stats_snapshot)
+
         try:
             cpu_freq = psutil.cpu_freq()
             cpu_percent = psutil.cpu_percent(interval=0)
@@ -81,11 +86,12 @@ class MonitorService:
             vm = psutil.virtual_memory()
             root = psutil.disk_usage(cls._get_system_drive_root())
             deltas = cls._delta_counters()
+            net_io = psutil.net_io_counters()
 
             gpu_info = cls.get_gpu_stats()
             temperatures = cls.get_temperature_info()
 
-            return {
+            snapshot = {
                 "cpu": cpu_percent,
                 "cpu_freq": cpu_freq.current / 1000 if cpu_freq else 0,
                 "cpu_freq_max": cpu_freq.max / 1000 if cpu_freq else 0,
@@ -102,14 +108,19 @@ class MonitorService:
                 "disk_write_mb_s": deltas["disk_write_mb_s"],
                 "network_download_mb_s": deltas["net_download_mb_s"],
                 "network_upload_mb_s": deltas["net_upload_mb_s"],
-                "network": psutil.net_io_counters().bytes_recv + psutil.net_io_counters().bytes_sent,
+                "network": net_io.bytes_recv + net_io.bytes_sent,
                 "processes": len(psutil.pids()),
                 "boot_time": psutil.boot_time(),
                 "temperatures": temperatures,
                 "gpu": gpu_info,
             }
+            cls._last_stats_snapshot = snapshot
+            cls._last_stats_snapshot_utc = time.time()
+            return snapshot
         except Exception as e:
             logger.error(f"Error getting current stats: {e}")
+            if cls._last_stats_snapshot:
+                return dict(cls._last_stats_snapshot)
             return {
                 "cpu": 0,
                 "cpu_freq": 0,

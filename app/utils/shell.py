@@ -6,6 +6,7 @@ Provides system shell command execution.
 import subprocess
 from typing import Tuple, Optional
 from core.logger import Logger
+from core.permissions import Permissions
 
 
 logger = Logger.get_logger(__name__)
@@ -18,10 +19,14 @@ class ShellUtil:
     def execute_command(command: str, admin: bool = False) -> Tuple[bool, str]:
         """Execute shell command."""
         try:
+            if admin and not Permissions.is_admin():
+                message = "This action requires administrator privileges. Run HyperBoost X as Administrator."
+                logger.warning(f"Admin command blocked without elevation: {command}")
+                return False, message
+
             if admin:
-                # Run with admin privileges
                 process = subprocess.Popen(
-                    ['powershell', '-Command', command],
+                    ['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', command],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=True
@@ -41,9 +46,13 @@ class ShellUtil:
             if success:
                 logger.info(f"Command executed: {command}")
             else:
-                logger.error(f"Command failed: {command} - {stderr}")
+                stderr = (stderr or "").strip()
+                stdout = (stdout or "").strip()
+                details = stderr or stdout or "Command failed without output."
+                logger.error(f"Command failed: {command} - {details}")
             
-            return success, stdout if success else stderr
+            output = (stdout or "").strip() if success else ((stderr or "").strip() or (stdout or "").strip())
+            return success, output
         except Exception as e:
             logger.error(f"Failed to execute command: {e}")
             return False, str(e)

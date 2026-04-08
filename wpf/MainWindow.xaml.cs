@@ -277,7 +277,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.1.0-beta.3";
+            ?? "1.1.0-beta.4";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -1933,7 +1933,7 @@ namespace HyperBoostX
                 ["Automation Mode"] = _automationMode,
                 ["Policy Profile"] = _automationPolicyProfile,
                 ["User Mode"] = _settingsUserMode,
-                ["App Version"] = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown",
+                ["App Version"] = NormalizeDiscordReportVersion(_currentAppVersion),
                 ["Time"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
             };
 
@@ -1941,6 +1941,18 @@ namespace HyperBoostX
                 fields["Details"] = meta;
 
             return fields;
+        }
+
+        private static string NormalizeDiscordReportVersion(string version)
+        {
+            var normalized = string.IsNullOrWhiteSpace(version)
+                ? "unknown"
+                : version.Split('+')[0].Trim();
+
+            if (string.Equals(normalized, "unknown", StringComparison.OrdinalIgnoreCase))
+                return normalized;
+
+            return normalized.StartsWith("v", StringComparison.OrdinalIgnoreCase) ? normalized : $"v{normalized}";
         }
 
         private void RefreshDiscordPreview(string severity = "error", string title = "Sample HyperBoostX error", string message = "Preview of the Discord error payload.")

@@ -28,6 +28,24 @@ namespace HyperBoostX
         private readonly Dictionary<string, DateTime> _discordReportCooldown = new Dictionary<string, DateTime>(StringComparer.OrdinalIgnoreCase);
         private bool _logScanInProgress;
 
+        private static string GetPublicAppVersion()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var informational = assembly
+                .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
+                .OfType<AssemblyInformationalVersionAttribute>()
+                .FirstOrDefault()?.InformationalVersion;
+
+            var version = string.IsNullOrWhiteSpace(informational)
+                ? assembly.GetName().Version?.ToString()
+                : informational.Split('+')[0].Trim();
+
+            if (string.IsNullOrWhiteSpace(version))
+                return "unknown";
+
+            return version.StartsWith("v", StringComparison.OrdinalIgnoreCase) ? version : $"v{version}";
+        }
+
         public App()
         {
             DispatcherUnhandledException += App_DispatcherUnhandledException;
@@ -107,7 +125,7 @@ namespace HyperBoostX
                 if (!ShouldSendForSeverity("critical", settings.MinimumLevel))
                     return;
 
-                var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
+                var version = GetPublicAppVersion();
                 var signature = $"critical|{source}|{details}";
                 if (!ShouldSendByCooldown(signature, settings.CooldownSeconds))
                     return;
@@ -193,7 +211,7 @@ namespace HyperBoostX
                             ["Source Log"] = Path.GetFileName(logPath),
                             ["Severity"] = severity,
                             ["Recent Context"] = contextBlock,
-                            ["App Version"] = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown",
+                            ["App Version"] = GetPublicAppVersion(),
                             ["Timestamp"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                         });
                 }

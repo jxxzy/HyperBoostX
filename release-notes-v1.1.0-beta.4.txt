@@ -1,0 +1,38 @@
+## HyperBoost X v1.1.0-beta.4
+
+`v1.1.0-beta.4` is a small hotfix prerelease on top of `v1.1.0-beta.3`. Its goal is to make admin-required runtime actions fail more clearly and predictably when the app is not launched with elevated privileges.
+
+## Recommended download
+
+For most users, the recommended file is:
+
+- `HyperBoostXInstaller-v1.1.0-beta.4.exe`
+
+Other assets:
+
+- `HyperBoostX-Portable-v1.1.0-beta.4.zip`
+- `HyperBoostX-Package-v1.1.0-beta.4.zip`
+- `SHA256SUMS.txt`
+
+## Release focus
+
+- clarify why commands like `netsh` fail when the app is not running as Administrator
+- reduce false bug signals in logs by returning a direct privilege message
+- preserve all `beta.3` runtime hardening and audit fixes
+
+## Highlights
+
+### Clearer admin command behavior
+
+- admin-targeted shell commands now check elevation first
+- non-admin sessions return a clear message that Administrator privileges are required
+- backend logs become easier to interpret during network, repair, and power-related actions
+
+### Validation
+
+- `app\venv\Scripts\pytest.exe tests/test_shell_util.py tests/test_startup_api.py tests/test_monitor_service.py tests/test_health_api.py`
+
+## Notes
+
+- this is still a prerelease
+- to actually apply `netsh`, `powercfg`, and similar system changes, HyperBoost X still needs to be run as Administrator

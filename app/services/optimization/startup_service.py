@@ -6,6 +6,7 @@ import json
 import os
 import re
 import subprocess
+import time
 import winreg
 from pathlib import Path
 from typing import List, Dict, Any, Optional
@@ -21,6 +22,11 @@ logger = Logger.get_logger(__name__)
 class StartupService:
     """Service for managing startup items and boot optimization."""
 
+    _cache_items: List[Dict[str, Any]] = []
+    _cache_utc = 0.0
+    _cache_lifetime_seconds = 30.0
+    _subprocess_timeout_seconds = 4.0
+
     SAFE_DISABLE_TOKENS = [
         "onedrive", "teams", "widgets", "spotify", "discord", "steam",
         "adobe", "launcher", "update", "updater", "epic", "dropbox"
@@ -34,6 +40,9 @@ class StartupService:
     @staticmethod
     def get_startup_items() -> List[Dict[str, Any]]:
         """Get list of startup items from registry, startup folders, tasks, and services."""
+        if StartupService._cache_items and (time.time() - StartupService._cache_utc) <= StartupService._cache_lifetime_seconds:
+            return [dict(item) for item in StartupService._cache_items]
+
         items: List[Dict[str, Any]] = []
         seen = set()
 
@@ -59,6 +68,8 @@ class StartupService:
         items.extend(StartupService._read_startup_services(seen))
 
         items.sort(key=lambda item: (item["source"], item["name"].lower()))
+        StartupService._cache_items = [dict(item) for item in items]
+        StartupService._cache_utc = time.time()
         return items
 
     @staticmethod
@@ -150,6 +161,7 @@ class StartupService:
                 stderr=subprocess.DEVNULL,
                 encoding="utf-8",
                 errors="ignore",
+                timeout=StartupService._subprocess_timeout_seconds,
             )
             reader = csv.DictReader(io.StringIO(output))
             for row in reader:
@@ -176,6 +188,9 @@ class StartupService:
                         command=task_to_run or task_name,
                     )
                 )
+        except subprocess.TimeoutExpired as exc:
+            logger.warning(f"Timed out reading scheduled tasks with schtasks: {exc}")
+            items.extend(StartupService._read_scheduled_tasks_basic(seen))
         except Exception as exc:
             logger.warning(f"Unable to read scheduled tasks with schtasks: {exc}")
             items.extend(StartupService._read_scheduled_tasks_powershell(seen))
@@ -199,6 +214,7 @@ class StartupService:
                 stderr=subprocess.DEVNULL,
                 encoding="utf-8",
                 errors="ignore",
+                timeout=StartupService._subprocess_timeout_seconds,
             ).strip()
             if not output:
                 return items
@@ -230,6 +246,8 @@ class StartupService:
                         command=execute or task_name,
                     )
                 )
+        except subprocess.TimeoutExpired as exc:
+            logger.warning(f"Timed out reading scheduled tasks with PowerShell fallback: {exc}")
         except Exception as exc:
             logger.warning(f"Unable to read scheduled tasks with PowerShell fallback: {exc}")
 
@@ -245,6 +263,7 @@ class StartupService:
                 capture_output=True,
                 encoding="utf-8",
                 errors="ignore",
+                timeout=max(2.0, StartupService._subprocess_timeout_seconds - 1.0),
             )
             output = process.stdout
             reader = csv.DictReader(io.StringIO(output))
@@ -269,6 +288,8 @@ class StartupService:
                         command=task_name,
                     )
                 )
+        except subprocess.TimeoutExpired as exc:
+            logger.warning(f"Timed out reading scheduled tasks with basic schtasks fallback: {exc}")
         except Exception as exc:
             logger.warning(f"Unable to read scheduled tasks with basic schtasks fallback: {exc}")
 
