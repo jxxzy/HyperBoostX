@@ -238,6 +238,7 @@ namespace HyperBoostX
         private string _lastTestingMetricsSummary = "Performance / stress / stability metrics will appear here.";
         private string _lastTestingCompatibilitySummary = "Compatibility and security review will appear here.";
         private DateTime? _lastFeatureAuditUtc;
+        private DateTime? _featureAuditRunStartedUtc;
         private bool _featureAuditRunning;
         private bool _featureAuditCancellationRequested;
         private readonly Queue<string> _settingsHistory = new();
@@ -14374,10 +14375,26 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
         {
             var effectiveLookback = lookback ?? TimeSpan.FromMinutes(30);
             var cutoff = DateTime.UtcNow - effectiveLookback;
+            if (_featureAuditRunStartedUtc.HasValue && _featureAuditRunStartedUtc.Value > cutoff)
+                cutoff = _featureAuditRunStartedUtc.Value;
 
             return _featureAuditIncidents
                 .Where(item => item.TimestampUtc >= cutoff)
                 .Where(item => string.Equals(item.TargetName, targetName, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(item => item.TimestampUtc)
+                .ToList();
+        }
+
+        private IReadOnlyList<FeatureAuditIncident> GetRuntimeMonitorIncidents(TimeSpan? lookback = null)
+        {
+            var effectiveLookback = lookback ?? TimeSpan.FromMinutes(30);
+            var cutoff = DateTime.UtcNow - effectiveLookback;
+            if (_featureAuditRunStartedUtc.HasValue && _featureAuditRunStartedUtc.Value > cutoff)
+                cutoff = _featureAuditRunStartedUtc.Value;
+
+            return _featureAuditIncidents
+                .Where(item => item.TimestampUtc >= cutoff)
+                .Where(item => string.IsNullOrWhiteSpace(item.TargetName))
                 .OrderByDescending(item => item.TimestampUtc)
                 .ToList();
         }
@@ -15118,10 +15135,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                 var incidents = GetRelevantFeatureAuditIncidents(target.Name);
                 if (string.Equals(target.Name, "Runtime Error Monitor", StringComparison.OrdinalIgnoreCase))
                 {
-                    incidents = _featureAuditIncidents
-                        .Where(item => item.TimestampUtc >= DateTime.UtcNow - TimeSpan.FromMinutes(30))
-                        .OrderByDescending(item => item.TimestampUtc)
-                        .ToList();
+                    incidents = GetRuntimeMonitorIncidents();
                 }
 
                 if (incidents.Count > 0)
@@ -15153,7 +15167,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                     Name = target.Name,
                     Success = false,
                     DurationMs = stopwatch.ElapsedMilliseconds,
-                    Details = TrimFeatureAuditText(ex.Message)
+                    Details = TrimFeatureAuditText(string.IsNullOrWhiteSpace(ex.Message) ? ex.GetType().Name : $"{ex.GetType().Name}: {ex.Message}")
                 };
             }
         }
@@ -15290,6 +15304,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             _featureAuditCancellationRequested = false;
             _lastFeatureAuditMode = fullAudit ? "Full" : "Quick";
             _lastFeatureAuditUtc = DateTime.UtcNow;
+            _featureAuditRunStartedUtc = DateTime.UtcNow;
             _lastFeatureAuditResults.Clear();
             AppendFeatureAuditHistory($"{_lastFeatureAuditMode} feature audit started.");
 
@@ -15343,6 +15358,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             {
                 _featureAuditRunning = false;
                 _featureAuditCancellationRequested = false;
+                _featureAuditRunStartedUtc = null;
                 await RefreshFeatureAuditViewIfVisibleAsync();
             }
         }
@@ -15388,6 +15404,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             _lastTestingSuite = suiteName;
             _lastFeatureAuditMode = $"{suiteName} Suite";
             _lastFeatureAuditUtc = DateTime.UtcNow;
+            _featureAuditRunStartedUtc = DateTime.UtcNow;
             _lastFeatureAuditResults.Clear();
             UpdateTestingStaticSummaries();
             AppendFeatureAuditHistory($"{suiteName} testing suite started in {_testingExecutionMode} mode.");
@@ -15444,6 +15461,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             {
                 _featureAuditRunning = false;
                 _featureAuditCancellationRequested = false;
+                _featureAuditRunStartedUtc = null;
                 await RefreshFeatureAuditViewIfVisibleAsync();
             }
         }
@@ -15475,6 +15493,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             _lastTestingSuite = "Full QA Matrix";
             _lastFeatureAuditMode = "Full QA Matrix";
             _lastFeatureAuditUtc = DateTime.UtcNow;
+            _featureAuditRunStartedUtc = DateTime.UtcNow;
             _lastFeatureAuditResults.Clear();
             UpdateTestingStaticSummaries();
             AppendFeatureAuditHistory("Full QA Matrix started.");
@@ -15536,6 +15555,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             {
                 _featureAuditRunning = false;
                 _featureAuditCancellationRequested = false;
+                _featureAuditRunStartedUtc = null;
                 await RefreshFeatureAuditViewIfVisibleAsync();
             }
         }
