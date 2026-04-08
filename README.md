@@ -3,7 +3,7 @@
 HyperBoost X is a Windows optimization suite with a native WPF desktop client, a Python backend, and a .NET launcher. The current stable release turns the app into a single control center for performance, cleanup, automation, repair, AI-assisted actions, and recovery.
 
 Current stable version:
-- `1.1.3`
+- `1.1.4`
 
 Author:
 - `MR.4NONY`
@@ -41,6 +41,12 @@ HyperBoost X is built from three main parts:
 - Installer upgrade flow that removes the old app version while preserving user config/state
 - Secure secret persistence for OpenAI and Discord via Windows Credential Manager
 - About App donation shortcut via Sociabuzz
+
+## What changed in `1.1.4`
+
+- Hardened `Feature Audit` for `Network Booster` and `Storage` so transient adapter/drive access issues no longer fail the whole audit run
+- Improved fallback text inside audit snapshots so partial runtime issues are reported as degraded data instead of generic false failures
+- Synced installer, launcher, backend, and update metadata to `1.1.4`
 
 ## What changed in `1.1.3`
 
@@ -150,7 +156,7 @@ Useful flags:
 
 - Portable app: `release\app\HyperBoostX.exe`
 - Installer: `HyperBoostXInstaller.exe`
-- GitHub release: `v1.1.3`
+- GitHub release: `v1.1.4`
 
 ## Documentation
 
@@ -159,4 +165,4 @@ Useful flags:
 
 ## Release status
 
-`v1.1.3` is the current stable release. Ongoing work after this milestone remains focused on deeper cross-machine validation, admin-required flows, installer/update polish, and long-run UI/runtime hardening.
+`v1.1.4` is the current stable release. Ongoing work after this milestone remains focused on deeper cross-machine validation, admin-required flows, installer/update polish, and long-run UI/runtime hardening.

@@ -1,0 +1,11 @@
+HyperBoostX v1.1.4
+
+Stable hotfix release for the remaining Feature Audit failures.
+
+Highlights
+- Hardened Feature Audit for Network Booster so transient adapter and process inspection issues no longer fail the audit
+- Hardened Feature Audit for Storage so transient drive metadata and analyzer issues degrade gracefully instead of throwing
+- Synced installer, launcher, backend, and update metadata to `1.1.4`
+
+Validation
+- dotnet build wpf\HyperBoostX.csproj -c Release

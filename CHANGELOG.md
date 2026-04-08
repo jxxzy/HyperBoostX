@@ -17,6 +17,19 @@ All notable changes to HyperBoostX are documented here.
 ### Notes
 - This hotfix focuses on more trustworthy audit results, clearer OpenAI failure diagnostics, and accurate in-app update detection.
 
+## v1.1.4 - 2026-04-08
+
+### Changed
+- Hardened `Feature Audit` for `Network Booster` so transient adapter/process inspection failures degrade gracefully instead of failing the audit.
+- Hardened `Feature Audit` for `Storage` so transient drive-label, drive-metric, and analyzer failures no longer crash the target audit pass.
+- Updated runtime/app metadata from `1.1.3` to `1.1.4`.
+
+### Validation
+- `dotnet build wpf\\HyperBoostX.csproj -c Release`
+
+### Notes
+- This hotfix focuses on stabilizing the remaining `Feature Audit` runtime refresh paths in the desktop app.
+
 ## v1.1.2 - 2026-04-08
 
 ### Changed
