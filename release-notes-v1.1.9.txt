@@ -1,0 +1,10 @@
+HyperBoostX v1.1.9
+
+Hotfix release focused on finishing the new full feature audit path.
+
+Highlights
+- Fixed `RUN FULL FEATURE AUDIT` so `Utilities Workflow Actions` no longer fails because the workflow output text was being overwritten by utilities history.
+- Kept the wider audit coverage, notification responsiveness improvements, and long-running utilities timeout fixes introduced in v1.1.8.
+
+Validation
+- `dotnet build wpf\\HyperBoostX.csproj -c Release`

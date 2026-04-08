@@ -294,7 +294,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.1.8";
+            ?? "1.1.9";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -14456,6 +14456,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
 
         private void BuildUtilitiesWorkflow_Click(object sender, RoutedEventArgs e)
         {
+            AppendUtilitiesHistory("Utilities workflow built.");
             UtilitiesWorkflowText.Text =
                 "Utility Workflow Builder:" + Environment.NewLine +
                 "Fix Lag Workflow:" + Environment.NewLine +
@@ -14463,7 +14464,6 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                 "- disable background app" + Environment.NewLine +
                 "- set priority" + Environment.NewLine +
                 "- optimize network";
-            AppendUtilitiesHistory("Utilities workflow built.");
             ShowActionStatus(ActionState.Info, "Utility Workflow Builder", "Workflow utility berhasil dibuat.", UtilitiesWorkflowText.Text);
         }
 
