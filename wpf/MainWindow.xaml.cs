@@ -5250,6 +5250,7 @@ if (-not $result) { 'Unavailable'; return }
                 _lastAppUpdateSummary = result.Summary;
                 RefreshAppUpdatePanels();
                 await SavePersistedConfigurationAsync();
+                await ReportAppUpdateToDiscordAsync(result, userInitiated);
 
                 if (!userInitiated && _autoInstallAppUpdates && result.Success && result.IsUpdateAvailable)
                 {
@@ -5289,6 +5290,48 @@ if (-not $result) { 'Unavailable'; return }
             {
                 _appUpdateCheckInProgress = false;
             }
+        }
+
+        private async Task ReportAppUpdateToDiscordAsync(AppReleaseCheckResult result, bool userInitiated)
+        {
+            if (!_discordWebhookEnabled || string.IsNullOrWhiteSpace(_discordWebhookUrl))
+                return;
+
+            if (result == null || !result.Success || !result.IsUpdateAvailable)
+                return;
+
+            if (!ShouldReportToDiscord("warning"))
+                return;
+
+            var normalizedLatestVersion = NormalizeDiscordReportVersion(result.LatestVersion);
+            var normalizedCurrentVersion = NormalizeDiscordReportVersion(_currentAppVersion);
+            var signature = $"app-update|{normalizedLatestVersion}";
+            if (_discordWebhookLastSent.TryGetValue(signature, out var lastSent) &&
+                DateTime.UtcNow - lastSent < TimeSpan.FromHours(12))
+            {
+                return;
+            }
+
+            var fields = BuildDiscordReportFields("warning", "New app update detected.");
+            fields["Current Version"] = normalizedCurrentVersion;
+            fields["Latest Version"] = normalizedLatestVersion;
+            fields["Channel"] = string.IsNullOrWhiteSpace(result.ReleaseChannel) ? "Unknown" : result.ReleaseChannel;
+            fields["Published"] = result.PublishedUtc?.ToLocalTime().ToString("dd MMM yyyy HH:mm") ?? "Unknown";
+            fields["Installer Asset"] = string.IsNullOrWhiteSpace(result.InstallerAssetName) ? "Unavailable" : result.InstallerAssetName;
+            fields["Triggered By"] = userInitiated ? "Manual check" : "Auto check";
+            fields["Release URL"] = string.IsNullOrWhiteSpace(result.LatestReleaseUrl)
+                ? "https://github.com/jxxzy/HyperBoostX/releases"
+                : result.LatestReleaseUrl;
+
+            var sent = await _discordWebhookService.SendAsync(
+                _discordWebhookUrl,
+                "HyperBoostX update available",
+                $"{normalizedLatestVersion} is now available for download.",
+                "warning",
+                fields);
+
+            if (sent)
+                _discordWebhookLastSent[signature] = DateTime.UtcNow;
         }
 
         private static string NormalizeVersionLabel(string version)

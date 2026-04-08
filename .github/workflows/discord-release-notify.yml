@@ -1,0 +1,88 @@
+name: Discord Release Notify
+
+on:
+  release:
+    types:
+      - published
+      - prereleased
+
+jobs:
+  notify-discord:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.DISCORD_RELEASE_WEBHOOK_URL != '' }}
+    steps:
+      - name: Send release notification to Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_RELEASE_WEBHOOK_URL }}
+          RELEASE_EVENT_JSON: ${{ toJson(github.event.release) }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          webhook_url = os.environ["DISCORD_WEBHOOK_URL"]
+          release = json.loads(os.environ.get("RELEASE_EVENT_JSON") or "{}")
+          release_name = (release.get("name") or "").strip()
+          release_tag = (release.get("tag_name") or "").strip()
+          release_url = (release.get("html_url") or "").strip()
+          release_body = (release.get("body") or "").strip()
+          release_is_prerelease = bool(release.get("prerelease"))
+          release_is_draft = bool(release.get("draft"))
+          release_published_at = (release.get("published_at") or "").strip()
+          release_author = ((release.get("author") or {}).get("login") or "").strip() or "unknown"
+          assets = [item.get("name", "").strip() for item in (release.get("assets") or []) if item.get("name")]
+
+          if release_is_draft:
+              raise SystemExit("Draft release ignored.")
+
+          display_version = release_tag or release_name or "unknown"
+          if display_version and not display_version.lower().startswith("v"):
+              display_version = f"v{display_version}"
+
+          channel = "Prerelease" if release_is_prerelease else "Stable"
+          color = 0xD97706 if release_is_prerelease else 0x16A34A
+
+          if assets:
+              asset_preview = "\n".join(f"- {name}" for name in assets[:6])
+              if len(assets) > 6:
+                  asset_preview += f"\n- ...and {len(assets) - 6} more"
+          else:
+              asset_preview = "No assets listed."
+
+          notes = release_body if release_body else "No release notes provided."
+          if len(notes) > 1200:
+              notes = notes[:1197] + "..."
+
+          payload = {
+              "username": "HyperBoostX Releases",
+              "embeds": [
+                  {
+                      "title": f"HyperBoostX release published: {display_version}",
+                      "description": f"A new {channel.lower()} release is now available on GitHub.",
+                      "color": color,
+                      "url": release_url,
+                      "timestamp": release_published_at,
+                      "fields": [
+                          {"name": "Version", "value": display_version or "unknown", "inline": False},
+                          {"name": "Channel", "value": channel, "inline": False},
+                          {"name": "Published By", "value": release_author, "inline": False},
+                          {"name": "Assets", "value": asset_preview[:1000], "inline": False},
+                          {"name": "Release Notes", "value": notes[:1000], "inline": False},
+                          {"name": "GitHub Release", "value": release_url or "Unavailable", "inline": False},
+                      ],
+                  }
+              ],
+          }
+
+          request = urllib.request.Request(
+              webhook_url,
+              data=json.dumps(payload).encode("utf-8"),
+              headers={"Content-Type": "application/json"},
+              method="POST",
+          )
+
+          with urllib.request.urlopen(request) as response:
+              if response.status >= 300:
+                  raise SystemExit(f"Discord webhook returned HTTP {response.status}")
+          PY
