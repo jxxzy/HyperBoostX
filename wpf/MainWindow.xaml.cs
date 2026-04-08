@@ -294,7 +294,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.1.7";
+            ?? "1.1.8";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -1912,6 +1912,12 @@ namespace HyperBoostX
 
         private void ShowActionStatus(ActionState state, string title, string message, string meta = null)
         {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.Invoke(() => ShowActionStatus(state, title, message, meta));
+                return;
+            }
+
             Brush accentBrush = (Brush)FindResource("AccentBrush");
             Brush textBrush = Brushes.White;
 
@@ -1936,6 +1942,8 @@ namespace HyperBoostX
                 ? $"Updated {DateTime.Now:HH:mm:ss}"
                 : $"{meta}    {DateTime.Now:HH:mm:ss}";
             ActionStatusCard.Visibility = Visibility.Visible;
+            ActionStatusCard.UpdateLayout();
+            Dispatcher.Invoke(() => { }, DispatcherPriority.Render);
             AppendDashboardActivity($"{title}: {message}");
             UpdateFeatureAuditIncidentState(state, title, message, meta);
 
@@ -8444,10 +8452,11 @@ if (-not $result) { 'Unavailable'; return }
                 .ToList();
         }
 
-        private async Task<(bool success, string output)> ExecutePowerShellScriptAsync(string script)
+        private async Task<(bool success, string output)> ExecutePowerShellScriptAsync(string script, TimeSpan? timeout = null)
         {
             try
             {
+                var effectiveTimeout = timeout ?? TimeSpan.FromSeconds(45);
                 var encoded = Convert.ToBase64String(Encoding.Unicode.GetBytes(script));
                 var startInfo = new ProcessStartInfo("powershell.exe")
                 {
@@ -8465,7 +8474,7 @@ if (-not $result) { 'Unavailable'; return }
                 var stdOutTask = process.StandardOutput.ReadToEndAsync();
                 var stdErrTask = process.StandardError.ReadToEndAsync();
                 var waitTask = process.WaitForExitAsync();
-                var completed = await Task.WhenAny(waitTask, Task.Delay(TimeSpan.FromSeconds(45)));
+                var completed = await Task.WhenAny(waitTask, Task.Delay(effectiveTimeout));
 
                 if (completed != waitTask)
                 {
@@ -8478,7 +8487,7 @@ if (-not $result) { 'Unavailable'; return }
                         // Ignore kill failures after timeout.
                     }
 
-                    return (false, "PowerShell command timed out after 45 seconds.");
+                    return (false, $"PowerShell command timed out after {effectiveTimeout.TotalSeconds:0} seconds.");
                 }
 
                 var stdOut = await stdOutTask;
@@ -14327,7 +14336,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                     await RefreshDashboard();
                     break;
                 case "repair":
-                    await RunPowerShellActionAsync("sfc /scannow", "Repair Utilities", "SFC scan requested.");
+                    await RunPowerShellActionAsync("sfc /scannow", "Repair Utilities", "SFC scan requested.", TimeSpan.FromMinutes(20));
                     break;
                 case "network":
                     await SafeApiCall(() => _backendClient.FlushDnsAsync());
@@ -14467,7 +14476,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
 
         private async void UtilitiesAutoFixSystem_Click(object sender, RoutedEventArgs e)
         {
-            await RunPowerShellActionAsync("sfc /scannow", "AUTO FIX SYSTEM", "System scan and repair requested.");
+            await RunPowerShellActionAsync("sfc /scannow", "AUTO FIX SYSTEM", "System scan and repair requested.", TimeSpan.FromMinutes(20));
             AppendUtilitiesHistory("AUTO FIX SYSTEM executed.");
             await RefreshUtilitiesViewAsync();
         }
@@ -14484,7 +14493,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
         private async void UtilitiesFullMaintenance_Click(object sender, RoutedEventArgs e)
         {
             await CleanupEverythingInternalAsync();
-            await RunPowerShellActionAsync("sfc /scannow", "FULL SYSTEM MAINTENANCE", "Deep clean + repair + optimize requested.");
+            await RunPowerShellActionAsync("sfc /scannow", "FULL SYSTEM MAINTENANCE", "Deep clean + repair + optimize requested.", TimeSpan.FromMinutes(20));
             await ApplyBoosterProfileAsync("productivity", "Full Maintenance");
             AppendUtilitiesHistory("FULL SYSTEM MAINTENANCE executed.");
             UtilitiesQuickResultText.Text = "Full maintenance executed\nDeep clean + repair + optimize requested";
@@ -14682,6 +14691,48 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                 ExecuteAsync = async () => snapshot = await probe(),
                 Snapshot = () => snapshot
             };
+        }
+
+        private async Task<string> AuditNotificationPipelineAsync()
+        {
+            ShowActionStatus(ActionState.Info, "Audit Notification", "Notification pipeline test.", "Immediate render expected.");
+            await Dispatcher.Yield(DispatcherPriority.Render);
+            RequireTestCondition(ActionStatusCard?.Visibility == Visibility.Visible, "Action status card did not become visible.");
+            RequireTestCondition(string.Equals(ActionStatusTitle?.Text, "Audit Notification", StringComparison.Ordinal), "Action status title did not update immediately.");
+            RequireTestCondition(string.Equals(ActionStatusText?.Text, "Notification pipeline test.", StringComparison.Ordinal), "Action status message did not update immediately.");
+            return $"{ActionStatusTitle?.Text} | {ActionStatusText?.Text}";
+        }
+
+        private async Task<string> AuditUtilitiesWorkflowProbeAsync()
+        {
+            await RefreshUtilitiesViewAsync();
+            BuildUtilitiesWorkflow_Click(this, new RoutedEventArgs());
+            ReviewUtilitiesExecutionEngine_Click(this, new RoutedEventArgs());
+            RequireTestCondition(!string.IsNullOrWhiteSpace(UtilitiesWorkflowText?.Text), "Utilities workflow text empty after workflow probe.");
+            RequireTestCondition(UtilitiesWorkflowText.Text.Contains("Utility Workflow Builder", StringComparison.OrdinalIgnoreCase), "Utilities workflow builder output missing.");
+            return TrimFeatureAuditText(UtilitiesWorkflowText.Text);
+        }
+
+        private async Task<string> AuditUtilitiesSafetyProbeAsync()
+        {
+            await RefreshUtilitiesViewAsync();
+            ReviewUtilitiesSafety_Click(this, new RoutedEventArgs());
+            ReviewUtilitiesSelfHealing_Click(this, new RoutedEventArgs());
+            ApplyUtilitiesGoal_Click(this, new RoutedEventArgs());
+            RequireTestCondition(!string.IsNullOrWhiteSpace(UtilitiesSafetyText?.Text), "Utilities safety text empty after safety probe.");
+            RequireTestCondition(UtilitiesSafetyText.Text.Contains("Goal-Based Utilities", StringComparison.OrdinalIgnoreCase), "Goal-based utilities summary missing after safety probe.");
+            return TrimFeatureAuditText(UtilitiesSafetyText.Text);
+        }
+
+        private async Task<string> AuditSettingsIntegrationProbeAsync()
+        {
+            await RefreshSettingsViewAsync();
+            RequireTestCondition(!string.IsNullOrWhiteSpace(SettingsAppUpdateStatusText?.Text), "Settings app update status empty.");
+            RequireTestCondition(!string.IsNullOrWhiteSpace(OpenAiSettingsStatusText?.Text), "OpenAI settings status empty.");
+            RequireTestCondition(!string.IsNullOrWhiteSpace(DiscordWebhookStatusText?.Text), "Discord webhook status empty.");
+            return TrimFeatureAuditText(
+                $"{SettingsAppUpdateStatusText?.Text} | {OpenAiSettingsStatusText?.Text} | {DiscordWebhookStatusText?.Text}",
+                280);
         }
 
         private void UpdateTestingStaticSummaries()
@@ -15140,19 +15191,28 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             if (!fullAudit)
                 return targets;
 
-            targets.Insert(2, new FeatureAuditTarget
-            {
-                Name = "Smart Recommendation",
-                ExecuteAsync = async () =>
-                {
-                    await RunSmartRecommendationScanAsync();
-                    await RefreshAiCopilotDiagnosticsAsync(refreshContext: true);
-                },
-                Snapshot = () => SmartOverallScoreText?.Text ?? AiCopilotStatusText?.Text
-            });
-
             targets.AddRange(new[]
             {
+                new FeatureAuditTarget
+                {
+                    Name = "Gaming Booster Hub",
+                    ExecuteAsync = RefreshGamingBoosterHubAsync,
+                    Snapshot = () => BoosterSummaryText?.Text ?? BoosterRecommendationText?.Text ?? BoosterReportText?.Text
+                },
+                CreateTestingProbeTarget("Notification Pipeline", AuditNotificationPipelineAsync),
+                CreateTestingProbeTarget("Utilities Workflow Actions", AuditUtilitiesWorkflowProbeAsync),
+                CreateTestingProbeTarget("Utilities Safety Actions", AuditUtilitiesSafetyProbeAsync),
+                CreateTestingProbeTarget("Settings Integration Actions", AuditSettingsIntegrationProbeAsync),
+                new FeatureAuditTarget
+                {
+                    Name = "Smart Recommendation",
+                    ExecuteAsync = async () =>
+                    {
+                        await RunSmartRecommendationScanAsync();
+                        await RefreshAiCopilotDiagnosticsAsync(refreshContext: true);
+                    },
+                    Snapshot = () => SmartOverallScoreText?.Text ?? AiCopilotStatusText?.Text
+                },
                 new FeatureAuditTarget
                 {
                     Name = "Performance Boost",
@@ -15269,6 +15329,22 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                 },
                 new FeatureAuditTarget
                 {
+                    Name = "App Update Status",
+                    ExecuteAsync = async () =>
+                    {
+                        await RefreshAboutViewAsync();
+                        await RefreshSettingsViewAsync();
+                    },
+                    Snapshot = () => SettingsAppUpdateStatusText?.Text ?? AboutUpdateStatusText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Integration Status",
+                    ExecuteAsync = RefreshSettingsViewAsync,
+                    Snapshot = () => OpenAiSettingsStatusText?.Text ?? DiscordWebhookStatusText?.Text
+                },
+                new FeatureAuditTarget
+                {
                     Name = "Restore & Backup",
                     ExecuteAsync = RefreshRestoreBackupViewAsync,
                     Snapshot = () => RestoreDashboardText?.Text ?? RestoreHistoryText?.Text
@@ -15278,6 +15354,23 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                     Name = "Restore Point Manager",
                     ExecuteAsync = RefreshRestorePointManagerViewAsync,
                     Snapshot = () => RestorePointDashboardText?.Text ?? RestorePointAuditText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Feature Audit Center",
+                    ExecuteAsync = RefreshFeatureAuditViewAsync,
+                    Snapshot = () => TestingDashboardText?.Text ?? TestingCompatibilityText?.Text ?? TestingReportPreviewText?.Text
+                },
+                new FeatureAuditTarget
+                {
+                    Name = "Compatibility Snapshot",
+                    ExecuteAsync = async () =>
+                    {
+                        var backendHealthy = await _backendClient.HealthCheckAsync();
+                        _lastTestingCompatibilitySummary = BuildTestingCompatibilitySummary(backendHealthy);
+                        await RefreshFeatureAuditViewAsync();
+                    },
+                    Snapshot = () => TestingCompatibilityText?.Text ?? _lastTestingCompatibilitySummary
                 }
             });
 
@@ -15892,6 +15985,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
         {
             try
             {
+                ShowActionStatus(ActionState.Info, modeName, "Processing request...");
                 _dashboardCurrentMode = profileId switch
                 {
                     "gaming" => "Gaming Mode",
@@ -16276,6 +16370,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
         {
             try
             {
+                ShowActionStatus(ActionState.Info, actionName, "Processing request...");
                 var result = await _backendClient.ApplyTweakAsync(tweakId);
                 ShowActionStatus(ActionState.Success, actionName, "Tweak applied successfully.", HyperBoostBackendClient.FormatJson(result));
             }
@@ -16285,11 +16380,12 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             }
         }
 
-        private async Task RunPowerShellActionAsync(string script, string actionName, string successMessage)
+        private async Task RunPowerShellActionAsync(string script, string actionName, string successMessage, TimeSpan? timeout = null)
         {
             try
             {
-                var (success, output) = await ExecutePowerShellScriptAsync(script);
+                ShowActionStatus(ActionState.Info, actionName, "Processing request...");
+                var (success, output) = await ExecutePowerShellScriptAsync(script, timeout);
                 if (success)
                     ShowActionStatus(ActionState.Success, actionName, successMessage, output);
                 else

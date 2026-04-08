@@ -6,6 +6,11 @@ All notable changes to HyperBoostX are documented here.
 - Separated `Gaming Mode` and `Gaming Booster` into distinct UI flows so Gaming Mode focuses on profiles/session behavior while Gaming Booster focuses on instant optimization actions and reports.
 - Kept the structured-log severity fix so backend warnings such as admin-required timer-resolution tweaks are not escalated into false error alerts in current builds.
 
+## v1.1.8 - 2026-04-08
+- Raised long-running Utilities `SFC` flows to a 20-minute timeout so `AUTO FIX SYSTEM`, `Repair Utilities`, and `FULL SYSTEM MAINTENANCE` no longer fail after the old 45-second cutoff.
+- Reduced perceived notification lag by forcing the action status card to render immediately and by showing `Processing request...` before long-running actions finish.
+- Expanded `RUN FULL FEATURE AUDIT` coverage with additional runtime, settings, update, compatibility, notification, and utilities workflow/safety probes.
+
 ## v1.1.6 - 2026-04-08
 - Fixed structured log severity detection in the WPF log watcher so backend warnings are not escalated into false error alerts.
 - Clarified booster profile partial-success messaging for admin-only tweaks such as timer resolution changes.
