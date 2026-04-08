@@ -54,6 +54,159 @@ class SystemInfoService:
             return wmi_date
 
     @staticmethod
+    def _run_powershell_json(command: str) -> Dict[str, Any]:
+        """Run a PowerShell command that returns JSON."""
+        try:
+            output = subprocess.check_output(
+                ["powershell", "-NoProfile", "-Command", command],
+                text=True,
+                stderr=subprocess.DEVNULL,
+            ).strip()
+            if not output:
+                return {}
+            data = json.loads(output)
+            return data if isinstance(data, dict) else {}
+        except Exception as e:
+            logger.debug(f"PowerShell JSON probe failed: {type(e).__name__}")
+            return {}
+
+    @staticmethod
+    def _infer_storage_class(media_type: str, bus_type: str, spindle_speed: Any) -> str:
+        media = (media_type or "").strip().lower()
+        bus = (bus_type or "").strip().lower()
+        try:
+            spindle = int(spindle_speed or 0)
+        except Exception:
+            spindle = 0
+
+        if "ssd" in media or "nvme" in bus:
+            return "SSD"
+        if "hdd" in media or spindle > 0:
+            return "HDD"
+        if "scm" in media:
+            return "SCM"
+        if "sata" in bus:
+            return "SSD/HDD (Unknown SATA)"
+        return "Unknown"
+
+    @staticmethod
+    def get_system_drive_info() -> Dict[str, Any]:
+        """Get Windows system drive characteristics for device classification."""
+        system_drive = (os.getenv("SystemDrive") or "C:").rstrip(":").upper()
+        info = {
+            "drive_letter": system_drive,
+            "mountpoint": f"{system_drive}:\\",
+            "model": "Unknown",
+            "media_type": "Unknown",
+            "bus_type": "Unknown",
+            "spindle_speed": 0,
+            "storage_class": "Unknown",
+        }
+
+        if platform.system() != "Windows":
+            return info
+
+        command = (
+            "$drive = '{drive}'; "
+            "$partition = Get-Partition -DriveLetter $drive -ErrorAction Stop; "
+            "$disk = $partition | Get-Disk -ErrorAction Stop; "
+            "[PSCustomObject]@{{ "
+            "DriveLetter=$drive; "
+            "FriendlyName=$disk.FriendlyName; "
+            "MediaType=$disk.MediaType; "
+            "BusType=$disk.BusType; "
+            "SpindleSpeed=$disk.SpindleSpeed "
+            "}} | ConvertTo-Json -Compress"
+        ).format(drive=system_drive)
+        data = SystemInfoService._run_powershell_json(command)
+
+        info["model"] = data.get("FriendlyName") or info["model"]
+        info["media_type"] = data.get("MediaType") or info["media_type"]
+        info["bus_type"] = data.get("BusType") or info["bus_type"]
+        info["spindle_speed"] = data.get("SpindleSpeed") or info["spindle_speed"]
+        info["storage_class"] = SystemInfoService._infer_storage_class(
+            info["media_type"],
+            info["bus_type"],
+            info["spindle_speed"],
+        )
+        return info
+
+    @staticmethod
+    def get_device_profile(stats: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Build a simple device class and bottleneck profile for adaptive optimization."""
+        stats = stats or {}
+        memory_total_gb = float(stats.get("memory_total_gb") or 0)
+        memory_percent = float(stats.get("memory") or 0)
+        disk_percent = float(stats.get("disk") or 0)
+        cpu_percent = float(stats.get("cpu") or 0)
+        process_count = int(stats.get("processes") or 0)
+        disk_read_mb_s = float(stats.get("disk_read_mb_s") or 0)
+        disk_write_mb_s = float(stats.get("disk_write_mb_s") or 0)
+        gpu = stats.get("gpu") or {}
+        gpu_load = float(gpu.get("load") or gpu.get("memory_percent") or 0)
+
+        system_drive = SystemInfoService.get_system_drive_info()
+        storage_class = system_drive.get("storage_class", "Unknown")
+        os_release = platform.release()
+        os_family = f"Windows {os_release}" if platform.system() == "Windows" else platform.system()
+        has_battery = psutil.sensors_battery() is not None
+        form_factor = "Laptop" if has_battery else "Desktop"
+
+        if memory_total_gb <= 0:
+            ram_class = "Unknown RAM"
+        elif memory_total_gb < 8:
+            ram_class = "Low RAM"
+        elif memory_total_gb < 16:
+            ram_class = "Mid RAM"
+        else:
+            ram_class = "High RAM"
+
+        if storage_class == "HDD" and (disk_percent >= 65 or disk_read_mb_s + disk_write_mb_s >= 8):
+            bottleneck = "storage-bound"
+        elif memory_percent >= 78 or memory_total_gb < 8:
+            bottleneck = "memory-bound"
+        elif cpu_percent >= 75 or gpu_load >= 75:
+            bottleneck = "cpu-bound"
+        elif process_count >= 220:
+            bottleneck = "background-load-bound"
+        else:
+            bottleneck = "balanced"
+
+        if storage_class == "HDD":
+            recommended_profile = "HDD Survival"
+            expected_gain = "Limited to Moderate"
+        elif form_factor == "Laptop" and memory_percent >= 70:
+            recommended_profile = "Balanced Laptop"
+            expected_gain = "Moderate"
+        elif bottleneck == "memory-bound":
+            recommended_profile = "Low RAM"
+            expected_gain = "Moderate"
+        else:
+            recommended_profile = "SSD Responsiveness" if storage_class == "SSD" else "Balanced Adaptive"
+            expected_gain = "Moderate to High" if storage_class == "SSD" else "Moderate"
+
+        notes = []
+        if storage_class == "HDD":
+            notes.append("System drive HDD detected. Load-heavy tasks remain limited by storage hardware.")
+        elif storage_class == "SSD":
+            notes.append("System drive SSD detected. Startup and app responsiveness tuning should be more noticeable.")
+        if form_factor == "Laptop":
+            notes.append("Laptop detected. Thermal and battery-aware optimization is preferred.")
+        if ram_class == "Low RAM":
+            notes.append("Low RAM class detected. Background trimming and memory pressure control should be prioritized.")
+
+        return {
+            "os_family": os_family,
+            "form_factor": form_factor,
+            "storage_class": storage_class,
+            "ram_class": ram_class,
+            "bottleneck": bottleneck,
+            "recommended_profile": recommended_profile,
+            "expected_gain": expected_gain,
+            "notes": notes,
+        }
+
+    @staticmethod
     def get_system_identity() -> Dict[str, Any]:
         """Return system identity and environment details."""
         try:

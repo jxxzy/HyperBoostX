@@ -316,7 +316,7 @@ namespace HyperBoostX.Services
             {
                 Timeout = TimeSpan.FromSeconds(12)
             };
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("HyperBoostX/1.1.9");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("HyperBoostX/1.2.0");
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
             return client;
         }

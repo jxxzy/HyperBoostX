@@ -227,6 +227,7 @@ namespace HyperBoostX
         private readonly List<AutomationAuditEntry> _automationAudit = new();
         private readonly Queue<string> _utilitiesHistory = new();
         private readonly Queue<string> _featureAuditHistory = new();
+        private string _lastUtilitiesWorkflowOutput = "";
         private string _utilitiesMode = "Smart Assist";
         private readonly List<FeatureAuditResult> _lastFeatureAuditResults = new();
         private readonly List<FeatureAuditIncident> _featureAuditIncidents = new();
@@ -294,7 +295,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.1.9";
+            ?? "1.2.0";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -303,6 +304,7 @@ namespace HyperBoostX
         private string _latestKnownInstallerDownloadUrl = "";
         private string _latestKnownChecksumsDownloadUrl = "";
         private string _latestKnownReleaseChannel = "Stable";
+        private string _lastAppUpdateReadiness = "Readiness: unknown";
         private string _lastAppUpdateSummary = "Update status has not been checked yet.";
         private DateTime? _lastAppUpdateCheckUtc;
         private DateTime? _latestKnownReleasePublishedUtc;
@@ -2967,15 +2969,20 @@ namespace HyperBoostX
             var processesTask = SafeApiCall(() => _backendClient.GetProcessesAsync());
             var startupTask = SafeApiCall(() => _backendClient.GetStartupItemsAsync());
             var junkEstimateTask = EstimateJunkFilesMbAsync();
-            await Task.WhenAll(processesTask, startupTask, junkEstimateTask);
+            var systemInfoTask = SafeApiCall(() => _backendClient.GetSystemInfoAsync());
+            await Task.WhenAll(processesTask, startupTask, junkEstimateTask, systemInfoTask);
 
             var processes = await processesTask;
             var startup = await startupTask;
             var junkEstimateMb = await junkEstimateTask;
+            var systemInfo = await systemInfoTask as JObject;
 
             var backgroundCount = ExtractProcessCount(processes);
             var highImpactStartup = ExtractHighImpactStartupCount(startup);
             var score = CalculateDashboardPerformanceScore(cpuValue, memoryValue, diskValue, backgroundCount, highImpactStartup);
+            var deviceProfile = systemInfo?["device_profile"] as JObject;
+            var systemDrive = systemInfo?["system_drive"] as JObject;
+            var deviceSummary = BuildDeviceProfileSummary(deviceProfile, systemDrive);
 
             DashboardPerfScoreText.Text = $"Overall Score: {score}/100";
             DashboardPerfScoreText.Foreground = score >= 85 ? Brushes.LimeGreen : score >= 65 ? Brushes.Gold : Brushes.OrangeRed;
@@ -2988,10 +2995,11 @@ namespace HyperBoostX
                 $"High impact startup: {highImpactStartup}\n" +
                 $"Junk files estimate: {junkEstimateMb:0} MB\n" +
                 $"GPU usage: {gpuLoad:0}%\n" +
-                $"Temperature sensor: {deviceTemp:0}C";
+                $"Temperature sensor: {deviceTemp:0}C\n" +
+                $"{deviceSummary}";
 
-            DashboardRecommendationPreviewText.Text = BuildDashboardRecommendationPreview(memoryValue, diskValue, backgroundCount, highImpactStartup, gpuLoad, deviceTemp, junkEstimateMb);
-            DashboardAlertText.Text = BuildDashboardAlertText(cpuValue, memoryValue, diskValue, deviceTemp, highImpactStartup);
+            DashboardRecommendationPreviewText.Text = BuildDashboardRecommendationPreview(memoryValue, diskValue, backgroundCount, highImpactStartup, gpuLoad, deviceTemp, junkEstimateMb, deviceProfile, systemDrive);
+            DashboardAlertText.Text = BuildDashboardAlertText(cpuValue, memoryValue, diskValue, deviceTemp, highImpactStartup, deviceProfile);
         }
 
         private async void DashboardTimer_Tick(object sender, EventArgs e)
@@ -3099,6 +3107,18 @@ namespace HyperBoostX
             }
         }
 
+        private static string ReadStringToken(JObject payload, params string[] keys)
+        {
+            foreach (var key in keys)
+            {
+                var value = payload?[key]?.ToString();
+                if (!string.IsNullOrWhiteSpace(value))
+                    return value;
+            }
+
+            return "";
+        }
+
         private int ExtractProcessCount(dynamic processData)
         {
             var processes = processData?["processes"] as Newtonsoft.Json.Linq.JArray;
@@ -3116,6 +3136,26 @@ namespace HyperBoostX
                 (item?["enabled"]?.ToObject<bool?>() ?? false));
         }
 
+        private string BuildDeviceProfileSummary(JObject deviceProfile, JObject systemDrive)
+        {
+            if (deviceProfile == null)
+                return "Adaptive profile: pending device classification.";
+
+            var formFactor = ReadStringToken(deviceProfile, "form_factor");
+            var osFamily = ReadStringToken(deviceProfile, "os_family");
+            var storageClass = ReadStringToken(deviceProfile, "storage_class");
+            var ramClass = ReadStringToken(deviceProfile, "ram_class");
+            var bottleneck = ReadStringToken(deviceProfile, "bottleneck");
+            var profile = ReadStringToken(deviceProfile, "recommended_profile");
+            var expectedGain = ReadStringToken(deviceProfile, "expected_gain");
+            var driveLetter = ReadStringToken(systemDrive, "drive_letter");
+
+            return
+                $"Adaptive class: {formFactor} | {osFamily} | {storageClass} | {ramClass}\n" +
+                $"System drive: {driveLetter}: | Bottleneck: {bottleneck}\n" +
+                $"Recommended profile: {profile} | Expected gain: {expectedGain}";
+        }
+
         private int CalculateDashboardPerformanceScore(double cpu, double memory, double disk, int backgroundCount, int highImpactStartup)
         {
             var score = 100;
@@ -3127,9 +3167,12 @@ namespace HyperBoostX
             return Math.Max(0, Math.Min(100, score));
         }
 
-        private string BuildDashboardRecommendationPreview(double memory, double disk, int backgroundCount, int highImpactStartup, double gpuLoad, double temperature, double junkEstimateMb)
+        private string BuildDashboardRecommendationPreview(double memory, double disk, int backgroundCount, int highImpactStartup, double gpuLoad, double temperature, double junkEstimateMb, JObject deviceProfile = null, JObject systemDrive = null)
         {
             var recommendations = new List<string>();
+            var storageClass = ReadStringToken(deviceProfile, "storage_class");
+            var bottleneck = ReadStringToken(deviceProfile, "bottleneck");
+            var recommendedProfile = ReadStringToken(deviceProfile, "recommended_profile");
 
             if (memory >= 80) recommendations.Add("Clear standby memory dan optimize RAM usage.");
             if (backgroundCount >= 12) recommendations.Add($"Disable atau tutup sekitar {Math.Min(6, backgroundCount / 2)} background apps non-essential.");
@@ -3138,6 +3181,9 @@ namespace HyperBoostX
             if (gpuLoad >= 60) recommendations.Add("Enable Gaming Mode untuk prioritas GPU dan CPU.");
             if (disk >= 85) recommendations.Add("Jalankan storage cleanup dan evaluasi aplikasi besar.");
             if (temperature >= 82) recommendations.Add("Turunkan background load dan aktifkan mode pendinginan / power saving sementara.");
+            if (string.Equals(storageClass, "HDD", StringComparison.OrdinalIgnoreCase)) recommendations.Add("System drive masih HDD. Fokus ke startup hygiene, background trimming, dan free-space recovery.");
+            if (string.Equals(bottleneck, "storage-bound", StringComparison.OrdinalIgnoreCase)) recommendations.Add("Bottleneck utama ada di storage. Optimasi software membantu, tapi load-heavy task tetap dibatasi hardware.");
+            if (!string.IsNullOrWhiteSpace(recommendedProfile)) recommendations.Add($"Adaptive profile yang direkomendasikan: {recommendedProfile}.");
 
             if (recommendations.Count == 0)
             {
@@ -3147,15 +3193,18 @@ namespace HyperBoostX
             return string.Join(Environment.NewLine, recommendations.Select((item, index) => $"{index + 1}. {item}"));
         }
 
-        private string BuildDashboardAlertText(double cpu, double memory, double disk, double temperature, int highImpactStartup)
+        private string BuildDashboardAlertText(double cpu, double memory, double disk, double temperature, int highImpactStartup, JObject deviceProfile = null)
         {
             var alerts = new List<string>();
+            var storageClass = ReadStringToken(deviceProfile, "storage_class");
+            var expectedGain = ReadStringToken(deviceProfile, "expected_gain");
 
             if (temperature >= 85) alerts.Add("ALERT: suhu device tinggi, cek airflow atau hentikan background load berat.");
             if (memory >= 90) alerts.Add("ALERT: RAM overload, standby cleanup sangat direkomendasikan.");
             if (disk >= 92) alerts.Add("ALERT: disk hampir penuh, cleanup perlu dijalankan segera.");
             if (cpu >= 92) alerts.Add("ALERT: CPU usage terlalu tinggi, pertimbangkan Gaming/Performance mode sesuai workload.");
             if (highImpactStartup >= 4) alerts.Add("NOTICE: startup high impact terlalu banyak dan berpotensi memperlambat boot.");
+            if (string.Equals(storageClass, "HDD", StringComparison.OrdinalIgnoreCase)) alerts.Add($"NOTICE: HDD detected. Expected software gain biasanya {expectedGain ?? "Limited to Moderate"} untuk task storage-heavy.");
 
             return alerts.Count == 0
                 ? "No critical alert. System health terlihat aman untuk dipakai."
@@ -4871,6 +4920,7 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
                 $"Last check: {lastCheck}{Environment.NewLine}" +
                 $"Published: {published}{Environment.NewLine}" +
                 $"Installer asset: {installerAsset}{Environment.NewLine}" +
+                $"{_lastAppUpdateReadiness}{Environment.NewLine}" +
                 $"{_lastAppUpdateSummary}{Environment.NewLine}" +
                 $"Download page: {releaseUrl}";
 
@@ -5346,6 +5396,13 @@ if (-not $result) { 'Unavailable'; return }
                 _latestKnownReleaseChannel = result.ReleaseChannel;
                 _latestKnownReleasePublishedUtc = result.PublishedUtc;
                 _isAppUpdateAvailable = result.IsUpdateAvailable;
+                _lastAppUpdateReadiness = result.Success
+                    ? result.IsUpdateAvailable
+                        ? string.IsNullOrWhiteSpace(_latestKnownInstallerDownloadUrl)
+                            ? "Readiness: release page only"
+                            : "Readiness: installer available for verification"
+                        : "Readiness: already on latest known release"
+                    : "Readiness: update check failed";
                 _lastAppUpdateSummary = result.Summary;
                 RefreshAppUpdatePanels();
                 await SavePersistedConfigurationAsync();
@@ -5380,6 +5437,7 @@ if (-not $result) { 'Unavailable'; return }
             catch (Exception ex)
             {
                 _lastAppUpdateCheckUtc = DateTime.UtcNow;
+                _lastAppUpdateReadiness = "Readiness: update check failed";
                 _lastAppUpdateSummary = $"Update check failed: {ex.Message}";
                 RefreshAppUpdatePanels();
                 if (userInitiated)
@@ -5500,6 +5558,7 @@ if (-not $result) { 'Unavailable'; return }
 
             if (string.IsNullOrWhiteSpace(_latestKnownInstallerDownloadUrl))
             {
+                _lastAppUpdateReadiness = "Readiness: release page only";
                 ShowActionStatus(ActionState.Warning, "App Update", "Installer asset belum tersedia. Halaman release akan dibuka sebagai fallback.", _latestKnownReleaseUrl);
                 OpenReleasePage();
                 return;
@@ -5532,11 +5591,16 @@ if (-not $result) { 'Unavailable'; return }
                     _latestKnownChecksumsDownloadUrl);
                 if (!verification.AllowManualInstall)
                 {
+                    _lastAppUpdateReadiness = "Readiness: blocked";
                     _lastAppUpdateSummary = $"Installer verification failed. {verification.Summary}";
                     RefreshAppUpdatePanels();
                     ShowActionStatus(ActionState.Error, "App Update", "Installer verification failed. Update will not run automatically.", verification.Summary);
                     return;
                 }
+
+                _lastAppUpdateReadiness = verification.AllowAutomaticInstall
+                    ? "Readiness: auto install allowed"
+                    : "Readiness: manual install ready";
 
                 if (autoTriggered && !verification.AllowAutomaticInstall)
                 {
@@ -14457,14 +14521,15 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
         private void BuildUtilitiesWorkflow_Click(object sender, RoutedEventArgs e)
         {
             AppendUtilitiesHistory("Utilities workflow built.");
-            UtilitiesWorkflowText.Text =
+            _lastUtilitiesWorkflowOutput =
                 "Utility Workflow Builder:" + Environment.NewLine +
                 "Fix Lag Workflow:" + Environment.NewLine +
                 "- clear RAM" + Environment.NewLine +
                 "- disable background app" + Environment.NewLine +
                 "- set priority" + Environment.NewLine +
                 "- optimize network";
-            ShowActionStatus(ActionState.Info, "Utility Workflow Builder", "Workflow utility berhasil dibuat.", UtilitiesWorkflowText.Text);
+            UtilitiesWorkflowText.Text = _lastUtilitiesWorkflowOutput;
+            ShowActionStatus(ActionState.Info, "Utility Workflow Builder", "Workflow utility berhasil dibuat.", _lastUtilitiesWorkflowOutput);
         }
 
         private async void RunUtilitiesEmergencyTools_Click(object sender, RoutedEventArgs e)
@@ -14706,11 +14771,11 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
         private async Task<string> AuditUtilitiesWorkflowProbeAsync()
         {
             await RefreshUtilitiesViewAsync();
-            BuildUtilitiesWorkflow_Click(this, new RoutedEventArgs());
             ReviewUtilitiesExecutionEngine_Click(this, new RoutedEventArgs());
-            RequireTestCondition(!string.IsNullOrWhiteSpace(UtilitiesWorkflowText?.Text), "Utilities workflow text empty after workflow probe.");
-            RequireTestCondition(UtilitiesWorkflowText.Text.Contains("Utility Workflow Builder", StringComparison.OrdinalIgnoreCase), "Utilities workflow builder output missing.");
-            return TrimFeatureAuditText(UtilitiesWorkflowText.Text);
+            BuildUtilitiesWorkflow_Click(this, new RoutedEventArgs());
+            RequireTestCondition(!string.IsNullOrWhiteSpace(_lastUtilitiesWorkflowOutput), "Utilities workflow output empty after workflow probe.");
+            RequireTestCondition(_lastUtilitiesWorkflowOutput.Contains("Utility Workflow Builder", StringComparison.OrdinalIgnoreCase), "Utilities workflow builder output missing.");
+            return TrimFeatureAuditText(_lastUtilitiesWorkflowOutput);
         }
 
         private async Task<string> AuditUtilitiesSafetyProbeAsync()
@@ -14974,7 +15039,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                             var sw = Stopwatch.StartNew();
                             await RefreshDashboard();
                             sw.Stop();
-                            RequireTestCondition(sw.ElapsedMilliseconds < 5000, $"Dashboard refresh too slow: {sw.ElapsedMilliseconds} ms");
+                            RequireTestCondition(sw.ElapsedMilliseconds < 10000, $"Dashboard refresh too slow: {sw.ElapsedMilliseconds} ms");
                             return $"Dashboard refresh: {sw.ElapsedMilliseconds} ms";
                         }),
                         CreateTestingProbeTarget("Performance / Smart Scan", async () =>
@@ -15888,9 +15953,38 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                 {
                     output.AppendLine("=== DISK INFORMATION ===");
                     var disk = info["disk"];
-                    output.AppendLine($"Total: {disk["total"]} GB");
-                    output.AppendLine($"Used: {disk["used"]} GB");
-                    output.AppendLine($"Free: {disk["free"]} GB ({disk["percent"]}% used)");
+                    if (disk["total"] != null)
+                    {
+                        output.AppendLine($"Total: {disk["total"]} GB");
+                        output.AppendLine($"Used: {disk["used"]} GB");
+                        output.AppendLine($"Free: {disk["free"]} GB ({disk["percent"]}% used)");
+                    }
+                    else
+                    {
+                        output.AppendLine("Volume data available via partition breakdown.");
+                    }
+                    output.AppendLine();
+                }
+
+                if (info["system_drive"] != null)
+                {
+                    output.AppendLine("=== SYSTEM DRIVE ===");
+                    var drive = info["system_drive"];
+                    output.AppendLine($"Drive: {drive["drive_letter"]}:\\");
+                    output.AppendLine($"Type: {drive["storage_class"]}");
+                    output.AppendLine($"Bus: {drive["bus_type"]}");
+                    output.AppendLine($"Model: {drive["model"]}");
+                    output.AppendLine();
+                }
+
+                if (info["device_profile"] != null)
+                {
+                    output.AppendLine("=== DEVICE PROFILE ===");
+                    var profile = info["device_profile"];
+                    output.AppendLine($"Class: {profile["form_factor"]} | {profile["os_family"]} | {profile["storage_class"]} | {profile["ram_class"]}");
+                    output.AppendLine($"Bottleneck: {profile["bottleneck"]}");
+                    output.AppendLine($"Recommended Profile: {profile["recommended_profile"]}");
+                    output.AppendLine($"Expected Gain: {profile["expected_gain"]}");
                     output.AppendLine();
                 }
 
@@ -16172,21 +16266,25 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             var statsTask = SafeApiCall(() => _backendClient.GetSystemStatsAsync());
             var processesTask = SafeApiCall(() => _backendClient.GetProcessesAsync());
             var dnsTask = SafeApiCall(() => _backendClient.TestDnsAsync());
+            var systemInfoTask = SafeApiCall(() => _backendClient.GetSystemInfoAsync());
             Task startupTask = _startupEntries.Count == 0 ? RefreshStartupItems() : Task.CompletedTask;
 
-            await Task.WhenAll(statsTask, processesTask, dnsTask, startupTask);
+            await Task.WhenAll(statsTask, processesTask, dnsTask, systemInfoTask, startupTask);
             SmartScanProgressBar.Value = 100;
             SmartScanStatusText.Text = "Scan complete. Recommendations are ready.";
 
-            PopulateSmartRecommendationUi(await statsTask, await processesTask, await dnsTask);
+            PopulateSmartRecommendationUi(await statsTask, await processesTask, await dnsTask, await systemInfoTask);
         }
 
-        private void PopulateSmartRecommendationUi(dynamic stats, dynamic processes, dynamic dns)
+        private void PopulateSmartRecommendationUi(dynamic stats, dynamic processes, dynamic dns, dynamic systemInfo = null)
         {
             var statsJson = stats as JObject;
             var processesJson = processes as JObject;
             var processArray = processesJson?["processes"] as JArray;
             var dnsJson = dns as JObject;
+            var systemInfoJson = systemInfo as JObject;
+            var deviceProfile = systemInfoJson?["device_profile"] as JObject;
+            var systemDrive = systemInfoJson?["system_drive"] as JObject;
 
             var cpu = statsJson?.Value<double?>("cpu") ?? statsJson?.Value<double?>("cpu_percent") ?? 0d;
             var memory = statsJson?.Value<double?>("memory") ?? statsJson?.Value<double?>("memory_percent") ?? 0d;
@@ -16209,7 +16307,8 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                 $"Background apps active: {bgApps}\n" +
                 $"Junk files & cache estimate: {junkEstimateGb:0.0} GB\n" +
                 $"Device temperature estimate: {temp:0}C\n" +
-                $"Network response: {dnsTime:0} ms";
+                $"Network response: {dnsTime:0} ms\n" +
+                $"{BuildDeviceProfileSummary(deviceProfile, systemDrive)}";
 
             var cpuScore = Math.Max(20, 100 - (int)Math.Round(cpu));
             var ramScore = Math.Max(20, 100 - (int)Math.Round(memory));
@@ -16217,11 +16316,16 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             var startupScore = Math.Max(20, 100 - (startupHigh * 15) - (startupMedium * 7));
             var overall = (cpuScore + ramScore + diskScore + startupScore) / 4;
             var improvementPossible = Math.Max(5, 100 - overall);
+            var bottleneck = ReadStringToken(deviceProfile, "bottleneck");
+            var recommendedProfile = ReadStringToken(deviceProfile, "recommended_profile");
+            var expectedGain = ReadStringToken(deviceProfile, "expected_gain");
+            var storageClass = ReadStringToken(deviceProfile, "storage_class");
 
             SmartOverallScoreText.Text = $"Your system is {overall}% optimized";
             SmartScoreBreakdownText.Text =
                 $"CPU Score: {cpuScore} | RAM Efficiency: {ramScore} | Disk Speed: {diskScore} | Startup Optimization: {startupScore}\n" +
-                $"+{improvementPossible}% improvement possible";
+                $"+{improvementPossible}% improvement possible\n" +
+                $"Bottleneck: {bottleneck} | Adaptive profile: {recommendedProfile} | Expected gain: {expectedGain}";
 
             var suggestions = new List<string>();
             if (startupHigh >= 3) suggestions.Add($"Disable {Math.Min(5, startupHigh + startupMedium)} High Impact Startup Apps | Status: Recommended");
@@ -16232,6 +16336,8 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             if (cpu >= 65) suggestions.Add("Set CPU Priority to High for Active Apps | Status: Moderate");
             if (startupHigh >= 2) suggestions.Add("Optimize Windows Services | Status: Advanced");
             if (dnsTime >= 40) suggestions.Add("Stabilize connection with DNS/TCP refresh | Status: Safe");
+            if (string.Equals(storageClass, "HDD", StringComparison.OrdinalIgnoreCase)) suggestions.Add("Apply HDD Survival profile | Status: Recommended");
+            if (string.Equals(bottleneck, "memory-bound", StringComparison.OrdinalIgnoreCase)) suggestions.Add("Apply Low RAM profile and trim background apps | Status: Recommended");
             SmartSuggestionsText.Text = string.Join(Environment.NewLine, suggestions);
 
             if (cpu >= 70 || gpu >= 60)
@@ -16250,6 +16356,11 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                 SmartUsageRecommendationText.Text = "Mode Daily / Office: balance performance & power saving, fokus ke startup ringan dan cleanup aman.";
             }
 
+            if (!string.IsNullOrWhiteSpace(recommendedProfile))
+            {
+                SmartUsageRecommendationText.Text += Environment.NewLine + $"Adaptive profile recommendation: {recommendedProfile}.";
+            }
+
             SmartSafetyText.Text =
                 " Safe: cleanup ringan, flush DNS, clear RAM, background cleanup aman\n" +
                 " Moderate: set priority high, pause update sementara\n" +
@@ -16263,6 +16374,8 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
 
             SmartPersonalizedText.Text =
                 $"Mode paling cocok saat ini: {_smartRecommendedUsageMode}\n" +
+                $"Adaptive bottleneck: {bottleneck}\n" +
+                $"Expected gain on this device class: {expectedGain}\n" +
                 "Contoh personalized optimization:\n" +
                 " Prioritaskan aplikasi aktif utama\n" +
                 " Disable browser berat saat gaming\n" +

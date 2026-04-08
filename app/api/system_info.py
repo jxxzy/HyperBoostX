@@ -21,11 +21,14 @@ monitor_service = MonitorService()
 def get_system_info():
     """Get comprehensive system information."""
     try:
+        current_stats = monitor_service.get_current_stats()
         return jsonify({
             "identity": system_info_service.get_system_identity(),
             "cpu": system_info_service.get_cpu_info(),
             "memory": system_info_service.get_memory_info(),
             "disk": system_info_service.get_disk_info(),
+            "system_drive": system_info_service.get_system_drive_info(),
+            "device_profile": system_info_service.get_device_profile(current_stats),
             "network": system_info_service.get_network_info(),
             "os": system_info_service.get_os_info(),
             "bios": system_info_service.get_bios_info(),

@@ -2,6 +2,12 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.2.0 - 2026-04-08
+- Added adaptive optimization groundwork with system-drive classification, device profiling, and bottleneck-aware recommendations for SSD/HDD, desktop/laptop, and different RAM classes.
+- Extended Dashboard, Smart Recommendation, and System Info so the app surfaces device context and more realistic expected-gain messaging directly in the UI.
+- Clarified updater readiness states so release-page-only, blocked, manual-ready, and auto-install-ready paths are easier to understand before installation.
+- Carried forward the audit stabilization fixes so the `Feature Audit Full` and `Full QA Matrix` candidate both pass cleanly before official release.
+
 ## v1.1.7 - 2026-04-08
 - Separated `Gaming Mode` and `Gaming Booster` into distinct UI flows so Gaming Mode focuses on profiles/session behavior while Gaming Booster focuses on instant optimization actions and reports.
 - Kept the structured-log severity fix so backend warnings such as admin-required timer-resolution tweaks are not escalated into false error alerts in current builds.
