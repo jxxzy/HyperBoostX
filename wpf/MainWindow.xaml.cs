@@ -4790,8 +4790,17 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
             if (AboutVersionText != null)
                 AboutVersionText.Text = $"{NormalizeVersionLabel(_currentAppVersion)} — 2026";
 
+            if (AboutVersionText != null)
+                AboutVersionText.Text = $"{NormalizeVersionLabel(_currentAppVersion)} - {(IsStableBuild(_currentAppVersion) ? "Stable" : "Prerelease")} - 2026";
+
             RefreshAppUpdatePanels();
             await Task.CompletedTask;
+        }
+
+        private static bool IsStableBuild(string version)
+        {
+            return !string.IsNullOrWhiteSpace(version) &&
+                   !version.Contains("-", StringComparison.OrdinalIgnoreCase);
         }
 
         private void RefreshAppUpdatePanels()
