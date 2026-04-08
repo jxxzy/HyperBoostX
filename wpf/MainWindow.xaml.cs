@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -293,7 +294,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.1.2";
+            ?? "1.1.3";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -5448,7 +5449,21 @@ if (-not $result) { 'Unavailable'; return }
         private static string NormalizeVersionLabel(string version)
         {
             var text = (version ?? "").Trim();
-            return text.StartsWith("v", StringComparison.OrdinalIgnoreCase) ? text[1..] : text;
+            if (string.IsNullOrWhiteSpace(text))
+                return "0.0.0";
+
+            var match = Regex.Match(text, @"(?i)\bv?(?<version>\d+(?:\.\d+){0,3}(?:-[0-9A-Za-z.-]+)?)");
+            if (match.Success)
+                return match.Groups["version"].Value;
+
+            if (text.StartsWith("v", StringComparison.OrdinalIgnoreCase))
+                text = text[1..];
+
+            var buildMetadataSeparator = text.IndexOf('+');
+            if (buildMetadataSeparator >= 0)
+                text = text[..buildMetadataSeparator];
+
+            return string.IsNullOrWhiteSpace(text) ? "0.0.0" : text;
         }
 
         private void OpenReleasePage()
@@ -14636,6 +14651,8 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                         {
                             RequireTestCondition(NormalizeVersionLabel("v1.1.0-beta") == "1.1.0-beta", "Version normalizer failed for prefixed tag.");
                             RequireTestCondition(NormalizeVersionLabel("1.1.0") == "1.1.0", "Version normalizer changed clean version.");
+                            RequireTestCondition(NormalizeVersionLabel("1.1.2+abc123") == "1.1.2", "Version normalizer failed for build metadata.");
+                            RequireTestCondition(NormalizeVersionLabel("v1.1.2 - Stable - 2026") == "1.1.2", "Version normalizer failed for decorated label.");
                             return Task.FromResult("NormalizeVersionLabel passed.");
                         }),
                         CreateTestingProbeTarget("Unit / Memory Type", () =>

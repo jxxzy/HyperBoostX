@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -315,7 +316,7 @@ namespace HyperBoostX.Services
             {
                 Timeout = TimeSpan.FromSeconds(12)
             };
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("HyperBoostX/1.1.2");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("HyperBoostX/1.1.3");
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
             return client;
         }
@@ -323,8 +324,21 @@ namespace HyperBoostX.Services
         private static string NormalizeVersionLabel(string version)
         {
             var text = (version ?? "").Trim();
-            if (text.StartsWith("v", StringComparison.OrdinalIgnoreCase))
-                text = text[1..];
+            if (string.IsNullOrWhiteSpace(text))
+                return "0.0.0";
+
+            var match = Regex.Match(text, @"(?i)\bv?(?<version>\d+(?:\.\d+){0,3}(?:-[0-9A-Za-z.-]+)?)");
+            if (match.Success)
+                text = match.Groups["version"].Value;
+            else
+            {
+                if (text.StartsWith("v", StringComparison.OrdinalIgnoreCase))
+                    text = text[1..];
+
+                var buildMetadataSeparator = text.IndexOf('+');
+                if (buildMetadataSeparator >= 0)
+                    text = text[..buildMetadataSeparator];
+            }
 
             return string.IsNullOrWhiteSpace(text) ? "0.0.0" : text;
         }

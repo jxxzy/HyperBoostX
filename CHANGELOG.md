@@ -2,6 +2,21 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.1.3 - 2026-04-08
+
+### Changed
+- Fixed Feature Audit incident handling so current audit runs no longer fail because of stale incidents from previous sessions.
+- Improved OpenAI Copilot error diagnostics with clearer 429/401/403 guidance, endpoint labels, and request-id support when available.
+- Fixed app update version normalization so builds that already match the latest release no longer show a false "new version available" notification.
+- Updated runtime/app metadata from `1.1.2` to `1.1.3`.
+
+### Validation
+- `dotnet build wpf\\HyperBoostX.csproj`
+- `dotnet build wpf\\HyperBoostX.csproj -c Release`
+
+### Notes
+- This hotfix focuses on more trustworthy audit results, clearer OpenAI failure diagnostics, and accurate in-app update detection.
+
 ## v1.1.2 - 2026-04-08
 
 ### Changed
