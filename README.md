@@ -1,9 +1,9 @@
 # HyperBoost X
 
-HyperBoost X is a Windows optimization suite with a native WPF desktop client, a Python backend, and a .NET launcher. The current beta is focused on turning the app into a single control center for performance, cleanup, automation, repair, AI-assisted actions, and recovery.
+HyperBoost X is a Windows optimization suite with a native WPF desktop client, a Python backend, and a .NET launcher. The current stable release turns the app into a single control center for performance, cleanup, automation, repair, AI-assisted actions, and recovery.
 
-Current beta version:
-- `1.1.0-beta.5`
+Current stable version:
+- `1.1.0`
 
 Author:
 - `MR.4NONY`
@@ -41,6 +41,15 @@ HyperBoost X is built from three main parts:
 - Installer upgrade flow that removes the old app version while preserving user config/state
 - Secure secret persistence for OpenAI and Discord via Windows Credential Manager
 - About App donation shortcut via Sociabuzz
+
+## What changed in `1.1.0`
+
+- Promoted the latest validated `1.1.0` line from prerelease to stable
+- Reached `56/56` passing checks in the in-app Full QA Matrix
+- Hardened startup/stats audit paths and reduced dashboard refresh latency
+- Added Discord release notifications from both the app and GitHub releases
+- Removed the compatibility-summary dependency on `System.Security.Principal.Windows`
+- Reduced UI freeze risk when leaving Feature Audit or switching between heavier pages
 
 ## What changed in `1.1.0-beta.5`
 
@@ -121,13 +130,13 @@ Useful flags:
 
 - Portable app: `release\app\HyperBoostX.exe`
 - Installer: `HyperBoostXInstaller.exe`
-- GitHub prerelease: `v1.1.0-beta.5`
+- GitHub release: `v1.1.0`
 
 ## Documentation
 
 - `API_REFERENCE.md` - API overview
 - `DIRECTORY_MAP.md` - current repo map
 
-## Beta status
+## Release status
 
-This build is suitable for internal beta testing and feature validation. It is not yet declared fully public-stable. The highest-value remaining work is end-to-end QA on admin-required flows, restore/update/service operations, installer upgrade paths, and cross-machine runtime validation.
+`v1.1.0` is the current stable release. Ongoing work after this milestone remains focused on deeper cross-machine validation, admin-required flows, installer/update polish, and long-run UI/runtime hardening.

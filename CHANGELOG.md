@@ -2,6 +2,24 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.1.0 - 2026-04-08
+
+### Added
+- Stable GitHub release target for the fully validated `1.1.0` line.
+
+### Changed
+- Promoted runtime/app metadata from `1.1.0-beta.5` to `1.1.0`.
+- Finalized backend audit fixes so `Full QA Matrix` reaches `56/56 passed`.
+- Removed the WPF compatibility-summary dependency on `System.Security.Principal.Windows` by switching admin detection to a Win32 membership check.
+- Hardened page navigation and feature-audit cancellation behavior to reduce freeze risk when moving between heavy pages.
+
+### Validation
+- In-app `Feature Audit / Full QA Matrix`: `56/56 passed`
+- `dotnet build wpf\HyperBoostX.csproj`
+
+### Notes
+- This release promotes the validated beta line to stable with the latest audit, navigation, and runtime hardening fixes included.
+
 ## v1.1.0-beta.5 - 2026-04-08
 
 ### Added

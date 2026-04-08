@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using HyperBoostX.Services;
 using Microsoft.Win32;
 using Newtonsoft.Json;
@@ -153,6 +154,7 @@ namespace HyperBoostX
         private DispatcherTimer _realtimePageTimer;
         private bool _isUpdating;
         private string _activePage = "Dashboard";
+        private int _pageNavigationVersion;
         private readonly List<string> _defaultGamingWhitelist = new()
         {
             "discord",
@@ -226,6 +228,7 @@ namespace HyperBoostX
         private string _lastTestingCompatibilitySummary = "Compatibility and security review will appear here.";
         private DateTime? _lastFeatureAuditUtc;
         private bool _featureAuditRunning;
+        private bool _featureAuditCancellationRequested;
         private readonly Queue<string> _settingsHistory = new();
         private string _settingsUserMode = "Beginner";
         private string _settingsPerformanceLevel = "Balanced";
@@ -277,7 +280,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.1.0-beta.5";
+            ?? "1.1.0";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -1608,9 +1611,51 @@ namespace HyperBoostX
             AboutContent.Visibility = Visibility.Collapsed;
         }
 
-        private async Task ShowPage(string pageName, Button navButton)
+        private void StartPageActivationRefresh(int navigationVersion, string pageName, Func<Task> refreshAction, Action postRefreshAction = null)
         {
+            _ = RunPageActivationRefreshAsync(navigationVersion, pageName, refreshAction, postRefreshAction);
+        }
+
+        private async Task RunPageActivationRefreshAsync(int navigationVersion, string pageName, Func<Task> refreshAction, Action postRefreshAction = null)
+        {
+            try
+            {
+                await refreshAction();
+
+                if (navigationVersion != _pageNavigationVersion ||
+                    !string.Equals(_activePage, pageName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+
+                postRefreshAction?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                if (navigationVersion != _pageNavigationVersion ||
+                    !string.Equals(_activePage, pageName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+
+                AppendDashboardActivity($"Page refresh warning on {pageName}: {ex.Message}");
+                ShowActionStatus(ActionState.Warning, pageName, $"Refresh halaman {pageName} mengalami warning.", ex.Message);
+            }
+        }
+
+        private Task ShowPage(string pageName, Button navButton)
+        {
+            if (!string.Equals(pageName, "Testing", StringComparison.OrdinalIgnoreCase) &&
+                _featureAuditRunning &&
+                !_featureAuditCancellationRequested)
+            {
+                _featureAuditCancellationRequested = true;
+                AppendFeatureAuditHistory($"Feature audit cancellation requested while switching to {pageName}.");
+            }
+
             _activePage = pageName;
+            _pageNavigationVersion++;
+            var navigationVersion = _pageNavigationVersion;
             _lastRealtimePageRefreshUtc = DateTime.MinValue;
             SelectNavButton(navButton);
             HideAllPages();
@@ -1628,13 +1673,12 @@ namespace HyperBoostX
                 case "Dashboard":
                     SetLocalizedPageHeader("Dashboard", "Dashboard", "Core system hub untuk monitor real-time, quick boost, recommendation preview, mode control, alerts, dan activity log.");
                     DashboardContent.Visibility = Visibility.Visible;
-                    await RefreshDashboard();
-                    _dashboardTimer.Start();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshDashboard, () => _dashboardTimer.Start());
                     break;
                 case "Performance":
                     SetLocalizedPageHeader("Performance", "Performance Boost", "Fitur boost performa langsung untuk CPU, RAM, disk, startup, network, gaming, dan safety restore.");
                     PerformanceContent.Visibility = Visibility.Visible;
-                    await RefreshPerformanceBoostViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshPerformanceBoostViewAsync);
                     break;
                 case "OneClickBoost":
                     SetLocalizedPageHeader("OneClickBoost", "One Click Boost", "Jalankan boost aman, balanced, extreme, atau custom dari satu panel cepat.");
@@ -1645,171 +1689,169 @@ namespace HyperBoostX
                 case "Startup":
                     SetLocalizedPageHeader("Startup", "Startup Manager", "Review boot impact and jump straight to startup controls when your PC feels slow to open.");
                     StartupContent.Visibility = Visibility.Visible;
-                    await RefreshStartupItems();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshStartupItems);
                     break;
                 case "SmartRecommendation":
                     SetLocalizedPageHeader("SmartRecommendation", "Smart Recommendation", "Auto scan sistem dan tampilkan rekomendasi optimasi yang paling relevan untuk kondisi saat ini.");
                     SmartRecommendationContent.Visibility = Visibility.Visible;
-                    await RunSmartRecommendationScanAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RunSmartRecommendationScanAsync);
                     break;
                 case "Cleanup":
                     SetLocalizedPageHeader("Cleanup", "Storage Cleaner", "Free temporary files and run cleanup tools without guessing which step to use first.");
                     CleanupContent.Visibility = Visibility.Visible;
-                    await RefreshCleanupViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshCleanupViewAsync);
                     break;
                 case "Storage":
                     SetLocalizedPageHeader("Storage", "Storage", "Baca semua storage yang terhubung, scan drive, lihat breakdown, health, dan action dari satu halaman.");
                     StorageContent.Visibility = Visibility.Visible;
-                    await RefreshStorageViewAsync();
-                    _storageTimer.Start();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshStorageViewAsync, () => _storageTimer.Start());
                     break;
                 case "Gaming":
                     SetLocalizedPageHeader("Gaming", "Gaming Booster", "Prepare the system for lower latency and fewer interruptions before launching games.");
                     GamingContent.Visibility = Visibility.Visible;
                     RefreshGamingWhitelistView();
                     InitializeGamingDefaults();
-                    await RefreshGamingBoosterViewAsync();
-                    _gamingTimer.Start();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshGamingBoosterViewAsync, () => _gamingTimer.Start());
                     break;
                 case "Streaming":
                     SetLocalizedPageHeader("Streaming", "Streaming Mode", "Stabilkan encoder, upload, CPU, RAM, GPU, dan background activity untuk sesi live yang lebih aman.");
                     StreamingContent.Visibility = Visibility.Visible;
                     InitializeStreamingDefaults();
-                    await RefreshStreamingViewAsync();
-                    _streamingTimer.Start();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshStreamingViewAsync, () => _streamingTimer.Start());
                     break;
                 case "Creator":
                     SetLocalizedPageHeader("Creator", "Creator Mode", "Optimalkan editing, rendering, cache, disk, dan focus mode untuk workflow creator yang lebih smooth.");
                     CreatorContent.Visibility = Visibility.Visible;
                     InitializeCreatorDefaults();
-                    await RefreshCreatorViewAsync();
-                    _creatorTimer.Start();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshCreatorViewAsync, () => _creatorTimer.Start());
                     break;
                 case "Network":
                     SetLocalizedPageHeader("Network", "Network Booster", "Run diagnostics first, then apply DNS and TCP actions with clear feedback.");
                     NetworkContent.Visibility = Visibility.Visible;
-                    await RefreshNetworkDiagnostics();
-                    await RefreshNetworkBoosterViewAsync();
-                    _networkTimer.Start();
+                    StartPageActivationRefresh(navigationVersion, pageName, async () =>
+                    {
+                        await RefreshNetworkDiagnostics();
+                        await RefreshNetworkBoosterViewAsync();
+                    }, () => _networkTimer.Start());
                     break;
                 case "DnsLatency":
                     SetLocalizedPageHeader("DnsLatency", "DNS & Latency Tools", "Diagnosa DNS, ping, jitter, packet loss, traceroute, dan quick-fix latency dalam satu panel advanced.");
                     DnsLatencyContent.Visibility = Visibility.Visible;
-                    await RefreshDnsLatencyViewAsync();
-                    _networkTimer.Start();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshDnsLatencyViewAsync, () => _networkTimer.Start());
                     break;
                 case "BackgroundApps":
                     SetLocalizedPageHeader("BackgroundApps", "Background Apps", "See which processes are eating resources so the next cleanup decision is obvious.");
                     BackgroundAppsContent.Visibility = Visibility.Visible;
-                    await RefreshBackgroundApps();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshBackgroundApps);
                     break;
                 case "Privacy":
                     SetLocalizedPageHeader("Privacy", "Privacy Center", "Reduce telemetry and open the right Windows privacy pages without hunting through settings.");
                     PrivacyContent.Visibility = Visibility.Visible;
-                    await RefreshPrivacyViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshPrivacyViewAsync);
                     break;
                 case "SecurityHealth":
                     SetLocalizedPageHeader("SecurityHealth", "Security & Health", "Lihat apakah PC aman dan sehat dari sisi security, suhu, disk, RAM, integritas sistem, dan aktivitas mencurigakan.");
                     SecurityHealthContent.Visibility = Visibility.Visible;
-                    await RefreshSecurityHealthViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshSecurityHealthViewAsync);
                     break;
                 case "AppsManager":
                     SetLocalizedPageHeader("AppsManager", "Apps Manager", "Lihat, monitor, uninstall, cleanup, dan optimalkan aplikasi dari satu panel yang lebih rapi.");
                     AppsManagerContent.Visibility = Visibility.Visible;
-                    await RefreshAppsManagerViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshAppsManagerViewAsync);
                     break;
                 case "AppUninstaller":
                     SetLocalizedPageHeader("AppUninstaller", "App Uninstaller", "Uninstall, analyze, deep-clean residual, force-remove app bandel, dan review impact aplikasi dari satu modul.");
                     AppUninstallerContent.Visibility = Visibility.Visible;
-                    await RefreshAppUninstallerViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshAppUninstallerViewAsync);
                     break;
                 case "Services":
                     SetLocalizedPageHeader("Services", "Services (Local Machine)", "Database dan control center semua service lokal, lengkap dengan status, startup type, resource, dependency, insight, bulk action, dan backup restore.");
                     ServicesContent.Visibility = Visibility.Visible;
-                    await RefreshServicesViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshServicesViewAsync);
                     break;
                 case "Power":
                     SetLocalizedPageHeader("Power", "Power Optimization", "Brain power management untuk mode dinamis, CPU/GPU/disk/network power control, thermal-aware tuning, telemetry, rules, dan backup power policy.");
                     PowerContent.Visibility = Visibility.Visible;
-                    await RefreshPowerOptimizationViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshPowerOptimizationViewAsync);
                     break;
                 case "Visual":
                     SetLocalizedPageHeader("Visual", "Visual Effects", "Kontrol UI rendering, animation, transparency, explorer effects, input responsiveness, adaptive visual engine, dan backup visual setting.");
                     VisualContent.Visibility = Visibility.Visible;
-                    await RefreshVisualEffectsViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshVisualEffectsViewAsync);
                     break;
                 case "WindowsFeatures":
                     SetLocalizedPageHeader("WindowsFeatures", "Windows Features", "Kontrol fitur resmi Windows untuk gaming, developer, creator, legacy, network, security, dan optional features.");
                     WindowsFeaturesContent.Visibility = Visibility.Visible;
-                    await RefreshWindowsFeaturesViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshWindowsFeaturesViewAsync);
                     break;
                 case "UpdateControl":
                     SetLocalizedPageHeader("UpdateControl", "Update Control", "Kontrol update Windows, driver, app, service, schedule, dan background update agar tidak mengganggu performa.");
                     UpdateControlContent.Visibility = Visibility.Visible;
-                    await RefreshUpdateControlViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshUpdateControlViewAsync);
                     break;
                 case "Repair":
                     SetLocalizedPageHeader("Repair", "Repair Tools", "Bengkel Windows untuk scan error, fix system, network, service, app, update, cache, dan backup restore dari satu panel.");
                     RepairContent.Visibility = Visibility.Visible;
-                    await RefreshRepairViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshRepairViewAsync);
                     break;
                 case "Advanced":
                     SetLocalizedPageHeader("Advanced", "Advanced Tweaks", "Power-user tweaks untuk registry, service, boot, network low-level, kernel behavior, custom script, dan backup restore dengan indikator risiko.");
                     AdvancedContent.Visibility = Visibility.Visible;
-                    await RefreshAdvancedTweaksViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshAdvancedTweaksViewAsync);
                     break;
                 case "Restore":
                     SetLocalizedPageHeader("Restore", "Restore & Backup", "Create recovery checkpoints and keep simple snapshots before making bigger changes.");
                     RestoreContent.Visibility = Visibility.Visible;
-                    await RefreshRestoreBackupViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshRestoreBackupViewAsync);
                     break;
                 case "RestorePoint":
                     SetLocalizedPageHeader("RestorePoint", "Restore Point Manager", "Kelola restore point Windows sebagai snapshot system state untuk rollback cepat, validator aman, cleanup storage, dan repair engine.");
                     RestorePointContent.Visibility = Visibility.Visible;
-                    await RefreshRestorePointManagerViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshRestorePointManagerViewAsync);
                     break;
                 case "Automation":
                     SetLocalizedPageHeader("Automation", "Scheduled Automation", "Automation engine mandiri yang membaca konteks sistem, memilih aksi aman, menunda task saat tidak cocok, dan mencatat semua keputusan.");
                     AutomationContent.Visibility = Visibility.Visible;
-                    await RefreshAutomationViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshAutomationViewAsync);
                     break;
                 case "Utilities":
                     SetLocalizedPageHeader("Utilities", "Utilities Tools", "Toolbox utama untuk cleanup, diagnostics, repair, network fix, system control, monitoring, workflow, analytics, dan autonomous maintenance.");
                     UtilitiesContent.Visibility = Visibility.Visible;
-                    await RefreshUtilitiesViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshUtilitiesViewAsync);
                     break;
                 case "Testing":
                     SetLocalizedPageHeader("Testing", "Feature Audit", "Audit otomatis untuk memastikan semua menu inti hidup, refresh path aman, dan summary hasil test langsung dikirim ke Discord.");
                     TestingContent.Visibility = Visibility.Visible;
-                    await RefreshFeatureAuditViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshFeatureAuditViewAsync);
                     break;
                 case "Settings":
                     SetLocalizedPageHeader("Settings", "Settings", "Otak + aturan hidup aplikasi: UI, automation brain, system control, safety, engine, logging, update, dan master switch HyperBoostX.");
                     SettingsContent.Visibility = Visibility.Visible;
-                    await RefreshSettingsViewAsync();
-                    _settingsTimer.Start();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshSettingsViewAsync, () => _settingsTimer.Start());
                     break;
                 case "Tweaks":
                     SetLocalizedPageHeader("Tweaks", "Tweaks Center", "Browse available tweaks with clearer context before applying system-level changes.");
                     TweaksContent.Visibility = Visibility.Visible;
-                    await RefreshTweaksCenterViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshTweaksCenterViewAsync);
                     break;
                 case "Drivers":
                     SetLocalizedPageHeader("Drivers", "Driver & Update Center", "Inspect current driver inventory and start update checks when hardware acts up.");
                     DriversContent.Visibility = Visibility.Visible;
-                    await RefreshDrivers();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshDrivers);
                     break;
                 case "Booster":
                     SetLocalizedPageHeader("Booster", "Booster Profiles", "Apply ready-made profiles for gaming, streaming, productivity, and power-saving scenarios.");
                     BoosterContent.Visibility = Visibility.Visible;
-                    await LoadBoosterProfiles();
+                    StartPageActivationRefresh(navigationVersion, pageName, LoadBoosterProfiles);
                     break;
                 case "About":
                     SetLocalizedPageHeader("About", "About App", "Project information, runtime overview, and what this build is wired to do.");
                     AboutContent.Visibility = Visibility.Visible;
-                    await RefreshAboutViewAsync();
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshAboutViewAsync);
                     break;
             }
+
+            return Task.CompletedTask;
         }
 
         private Task ShowPlaceholderPage(Button navButton, string title, string description, string status)
@@ -14285,29 +14327,89 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
 
         private string BuildTestingCompatibilitySummary(bool backendHealthy)
         {
-            var isAdmin = false;
-            try
-            {
-                using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
-                var principal = new System.Security.Principal.WindowsPrincipal(identity);
-                isAdmin = principal.IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
-            }
-            catch
-            {
-            }
-
             return TestingAuditSummaryService.BuildCompatibilitySummary(new TestingCompatibilityContext
             {
                 OsVersion = Environment.OSVersion.VersionString,
                 Is64BitOperatingSystem = Environment.Is64BitOperatingSystem,
                 CultureName = CultureInfo.CurrentCulture.Name,
                 UiCultureName = CultureInfo.CurrentUICulture.Name,
-                IsAdministrator = isAdmin,
+                IsAdministrator = IsProcessRunningAsAdministrator(),
                 BackendHealthy = backendHealthy,
                 WindowWidth = ActualWidth,
                 WindowHeight = ActualHeight
             });
         }
+
+        private static bool IsProcessRunningAsAdministrator()
+        {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return false;
+            }
+
+            IntPtr adminGroupSid = IntPtr.Zero;
+
+            try
+            {
+                var administratorsSidAuthority = new byte[] { 0, 0, 0, 0, 0, 5 };
+                if (!AllocateAndInitializeSid(
+                        administratorsSidAuthority,
+                        2,
+                        32,
+                        544,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        out adminGroupSid))
+                {
+                    return false;
+                }
+
+                if (!CheckTokenMembership(IntPtr.Zero, adminGroupSid, out var isMember))
+                {
+                    return false;
+                }
+
+                return isMember;
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                if (adminGroupSid != IntPtr.Zero)
+                {
+                    FreeSid(adminGroupSid);
+                }
+            }
+        }
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        private static extern bool AllocateAndInitializeSid(
+            byte[] pIdentifierAuthority,
+            byte nSubAuthorityCount,
+            uint nSubAuthority0,
+            uint nSubAuthority1,
+            uint nSubAuthority2,
+            uint nSubAuthority3,
+            uint nSubAuthority4,
+            uint nSubAuthority5,
+            uint nSubAuthority6,
+            uint nSubAuthority7,
+            out IntPtr pSid);
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        private static extern bool CheckTokenMembership(
+            IntPtr tokenHandle,
+            IntPtr sidToCheck,
+            out bool isMember);
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        private static extern IntPtr FreeSid(IntPtr pSid);
 
         private List<FeatureAuditTarget> BuildTestingSuiteTargets(string suiteName)
         {
@@ -14936,6 +15038,13 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                 : BuildFeatureAuditReport(_lastFeatureAuditResults);
         }
 
+        private Task RefreshFeatureAuditViewIfVisibleAsync()
+        {
+            return string.Equals(_activePage, "Testing", StringComparison.OrdinalIgnoreCase)
+                ? RefreshFeatureAuditViewAsync()
+                : Task.CompletedTask;
+        }
+
         private async Task RunFeatureAuditAsync(bool fullAudit)
         {
             if (_featureAuditRunning)
@@ -14945,6 +15054,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             }
 
             _featureAuditRunning = true;
+            _featureAuditCancellationRequested = false;
             _lastFeatureAuditMode = fullAudit ? "Full" : "Quick";
             _lastFeatureAuditUtc = DateTime.UtcNow;
             _lastFeatureAuditResults.Clear();
@@ -14957,29 +15067,38 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
 
                 foreach (var target in targets)
                 {
+                    if (_featureAuditCancellationRequested)
+                        break;
+
                     var result = await RunFeatureAuditTargetAsync(target);
                     _lastFeatureAuditResults.Add(result);
                     AppendFeatureAuditHistory($"{target.Name}: {(result.Success ? "PASS" : "FAIL")} ({result.DurationMs} ms)");
-                    await RefreshFeatureAuditViewAsync();
+                    await RefreshFeatureAuditViewIfVisibleAsync();
                     await Dispatcher.Yield(DispatcherPriority.Background);
                 }
 
                 var passed = _lastFeatureAuditResults.Count(x => x.Success);
                 var failed = _lastFeatureAuditResults.Count - passed;
-                _lastFeatureAuditSummary = $"Audit complete | Passed {passed} | Failed {failed} | Mode {_lastFeatureAuditMode}";
+                _lastFeatureAuditSummary = _featureAuditCancellationRequested
+                    ? $"Audit cancelled | Passed {passed} | Failed {failed} | Mode {_lastFeatureAuditMode}"
+                    : $"Audit complete | Passed {passed} | Failed {failed} | Mode {_lastFeatureAuditMode}";
 
                 var report = BuildFeatureAuditReport(_lastFeatureAuditResults);
                 await WriteFeatureAuditLogAsync(report);
-                await SendFeatureAuditReportToDiscordAsync(report);
-                await RefreshFeatureAuditViewAsync();
+                if (!_featureAuditCancellationRequested)
+                    await SendFeatureAuditReportToDiscordAsync(report);
+                await RefreshFeatureAuditViewIfVisibleAsync();
 
-                ShowActionStatus(
-                    failed == 0 ? ActionState.Success : ActionState.Warning,
-                    "Feature Audit",
-                    failed == 0
-                        ? $"{_lastFeatureAuditMode} feature audit completed successfully."
-                        : $"{_lastFeatureAuditMode} feature audit completed with {failed} failing module(s).",
-                    report);
+                if (!_featureAuditCancellationRequested)
+                {
+                    ShowActionStatus(
+                        failed == 0 ? ActionState.Success : ActionState.Warning,
+                        "Feature Audit",
+                        failed == 0
+                            ? $"{_lastFeatureAuditMode} feature audit completed successfully."
+                            : $"{_lastFeatureAuditMode} feature audit completed with {failed} failing module(s).",
+                        report);
+                }
             }
             catch (Exception ex)
             {
@@ -14990,7 +15109,8 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             finally
             {
                 _featureAuditRunning = false;
-                await RefreshFeatureAuditViewAsync();
+                _featureAuditCancellationRequested = false;
+                await RefreshFeatureAuditViewIfVisibleAsync();
             }
         }
 
@@ -15031,6 +15151,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             }
 
             _featureAuditRunning = true;
+            _featureAuditCancellationRequested = false;
             _lastTestingSuite = suiteName;
             _lastFeatureAuditMode = $"{suiteName} Suite";
             _lastFeatureAuditUtc = DateTime.UtcNow;
@@ -15047,29 +15168,38 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
 
                 foreach (var target in targets)
                 {
+                    if (_featureAuditCancellationRequested)
+                        break;
+
                     var result = await RunFeatureAuditTargetAsync(target);
                     _lastFeatureAuditResults.Add(result);
                     AppendFeatureAuditHistory($"{target.Name}: {(result.Success ? "PASS" : "FAIL")} ({result.DurationMs} ms)");
-                    await RefreshFeatureAuditViewAsync();
+                    await RefreshFeatureAuditViewIfVisibleAsync();
                     await Dispatcher.Yield(DispatcherPriority.Background);
                 }
 
                 var passed = _lastFeatureAuditResults.Count(x => x.Success);
                 var failed = _lastFeatureAuditResults.Count - passed;
-                _lastFeatureAuditSummary = $"{suiteName} suite complete | Passed {passed} | Failed {failed} | Mode {_testingExecutionMode}";
+                _lastFeatureAuditSummary = _featureAuditCancellationRequested
+                    ? $"{suiteName} suite cancelled | Passed {passed} | Failed {failed} | Mode {_testingExecutionMode}"
+                    : $"{suiteName} suite complete | Passed {passed} | Failed {failed} | Mode {_testingExecutionMode}";
 
                 var report = BuildFeatureAuditReport(_lastFeatureAuditResults);
                 await WriteFeatureAuditLogAsync($"[{suiteName} Suite]{Environment.NewLine}{report}");
-                await SendFeatureAuditReportToDiscordAsync(report);
-                await RefreshFeatureAuditViewAsync();
+                if (!_featureAuditCancellationRequested)
+                    await SendFeatureAuditReportToDiscordAsync(report);
+                await RefreshFeatureAuditViewIfVisibleAsync();
 
-                ShowActionStatus(
-                    failed == 0 ? ActionState.Success : ActionState.Warning,
-                    suiteName,
-                    failed == 0
-                        ? $"{suiteName} testing suite completed successfully."
-                        : $"{suiteName} testing suite completed with {failed} failing probe(s).",
-                    report);
+                if (!_featureAuditCancellationRequested)
+                {
+                    ShowActionStatus(
+                        failed == 0 ? ActionState.Success : ActionState.Warning,
+                        suiteName,
+                        failed == 0
+                            ? $"{suiteName} testing suite completed successfully."
+                            : $"{suiteName} testing suite completed with {failed} failing probe(s).",
+                        report);
+                }
             }
             catch (Exception ex)
             {
@@ -15080,7 +15210,8 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             finally
             {
                 _featureAuditRunning = false;
-                await RefreshFeatureAuditViewAsync();
+                _featureAuditCancellationRequested = false;
+                await RefreshFeatureAuditViewIfVisibleAsync();
             }
         }
 
@@ -15107,6 +15238,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             };
 
             _featureAuditRunning = true;
+            _featureAuditCancellationRequested = false;
             _lastTestingSuite = "Full QA Matrix";
             _lastFeatureAuditMode = "Full QA Matrix";
             _lastFeatureAuditUtc = DateTime.UtcNow;
@@ -15123,31 +15255,43 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                     AppendFeatureAuditHistory($"Suite phase: {suite}");
                     foreach (var target in BuildTestingSuiteTargets(suite))
                     {
+                        if (_featureAuditCancellationRequested)
+                            break;
+
                         var result = await RunFeatureAuditTargetAsync(target);
                         result.Name = $"{suite} / {target.Name}";
                         _lastFeatureAuditResults.Add(result);
                         AppendFeatureAuditHistory($"{result.Name}: {(result.Success ? "PASS" : "FAIL")} ({result.DurationMs} ms)");
-                        await RefreshFeatureAuditViewAsync();
+                        await RefreshFeatureAuditViewIfVisibleAsync();
                         await Dispatcher.Yield(DispatcherPriority.Background);
                     }
+
+                    if (_featureAuditCancellationRequested)
+                        break;
                 }
 
                 var passed = _lastFeatureAuditResults.Count(x => x.Success);
                 var failed = _lastFeatureAuditResults.Count - passed;
-                _lastFeatureAuditSummary = $"Full QA Matrix complete | Passed {passed} | Failed {failed} | Mode {_testingExecutionMode}";
+                _lastFeatureAuditSummary = _featureAuditCancellationRequested
+                    ? $"Full QA Matrix cancelled | Passed {passed} | Failed {failed} | Mode {_testingExecutionMode}"
+                    : $"Full QA Matrix complete | Passed {passed} | Failed {failed} | Mode {_testingExecutionMode}";
 
                 var report = BuildFeatureAuditReport(_lastFeatureAuditResults);
                 await WriteFeatureAuditLogAsync($"[Full QA Matrix]{Environment.NewLine}{report}");
-                await SendFeatureAuditReportToDiscordAsync(report);
-                await RefreshFeatureAuditViewAsync();
+                if (!_featureAuditCancellationRequested)
+                    await SendFeatureAuditReportToDiscordAsync(report);
+                await RefreshFeatureAuditViewIfVisibleAsync();
 
-                ShowActionStatus(
-                    failed == 0 ? ActionState.Success : ActionState.Warning,
-                    "Full QA Matrix",
-                    failed == 0
-                        ? "Full QA Matrix completed successfully."
-                        : $"Full QA Matrix completed with {failed} failing probe(s).",
-                    report);
+                if (!_featureAuditCancellationRequested)
+                {
+                    ShowActionStatus(
+                        failed == 0 ? ActionState.Success : ActionState.Warning,
+                        "Full QA Matrix",
+                        failed == 0
+                            ? "Full QA Matrix completed successfully."
+                            : $"Full QA Matrix completed with {failed} failing probe(s).",
+                        report);
+                }
             }
             catch (Exception ex)
             {
@@ -15158,7 +15302,8 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             finally
             {
                 _featureAuditRunning = false;
-                await RefreshFeatureAuditViewAsync();
+                _featureAuditCancellationRequested = false;
+                await RefreshFeatureAuditViewIfVisibleAsync();
             }
         }
 
