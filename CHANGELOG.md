@@ -2,6 +2,29 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.1.0-beta.3 - 2026-04-08
+
+### Added
+- `tests\test_startup_api.py` to lock the backend startup payload contract for both `items` and `startup_items`.
+- `dotnet-tests\HyperBoostX.Tests\FeatureAuditRegressionTests.cs` to cover the critical audit-path suites from the desktop side.
+- `release-notes-v1.1.0-beta.3.txt` for the new prerelease asset notes.
+
+### Changed
+- Updated runtime/app metadata from `1.1.0-beta.2` to `1.1.0-beta.3`.
+- Returned both legacy and current startup payload keys from `/api/startup/list` to keep WPF and audit flows aligned.
+- Hardened WPF stats/token parsing to avoid `dynamic` JSON crashes in Smart Recommendation, automation snapshots, and security health views.
+- Reduced dashboard and smart-scan latency by caching junk estimation and parallelizing lightweight backend reads.
+- Updated monitoring stats collection to use the active Windows system drive and short-lived GPU/temperature caching during refresh bursts.
+- Added safer storage refresh fallback behavior so storage-page failures degrade gracefully instead of crashing the app.
+
+### Validation
+- `powershell -ExecutionPolicy Bypass -File .\scripts\verify_repo.ps1 -Configuration Debug`
+- `dotnet build wpf\HyperBoostX.csproj`
+- `powershell -ExecutionPolicy Bypass -File .\scripts\build_release_local.ps1 -OutputRoot '.\artifacts\local-deploy-20260408-3'`
+
+### Notes
+- This prerelease is intended to replace `v1.1.0-beta.2` for runtime validation and cleaner audit passes.
+
 ## v1.1.0-beta - 2026-04-07
 
 ### Added
