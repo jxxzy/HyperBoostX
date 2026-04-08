@@ -294,7 +294,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.1.5";
+            ?? "1.1.6";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";

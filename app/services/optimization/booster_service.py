@@ -191,14 +191,15 @@ class BoosterService:
                     f"Profile '{profile.name}' applied with limited access. "
                     f"{success_count}/{total_count} settings succeeded."
                 )
-                logger.warning(f"{warning} Failed settings: {failed_settings}")
+                logger.warning(f"{warning} Restricted settings: {failed_settings}")
                 return {
                     "success": True,
                     "partial_success": True,
                     "message": warning,
-                    "warning": "Some tweaks require elevated permissions or are unavailable on this Windows setup.",
+                    "warning": "Some tweaks need Administrator privileges or are unavailable on this Windows setup.",
                     "applied_settings": success_count,
                     "total_settings": total_count,
+                    "restricted_settings": failed_settings,
                     "failed_settings": failed_settings,
                     "results": results
                 }

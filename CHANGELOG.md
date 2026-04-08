@@ -2,6 +2,10 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.1.6 - 2026-04-08
+- Fixed structured log severity detection in the WPF log watcher so backend warnings are not escalated into false error alerts.
+- Clarified booster profile partial-success messaging for admin-only tweaks such as timer resolution changes.
+
 ## v1.1.5 - 2026-04-08
 
 ### Changed

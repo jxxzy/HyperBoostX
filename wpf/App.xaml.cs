@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -16,6 +17,7 @@ namespace HyperBoostX
     /// </summary>
     public partial class App : Application
     {
+        private static readonly Regex StructuredLogSeverityRegex = new Regex(@"\s-\s(?<level>DEBUG|INFO|WARNING|ERROR|CRITICAL)\s-\s", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly string LogDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "HyperBoost X",
@@ -252,6 +254,18 @@ namespace HyperBoostX
             var text = line?.Trim() ?? "";
             if (string.IsNullOrWhiteSpace(text))
                 return null;
+
+            var structuredSeverity = StructuredLogSeverityRegex.Match(text);
+            if (structuredSeverity.Success)
+            {
+                return structuredSeverity.Groups["level"].Value.Trim().ToLowerInvariant() switch
+                {
+                    "warning" => "warning",
+                    "error" => "error",
+                    "critical" => "critical",
+                    _ => null
+                };
+            }
 
             var upper = text.ToUpperInvariant();
             if (upper.Contains("UNHANDLEDEXCEPTION") || upper.Contains("DISPATCHERUNHANDLEDEXCEPTION") || upper.Contains("TRACEBACK") || upper.Contains("CRITICAL"))
