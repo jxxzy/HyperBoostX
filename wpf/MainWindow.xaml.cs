@@ -141,6 +141,16 @@ namespace HyperBoostX
             public string Details { get; set; } = "";
         }
 
+        private sealed class FeatureAuditIncident
+        {
+            public DateTime TimestampUtc { get; set; } = DateTime.UtcNow;
+            public ActionState State { get; set; } = ActionState.Info;
+            public string TargetName { get; set; } = "";
+            public string Title { get; set; } = "";
+            public string Message { get; set; } = "";
+            public string Meta { get; set; } = "";
+        }
+
         private HyperBoostBackendClient _backendClient;
         private string _currentBackendUrl = "http://127.0.0.1:5000";
         private Button _selectedNavButton;
@@ -218,6 +228,7 @@ namespace HyperBoostX
         private readonly Queue<string> _featureAuditHistory = new();
         private string _utilitiesMode = "Smart Assist";
         private readonly List<FeatureAuditResult> _lastFeatureAuditResults = new();
+        private readonly List<FeatureAuditIncident> _featureAuditIncidents = new();
         private string _lastFeatureAuditSummary = "No audit has been executed yet.";
         private string _lastFeatureAuditMode = "Quick";
         private string _testingExecutionMode = "Safe Read-Only";
@@ -274,6 +285,7 @@ namespace HyperBoostX
         private string _openAiModel = "gpt-4.1-mini";
         private string _openAiMode = "Assistant";
         private string _openAiPermissionLevel = "Ask";
+        private string _lastOpenAiConnectionTestStatus = "No AI connection test run yet.";
         private const string SociabuzzDonateUrl = "https://sociabuzz.com/jxxzyshn69";
         private readonly string _currentAppVersion = System.Reflection.Assembly.GetExecutingAssembly()
             .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
@@ -563,6 +575,9 @@ namespace HyperBoostX
             _openAiModel = string.IsNullOrWhiteSpace(settings.OpenAiModel) ? "gpt-4.1-mini" : settings.OpenAiModel;
             _openAiMode = string.IsNullOrWhiteSpace(settings.OpenAiMode) ? "Assistant" : settings.OpenAiMode;
             _openAiPermissionLevel = string.IsNullOrWhiteSpace(settings.OpenAiPermissionLevel) ? "Ask" : settings.OpenAiPermissionLevel;
+            _lastOpenAiConnectionTestStatus = string.IsNullOrWhiteSpace(settings.LastOpenAiConnectionTestStatus)
+                ? "No AI connection test run yet."
+                : settings.LastOpenAiConnectionTestStatus;
             _autoCheckAppUpdates = settings.AutoCheckAppUpdates;
             _autoInstallAppUpdates = settings.AutoInstallAppUpdates;
             _latestKnownAppVersion = settings.LastKnownLatestVersion ?? "";
@@ -668,6 +683,9 @@ namespace HyperBoostX
                     ? secrets.OpenAiApiKey
                     : legacyOpenAi;
 
+            if (!string.IsNullOrWhiteSpace(_openAiApiKey))
+                _openAiEnabled = true;
+
             _discordWebhookUrl = !string.IsNullOrWhiteSpace(envDiscord)
                 ? envDiscord
                 : !string.IsNullOrWhiteSpace(secrets.DiscordWebhookUrl)
@@ -763,6 +781,7 @@ namespace HyperBoostX
             settings.OpenAiModel = _openAiModel;
             settings.OpenAiMode = _openAiMode;
             settings.OpenAiPermissionLevel = _openAiPermissionLevel;
+            settings.LastOpenAiConnectionTestStatus = _lastOpenAiConnectionTestStatus;
             settings.AutoCheckAppUpdates = _autoCheckAppUpdates;
             settings.AutoInstallAppUpdates = _autoInstallAppUpdates;
             settings.LastKnownLatestVersion = _latestKnownAppVersion;
@@ -1900,11 +1919,50 @@ namespace HyperBoostX
                 : $"{meta}    {DateTime.Now:HH:mm:ss}";
             ActionStatusCard.Visibility = Visibility.Visible;
             AppendDashboardActivity($"{title}: {message}");
+            UpdateFeatureAuditIncidentState(state, title, message, meta);
 
             if (state == ActionState.Warning)
                 _ = ReportErrorToDiscordAsync(title, message, meta, "warning");
             else if (state == ActionState.Error)
                 _ = ReportErrorToDiscordAsync(title, message, meta, "error");
+        }
+
+        private void UpdateFeatureAuditIncidentState(ActionState state, string title, string message, string meta = null)
+        {
+            if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(message))
+                return;
+
+            if (title.Contains("Feature Audit", StringComparison.OrdinalIgnoreCase) ||
+                title.Contains("Full QA Matrix", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(title, "Testing", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            var targetName = ResolveFeatureAuditTargetName(title);
+
+            if (state == ActionState.Success)
+            {
+                if (!string.IsNullOrWhiteSpace(targetName))
+                    _featureAuditIncidents.RemoveAll(item => string.Equals(item.TargetName, targetName, StringComparison.OrdinalIgnoreCase));
+                return;
+            }
+
+            if (state != ActionState.Error)
+                return;
+
+            _featureAuditIncidents.Add(new FeatureAuditIncident
+            {
+                TimestampUtc = DateTime.UtcNow,
+                State = state,
+                TargetName = targetName,
+                Title = title.Trim(),
+                Message = message.Trim(),
+                Meta = meta?.Trim() ?? ""
+            });
+
+            if (_featureAuditIncidents.Count > 40)
+                _featureAuditIncidents.RemoveRange(0, _featureAuditIncidents.Count - 40);
         }
 
         private void AppendDashboardActivity(string message)
@@ -4743,7 +4801,8 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
                     $"Model: {_openAiModel}{Environment.NewLine}" +
                     $"Mode: {_openAiMode}{Environment.NewLine}" +
                     $"Permission: {_openAiPermissionLevel}{Environment.NewLine}" +
-                    $"API Key: {(string.IsNullOrWhiteSpace(_openAiApiKey) ? "Not configured" : "Configured")}";
+                    $"API Key: {(string.IsNullOrWhiteSpace(_openAiApiKey) ? "Not configured" : "Configured")}{Environment.NewLine}" +
+                    $"Last Test: {_lastOpenAiConnectionTestStatus}";
             }
             if (AiCopilotStatusText != null)
             {
@@ -5885,6 +5944,8 @@ if (-not $result) { 'Unavailable'; return }
 
             if (string.IsNullOrWhiteSpace(_openAiApiKey))
             {
+                _lastOpenAiConnectionTestStatus = $"FAIL {DateTime.Now:HH:mm:ss} - API key belum diisi.";
+                await PersistAndRefreshSettingsAsync();
                 ShowActionStatus(ActionState.Warning, "OpenAI Copilot", "Masukkan OpenAI API key dulu.");
                 return;
             }
@@ -5902,11 +5963,14 @@ if (-not $result) { 'Unavailable'; return }
                     PermissionLevel = _openAiPermissionLevel
                 });
                 _openAiEnabled = true;
+                _lastOpenAiConnectionTestStatus = $"OK {DateTime.Now:HH:mm:ss} - {TrimFeatureAuditText(response.Reply, 120)}";
                 await PersistAndRefreshSettingsAsync();
                 ShowActionStatus(ActionState.Success, "OpenAI Copilot", "Koneksi ke OpenAI berhasil.", response.Reply);
             }
             catch (Exception ex)
             {
+                _lastOpenAiConnectionTestStatus = $"FAIL {DateTime.Now:HH:mm:ss} - {TrimFeatureAuditText(ex.Message, 120)}";
+                await PersistAndRefreshSettingsAsync();
                 ShowActionStatus(ActionState.Error, "OpenAI Copilot", "Gagal menghubungi OpenAI.", ex.Message);
             }
         }
@@ -14306,6 +14370,122 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             return normalized.Substring(0, maxLength - 3) + "...";
         }
 
+        private IReadOnlyList<FeatureAuditIncident> GetRelevantFeatureAuditIncidents(string targetName, TimeSpan? lookback = null)
+        {
+            var effectiveLookback = lookback ?? TimeSpan.FromMinutes(30);
+            var cutoff = DateTime.UtcNow - effectiveLookback;
+
+            return _featureAuditIncidents
+                .Where(item => item.TimestampUtc >= cutoff)
+                .Where(item => string.Equals(item.TargetName, targetName, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(item => item.TimestampUtc)
+                .ToList();
+        }
+
+        private static string ResolveFeatureAuditTargetName(string title)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+                return "";
+
+            if (title.Contains("OpenAI Copilot", StringComparison.OrdinalIgnoreCase) ||
+                title.Contains("AI Copilot", StringComparison.OrdinalIgnoreCase) ||
+                title.Contains("Smart Recommendation", StringComparison.OrdinalIgnoreCase))
+                return "AI Copilot";
+
+            if (title.Contains("Startup", StringComparison.OrdinalIgnoreCase))
+                return "Startup Manager";
+
+            if (title.Contains("Dashboard", StringComparison.OrdinalIgnoreCase))
+                return "Dashboard";
+
+            if (title.Contains("DNS", StringComparison.OrdinalIgnoreCase) ||
+                title.Contains("Latency", StringComparison.OrdinalIgnoreCase))
+                return "DNS & Latency Tools";
+
+            if (title.Contains("Network", StringComparison.OrdinalIgnoreCase))
+                return "Network Booster";
+
+            if (title.Contains("Privacy", StringComparison.OrdinalIgnoreCase))
+                return "Privacy Center";
+
+            if (title.Contains("Security", StringComparison.OrdinalIgnoreCase))
+                return "Security & Health";
+
+            if (title.Contains("App Uninstaller", StringComparison.OrdinalIgnoreCase))
+                return "App Uninstaller";
+
+            if (title.Contains("Apps Manager", StringComparison.OrdinalIgnoreCase))
+                return "Apps Manager";
+
+            if (title.Contains("Automation", StringComparison.OrdinalIgnoreCase))
+                return "Scheduled Automation";
+
+            if (title.Contains("Utilities", StringComparison.OrdinalIgnoreCase) ||
+                title.Contains("Emergency Tools", StringComparison.OrdinalIgnoreCase))
+                return "Utilities Tools";
+
+            if (title.Contains("Driver", StringComparison.OrdinalIgnoreCase))
+                return "Driver & Update Center";
+
+            if (title.Contains("Restore Point", StringComparison.OrdinalIgnoreCase) ||
+                title.Contains("System Protection", StringComparison.OrdinalIgnoreCase))
+                return "Restore Point Manager";
+
+            if (title.Contains("Backup", StringComparison.OrdinalIgnoreCase) ||
+                title.Contains("Restore", StringComparison.OrdinalIgnoreCase))
+                return "Restore & Backup";
+
+            if (title.Contains("Windows Features", StringComparison.OrdinalIgnoreCase) ||
+                title.Contains("Feature Optimization", StringComparison.OrdinalIgnoreCase))
+                return "Windows Features";
+
+            if (title.Contains("App Update", StringComparison.OrdinalIgnoreCase) ||
+                title.Contains("Update", StringComparison.OrdinalIgnoreCase))
+                return "Update Control";
+
+            if (title.Contains("Repair", StringComparison.OrdinalIgnoreCase) ||
+                title.Contains("SFC", StringComparison.OrdinalIgnoreCase) ||
+                title.Contains("DISM", StringComparison.OrdinalIgnoreCase))
+                return "Repair Tools";
+
+            if (title.Contains("Tweaks", StringComparison.OrdinalIgnoreCase))
+                return "Tweaks Center";
+
+            if (title.Contains("Advanced", StringComparison.OrdinalIgnoreCase))
+                return "Advanced Tweaks";
+
+            if (title.Contains("Services", StringComparison.OrdinalIgnoreCase))
+                return "Windows Services";
+
+            if (title.Contains("Power", StringComparison.OrdinalIgnoreCase))
+                return "Power Optimization";
+
+            if (title.Contains("Visual", StringComparison.OrdinalIgnoreCase) ||
+                title.Contains("Animation", StringComparison.OrdinalIgnoreCase) ||
+                title.Contains("UI Rendering", StringComparison.OrdinalIgnoreCase))
+                return "Visual Effects";
+
+            if (title.Contains("Gaming", StringComparison.OrdinalIgnoreCase))
+                return "Gaming Booster";
+
+            if (title.Contains("Streaming", StringComparison.OrdinalIgnoreCase))
+                return "Streaming Mode";
+
+            if (title.Contains("Creator", StringComparison.OrdinalIgnoreCase))
+                return "Creator Mode";
+
+            if (title.Contains("Storage", StringComparison.OrdinalIgnoreCase))
+                return "Storage";
+
+            if (title.Contains("Performance", StringComparison.OrdinalIgnoreCase))
+                return "Performance Boost";
+
+            if (title.Contains("Cleanup", StringComparison.OrdinalIgnoreCase))
+                return "Cleanup";
+
+            return "";
+        }
+
         private static void RequireTestCondition(bool condition, string message)
         {
             if (!condition)
@@ -14671,6 +14851,22 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             {
                 new()
                 {
+                    Name = "Runtime Error Monitor",
+                    ExecuteAsync = () => Task.CompletedTask,
+                    Snapshot = () =>
+                    {
+                        var incidents = _featureAuditIncidents
+                            .Where(item => item.TimestampUtc >= DateTime.UtcNow - TimeSpan.FromMinutes(30))
+                            .OrderByDescending(item => item.TimestampUtc)
+                            .Take(3)
+                            .Select(item => $"{item.Title}: {item.Message}");
+                        return incidents.Any()
+                            ? string.Join(" | ", incidents)
+                            : "No runtime warning/error detected in the last 30 minutes.";
+                    }
+                },
+                new()
+                {
                     Name = "Dashboard",
                     ExecuteAsync = RefreshDashboard,
                     Snapshot = () => $"CPU {CpuText?.Text ?? "--"} | RAM {MemoryText?.Text ?? "--"} | Disk {DiskText?.Text ?? "--"}"
@@ -14743,6 +14939,12 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                     Name = "Settings",
                     ExecuteAsync = RefreshSettingsViewAsync,
                     Snapshot = () => SettingsQuickResultText?.Text ?? SettingsSpecOverviewText?.Text
+                },
+                new()
+                {
+                    Name = "AI Copilot",
+                    ExecuteAsync = async () => await RefreshAiCopilotDiagnosticsAsync(refreshContext: true),
+                    Snapshot = () => AiCopilotStatusText?.Text ?? AiCopilotReplyText?.Text ?? OpenAiSettingsStatusText?.Text
                 },
                 new()
                 {
@@ -14912,6 +15114,28 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
 
                 await target.ExecuteAsync();
                 stopwatch.Stop();
+
+                var incidents = GetRelevantFeatureAuditIncidents(target.Name);
+                if (string.Equals(target.Name, "Runtime Error Monitor", StringComparison.OrdinalIgnoreCase))
+                {
+                    incidents = _featureAuditIncidents
+                        .Where(item => item.TimestampUtc >= DateTime.UtcNow - TimeSpan.FromMinutes(30))
+                        .OrderByDescending(item => item.TimestampUtc)
+                        .ToList();
+                }
+
+                if (incidents.Count > 0)
+                {
+                    var latest = incidents[0];
+                    return new FeatureAuditResult
+                    {
+                        Name = target.Name,
+                        Success = false,
+                        DurationMs = stopwatch.ElapsedMilliseconds,
+                        Details = TrimFeatureAuditText($"{latest.Title}: {latest.Message}" +
+                            (string.IsNullOrWhiteSpace(latest.Meta) ? "" : $" | {latest.Meta}"))
+                    };
+                }
 
                 return new FeatureAuditResult
                 {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -47,9 +48,11 @@ namespace HyperBoostX.Services
                 "Do not recommend risky registry, service, or driver changes unless explicitly asked. " +
                 "Keep reply concise, practical, and user-friendly.";
 
-            var payload = new
+            var model = string.IsNullOrWhiteSpace(request.Model) ? "gpt-4.1-mini" : request.Model;
+
+            var responsesPayload = new
             {
-                model = string.IsNullOrWhiteSpace(request.Model) ? "gpt-4.1-mini" : request.Model,
+                model,
                 max_output_tokens = 450,
                 input = new object[]
                 {
@@ -77,16 +80,54 @@ namespace HyperBoostX.Services
                 }
             };
 
-            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/responses");
-            httpRequest.Headers.Add("Authorization", $"Bearer {request.ApiKey}");
-            httpRequest.Headers.Add("Accept", "application/json");
-            httpRequest.Content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
+            var responsesBody = JsonConvert.SerializeObject(responsesPayload);
+            var (responsesSuccess, responsesText, responsesError) = await SendOpenAiRequestAsync(
+                "https://api.openai.com/v1/responses",
+                request.ApiKey,
+                responsesBody);
 
-            using var response = await HttpClient.SendAsync(httpRequest);
-            var responseText = await response.Content.ReadAsStringAsync();
-            response.EnsureSuccessStatusCode();
+            if (responsesSuccess)
+                return ParseResponse(responsesText);
 
-            return ParseResponse(responseText);
+            var chatPayload = new
+            {
+                model,
+                max_tokens = 450,
+                messages = new object[]
+                {
+                    new
+                    {
+                        role = "system",
+                        content = developerPrompt
+                    },
+                    new
+                    {
+                        role = "user",
+                        content =
+                            $"App mode: {request.AppMode}\nPermission level: {request.PermissionLevel}\nSystem context:\n{request.SystemContext}\n\nUser request:\n{request.UserPrompt}"
+                    }
+                }
+            };
+
+            var chatBody = JsonConvert.SerializeObject(chatPayload);
+            var (chatSuccess, chatText, chatError) = await SendOpenAiRequestAsync(
+                "https://api.openai.com/v1/chat/completions",
+                request.ApiKey,
+                chatBody);
+
+            if (chatSuccess)
+                return ParseChatCompletionsResponse(chatText);
+
+            var errorMessage = string.Join(
+                " | ",
+                new[]
+                {
+                    responsesError,
+                    chatError
+                });
+            throw new InvalidOperationException(string.IsNullOrWhiteSpace(errorMessage)
+                ? "OpenAI request failed."
+                : errorMessage);
         }
 
         public static OpenAiCopilotResponse ParseResponseForTesting(string responseText)
@@ -97,33 +138,27 @@ namespace HyperBoostX.Services
         private static OpenAiCopilotResponse ParseResponse(string responseText)
         {
             var root = JsonConvert.DeserializeObject<JObject>(responseText) ?? new JObject();
-            var outputText = root["output_text"]?.ToString();
-
+            var outputText = ExtractOpenAiText(root);
             if (string.IsNullOrWhiteSpace(outputText))
             {
-                var items = root["output"] as JArray;
-                if (items != null)
+                return new OpenAiCopilotResponse
                 {
-                    foreach (var item in items)
-                    {
-                        var content = item["content"] as JArray;
-                        if (content == null)
-                            continue;
-
-                        foreach (var block in content)
-                        {
-                            var text = block["text"]?.ToString()
-                                ?? block["output_text"]?.ToString()
-                                ?? block["content"]?.ToString();
-                            if (!string.IsNullOrWhiteSpace(text))
-                            {
-                                outputText = text;
-                                break;
-                            }
-                        }
-                    }
-                }
+                    Reply = "AI returned an empty response.",
+                    RawContent = responseText,
+                    SafeActions = new List<string> { "scan_only" }
+                };
             }
+
+            return ParseStructuredOrPlainText(outputText, responseText);
+        }
+
+        private static OpenAiCopilotResponse ParseChatCompletionsResponse(string responseText)
+        {
+            var root = JsonConvert.DeserializeObject<JObject>(responseText) ?? new JObject();
+            var outputText =
+                root["choices"]?.First?["message"]?["content"]?.ToString()
+                ?? root["choices"]?.First?["text"]?.ToString()
+                ?? ExtractOpenAiText(root);
 
             if (string.IsNullOrWhiteSpace(outputText))
             {
@@ -135,6 +170,11 @@ namespace HyperBoostX.Services
                 };
             }
 
+            return ParseStructuredOrPlainText(outputText, responseText);
+        }
+
+        private static OpenAiCopilotResponse ParseStructuredOrPlainText(string outputText, string rawContent)
+        {
             var cleaned = outputText.Trim();
             var jsonStart = cleaned.IndexOf('{');
             var jsonEnd = cleaned.LastIndexOf('}');
@@ -158,9 +198,72 @@ namespace HyperBoostX.Services
                 return new OpenAiCopilotResponse
                 {
                     Reply = outputText,
-                    RawContent = responseText,
+                    RawContent = rawContent,
                     SafeActions = new List<string> { "scan_only" }
                 };
+            }
+        }
+
+        private static string ExtractOpenAiText(JObject root)
+        {
+            var outputText = root["output_text"]?.ToString();
+            if (!string.IsNullOrWhiteSpace(outputText))
+                return outputText;
+
+            var items = root["output"] as JArray;
+            if (items == null)
+                return "";
+
+            foreach (var item in items)
+            {
+                var content = item["content"] as JArray;
+                if (content == null)
+                    continue;
+
+                foreach (var block in content)
+                {
+                    var text = block["text"]?.ToString()
+                        ?? block["output_text"]?.ToString()
+                        ?? block["content"]?.ToString();
+                    if (!string.IsNullOrWhiteSpace(text))
+                        return text;
+                }
+            }
+
+            return "";
+        }
+
+        private static async Task<(bool Success, string ResponseText, string ErrorMessage)> SendOpenAiRequestAsync(string url, string apiKey, string body)
+        {
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url);
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+            httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpRequest.Content = new StringContent(body, Encoding.UTF8, "application/json");
+
+            using var response = await HttpClient.SendAsync(httpRequest);
+            var responseText = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+                return (true, responseText, "");
+
+            var errorMessage = TryExtractErrorMessage(responseText);
+            var summary = string.IsNullOrWhiteSpace(errorMessage)
+                ? $"OpenAI API returned {(int)response.StatusCode} ({response.ReasonPhrase})."
+                : $"OpenAI API returned {(int)response.StatusCode} ({response.ReasonPhrase}): {errorMessage}";
+            return (false, responseText, summary);
+        }
+
+        private static string TryExtractErrorMessage(string responseText)
+        {
+            try
+            {
+                var root = JsonConvert.DeserializeObject<JObject>(responseText) ?? new JObject();
+                return root["error"]?["message"]?.ToString()
+                    ?? root["message"]?.ToString()
+                    ?? "";
+            }
+            catch
+            {
+                return "";
             }
         }
     }
