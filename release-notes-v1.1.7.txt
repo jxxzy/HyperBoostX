@@ -1,0 +1,6 @@
+HyperBoostX v1.1.7
+
+Hotfix focus:
+- split Gaming Mode and Gaming Booster into clearly different menu destinations and responsibilities
+- kept the structured log severity fix so backend WARNING lines stay warnings instead of false errors
+- shipped the UI/UX cleanup together with the alert-classification fix in a single current release

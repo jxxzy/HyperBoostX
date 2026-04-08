@@ -294,7 +294,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.1.6";
+            ?? "1.1.7";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -1744,7 +1744,7 @@ namespace HyperBoostX
                     StartPageActivationRefresh(navigationVersion, pageName, RefreshStorageViewAsync, () => _storageTimer.Start());
                     break;
                 case "Gaming":
-                    SetLocalizedPageHeader("Gaming", "Gaming Booster", "Prepare the system for lower latency and fewer interruptions before launching games.");
+                    SetLocalizedPageHeader("Gaming", "Gaming Mode", "Kelola profile, policy, auto activation, dan restore environment supaya Windows tetap fokus selama sesi gaming berjalan.");
                     GamingContent.Visibility = Visibility.Visible;
                     RefreshGamingWhitelistView();
                     InitializeGamingDefaults();
@@ -1877,9 +1877,9 @@ namespace HyperBoostX
                     StartPageActivationRefresh(navigationVersion, pageName, RefreshDrivers);
                     break;
                 case "Booster":
-                    SetLocalizedPageHeader("Booster", "Booster Profiles", "Apply ready-made profiles for gaming, streaming, productivity, and power-saving scenarios.");
+                    SetLocalizedPageHeader("Booster", "Gaming Booster", "Jalankan optimasi instan seperti boost cepat, process trimming, network tuning, dan cleanup action sebelum atau saat game berjalan.");
                     BoosterContent.Visibility = Visibility.Visible;
-                    StartPageActivationRefresh(navigationVersion, pageName, LoadBoosterProfiles);
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshGamingBoosterHubAsync);
                     break;
                 case "About":
                     SetLocalizedPageHeader("About", "About App", "Project information, runtime overview, and what this build is wired to do.");
@@ -2812,14 +2812,13 @@ namespace HyperBoostX
                     await ShowPage("OneClickBoost", button);
                     break;
                 case nameof(GamingModeBtn):
-                    await ApplyBoosterProfileAsync("gaming", "Gaming Mode");
                     await ShowPage("Gaming", button);
                     break;
                 case nameof(SmartRecommendationBtn):
                     await ShowSmartRecommendationAsync(button);
                     break;
                 case nameof(GamingBoosterBtn):
-                    await ShowPage("Gaming", button);
+                    await ShowPage("Booster", button);
                     break;
                 case nameof(StorageBtn):
                     await ShowPage("Storage", button);
@@ -3284,71 +3283,35 @@ namespace HyperBoostX
 
         #region Booster
 
-        private async Task LoadBoosterProfiles()
+        private Task RefreshGamingBoosterHubAsync()
         {
-            var profiles = await SafeApiCall(() => _backendClient.GetBoosterProfilesAsync());
-            if (profiles == null || profiles["profiles"] == null)
-            {
-                return;
-            }
+            var activeMode = _gamingBoostActive ? "Active" : "Idle";
+            var activeGame = string.IsNullOrWhiteSpace(_lastDetectedGameProcess) ? "No active game detected" : $"{_lastDetectedGameProcess}.exe";
 
-            BoosterProfilesPanel.Children.Clear();
-            var profilesList = profiles["profiles"] as Newtonsoft.Json.Linq.JArray;
-            if (profilesList == null)
-                return;
+            BoosterSummaryText.Text =
+                $"Booster state: {activeMode}{Environment.NewLine}" +
+                $"Detected game: {activeGame}{Environment.NewLine}" +
+                "Use Gaming Mode for profile/session rules. Use Gaming Booster for one-shot optimization.";
 
-            foreach (var profile in profilesList)
-            {
-                var profileName = profile["name"]?.ToString() ?? "Unknown";
-                var profileId = profile["id"]?.ToString() ?? "";
-                var description = profile["description"]?.ToString() ?? "";
+            BoosterRecommendationText.Text =
+                "Recommended flow:" + Environment.NewLine +
+                "1. Analyze safe boost" + Environment.NewLine +
+                "2. Run one-click boost" + Environment.NewLine +
+                "3. Apply targeted game boost only if the game process is already active";
 
-                // Create container for profile info and button
-                var container = new StackPanel { Margin = new Thickness(0, 0, 0, 15) };
+            BoosterActionText.Text =
+                "Action groups:" + Environment.NewLine +
+                "Process optimizer, network optimizer, visual optimizer, and manual booster setup.";
 
-                // Profile name and description
-                var titleBlock = new TextBlock
-                {
-                    Text = profileName,
-                    FontSize = 14,
-                    FontWeight = FontWeights.Bold,
-                    Foreground = System.Windows.Media.Brushes.LimeGreen,
-                    Margin = new Thickness(0, 0, 0, 5)
-                };
-                container.Children.Add(titleBlock);
+            BoosterTargetText.Text =
+                $"Current target: {activeGame}{Environment.NewLine}" +
+                "Start Game Boost works best after a real game executable is detected.";
 
-                var descBlock = new TextBlock
-                {
-                    Text = description,
-                    FontSize = 11,
-                    Foreground = System.Windows.Media.Brushes.LightGray,
-                    TextWrapping = TextWrapping.Wrap,
-                    Margin = new Thickness(0, 0, 0, 8)
-                };
-                container.Children.Add(descBlock);
+            BoosterReportText.Text = string.IsNullOrWhiteSpace(GamingBoostResultsText?.Text)
+                ? "No booster report yet."
+                : GamingBoostResultsText.Text;
 
-                // Apply button
-                var btn = new Button
-                {
-                    Content = $"Apply {profileName}",
-                    Tag = profileId,
-                    Style = (Style)this.FindResource("ActionButtonStyle"),
-                    Padding = new Thickness(15, 10, 15, 10)
-                };
-                btn.Click += BoosterProfile_Click;
-                container.Children.Add(btn);
-
-                BoosterProfilesPanel.Children.Add(container);
-            }
-        }
-
-        private async void BoosterProfile_Click(object sender, RoutedEventArgs e)
-        {
-            var btn = sender as Button;
-            var profileName = btn?.Tag as string;
-            if (string.IsNullOrEmpty(profileName)) return;
-
-            await ApplyBoosterProfileAsync(profileName, profileName.ToUpperInvariant());
+            return Task.CompletedTask;
         }
 
         #endregion
@@ -8987,6 +8950,7 @@ if (-not $result) { 'Unavailable'; return }
             _gamingBoostActive = true;
             GamingBoostResultsText.Text = "Gaming Mode Activated\nSafe preset applied\nBackground apps cleaned\nNetwork refreshed";
             await RefreshGamingBoosterViewAsync();
+            await RefreshGamingBoosterHubAsync();
             ShowActionStatus(ActionState.Success, "Quick Safe Gaming", "Safe gaming preset applied.", string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x))));
         }
 
@@ -9001,6 +8965,7 @@ if (-not $result) { 'Unavailable'; return }
             _gamingBoostActive = true;
             GamingBoostResultsText.Text = "Gaming Mode Activated\nCompetitive preset applied\nOverlay minimized\nLatency-oriented tuning enabled";
             await RefreshGamingBoosterViewAsync();
+            await RefreshGamingBoosterHubAsync();
             ShowActionStatus(ActionState.Success, "Quick Competitive Gaming", "Competitive gaming preset applied.", string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x))));
         }
 
@@ -9019,6 +8984,7 @@ if (-not $result) { 'Unavailable'; return }
             _gamingBoostActive = true;
             GamingBoostResultsText.Text = "Gaming Mode Activated\nStreaming preset applied\nProtected apps kept active\nNetwork refreshed";
             await RefreshGamingBoosterViewAsync();
+            await RefreshGamingBoosterHubAsync();
             ShowActionStatus(ActionState.Success, "Quick Streaming Gaming", "Streaming gaming preset applied.", string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x))));
         }
 
@@ -9076,6 +9042,7 @@ if (-not $result) { 'Unavailable'; return }
                 "Network / overlay / performance optimization requested";
 
             await RefreshGamingBoosterViewAsync();
+            await RefreshGamingBoosterHubAsync();
             ShowActionStatus(ActionState.Success, "Start Game Boost", $"Gaming boost aktif untuk {activeGame.ProcessName}.exe", string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x))));
         }
 
@@ -9129,6 +9096,7 @@ if (-not $result) { 'Unavailable'; return }
             _gamingBoostActive = true;
             _lastDetectedGameProcess = process.ProcessName;
             await RefreshGamingBoosterViewAsync();
+            await RefreshGamingBoosterHubAsync();
             ShowActionStatus(ActionState.Success, "Boost Specific Game", $"Boost fokus diterapkan ke {process.ProcessName}.exe", string.Join(Environment.NewLine, notes));
         }
 
@@ -9180,6 +9148,7 @@ if (-not $result) { 'Unavailable'; return }
             }
 
             await RefreshGamingBoosterViewAsync();
+            await RefreshGamingBoosterHubAsync();
             ShowActionStatus(ActionState.Success, "Visual Optimization", "Visual gaming optimization diproses.", string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x))));
         }
 
@@ -9200,6 +9169,7 @@ if (-not $result) { 'Unavailable'; return }
 
             _gamingBoostActive = true;
             await RefreshGamingBoosterViewAsync();
+            await RefreshGamingBoosterHubAsync();
             ShowActionStatus(ActionState.Success, "Smart Gaming Recommendation", "Recommended gaming fixes berhasil diterapkan.", string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x))));
         }
 
@@ -9207,6 +9177,7 @@ if (-not $result) { 'Unavailable'; return }
         {
             InitializeGamingDefaults();
             await RefreshGamingBoosterViewAsync();
+            await RefreshGamingBoosterHubAsync();
             ShowActionStatus(ActionState.Info, "Customize Gaming Recommendation", "Checklist manual sudah disiapkan. Pilih app, overlay, network, dan visual yang ingin diatur lalu klik Apply Manual Gaming Setup.");
         }
 
@@ -9236,6 +9207,7 @@ if (-not $result) { 'Unavailable'; return }
 
             UpdateGamingProfileSummary();
             await RefreshGamingBoosterViewAsync();
+            await RefreshGamingBoosterHubAsync();
         }
 
         private async Task ApplyManualGamingCoreAsync()
@@ -9249,6 +9221,7 @@ if (-not $result) { 'Unavailable'; return }
             };
 
             ShowActionStatus(ActionState.Success, "Manual Custom Mode", "Selected gaming tweaks applied.", string.Join(Environment.NewLine, parts.Where(x => !string.IsNullOrWhiteSpace(x))));
+            await RefreshGamingBoosterHubAsync();
         }
 
         private async void ApplyManualGaming_Click(object sender, RoutedEventArgs e)
@@ -9259,6 +9232,7 @@ if (-not $result) { 'Unavailable'; return }
         private async void ApplyProcessControl_Click(object sender, RoutedEventArgs e)
         {
             await ApplyProcessTargetsAsync(GetManualProcessTargets(), "Process & App Control");
+            await RefreshGamingBoosterHubAsync();
         }
 
         private async void ApplyOverlayControl_Click(object sender, RoutedEventArgs e)
@@ -9270,6 +9244,7 @@ if (-not $result) { 'Unavailable'; return }
         {
             var summary = await ApplyGamingNetworkSelectionsAsync();
             ShowActionStatus(ActionState.Success, "Network Optimization", "Gaming network actions applied.", summary);
+            await RefreshGamingBoosterHubAsync();
         }
 
         private async void ApplyGameUpdateControl_Click(object sender, RoutedEventArgs e)
@@ -9406,6 +9381,7 @@ if (-not $result) { 'Unavailable'; return }
             _gamingBoostActive = false;
             GamingBoostResultsText.Text = "Gaming boost stopped\nNormal mode restored";
             await RefreshGamingBoosterViewAsync();
+            await RefreshGamingBoosterHubAsync();
             notes.Add("Apps and services that were manually closed may need to be reopened manually.");
             ShowActionStatus(ActionState.Success, "Restore Normal Mode", "Normal Windows mode restored as much as possible.", string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x))));
         }

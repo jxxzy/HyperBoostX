@@ -2,6 +2,10 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.1.7 - 2026-04-08
+- Separated `Gaming Mode` and `Gaming Booster` into distinct UI flows so Gaming Mode focuses on profiles/session behavior while Gaming Booster focuses on instant optimization actions and reports.
+- Kept the structured-log severity fix so backend warnings such as admin-required timer-resolution tweaks are not escalated into false error alerts in current builds.
+
 ## v1.1.6 - 2026-04-08
 - Fixed structured log severity detection in the WPF log watcher so backend warnings are not escalated into false error alerts.
 - Clarified booster profile partial-success messaging for admin-only tweaks such as timer resolution changes.

@@ -577,7 +577,84 @@
                     </StackPanel>
 
                     <StackPanel Name="SystemContent" Visibility="Collapsed"><TextBlock Text="System Information" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/><Border Background="#2c2c2c" CornerRadius="5" BorderThickness="1" BorderBrush="#3c3c3c" Padding="15"><TextBlock Name="SystemInfoText" Text="Loading..." Foreground="#cccccc" FontSize="12" TextWrapping="Wrap" FontFamily="Courier New" LineHeight="18"/></Border><Button Content="Refresh" Click="RefreshSystemInfo_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,15,0,0"/></StackPanel>
-                    <StackPanel Name="BoosterContent" Visibility="Collapsed"><TextBlock Text="Booster Profiles" FontSize="16" Foreground="#2196F3" FontWeight="Bold" Margin="0,0,0,20"/><StackPanel Name="BoosterProfilesPanel"/></StackPanel>
+                    <StackPanel Name="BoosterContent" Visibility="Collapsed">
+                        <TextBlock Text="GAMING BOOSTER" FontSize="18" Foreground="#38bdf8" FontWeight="Bold" Margin="0,0,0,8"/>
+                        <TextBlock Text="Pusat aksi optimasi instan untuk gaming. Jalankan boost cepat, bersihkan resource, turunkan gangguan background, lalu lihat ringkasan hasil optimasinya." Foreground="#cbd5e1" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,18"/>
+
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.05*"/>
+                                <ColumnDefinition Width="0.95*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Style="{StaticResource InfoCardStyle}" Margin="0,0,12,0">
+                                <StackPanel>
+                                    <TextBlock Text="1. One-Click Boost" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Eksekusi boost instan sesuai target sesi main Anda. Ini fokus ke aksi cepat, bukan pengelolaan mode jangka satu sesi penuh." Foreground="#94a3b8" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                    <WrapPanel>
+                                        <Button Content="Boost Now - Safe" Click="QuickSafeGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Boost Now - Competitive" Click="QuickCompetitiveGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Boost Now - Streaming" Click="QuickStreamingGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    </WrapPanel>
+                                    <TextBlock Name="BoosterSummaryText" Text="Booster belum dijalankan di sesi ini." Foreground="#38bdf8" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="1" Style="{StaticResource InfoCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="2. Smart Boost Analysis" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Scan cepat untuk menentukan booster action yang aman dan paling terasa dampaknya sebelum game dijalankan." Foreground="#94a3b8" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                    <WrapPanel>
+                                        <Button Content="Analyze &amp; Apply Safe Boost" Click="ApplyGamingRecommendation_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Open Manual Checklist" Click="CustomizeGamingRecommendation_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    </WrapPanel>
+                                    <TextBlock Name="BoosterRecommendationText" Text="Belum ada rekomendasi booster terbaru." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Style="{StaticResource InfoCardStyle}" Margin="0,0,12,0">
+                                <StackPanel>
+                                    <TextBlock Text="3. Booster Actions" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Tool optimasi manual untuk resource, visual, proses, dan jaringan." Foreground="#94a3b8" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                    <WrapPanel>
+                                        <Button Content="Process Optimizer" Click="ApplyProcessControl_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Network Optimizer" Click="ApplyGamingNetwork_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Visual Optimizer" Click="ApplyVisualGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Manual Booster Setup" Click="ApplyManualGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    </WrapPanel>
+                                    <TextBlock Name="BoosterActionText" Text="Action booster belum dijalankan." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="1" Style="{StaticResource InfoCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="4. Targeted Game Boost" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Jalankan boost terarah ke game yang sedang aktif atau executable yang dipilih." Foreground="#94a3b8" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                    <WrapPanel>
+                                        <Button Content="Start Game Boost" Click="StartGameBoost_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Boost Specific Game" Click="BoostSpecificGame_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Restore Normal Mode" Click="RestoreNormalMode_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    </WrapPanel>
+                                    <TextBlock Name="BoosterTargetText" Text="Belum ada target game aktif." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Border Style="{StaticResource InfoCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="5. Booster Report" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                <TextBlock Text="Ringkasan hasil optimasi instan. Fokusnya measurable result, bukan rule/policy mode." Foreground="#94a3b8" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                <TextBlock Name="BoosterReportText" Text="No booster report yet." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                     <StackPanel Name="DriversContent" Visibility="Collapsed">
                         <TextBlock Text="DRIVER &amp; UPDATE CENTER" FontSize="18" Foreground="#38bdf8" FontWeight="Bold" Margin="0,0,0,8"/>
                         <TextBlock Text="Pusat scan, update, rollback, backup, repair, dan kontrol rule driver untuk GPU, network, audio, storage, USB, bluetooth, dan perangkat lain." Foreground="#cbd5e1" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,18"/>
@@ -2968,20 +3045,20 @@
                         </Border>
                     </StackPanel>
                     <StackPanel Name="GamingContent" Visibility="Collapsed">
-                        <TextBlock Text="GAMING BOOSTER" FontSize="18" Foreground="#f472b6" FontWeight="Bold" Margin="0,0,0,8"/>
-                        <TextBlock Text="Fokus 100% ke performa game, manual control background app, process priority, recommendation, monitor, dan restore setelah sesi gaming selesai." Foreground="#cbd5e1" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,18"/>
+                        <TextBlock Text="GAMING MODE" FontSize="18" Foreground="#f472b6" FontWeight="Bold" Margin="0,0,0,8"/>
+                        <TextBlock Text="Mode lingkungan gaming untuk mengatur perilaku sistem selama sesi bermain. Fokusnya ke profile, rule, kestabilan, auto activation, dan restore setelah game selesai." Foreground="#cbd5e1" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,18"/>
 
                         <Border Style="{StaticResource InfoCardStyle}">
                             <StackPanel>
-                                <TextBlock Text="1. Game Boost (Main Feature)" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                <TextBlock Text="1. Gaming Mode Profiles" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                 <TextBlock Name="GamingDetectedProcessText" Text="Auto detect game running: belum ada game terdeteksi." Foreground="#38bdf8" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,12"/>
                                 <WrapPanel>
-                                    <Button Content="Start Game Boost" Click="StartGameBoost_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="Activate Selected Mode" Click="StartGameBoost_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                     <Button Content="Auto Detect Game" Click="AutoDetectGame_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
-                                    <Button Content="Quick Safe Gaming" Click="QuickSafeGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
-                                    <Button Content="Quick Competitive Gaming" Click="QuickCompetitiveGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
-                                    <Button Content="Quick Streaming Gaming" Click="QuickStreamingGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
-                                    <Button Content="Stop Boost (Restore Normal)" Click="RestoreNormalMode_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="Apply Balanced Mode" Click="QuickSafeGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="Apply Competitive Mode" Click="QuickCompetitiveGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="Apply Streaming Mode" Click="QuickStreamingGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="Restore Normal Environment" Click="RestoreNormalMode_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                     <Button Content="0. Back" Click="BackFromGaming_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                 </WrapPanel>
                             </StackPanel>
@@ -3047,8 +3124,8 @@
 
                         <Border Style="{StaticResource InfoCardStyle}">
                             <StackPanel>
-                                <TextBlock Text="3. Background App Control" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,10"/>
-                                <TextBlock Text="User bisa pilih sendiri app mana yang dimatikan, mana yang tetap aktif, lalu gabungkan dengan overlay, RAM, visual, dan low ping mode." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,14"/>
+                                <TextBlock Text="3. Background Rules &amp; Overlay Policy" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,10"/>
+                                <TextBlock Text="User bisa mengatur app mana yang dibatasi, overlay mana yang dimatikan, dan rule apa yang aktif selama Gaming Mode berjalan." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,14"/>
 
                                 <TextBlock Text="Game / Background App Selection" Foreground="#38bdf8" FontWeight="Bold" Margin="0,0,0,8"/>
                                 <WrapPanel Margin="0,0,0,14">
@@ -3156,8 +3233,8 @@
 
                         <Border Style="{StaticResource InfoCardStyle}">
                             <StackPanel>
-                                <TextBlock Text="13. Safe Mode &amp; Restore" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,10"/>
-                                <TextBlock Text="Pilih executable game, jalankan preset boost, lalu buka game dari panel ini. Restore normal mode setelah selesai kalau diperlukan." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,12"/>
+                                <TextBlock Text="13. Auto Activation &amp; Restore After Exit" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,10"/>
+                                <TextBlock Text="Pilih executable game, aktifkan profile mode saat game dibuka, lalu pulihkan setting normal setelah sesi selesai kalau diperlukan." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,12"/>
                                 <StackPanel Orientation="Horizontal">
                                     <ComboBox Name="GameLaunchModeCombo" Width="260" SelectedIndex="0" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8">
                                         <ComboBoxItem Content="Quick Safe Gaming"/>
@@ -3168,7 +3245,7 @@
                                     <Button Content="Launch Game With Boost" Click="LaunchGameWithBoost_Click" Style="{StaticResource ActionButtonStyle}" Margin="12,0,0,0"/>
                                     <Button Content="Undo Last Gaming Boost" Click="RestoreNormalMode_Click" Style="{StaticResource ActionButtonStyle}" Margin="12,0,0,0"/>
                                 </StackPanel>
-                                <TextBlock Name="GamingBoostResultsText" Text="Gaming Mode Activated&#10;0 processes optimized" Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,12,0,0"/>
+                                <TextBlock Name="GamingBoostResultsText" Text="Gaming Mode Status&#10;Belum ada profile sesi yang dijalankan" Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,12,0,0"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -5732,13 +5809,13 @@
                                 <TextBlock Text="MR.4NONY" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,16"/>
 
                                 <TextBlock Text="VERSION" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
-                                <TextBlock Name="AboutVersionText" Text="1.1.6 - Stable - 2026" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,8"/>
+                                <TextBlock Name="AboutVersionText" Text="1.1.7 - Stable - 2026" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,8"/>
                                 <WrapPanel Margin="0,0,0,12">
                                     <Border Background="#14532d" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
                                         <TextBlock Text="STABLE RELEASE" Foreground="#dcfce7" FontSize="11" FontWeight="Bold"/>
                                     </Border>
                                     <Border Background="#0f172a" BorderBrush="#38bdf8" BorderThickness="1" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
-                                        <TextBlock Text="v1.1.6" Foreground="#bae6fd" FontSize="11" FontWeight="Bold"/>
+                                        <TextBlock Text="v1.1.7" Foreground="#bae6fd" FontSize="11" FontWeight="Bold"/>
                                     </Border>
                                     <Border Background="#3f3f46" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
                                         <TextBlock Text="QA 56/56 PASSED" Foreground="#f8fafc" FontSize="11" FontWeight="Bold"/>
