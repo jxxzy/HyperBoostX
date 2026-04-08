@@ -2,6 +2,21 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.1.2 - 2026-04-08
+
+### Changed
+- Hardened HyperBoostX Copilot OpenAI connectivity with a safer request fallback path and improved response parsing.
+- Added a visible `Last Test` result to the AI settings panel and persisted the latest connection-test status across restart.
+- Improved Feature Audit runtime incident tracking so real feature errors are detected while stale or warning-only states do not keep modules failing incorrectly.
+- Updated runtime/app metadata from `1.1.1` to `1.1.2`.
+
+### Validation
+- `dotnet build wpf\\HyperBoostX.csproj`
+- `dotnet build wpf\\HyperBoostX.csproj -c Release`
+
+### Notes
+- This is a stable hotfix release focused on AI Copilot reliability and more accurate in-app audit behavior.
+
 ## v1.1.1 - 2026-04-08
 
 ### Changed
