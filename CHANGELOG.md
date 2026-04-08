@@ -2,6 +2,19 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.1.0-beta.5 - 2026-04-08
+
+### Added
+- App-side Discord notifications when HyperBoost X detects a newer release during update checks.
+- `.github/workflows/discord-release-notify.yml` to send Discord notifications automatically when a GitHub release or prerelease is published.
+
+### Changed
+- Updated runtime/app metadata from `1.1.0-beta.4` to `1.1.0-beta.5`.
+- Prepared a small prerelease dedicated to validating the end-to-end GitHub release to Discord notification flow.
+
+### Notes
+- This prerelease is primarily intended to verify Discord update announcements from both the app and GitHub release pipeline.
+
 ## v1.1.0-beta.4 - 2026-04-08
 
 ### Added

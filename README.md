@@ -3,7 +3,7 @@
 HyperBoost X is a Windows optimization suite with a native WPF desktop client, a Python backend, and a .NET launcher. The current beta is focused on turning the app into a single control center for performance, cleanup, automation, repair, AI-assisted actions, and recovery.
 
 Current beta version:
-- `1.1.0-beta.4`
+- `1.1.0-beta.5`
 
 Author:
 - `MR.4NONY`
@@ -42,11 +42,11 @@ HyperBoost X is built from three main parts:
 - Secure secret persistence for OpenAI and Discord via Windows Credential Manager
 - About App donation shortcut via Sociabuzz
 
-## What changed in `1.1.0-beta.4`
+## What changed in `1.1.0-beta.5`
 
-- Improved admin-required shell command handling so non-elevated sessions return a clear permission message instead of a confusing generic command failure
-- Added regression coverage for blocked admin command execution in shell utilities
-- Keeps `beta.3` runtime hardening while clarifying why `netsh`, `powercfg`, and similar commands may fail in non-admin sessions
+- Added Discord notifications when the app detects a newer release during update checks
+- Added a GitHub Actions workflow that posts to Discord when a GitHub release is published
+- Intended as a small validation prerelease for the GitHub-to-Discord update notification flow
 
 ## What changed in `1.1.0-beta`
 
@@ -121,7 +121,7 @@ Useful flags:
 
 - Portable app: `release\app\HyperBoostX.exe`
 - Installer: `HyperBoostXInstaller.exe`
-- GitHub prerelease: `v1.1.0-beta.4`
+- GitHub prerelease: `v1.1.0-beta.5`
 
 ## Documentation
 
