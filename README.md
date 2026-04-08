@@ -3,7 +3,7 @@
 HyperBoost X is a Windows optimization suite with a native WPF desktop client, a Python backend, and a .NET launcher. The current beta is focused on turning the app into a single control center for performance, cleanup, automation, repair, AI-assisted actions, and recovery.
 
 Current beta version:
-- `1.1.0-beta`
+- `1.1.0-beta.2`
 
 Author:
 - `MR.4NONY`
@@ -42,6 +42,15 @@ HyperBoost X is built from three main parts:
 - Secure secret persistence for OpenAI and Discord via Windows Credential Manager
 - About App donation shortcut via Sociabuzz
 
+## What changed in `1.1.0-beta.2`
+
+- Fixed partial gaming boost failures caused by registry hive/path handling for visual-effects and Xbox overlay tweaks
+- Improved booster result reporting so the UI can show per-setting warnings such as admin-required or feature-unavailable states
+- Hardened registry utilities to create missing keys and log clearer access/path failures
+- Fixed Smart Recommendation and AI system-context JSON parsing paths that previously triggered runtime binder errors during audit and page load
+- Stabilized automation snapshot parsing to reduce JObject/JToken mismatch issues in diagnostics and audit summaries
+- Added local deploy support so installed runtime can be refreshed from the latest repo build before rerunning audits
+
 ## What changed in `1.1.0-beta`
 
 - Reworked most major menu modules into native in-app panels instead of external shortcuts
@@ -73,6 +82,8 @@ HyperBoost X is built from three main parts:
 - `build_launcher.bat` - publishes the launcher into `release\launcher`
 - `package_release.bat` - assembles `release\package` and `release\app`
 - `build_installer.bat` - builds `HyperBoostXInstaller.exe`
+- `scripts\build_release_local.ps1` - builds isolated local-deploy artifacts without touching locked `release\...` folders
+- `scripts\deploy_local_runtime.ps1` - copies the latest built runtime into an installed `HyperBoost X` directory for local QA
 
 ## Automated testing
 
@@ -113,7 +124,7 @@ Useful flags:
 
 - Portable app: `release\app\HyperBoostX.exe`
 - Installer: `HyperBoostXInstaller.exe`
-- GitHub prerelease: `v1.1.0-beta`
+- GitHub prerelease: `v1.1.0-beta.2`
 
 ## Documentation
 

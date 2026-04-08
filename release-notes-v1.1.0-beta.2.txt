@@ -1,0 +1,53 @@
+## HyperBoost X v1.1.0-beta.2
+
+`v1.1.0-beta.2` is a follow-up prerelease focused on turning the latest repo fixes into a deployable runtime refresh for local QA and installed-beta validation.
+
+## Recommended download
+
+For most users, the recommended file is:
+
+- `HyperBoostXInstaller-v1.1.0-beta.2.exe`
+
+Other assets:
+
+- `HyperBoostX-Portable-v1.1.0-beta.2.zip` for portable/manual extraction use
+- `HyperBoostX-Package-v1.1.0-beta.2.zip` for technical packaging or runtime inspection
+- `SHA256SUMS.txt` for checksum verification
+
+## Release focus
+
+- fix runtime issues that still appeared in installed beta builds
+- improve registry-based gaming tweaks and partial-success reporting
+- reduce Smart Recommendation and automation audit parsing failures
+- add a repeatable local build/deploy path for refreshing installed runtime before validation
+
+## Highlights
+
+### Gaming booster hardening
+
+- moved visual effects and Xbox overlay gaming tweaks to the correct current-user registry hive
+- improved registry write behavior so missing keys can be created when allowed
+- added clearer booster result details for admin-required and feature-unavailable cases
+
+### Smart Recommendation and audit stability
+
+- fixed fragile JSON parsing in Smart Recommendation UI flows
+- fixed AI system context collection paths that previously triggered runtime binder failures
+- stabilized automation snapshot parsing used by diagnostics and audit summaries
+
+### Local deployment workflow
+
+- added `scripts/deploy_local_runtime.ps1`
+- this script can rebuild the latest release package and copy the runtime into an installed `HyperBoost X` directory
+- intended for local QA when the machine is still launching an older runtime from `C:\Program Files\HyperBoost X`
+
+### Validation
+
+- `dotnet build wpf\HyperBoostX.csproj -c Release`
+- `app\venv\Scripts\python.exe -m pytest tests\test_booster_service.py tests\test_registry_util.py tests\test_tweak_contract.py`
+
+## Notes
+
+- this is still a prerelease, not a final stable release
+- admin-required tweaks can still return limited-access warnings on non-elevated sessions
+- this beta is mainly aimed at replacing older installed runtimes and making the next audit pass cleaner and more trustworthy

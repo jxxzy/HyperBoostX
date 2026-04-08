@@ -1,5 +1,6 @@
 from app.core.profiles import Profile
 from app.services.optimization.booster_service import BoosterService
+import winreg
 
 
 def test_should_close_process_protects_interactive_apps():
@@ -28,3 +29,52 @@ def test_apply_profile_skips_duplicate_request(monkeypatch):
     assert first["success"] is False or first["success"] is True
     assert second["success"] is True
     assert second.get("duplicate_request") is True
+
+
+def test_gaming_registry_tweaks_use_current_user(monkeypatch):
+    calls = []
+
+    def fake_set_value(path, key, value, value_type, hkey=winreg.HKEY_LOCAL_MACHINE):
+        calls.append(
+            {
+                "path": path,
+                "key": key,
+                "value": value,
+                "value_type": value_type,
+                "hkey": hkey,
+            }
+        )
+        return True
+
+    monkeypatch.setattr(
+        "app.services.optimization.booster_service.RegistryUtil.set_value",
+        fake_set_value,
+    )
+
+    assert BoosterService._disable_visual_effects() is True
+    assert BoosterService._disable_xbox_overlay() is True
+    assert BoosterService._enable_background_recording() is True
+    assert BoosterService._enable_visual_effects() is True
+
+    assert len(calls) == 4
+    assert all(call["hkey"] == winreg.HKEY_CURRENT_USER for call in calls)
+
+
+def test_apply_setting_reports_admin_requirement_from_registry_error(monkeypatch):
+    monkeypatch.setattr(
+        "app.services.optimization.booster_service.BoosterService._increase_timer_resolution",
+        lambda: False,
+    )
+    monkeypatch.setattr(
+        "app.services.optimization.booster_service.RegistryUtil.get_last_error",
+        lambda: {
+            "reason": "access_denied",
+            "hkey": r"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\kernel",
+        },
+    )
+
+    result = BoosterService._apply_setting("increase_timer_resolution")
+
+    assert result["success"] is False
+    assert result["reason_code"] == "admin_required"
+    assert "elevated access" in result["message"]

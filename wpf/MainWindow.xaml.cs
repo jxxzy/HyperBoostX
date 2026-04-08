@@ -275,7 +275,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.1.0-beta";
+            ?? "1.1.0-beta.2";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -1221,24 +1221,14 @@ namespace HyperBoostX
         private async Task<AutomationRuntimeSnapshot> BuildAutomationSnapshotAsync()
         {
             var stats = await SafeApiCall(() => _backendClient.GetSystemStatsAsync());
-            var json = stats as Newtonsoft.Json.Linq.JObject;
+            var json = stats as JObject;
             var cpu = json?.Value<double?>("cpu") ?? json?.Value<double?>("cpu_percent") ?? 0d;
             var ram = json?.Value<double?>("memory") ?? json?.Value<double?>("memory_percent") ?? 0d;
             var disk = json?.Value<double?>("disk") ?? json?.Value<double?>("disk_percent") ?? 0d;
-            var gpuToken = json?["gpu"];
-            var gpu = gpuToken switch
-            {
-                JObject gpuObject => gpuObject.Value<double?>("load")
-                    ?? gpuObject.Value<double?>("usage")
-                    ?? gpuObject.Value<double?>("memory_percent")
-                    ?? gpuObject.Value<double?>("percent")
-                    ?? 0d,
-                JValue gpuValue => gpuValue.Value<double?>() ?? 0d,
-                _ => json?.Value<double?>("gpu_percent") ?? 0d
-            };
+            var gpu = ReadGpuLoadStat(json);
             var hasBattery = _powerDynamicMode.Contains("Battery", StringComparison.OrdinalIgnoreCase);
             var batteryPercent = hasBattery ? 35d : 100d;
-            var temperature = ExtractTemperature(json?["temperatures"] as Newtonsoft.Json.Linq.JObject) ?? (cpu > 80 ? 86 : cpu > 55 ? 72 : 56);
+            var temperature = ExtractTemperature(json?["temperatures"] as JObject) ?? (cpu > 80 ? 86 : cpu > 55 ? 72 : 56);
             var state = ResolveAutomationSystemState(cpu, ram, disk, temperature);
 
             return new AutomationRuntimeSnapshot
@@ -1977,18 +1967,16 @@ namespace HyperBoostX
             var startupTask = SafeApiCall(() => _backendClient.GetStartupItemsAsync());
             await Task.WhenAll(statsTask, processesTask, startupTask);
 
-            var stats = await statsTask;
-            var processes = await processesTask;
-            var startup = await startupTask;
-            var cpu = stats?["cpu"]?.Value<double?>() ?? stats?["cpu_percent"]?.Value<double?>() ?? 0d;
-            var ram = stats?["memory"]?.Value<double?>() ?? stats?["memory_percent"]?.Value<double?>() ?? 0d;
-            var disk = stats?["disk"]?.Value<double?>() ?? stats?["disk_percent"]?.Value<double?>() ?? 0d;
-            var processCount = (processes?["processes"] as Newtonsoft.Json.Linq.JArray)?.Count
-                ?? (processes as Newtonsoft.Json.Linq.JArray)?.Count
+            var stats = await statsTask as JObject;
+            var processes = await processesTask as JObject;
+            var startup = await startupTask as JObject;
+            var cpu = stats?.Value<double?>("cpu") ?? stats?.Value<double?>("cpu_percent") ?? 0d;
+            var ram = stats?.Value<double?>("memory") ?? stats?.Value<double?>("memory_percent") ?? 0d;
+            var disk = stats?.Value<double?>("disk") ?? stats?.Value<double?>("disk_percent") ?? 0d;
+            var processCount = (processes?["processes"] as JArray)?.Count
                 ?? 0;
-            var startupCount = (startup?["startup_items"] as Newtonsoft.Json.Linq.JArray)?.Count
-                ?? (startup?["items"] as Newtonsoft.Json.Linq.JArray)?.Count
-                ?? (startup as Newtonsoft.Json.Linq.JArray)?.Count
+            var startupCount = (startup?["startup_items"] as JArray)?.Count
+                ?? (startup?["items"] as JArray)?.Count
                 ?? 0;
 
             _cachedAiSystemContext =
@@ -2006,6 +1994,21 @@ namespace HyperBoostX
                 $"Cleanup safety mode: {_cleanupSafetyMode}";
             _lastAiContextBuiltUtc = DateTime.UtcNow;
             return _cachedAiSystemContext;
+        }
+
+        private static double ReadGpuLoadStat(JObject stats)
+        {
+            var gpuToken = stats?["gpu"];
+            return gpuToken switch
+            {
+                JObject gpuObject => gpuObject.Value<double?>("load")
+                    ?? gpuObject.Value<double?>("usage")
+                    ?? gpuObject.Value<double?>("memory_percent")
+                    ?? gpuObject.Value<double?>("percent")
+                    ?? 0d,
+                JValue gpuValue => gpuValue.Value<double?>() ?? 0d,
+                _ => stats?.Value<double?>("gpu_percent") ?? 0d
+            };
         }
 
         private static string MapAiActionToAutomationActionLabel(string action)
@@ -15212,14 +15215,73 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                     ? (partialSuccess ? ActionState.Warning : ActionState.Success)
                     : ActionState.Error;
                 var title = success ? (partialSuccess ? "Applied with warnings" : "Optimization applied") : "Unable to fully apply";
+                var details = BuildBoosterApplySummary(json) ?? HyperBoostBackendClient.FormatJson(result);
 
-                ShowActionStatus(state, title, $"{modeName} finished. Review the summary below for details.", HyperBoostBackendClient.FormatJson(result));
+                ShowActionStatus(state, title, $"{modeName} finished. Review the summary below for details.", details);
                 await RefreshDashboard();
             }
             catch (Exception ex)
             {
                 ShowActionStatus(ActionState.Error, $"{modeName} failed", ex.Message);
             }
+        }
+
+        private static string BuildBoosterApplySummary(Newtonsoft.Json.Linq.JObject json)
+        {
+            if (json == null)
+            {
+                return null;
+            }
+
+            var lines = new List<string>();
+            var success = json.Value<bool?>("success") == true;
+            var partialSuccess = json.Value<bool?>("partial_success") == true;
+            var message = json.Value<string>("message");
+            var warning = json.Value<string>("warning");
+            var appliedSettings = json.Value<int?>("applied_settings");
+            var totalSettings = json.Value<int?>("total_settings");
+
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                lines.Add(message);
+            }
+
+            if (appliedSettings.HasValue && totalSettings.HasValue)
+            {
+                lines.Add($"Applied settings: {appliedSettings}/{totalSettings}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(warning))
+            {
+                lines.Add(warning);
+            }
+
+            var results = json["results"] as Newtonsoft.Json.Linq.JArray;
+            if (results is { Count: > 0 })
+            {
+                lines.Add(string.Empty);
+                lines.Add("Per-setting results:");
+
+                foreach (var token in results.OfType<Newtonsoft.Json.Linq.JObject>())
+                {
+                    var settingSuccess = token.Value<bool?>("success") == true;
+                    var displayName = token.Value<string>("display_name") ?? token.Value<string>("setting") ?? "Unknown setting";
+                    var settingMessage = token.Value<string>("message");
+                    var prefix = settingSuccess ? "[OK]" : "[WARN]";
+                    lines.Add($"{prefix} {displayName}");
+
+                    if (!string.IsNullOrWhiteSpace(settingMessage))
+                    {
+                        lines.Add($"  {settingMessage}");
+                    }
+                }
+            }
+            else if (!success || partialSuccess)
+            {
+                return HyperBoostBackendClient.FormatJson(json);
+            }
+
+            return lines.Count > 0 ? string.Join(Environment.NewLine, lines) : HyperBoostBackendClient.FormatJson(json);
         }
 
         private async Task ShowSmartRecommendationAsync(Button sourceButton)
@@ -15341,13 +15403,14 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
 
         private void PopulateSmartRecommendationUi(dynamic stats, dynamic processes, dynamic dns)
         {
-            var statsJson = stats as Newtonsoft.Json.Linq.JObject;
-            var processArray = processes?["processes"] as Newtonsoft.Json.Linq.JArray;
-            var dnsJson = dns as Newtonsoft.Json.Linq.JObject;
+            var statsJson = stats as JObject;
+            var processesJson = processes as JObject;
+            var processArray = processesJson?["processes"] as JArray;
+            var dnsJson = dns as JObject;
 
-            var cpu = statsJson?.Value<double?>("cpu") ?? statsJson?.Value<double?>("cpu_percent") ?? 0;
-            var memory = statsJson?.Value<double?>("memory") ?? statsJson?.Value<double?>("memory_percent") ?? 0;
-            var disk = statsJson?.Value<double?>("disk") ?? statsJson?.Value<double?>("disk_percent") ?? 0;
+            var cpu = statsJson?.Value<double?>("cpu") ?? statsJson?.Value<double?>("cpu_percent") ?? 0d;
+            var memory = statsJson?.Value<double?>("memory") ?? statsJson?.Value<double?>("memory_percent") ?? 0d;
+            var disk = statsJson?.Value<double?>("disk") ?? statsJson?.Value<double?>("disk_percent") ?? 0d;
             var gpu = cpu > 65 ? 72 : 24;
             var temp = cpu > 80 ? 84 : cpu > 60 ? 73 : 58;
             var startupHigh = _startupEntries.Count(x => x.Enabled && x.Impact == "High");
@@ -15355,7 +15418,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             var startupLow = _startupEntries.Count(x => x.Enabled && x.Impact == "Low");
             var bgApps = processArray?.Count ?? 0;
             var junkEstimateGb = disk > 80 ? 1.8 : disk > 60 ? 0.9 : 0.4;
-            var dnsTime = dnsJson?.Value<double?>("response_time") ?? 0;
+            var dnsTime = dnsJson?.Value<double?>("response_time") ?? 0d;
 
             SmartSystemAnalysisText.Text =
                 $"CPU usage: {cpu:0}%\n" +

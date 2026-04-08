@@ -47,6 +47,77 @@ class BoosterService:
         "indexing": r"SYSTEM\CurrentControlSet\Services\WSearch",
         "background_sync": r"SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization"
     }
+
+    SETTING_METADATA = {
+        "disable_background_apps": {
+            "display_name": "Close background apps",
+            "requires_admin": False,
+        },
+        "high_priority_cpu": {
+            "display_name": "Raise CPU priority",
+            "requires_admin": False,
+        },
+        "disable_visual_effects": {
+            "display_name": "Disable visual effects",
+            "requires_admin": False,
+        },
+        "increase_timer_resolution": {
+            "display_name": "Increase timer resolution",
+            "requires_admin": True,
+        },
+        "disable_xbox_overlay": {
+            "display_name": "Disable Xbox Game Bar overlay",
+            "requires_admin": False,
+        },
+        "optimize_gpu_performance": {
+            "display_name": "Optimize GPU performance",
+            "requires_admin": True,
+        },
+        "stable_frame_times": {
+            "display_name": "Improve frame pacing",
+            "requires_admin": True,
+        },
+        "reduce_network_latency": {
+            "display_name": "Reduce network latency",
+            "requires_admin": True,
+        },
+        "background_recording": {
+            "display_name": "Enable background recording",
+            "requires_admin": False,
+        },
+        "balanced_performance": {
+            "display_name": "Set balanced performance",
+            "requires_admin": True,
+        },
+        "enable_indexing": {
+            "display_name": "Enable indexing",
+            "requires_admin": True,
+        },
+        "normal_visual_effects": {
+            "display_name": "Restore visual effects",
+            "requires_admin": False,
+        },
+        "network_optimization": {
+            "display_name": "Optimize network",
+            "requires_admin": True,
+        },
+        "reduce_cpu_frequency": {
+            "display_name": "Reduce CPU frequency",
+            "requires_admin": True,
+        },
+        "dim_display": {
+            "display_name": "Dim display",
+            "requires_admin": True,
+        },
+        "disable_background_sync": {
+            "display_name": "Disable background sync",
+            "requires_admin": True,
+        },
+        "low_power_mode": {
+            "display_name": "Enable low power mode",
+            "requires_admin": True,
+        },
+    }
     
     @staticmethod
     def get_available_profiles() -> List[Dict[str, Any]]:
@@ -97,8 +168,7 @@ class BoosterService:
             # Apply each setting in the profile
             for setting, enabled in profile.settings.items():
                 if enabled:
-                    result = BoosterService._apply_setting(setting)
-                    results.append({"setting": setting, "success": result})
+                    results.append(BoosterService._apply_setting(setting))
             
             success_count = sum(1 for r in results if r["success"])
             total_count = len(results)
@@ -148,47 +218,133 @@ class BoosterService:
     @staticmethod
     def _apply_setting(setting: str) -> bool:
         """Apply a specific setting."""
+        RegistryUtil.clear_last_error()
+
         try:
+            success = False
             if setting == "disable_background_apps":
-                return BoosterService._disable_background_apps()
+                success = BoosterService._disable_background_apps()
             elif setting == "high_priority_cpu":
-                return BoosterService._set_high_cpu_priority()
+                success = BoosterService._set_high_cpu_priority()
             elif setting == "disable_visual_effects":
-                return BoosterService._disable_visual_effects()
+                success = BoosterService._disable_visual_effects()
             elif setting == "increase_timer_resolution":
-                return BoosterService._increase_timer_resolution()
+                success = BoosterService._increase_timer_resolution()
             elif setting == "disable_xbox_overlay":
-                return BoosterService._disable_xbox_overlay()
+                success = BoosterService._disable_xbox_overlay()
             elif setting == "optimize_gpu_performance":
-                return BoosterService._optimize_gpu_performance()
+                success = BoosterService._optimize_gpu_performance()
             elif setting == "stable_frame_times":
-                return BoosterService._optimize_frame_times()
+                success = BoosterService._optimize_frame_times()
             elif setting == "reduce_network_latency":
-                return BoosterService._reduce_network_latency()
+                success = BoosterService._reduce_network_latency()
             elif setting == "background_recording":
-                return BoosterService._enable_background_recording()
+                success = BoosterService._enable_background_recording()
             elif setting == "balanced_performance":
-                return BoosterService._set_balanced_performance()
+                success = BoosterService._set_balanced_performance()
             elif setting == "enable_indexing":
-                return BoosterService._enable_indexing()
+                success = BoosterService._enable_indexing()
             elif setting == "normal_visual_effects":
-                return BoosterService._enable_visual_effects()
+                success = BoosterService._enable_visual_effects()
             elif setting == "network_optimization":
-                return BoosterService._optimize_network()
+                success = BoosterService._optimize_network()
             elif setting == "reduce_cpu_frequency":
-                return BoosterService._reduce_cpu_frequency()
+                success = BoosterService._reduce_cpu_frequency()
             elif setting == "dim_display":
-                return BoosterService._dim_display()
+                success = BoosterService._dim_display()
             elif setting == "disable_background_sync":
-                return BoosterService._disable_background_sync()
+                success = BoosterService._disable_background_sync()
             elif setting == "low_power_mode":
-                return BoosterService._set_low_power_mode()
+                success = BoosterService._set_low_power_mode()
             else:
                 logger.warning(f"Unknown setting: {setting}")
-                return False
+                return BoosterService._format_setting_result(
+                    setting,
+                    False,
+                    reason_code="unknown_setting",
+                    message="Setting is not recognized by this build."
+                )
+
+            if success:
+                return BoosterService._format_setting_result(
+                    setting,
+                    True,
+                    reason_code="applied",
+                    message="Applied successfully."
+                )
+
+            return BoosterService._build_failed_setting_result(setting)
         except Exception as e:
             logger.error(f"Error applying setting {setting}: {e}")
-            return False
+            return BoosterService._format_setting_result(
+                setting,
+                False,
+                reason_code="unexpected_error",
+                message=str(e)
+            )
+
+    @staticmethod
+    def _format_setting_result(
+        setting: str,
+        success: bool,
+        reason_code: str,
+        message: str
+    ) -> Dict[str, Any]:
+        metadata = BoosterService.SETTING_METADATA.get(setting, {})
+        return {
+            "setting": setting,
+            "display_name": metadata.get("display_name", setting.replace("_", " ").title()),
+            "success": success,
+            "requires_admin": metadata.get("requires_admin", False),
+            "reason_code": reason_code,
+            "message": message,
+        }
+
+    @staticmethod
+    def _build_failed_setting_result(setting: str) -> Dict[str, Any]:
+        registry_error = RegistryUtil.get_last_error()
+        metadata = BoosterService.SETTING_METADATA.get(setting, {})
+        display_name = metadata.get("display_name", setting.replace("_", " ").title())
+
+        if registry_error:
+            reason = registry_error.get("reason")
+            location = registry_error.get("hkey")
+            if reason == "access_denied":
+                return BoosterService._format_setting_result(
+                    setting,
+                    False,
+                    reason_code="admin_required",
+                    message=f"{display_name} needs elevated access to update {location}."
+                )
+            if reason == "path_unavailable":
+                return BoosterService._format_setting_result(
+                    setting,
+                    False,
+                    reason_code="feature_unavailable",
+                    message=f"{display_name} is not available on this Windows setup ({location})."
+                )
+
+            return BoosterService._format_setting_result(
+                setting,
+                False,
+                reason_code="registry_error",
+                message=f"{display_name} failed while updating {location}."
+            )
+
+        if metadata.get("requires_admin"):
+            return BoosterService._format_setting_result(
+                setting,
+                False,
+                reason_code="admin_required",
+                message=f"{display_name} requires Administrator privileges."
+            )
+
+        return BoosterService._format_setting_result(
+            setting,
+            False,
+            reason_code="apply_failed",
+            message=f"{display_name} could not be applied on this machine."
+        )
     
     @staticmethod
     def _disable_background_apps() -> bool:
@@ -242,7 +398,8 @@ class BoosterService:
             r"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects",
             "VisualFXSetting",
             2,  # Adjust for best performance
-            winreg.REG_DWORD
+            winreg.REG_DWORD,
+            hkey=winreg.HKEY_CURRENT_USER
         )
     
     @staticmethod
@@ -263,7 +420,8 @@ class BoosterService:
             BoosterService.REG_PATHS["xbox_overlay"],
             "AppCaptureEnabled",
             0,
-            winreg.REG_DWORD
+            winreg.REG_DWORD,
+            hkey=winreg.HKEY_CURRENT_USER
         )
     
     @staticmethod
@@ -308,7 +466,8 @@ class BoosterService:
             BoosterService.REG_PATHS["xbox_overlay"],
             "HistoricalCaptureEnabled",
             1,
-            winreg.REG_DWORD
+            winreg.REG_DWORD,
+            hkey=winreg.HKEY_CURRENT_USER
         )
     
     @staticmethod
@@ -334,7 +493,8 @@ class BoosterService:
             r"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects",
             "VisualFXSetting",
             1,  # Let Windows choose
-            winreg.REG_DWORD
+            winreg.REG_DWORD,
+            hkey=winreg.HKEY_CURRENT_USER
         )
     
     @staticmethod

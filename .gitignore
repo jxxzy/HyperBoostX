@@ -24,6 +24,8 @@ dotnet-tests/**/*.log
 wpf/temp_obj/
 wpf/temp_build_check/
 build_tmp/
+artifacts/
+app/artifacts/
 
 release/
 *.exe

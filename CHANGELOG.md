@@ -28,6 +28,27 @@ All notable changes to HyperBoostX are documented here.
 - This build is intended for internal beta testing and feature validation.
 - Public stable release should still be preceded by broader end-to-end QA on admin-required flows, restore/update paths, and installer upgrade behavior.
 
+## v1.1.0-beta.2 - 2026-04-08
+
+### Added
+- `scripts\deploy_local_runtime.ps1` to copy the latest packaged runtime into an installed `HyperBoost X` directory for local validation.
+- `tests\test_registry_util.py` to cover registry key creation behavior in the backend utility layer.
+
+### Changed
+- Updated runtime/app metadata from `1.1.0-beta` to `1.1.0-beta.2`.
+- Improved gaming booster feedback so partial success responses include per-setting reasons and clearer admin-required guidance.
+- Hardened registry writes by creating missing keys when possible and distinguishing access-denied vs unavailable-path failures.
+- Moved gaming visual-effects and Xbox overlay tweaks to the correct current-user registry hive.
+- Fixed Smart Recommendation and AI system-context parsing in the WPF client by switching critical audit paths away from fragile `dynamic` token access.
+- Tightened automation snapshot parsing to reduce JObject/JToken mismatch errors in diagnostics.
+
+### Validation
+- `dotnet build wpf\HyperBoostX.csproj -c Release`
+- `app\venv\Scripts\python.exe -m pytest tests\test_booster_service.py tests\test_registry_util.py tests\test_tweak_contract.py`
+
+### Notes
+- This prerelease is intended to replace older installed beta runtimes during local QA before the next broader public beta pass.
+
 ## v1.0.2 - 2026-04-07
 
 ### Changed
