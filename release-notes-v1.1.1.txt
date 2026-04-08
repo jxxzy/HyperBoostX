@@ -1,0 +1,20 @@
+HyperBoostX v1.1.1
+
+Author: MR.4NONY
+Build line: Stable Hotfix
+
+Highlights
+- Refreshed the About App page so the desktop UI clearly reflects the current stable release state.
+- Added visible stable badges and version markers in About App.
+- Synced installer, portable, launcher, backend, and update metadata to `1.1.1`.
+
+Hotfix focus
+- Cleaner About App messaging for the stable line
+- Better alignment between in-app status, installer metadata, and GitHub release metadata
+- Small safe patch on top of the validated `v1.1.0` stable release
+
+Validation
+- `dotnet build wpf\HyperBoostX.csproj`
+
+Notes
+- This hotfix is intended to replace `v1.1.0` for users who want the refreshed About App stable messaging in the shipped installer and portable package.

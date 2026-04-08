@@ -2,6 +2,19 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.1.1 - 2026-04-08
+
+### Changed
+- Updated runtime/app metadata from `1.1.0` to `1.1.1`.
+- Refreshed the About App page copy to clearly identify the app as a stable release instead of a beta build.
+- Added visible stable badges and version markers to the About App page.
+
+### Validation
+- `dotnet build wpf\HyperBoostX.csproj`
+
+### Notes
+- This is a small stable hotfix that packages the About App stable-state refresh into the installer and portable outputs.
+
 ## v1.1.0 - 2026-04-08
 
 ### Added
