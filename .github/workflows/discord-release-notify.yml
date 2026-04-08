@@ -5,6 +5,24 @@ on:
     types:
       - published
       - prereleased
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version label to send to Discord
+        required: false
+        default: v1.1.0
+      channel:
+        description: Release channel label
+        required: false
+        default: Stable
+      release_url:
+        description: GitHub release URL
+        required: false
+        default: https://github.com/jxxzy/HyperBoostX/releases/tag/v1.1.0
+      notes:
+        description: Short notes for the Discord message
+        required: false
+        default: Manual Discord notification test from GitHub Actions.
 
 jobs:
   notify-discord:
@@ -14,45 +32,67 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_RELEASE_WEBHOOK_URL }}
           RELEASE_EVENT_JSON: ${{ toJson(github.event.release) }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_CHANNEL: ${{ inputs.channel }}
+          INPUT_RELEASE_URL: ${{ inputs.release_url }}
+          INPUT_NOTES: ${{ inputs.notes }}
         run: |
           python - <<'PY'
           import json
           import os
+          import urllib.error
           import urllib.request
 
           webhook_url = (os.environ.get("DISCORD_WEBHOOK_URL") or "").strip()
           if not webhook_url:
               raise SystemExit("DISCORD_RELEASE_WEBHOOK_URL is not configured.")
 
-          release = json.loads(os.environ.get("RELEASE_EVENT_JSON") or "{}")
-          release_name = (release.get("name") or "").strip()
-          release_tag = (release.get("tag_name") or "").strip()
-          release_url = (release.get("html_url") or "").strip()
-          release_body = (release.get("body") or "").strip()
-          release_is_prerelease = bool(release.get("prerelease"))
-          release_is_draft = bool(release.get("draft"))
-          release_published_at = (release.get("published_at") or "").strip()
-          release_author = ((release.get("author") or {}).get("login") or "").strip() or "unknown"
-          assets = [item.get("name", "").strip() for item in (release.get("assets") or []) if item.get("name")]
+          event_name = (os.environ.get("GITHUB_EVENT_NAME") or "").strip()
 
-          if release_is_draft:
-              raise SystemExit("Draft release ignored.")
-
-          display_version = release_tag or release_name or "unknown"
-          if display_version and not display_version.lower().startswith("v"):
-              display_version = f"v{display_version}"
-
-          channel = "Prerelease" if release_is_prerelease else "Stable"
-          color = 0xD97706 if release_is_prerelease else 0x16A34A
-
-          if assets:
-              asset_preview = "\n".join(f"- {name}" for name in assets[:6])
-              if len(assets) > 6:
-                  asset_preview += f"\n- ...and {len(assets) - 6} more"
+          if event_name == "workflow_dispatch":
+              display_version = (os.environ.get("INPUT_VERSION") or "").strip() or "v1.1.0"
+              if display_version and not display_version.lower().startswith("v"):
+                  display_version = f"v{display_version}"
+              channel = (os.environ.get("INPUT_CHANNEL") or "").strip() or "Stable"
+              release_url = (os.environ.get("INPUT_RELEASE_URL") or "").strip()
+              notes = (os.environ.get("INPUT_NOTES") or "").strip() or "Manual Discord notification test from GitHub Actions."
+              release_author = "github-actions"
+              release_published_at = ""
+              asset_preview = "Manual workflow test."
+              description = f"Manual {channel.lower()} notification test from GitHub Actions."
           else:
-              asset_preview = "No assets listed."
+              release = json.loads(os.environ.get("RELEASE_EVENT_JSON") or "{}")
+              release_name = (release.get("name") or "").strip()
+              release_tag = (release.get("tag_name") or "").strip()
+              release_url = (release.get("html_url") or "").strip()
+              release_body = (release.get("body") or "").strip()
+              release_is_prerelease = bool(release.get("prerelease"))
+              release_is_draft = bool(release.get("draft"))
+              release_published_at = (release.get("published_at") or "").strip()
+              release_author = ((release.get("author") or {}).get("login") or "").strip() or "unknown"
+              assets = [item.get("name", "").strip() for item in (release.get("assets") or []) if item.get("name")]
 
-          notes = release_body if release_body else "No release notes provided."
+              if release_is_draft:
+                  raise SystemExit("Draft release ignored.")
+
+              display_version = release_tag or release_name or "unknown"
+              if display_version and not display_version.lower().startswith("v"):
+                  display_version = f"v{display_version}"
+
+              channel = "Prerelease" if release_is_prerelease else "Stable"
+
+              if assets:
+                  asset_preview = "\n".join(f"- {name}" for name in assets[:6])
+                  if len(assets) > 6:
+                      asset_preview += f"\n- ...and {len(assets) - 6} more"
+              else:
+                  asset_preview = "No assets listed."
+
+              notes = release_body if release_body else "No release notes provided."
+              description = f"A new {channel.lower()} release is now available on GitHub."
+
+          color = 0xD97706 if channel.lower() == "prerelease" else 0x16A34A
           if len(notes) > 1200:
               notes = notes[:1197] + "..."
 
@@ -61,10 +101,9 @@ jobs:
               "embeds": [
                   {
                       "title": f"HyperBoostX release published: {display_version}",
-                      "description": f"A new {channel.lower()} release is now available on GitHub.",
+                      "description": description,
                       "color": color,
                       "url": release_url,
-                      "timestamp": release_published_at,
                       "fields": [
                           {"name": "Version", "value": display_version or "unknown", "inline": False},
                           {"name": "Channel", "value": channel, "inline": False},
@@ -76,6 +115,8 @@ jobs:
                   }
               ],
           }
+          if release_published_at:
+              payload["embeds"][0]["timestamp"] = release_published_at
 
           request = urllib.request.Request(
               webhook_url,
@@ -84,7 +125,11 @@ jobs:
               method="POST",
           )
 
-          with urllib.request.urlopen(request) as response:
-              if response.status >= 300:
-                  raise SystemExit(f"Discord webhook returned HTTP {response.status}")
+          try:
+              with urllib.request.urlopen(request) as response:
+                  if response.status >= 300:
+                      raise SystemExit(f"Discord webhook returned HTTP {response.status}")
+          except urllib.error.HTTPError as exc:
+              body = exc.read().decode("utf-8", errors="replace")
+              raise SystemExit(f"Discord webhook returned HTTP {exc.code}: {body}")
           PY
