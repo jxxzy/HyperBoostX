@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -124,7 +125,9 @@ namespace HyperBoostX.Services
                 {
                     responsesError,
                     chatError
-                });
+                }
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase));
             throw new InvalidOperationException(string.IsNullOrWhiteSpace(errorMessage)
                 ? "OpenAI request failed."
                 : errorMessage);
@@ -246,9 +249,8 @@ namespace HyperBoostX.Services
                 return (true, responseText, "");
 
             var errorMessage = TryExtractErrorMessage(responseText);
-            var summary = string.IsNullOrWhiteSpace(errorMessage)
-                ? $"OpenAI API returned {(int)response.StatusCode} ({response.ReasonPhrase})."
-                : $"OpenAI API returned {(int)response.StatusCode} ({response.ReasonPhrase}): {errorMessage}";
+            var requestId = TryGetHeaderValue(response, "x-request-id");
+            var summary = BuildFriendlyErrorMessage(url, (int)response.StatusCode, response.ReasonPhrase ?? "", errorMessage, requestId);
             return (false, responseText, summary);
         }
 
@@ -265,6 +267,50 @@ namespace HyperBoostX.Services
             {
                 return "";
             }
+        }
+
+        private static string BuildFriendlyErrorMessage(string url, int statusCode, string reasonPhrase, string errorMessage, string requestId)
+        {
+            var baseMessage = string.IsNullOrWhiteSpace(errorMessage)
+                ? $"OpenAI API returned {statusCode} ({reasonPhrase})."
+                : $"OpenAI API returned {statusCode} ({reasonPhrase}): {errorMessage}";
+
+            var endpointLabel = url.EndsWith("/chat/completions", StringComparison.OrdinalIgnoreCase)
+                ? "chat.completions"
+                : url.EndsWith("/responses", StringComparison.OrdinalIgnoreCase)
+                    ? "responses"
+                    : url;
+
+            var diagnosticSuffix = string.IsNullOrWhiteSpace(requestId)
+                ? $" Endpoint: {endpointLabel}."
+                : $" Endpoint: {endpointLabel}. Request ID: {requestId}.";
+
+            if (statusCode == 429 && !string.IsNullOrWhiteSpace(errorMessage) &&
+                (errorMessage.Contains("quota", StringComparison.OrdinalIgnoreCase) ||
+                 errorMessage.Contains("billing", StringComparison.OrdinalIgnoreCase) ||
+                 errorMessage.Contains("rate limit", StringComparison.OrdinalIgnoreCase)))
+            {
+                return "OpenAI quota atau billing limit tercapai. Periksa plan, billing, atau tunggu limit reset. " + baseMessage + diagnosticSuffix;
+            }
+
+            if (statusCode == 401)
+                return "OpenAI API key tidak valid atau tidak punya akses ke model yang dipilih. " + baseMessage + diagnosticSuffix;
+
+            if (statusCode == 403)
+                return "Akses ke OpenAI ditolak untuk request ini. Periksa project, model, atau permission API key. " + baseMessage + diagnosticSuffix;
+
+            return baseMessage + diagnosticSuffix;
+        }
+
+        private static string TryGetHeaderValue(HttpResponseMessage response, string headerName)
+        {
+            if (response.Headers.TryGetValues(headerName, out var values))
+                return values.FirstOrDefault() ?? "";
+
+            if (response.Content?.Headers?.TryGetValues(headerName, out var contentValues) == true)
+                return contentValues.FirstOrDefault() ?? "";
+
+            return "";
         }
     }
 }
