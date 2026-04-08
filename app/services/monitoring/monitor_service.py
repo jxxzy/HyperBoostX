@@ -1,5 +1,6 @@
 """Monitor service for HyperBoost X."""
 
+import os
 import time
 from typing import Dict, List
 import psutil
@@ -19,8 +20,22 @@ class MonitorService:
     _last_net = None
     _last_disk = None
     _last_time = None
+    _system_drive = None
     _last_process_snapshot = []
     _last_process_snapshot_utc = 0.0
+    _last_gpu_snapshot = {}
+    _last_gpu_snapshot_utc = 0.0
+    _last_temperature_snapshot = {}
+    _last_temperature_snapshot_utc = 0.0
+
+    @classmethod
+    def _get_system_drive_root(cls) -> str:
+        if cls._system_drive:
+            return cls._system_drive
+
+        system_drive = os.getenv("SystemDrive") or "C:"
+        cls._system_drive = f"{system_drive}\\"
+        return cls._system_drive
 
     @classmethod
     def _delta_counters(cls):
@@ -64,7 +79,7 @@ class MonitorService:
             cpu_percent = psutil.cpu_percent(interval=0)
             cpu_per_core = psutil.cpu_percent(interval=0, percpu=True)
             vm = psutil.virtual_memory()
-            root = psutil.disk_usage('/')
+            root = psutil.disk_usage(cls._get_system_drive_root())
             deltas = cls._delta_counters()
 
             gpu_info = cls.get_gpu_stats()
@@ -189,6 +204,9 @@ class MonitorService:
     @staticmethod
     def get_temperature_info() -> Dict:
         """Return temperature sensors if available."""
+        if MonitorService._last_temperature_snapshot and (time.time() - MonitorService._last_temperature_snapshot_utc) <= 5:
+            return dict(MonitorService._last_temperature_snapshot)
+
         try:
             # Check if sensors_temperatures method is available (not available on all systems)
             if not hasattr(psutil, 'sensors_temperatures'):
@@ -196,7 +214,10 @@ class MonitorService:
             temps = psutil.sensors_temperatures()
             if not temps:
                 return {}
-            return {name: [(entry.label or 'sensor', entry.current) for entry in entries] for name, entries in temps.items()}
+            snapshot = {name: [(entry.label or 'sensor', entry.current) for entry in entries] for name, entries in temps.items()}
+            MonitorService._last_temperature_snapshot = snapshot
+            MonitorService._last_temperature_snapshot_utc = time.time()
+            return snapshot
         except (AttributeError, OSError):
             # sensors_temperatures not available on this system
             return {}
@@ -207,6 +228,9 @@ class MonitorService:
     @staticmethod
     def get_gpu_stats() -> Dict:
         """Return GPU utilization information if supported."""
+        if MonitorService._last_gpu_snapshot and (time.time() - MonitorService._last_gpu_snapshot_utc) <= 5:
+            return dict(MonitorService._last_gpu_snapshot)
+
         if GPUtil is None:
             return {}
         try:
@@ -214,7 +238,7 @@ class MonitorService:
             if not gpus:
                 return {}
             gpu = gpus[0]
-            return {
+            snapshot = {
                 "name": gpu.name,
                 "load": gpu.load * 100,
                 "memory_used_mb": gpu.memoryUsed,
@@ -225,6 +249,9 @@ class MonitorService:
                 "power_draw": getattr(gpu, 'powerDraw', 0),
                 "power_limit": getattr(gpu, 'powerLimit', 0),
             }
+            MonitorService._last_gpu_snapshot = snapshot
+            MonitorService._last_gpu_snapshot_utc = time.time()
+            return snapshot
         except Exception as e:
             logger.error(f"Error getting GPU stats: {e}")
             return {}

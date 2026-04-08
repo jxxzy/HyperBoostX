@@ -175,6 +175,8 @@ namespace HyperBoostX
         private string _lastStorageSignature = "";
         private readonly Queue<string> _dashboardActivityLog = new();
         private DateTime _lastDashboardDeepRefresh = DateTime.MinValue;
+        private DateTime _lastJunkEstimateUtc = DateTime.MinValue;
+        private double _cachedJunkEstimateMb;
         private string _dashboardCurrentMode = "Balanced / General Use";
         private string _lastDetectedGameProcess = "";
         private string _lastDetectedGamePath = "";
@@ -1220,11 +1222,10 @@ namespace HyperBoostX
 
         private async Task<AutomationRuntimeSnapshot> BuildAutomationSnapshotAsync()
         {
-            var stats = await SafeApiCall(() => _backendClient.GetSystemStatsAsync());
-            var json = stats as JObject;
-            var cpu = json?.Value<double?>("cpu") ?? json?.Value<double?>("cpu_percent") ?? 0d;
-            var ram = json?.Value<double?>("memory") ?? json?.Value<double?>("memory_percent") ?? 0d;
-            var disk = json?.Value<double?>("disk") ?? json?.Value<double?>("disk_percent") ?? 0d;
+            var json = await GetSystemStatsJsonAsync();
+            var cpu = ReadNumericToken(json, "cpu", "cpu_percent");
+            var ram = ReadNumericToken(json, "memory", "memory_percent");
+            var disk = ReadNumericToken(json, "disk", "disk_percent");
             var gpu = ReadGpuLoadStat(json);
             var hasBattery = _powerDynamicMode.Contains("Battery", StringComparison.OrdinalIgnoreCase);
             var batteryPercent = hasBattery ? 35d : 100d;
@@ -1970,14 +1971,11 @@ namespace HyperBoostX
             var stats = await statsTask as JObject;
             var processes = await processesTask as JObject;
             var startup = await startupTask as JObject;
-            var cpu = stats?.Value<double?>("cpu") ?? stats?.Value<double?>("cpu_percent") ?? 0d;
-            var ram = stats?.Value<double?>("memory") ?? stats?.Value<double?>("memory_percent") ?? 0d;
-            var disk = stats?.Value<double?>("disk") ?? stats?.Value<double?>("disk_percent") ?? 0d;
-            var processCount = (processes?["processes"] as JArray)?.Count
-                ?? 0;
-            var startupCount = (startup?["startup_items"] as JArray)?.Count
-                ?? (startup?["items"] as JArray)?.Count
-                ?? 0;
+            var cpu = ReadNumericToken(stats, "cpu", "cpu_percent");
+            var ram = ReadNumericToken(stats, "memory", "memory_percent");
+            var disk = ReadNumericToken(stats, "disk", "disk_percent");
+            var processCount = ReadArrayCount(processes, "processes");
+            var startupCount = ReadStartupItemsArray(startup)?.Count ?? 0;
 
             _cachedAiSystemContext =
                 $"Active page: {_activePage}\n" +
@@ -2782,20 +2780,19 @@ namespace HyperBoostX
 
         private async Task RefreshDashboard()
         {
-            var stats = await SafeApiCall(() => _backendClient.GetSystemStatsAsync());
-            if (stats == null)
+            var json = await GetSystemStatsJsonAsync();
+            if (json == null)
                 return;
 
-            var json = stats as Newtonsoft.Json.Linq.JObject;
-            var cpuValue = json?.Value<double?>("cpu") ?? json?.Value<double?>("cpu_percent") ?? 0;
-            var memoryValue = json?.Value<double?>("memory") ?? json?.Value<double?>("memory_percent") ?? 0;
-            var diskValue = json?.Value<double?>("disk") ?? json?.Value<double?>("disk_percent") ?? 0;
-            var cpuFreq = json?.Value<double?>("cpu_freq") ?? 0;
-            var memoryUsed = json?.Value<double?>("memory_used_gb") ?? 0;
-            var memoryTotal = json?.Value<double?>("memory_total_gb") ?? 0;
-            var diskUsed = json?.Value<double?>("disk_used_gb") ?? 0;
-            var diskTotal = json?.Value<double?>("disk_total_gb") ?? 0;
-            var processCount = json?.Value<int?>("processes") ?? json?.Value<int?>("process_count") ?? 0;
+            var cpuValue = ReadNumericToken(json, "cpu", "cpu_percent");
+            var memoryValue = ReadNumericToken(json, "memory", "memory_percent");
+            var diskValue = ReadNumericToken(json, "disk", "disk_percent");
+            var cpuFreq = ReadNumericToken(json, "cpu_freq");
+            var memoryUsed = ReadNumericToken(json, "memory_used_gb");
+            var memoryTotal = ReadNumericToken(json, "memory_total_gb");
+            var diskUsed = ReadNumericToken(json, "disk_used_gb");
+            var diskTotal = ReadNumericToken(json, "disk_total_gb");
+            var processCount = (int)ReadNumericToken(json, "processes", "process_count");
             var gpuObject = json?["gpu"] as Newtonsoft.Json.Linq.JObject;
             var tempObject = json?["temperatures"] as Newtonsoft.Json.Linq.JObject;
             var gpuLoad = gpuObject?.Value<double?>("load") ?? gpuObject?.Value<double?>("memory_percent") ?? (cpuValue > 70 ? 72 : cpuValue > 45 ? 51 : 19);
@@ -2830,9 +2827,14 @@ namespace HyperBoostX
 
             _lastDashboardDeepRefresh = DateTime.Now;
 
-            var processes = await SafeApiCall(() => _backendClient.GetProcessesAsync());
-            var startup = await SafeApiCall(() => _backendClient.GetStartupItemsAsync());
-            var junkEstimateMb = await EstimateJunkFilesMbAsync();
+            var processesTask = SafeApiCall(() => _backendClient.GetProcessesAsync());
+            var startupTask = SafeApiCall(() => _backendClient.GetStartupItemsAsync());
+            var junkEstimateTask = EstimateJunkFilesMbAsync();
+            await Task.WhenAll(processesTask, startupTask, junkEstimateTask);
+
+            var processes = await processesTask;
+            var startup = await startupTask;
+            var junkEstimateMb = await junkEstimateTask;
 
             var backgroundCount = ExtractProcessCount(processes);
             var highImpactStartup = ExtractHighImpactStartupCount(startup);
@@ -2901,6 +2903,65 @@ namespace HyperBoostX
             return null;
         }
 
+        private async Task<JObject> GetSystemStatsJsonAsync()
+        {
+            return await SafeApiCall(() => _backendClient.GetSystemStatsAsync()) as JObject;
+        }
+
+        private static JArray ReadStartupItemsArray(JObject payload)
+        {
+            return payload?["startup_items"] as JArray
+                ?? payload?["items"] as JArray;
+        }
+
+        private static int ReadArrayCount(JObject payload, params string[] keys)
+        {
+            foreach (var key in keys)
+            {
+                if (payload?[key] is JArray array)
+                    return array.Count;
+            }
+
+            return 0;
+        }
+
+        private static double ReadNumericToken(JObject payload, params string[] keys)
+        {
+            foreach (var key in keys)
+            {
+                var token = payload?[key];
+                var numeric = ReadNumericTokenValue(token);
+                if (numeric.HasValue)
+                    return numeric.Value;
+            }
+
+            return 0;
+        }
+
+        private static double? ReadNumericTokenValue(JToken token)
+        {
+            switch (token)
+            {
+                case null:
+                    return null;
+                case JValue value when value.Type == JTokenType.Integer || value.Type == JTokenType.Float:
+                    return value.Value<double>();
+                case JValue value when value.Type == JTokenType.String && double.TryParse(value.Value<string>(), NumberStyles.Any, CultureInfo.InvariantCulture, out var parsed):
+                    return parsed;
+                case JObject obj:
+                    return ReadNumericTokenValue(obj["usage"])
+                        ?? ReadNumericTokenValue(obj["percent"])
+                        ?? ReadNumericTokenValue(obj["value"])
+                        ?? ReadNumericTokenValue(obj["current"])
+                        ?? ReadNumericTokenValue(obj["load"])
+                        ?? ReadNumericTokenValue(obj["memory_percent"]);
+                case JArray array when array.Count > 1:
+                    return ReadNumericTokenValue(array[1]);
+                default:
+                    return null;
+            }
+        }
+
         private int ExtractProcessCount(dynamic processData)
         {
             var processes = processData?["processes"] as Newtonsoft.Json.Linq.JArray;
@@ -2909,7 +2970,7 @@ namespace HyperBoostX
 
         private int ExtractHighImpactStartupCount(dynamic startupData)
         {
-            var items = startupData?["startup_items"] as Newtonsoft.Json.Linq.JArray;
+            var items = ReadStartupItemsArray(startupData as JObject);
             if (items == null)
                 return 0;
 
@@ -2966,9 +3027,12 @@ namespace HyperBoostX
 
         private async Task<double> EstimateJunkFilesMbAsync()
         {
+            if (DateTime.UtcNow - _lastJunkEstimateUtc <= TimeSpan.FromSeconds(45))
+                return _cachedJunkEstimateMb;
+
             try
             {
-                return await Task.Run(() =>
+                var estimate = await Task.Run(() =>
                 {
                     long bytes = 0;
                     foreach (var path in new[]
@@ -2999,6 +3063,10 @@ namespace HyperBoostX
 
                     return bytes / 1024d / 1024d;
                 });
+
+                _cachedJunkEstimateMb = estimate;
+                _lastJunkEstimateUtc = DateTime.UtcNow;
+                return estimate;
             }
             catch
             {
@@ -6603,7 +6671,7 @@ if (-not $result) { 'Unavailable'; return }
         private List<StartupEntry> ParseStartupItems(dynamic startupData)
         {
             var entries = new List<StartupEntry>();
-            var items = startupData["items"] as Newtonsoft.Json.Linq.JArray;
+            var items = ReadStartupItemsArray(startupData as JObject);
             if (items == null)
             {
                 return entries;
@@ -7028,7 +7096,7 @@ if (-not $result) { 'Unavailable'; return }
         private IEnumerable<DriveInfo> GetFilteredDrives()
         {
             var filter = (StorageFilterCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "All Devices";
-            var drives = DriveInfo.GetDrives().Where(x => x.IsReady || x.DriveType is DriveType.Network or DriveType.CDRom or DriveType.Removable).ToList();
+            var drives = SafeGetDrives().Where(x => x.IsReady || x.DriveType is DriveType.Network or DriveType.CDRom or DriveType.Removable).ToList();
 
             return filter switch
             {
@@ -7046,7 +7114,7 @@ if (-not $result) { 'Unavailable'; return }
             try
             {
                 var drives = GetFilteredDrives().ToList();
-                var currentSignature = string.Join("|", DriveInfo.GetDrives().Select(x => $"{x.Name}:{x.IsReady}:{(x.IsReady ? x.TotalFreeSpace : 0)}"));
+                var currentSignature = string.Join("|", SafeGetDrives().Select(x => $"{x.Name}:{x.IsReady}:{(x.IsReady ? x.TotalFreeSpace : 0)}"));
 
                 if (!string.IsNullOrWhiteSpace(_lastStorageSignature) && !string.Equals(_lastStorageSignature, currentSignature, StringComparison.Ordinal))
                 {
@@ -7077,9 +7145,32 @@ if (-not $result) { 'Unavailable'; return }
                     StorageDeepAnalyzerText.Text = "Pilih drive untuk memulai analisis.";
                 }
             }
+            catch (Exception ex)
+            {
+                StorageDetectionText.Text = $"Storage monitor fallback active. Last attempt: {DateTime.Now:HH:mm:ss}";
+                StorageUnifiedOverviewText.Text = "Storage data sementara tidak bisa dibaca penuh.";
+                StorageDevicesText.Text = $"Storage refresh failed: {ex.Message}";
+                StorageHealthText.Text = "Health summary unavailable.";
+                StorageRecommendationText.Text = "Retry setelah runtime storage dependency tersedia.";
+                StorageBreakdownText.Text = "Storage breakdown unavailable.";
+                StorageDeepAnalyzerText.Text = "Storage analyzer unavailable.";
+                AppendDashboardActivity($"Storage refresh warning: {ex.Message}");
+            }
             finally
             {
                 _isUpdating = false;
+            }
+        }
+
+        private static IEnumerable<DriveInfo> SafeGetDrives()
+        {
+            try
+            {
+                return DriveInfo.GetDrives();
+            }
+            catch
+            {
+                return Array.Empty<DriveInfo>();
             }
         }
 
@@ -10495,17 +10586,7 @@ if (-not $result) { 'Unavailable'; return }
         {
             try
             {
-                var direct = stats?[key];
-                if (direct == null)
-                    return 0;
-
-                if (direct is JValue)
-                    return direct.Value<double?>() ?? 0;
-
-                return direct["usage"]?.Value<double?>()
-                    ?? direct["percent"]?.Value<double?>()
-                    ?? direct["value"]?.Value<double?>()
-                    ?? 0;
+                return ReadNumericToken(stats as JObject, key);
             }
             catch
             {
@@ -10517,16 +10598,10 @@ if (-not $result) { 'Unavailable'; return }
         {
             try
             {
-                var temp = stats?["temperature"];
-                if (temp == null)
-                    return 0;
-
-                if (temp is JValue)
-                    return temp.Value<double?>() ?? 0;
-
-                return temp["current"]?.Value<double?>()
-                    ?? temp["cpu"]?.Value<double?>()
-                    ?? temp["value"]?.Value<double?>()
+                var json = stats as JObject;
+                var directTemperature = ReadNumericTokenValue(json?["temperature"]);
+                return directTemperature
+                    ?? ExtractTemperature(json?["temperatures"] as JObject)
                     ?? 0;
             }
             catch
@@ -15381,24 +15456,16 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             SmartScanProgressBar.Value = 0;
             SmartScanStatusText.Text = "Scanning system state...";
 
-            await Task.Delay(350);
-            var stats = await SafeApiCall(() => _backendClient.GetSystemStatsAsync());
-            SmartScanProgressBar.Value = 25;
+            var statsTask = SafeApiCall(() => _backendClient.GetSystemStatsAsync());
+            var processesTask = SafeApiCall(() => _backendClient.GetProcessesAsync());
+            var dnsTask = SafeApiCall(() => _backendClient.TestDnsAsync());
+            Task startupTask = _startupEntries.Count == 0 ? RefreshStartupItems() : Task.CompletedTask;
 
-            var processes = await SafeApiCall(() => _backendClient.GetProcessesAsync());
-            SmartScanProgressBar.Value = 50;
-
-            if (_startupEntries.Count == 0)
-            {
-                await RefreshStartupItems();
-            }
-
-            SmartScanProgressBar.Value = 75;
-            var dns = await SafeApiCall(() => _backendClient.TestDnsAsync());
+            await Task.WhenAll(statsTask, processesTask, dnsTask, startupTask);
             SmartScanProgressBar.Value = 100;
             SmartScanStatusText.Text = "Scan complete. Recommendations are ready.";
 
-            PopulateSmartRecommendationUi(stats, processes, dns);
+            PopulateSmartRecommendationUi(await statsTask, await processesTask, await dnsTask);
         }
 
         private void PopulateSmartRecommendationUi(dynamic stats, dynamic processes, dynamic dns)

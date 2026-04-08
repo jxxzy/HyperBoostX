@@ -20,4 +20,8 @@ startup_service = StartupService()
 def list_startup_items():
     """Return startup item data for the WPF client."""
     items = startup_service.get_startup_items()
-    return jsonify({"items": items, "count": len(items)})
+    return jsonify({
+        "items": items,
+        "startup_items": items,
+        "count": len(items),
+    })
