@@ -79,6 +79,8 @@ namespace HyperBoostX.Services
             return severity?.ToLowerInvariant() switch
             {
                 "critical" => 0xB91C1C,
+                "success" => 0x16A34A,
+                "info" => 0x2563EB,
                 "warning" => 0xD97706,
                 _ => 0xDC2626
             };

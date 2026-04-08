@@ -1517,11 +1517,16 @@ namespace HyperBoostX
                 return;
 
             var snapshot = await BuildAutomationSnapshotAsync();
+            var queuedNow = 0;
+            var executedNow = 0;
             foreach (var rule in _automationRules.Where(rule => rule.Enabled))
             {
                 if (CanExecuteAutomationRule(rule, snapshot, out var reason))
                 {
+                    var beforeCount = _automationTasks.Count;
                     QueueAutomationTask(rule, $"{source}: {reason}");
+                    if (_automationTasks.Count > beforeCount)
+                        queuedNow++;
                 }
                 else if (reason.Contains("idle", StringComparison.OrdinalIgnoreCase) ||
                          reason.Contains("busy", StringComparison.OrdinalIgnoreCase) ||
@@ -1572,7 +1577,18 @@ namespace HyperBoostX
                 }
 
                 await ExecuteAutomationTaskAsync(task, rule);
+                executedNow++;
             }
+
+            var pendingCount = _automationTasks.Count(task =>
+                task.Status.Equals("Queued", StringComparison.OrdinalIgnoreCase) ||
+                task.Status.Equals("Retrying", StringComparison.OrdinalIgnoreCase) ||
+                task.Status.Equals("Waiting for Safe Window", StringComparison.OrdinalIgnoreCase));
+
+            AppendAutomationAudit(
+                "Info",
+                $"Automation evaluation completed via {source}. State={snapshot.State}; queued={queuedNow}; executed={executedNow}; pending={pendingCount}.",
+                source);
 
             await SavePersistedConfigurationAsync();
         }
@@ -15388,7 +15404,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             }
 
             var failed = _lastFeatureAuditResults.Count(x => !x.Success);
-            var severity = failed > 0 ? "error" : "warning";
+            var severity = failed > 0 ? "error" : "success";
             var fields = BuildDiscordReportFields(severity, "Automated feature audit report");
             fields["Audit Mode"] = _lastFeatureAuditMode;
             fields["Modules Tested"] = _lastFeatureAuditResults.Count.ToString(CultureInfo.InvariantCulture);
