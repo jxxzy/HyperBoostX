@@ -14,7 +14,7 @@ namespace HyperBoostX.Services
         Task<dynamic> GetDriversAsync();
         Task<dynamic> CheckDriverUpdatesAsync();
         Task<dynamic> RunSfcAsync();
-        Task<dynamic> CleanupAsync();
+        Task<dynamic> CleanupAsync(string scope = null);
         Task<dynamic> RunDismAsync();
         Task<dynamic> GetStartupItemsAsync();
         Task<dynamic> GetProcessesAsync();

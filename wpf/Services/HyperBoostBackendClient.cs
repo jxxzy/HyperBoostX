@@ -334,11 +334,21 @@ namespace HyperBoostX.Services
         /// <summary>
         /// Cleanup temporary files
         /// </summary>
-        public async Task<dynamic> CleanupAsync()
+        public async Task<dynamic> CleanupAsync(string scope = null)
         {
             try
             {
-                var response = await _httpClient.PostAsync($"{_baseUrl}/api/repair/cleanup", null);
+                HttpContent content = null;
+                if (!string.IsNullOrWhiteSpace(scope))
+                {
+                    content = new StringContent(
+                        JsonConvert.SerializeObject(new { scope }),
+                        System.Text.Encoding.UTF8,
+                        "application/json"
+                    );
+                }
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/api/repair/cleanup", content);
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
                 return ParseJsonToken(json);

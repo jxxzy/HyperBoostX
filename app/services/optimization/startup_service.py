@@ -386,9 +386,11 @@ class StartupService:
         process_hint = Path(executable_path).stem.lower() if executable_path else name.lower()
         for proc in psutil.process_iter(["name", "memory_info"]):
             try:
-                proc_name = (proc.info["name"] or "").lower()
+                proc_name = (proc.info.get("name") or "").lower()
                 if process_hint and process_hint in proc_name:
-                    running_memory_mb = max(running_memory_mb, (proc.info["memory_info"].rss or 0) / (1024 * 1024))
+                    memory_info = proc.info.get("memory_info")
+                    rss = getattr(memory_info, "rss", 0) or 0
+                    running_memory_mb = max(running_memory_mb, rss / (1024 * 1024))
             except (psutil.NoSuchProcess, psutil.AccessDenied, AttributeError):
                 continue
 

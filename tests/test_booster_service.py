@@ -1,4 +1,5 @@
 from app.core.profiles import Profile
+from app.core.profiles import ProfileManager
 from app.services.optimization.booster_service import BoosterService
 import winreg
 
@@ -54,10 +55,19 @@ def test_gaming_registry_tweaks_use_current_user(monkeypatch):
     assert BoosterService._disable_visual_effects() is True
     assert BoosterService._disable_xbox_overlay() is True
     assert BoosterService._enable_background_recording() is True
+    assert BoosterService._disable_background_recording() is True
     assert BoosterService._enable_visual_effects() is True
 
-    assert len(calls) == 4
+    assert len(calls) == 6
     assert all(call["hkey"] == winreg.HKEY_CURRENT_USER for call in calls)
+
+
+def test_streaming_profile_disables_game_bar_background_capture():
+    settings = ProfileManager.PROFILES["streaming"].settings
+
+    assert settings["disable_xbox_overlay"] is True
+    assert settings["disable_background_recording"] is True
+    assert "background_recording" not in settings
 
 
 def test_apply_setting_reports_admin_requirement_from_registry_error(monkeypatch):

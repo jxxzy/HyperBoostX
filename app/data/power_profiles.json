@@ -15,12 +15,13 @@
     {
       "id": "streaming",
       "name": "Streaming Mode",
-      "description": "Balanced for streaming with stable performance",
+      "description": "Balanced for streaming with stable encoder performance",
       "settings": {
         "optimize_gpu_performance": true,
         "stable_frame_times": true,
         "reduce_network_latency": true,
-        "background_recording": true
+        "disable_xbox_overlay": true,
+        "disable_background_recording": true
       }
     },
     {

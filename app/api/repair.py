@@ -3,7 +3,7 @@ Repair API Blueprint for HyperBoost X
 Handles system repair, cleanup, and diagnostics.
 """
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from core.logger import Logger
 from api.middleware import handle_errors, log_requests
 from services.repair.repair_service import RepairService
@@ -38,8 +38,9 @@ def run_dism():
 @log_requests
 def cleanup():
     """Clean temporary files and free disk space."""
-    result = repair_service.cleanup_temp_files()
-    return jsonify({"freed_mb": result})
+    payload = request.get_json(silent=True) or {}
+    result = repair_service.cleanup_temp_files(payload.get("scope", "safe_all"))
+    return jsonify(result)
 
 
 @repair_bp.route('/reset-network', methods=['POST'])

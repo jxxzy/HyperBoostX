@@ -85,6 +85,10 @@ class BoosterService:
             "display_name": "Enable background recording",
             "requires_admin": False,
         },
+        "disable_background_recording": {
+            "display_name": "Disable background recording",
+            "requires_admin": False,
+        },
         "balanced_performance": {
             "display_name": "Set balanced performance",
             "requires_admin": True,
@@ -241,6 +245,8 @@ class BoosterService:
                 success = BoosterService._reduce_network_latency()
             elif setting == "background_recording":
                 success = BoosterService._enable_background_recording()
+            elif setting == "disable_background_recording":
+                success = BoosterService._disable_background_recording()
             elif setting == "balanced_performance":
                 success = BoosterService._set_balanced_performance()
             elif setting == "enable_indexing":
@@ -470,6 +476,25 @@ class BoosterService:
             winreg.REG_DWORD,
             hkey=winreg.HKEY_CURRENT_USER
         )
+
+    @staticmethod
+    def _disable_background_recording() -> bool:
+        """Disable Xbox/Game Bar background recording to protect streaming encoder stability."""
+        success_capture = RegistryUtil.set_value(
+            BoosterService.REG_PATHS["xbox_overlay"],
+            "AppCaptureEnabled",
+            0,
+            winreg.REG_DWORD,
+            hkey=winreg.HKEY_CURRENT_USER
+        )
+        success_history = RegistryUtil.set_value(
+            BoosterService.REG_PATHS["xbox_overlay"],
+            "HistoricalCaptureEnabled",
+            0,
+            winreg.REG_DWORD,
+            hkey=winreg.HKEY_CURRENT_USER
+        )
+        return success_capture and success_history
     
     @staticmethod
     def _set_balanced_performance() -> bool:

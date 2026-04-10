@@ -2,6 +2,12 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.2.1 - 2026-04-10
+- Fixed startup item collection so missing `memory_info` on some Windows processes no longer crashes the startup list API.
+- Expanded cleanup scopes across backend and WPF so temp, cache, browser, logs, and advanced cleanup actions return richer structured results.
+- Hardened Streaming, Gaming, Booster, and Smart Recommendation flows with shared session detection for game, streamer, and Discord companion processes.
+- Clarified in-app action status messaging so launcher-only, requested, applied, and warning states are more honest across repair, update, tweak, restore, utilities, and audit flows.
+
 ## v1.2.0 - 2026-04-08
 - Added adaptive optimization groundwork with system-drive classification, device profiling, and bottleneck-aware recommendations for SSD/HDD, desktop/laptop, and different RAM classes.
 - Extended Dashboard, Smart Recommendation, and System Info so the app surfaces device context and more realistic expected-gain messaging directly in the UI.

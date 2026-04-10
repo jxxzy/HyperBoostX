@@ -48,12 +48,13 @@ class ProfileManager:
         ),
         "streaming": Profile(
             name="Streaming Mode",
-            description="Balanced for streaming with stable performance",
+            description="Balanced for streaming with stable encoder performance",
             settings={
                 "optimize_gpu_performance": True,
                 "stable_frame_times": True,
                 "reduce_network_latency": True,
-                "background_recording": True,
+                "disable_xbox_overlay": True,
+                "disable_background_recording": True,
             }
         ),
         "productivity": Profile(

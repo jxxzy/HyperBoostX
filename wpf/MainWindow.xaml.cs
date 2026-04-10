@@ -185,6 +185,7 @@ namespace HyperBoostX
         private readonly Queue<string> _cleanupHistory = new();
         private string _cleanupSafetyMode = "Safe Only";
         private string _lastLargeFileDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        private List<string> _lastDuplicateDeleteCandidates = new();
         private string _lastStorageSignature = "";
         private readonly Queue<string> _dashboardActivityLog = new();
         private DateTime _lastDashboardDeepRefresh = DateTime.MinValue;
@@ -295,7 +296,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.2.0";
+            ?? "1.2.1";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -1955,6 +1956,21 @@ namespace HyperBoostX
                 _ = ReportErrorToDiscordAsync(title, message, meta, "error");
         }
 
+        private void ShowRequestedStatus(string title, string message, string meta = null)
+        {
+            ShowActionStatus(ActionState.Info, title, message, meta);
+        }
+
+        private void ShowOpenedStatus(string title, string message, string meta = null)
+        {
+            ShowActionStatus(ActionState.Info, title, message, meta);
+        }
+
+        private void ShowAppliedStatus(bool success, string title, string successMessage, string warningMessage, string meta = null)
+        {
+            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, title, success ? successMessage : warningMessage, meta);
+        }
+
         private void UpdateFeatureAuditIncidentState(ActionState state, string title, string message, string meta = null)
         {
             if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(message))
@@ -3342,12 +3358,17 @@ namespace HyperBoostX
 
         private Task RefreshGamingBoosterHubAsync()
         {
+            var snapshot = BuildSessionDetectionSnapshot();
             var activeMode = _gamingBoostActive ? "Active" : "Idle";
-            var activeGame = string.IsNullOrWhiteSpace(_lastDetectedGameProcess) ? "No active game detected" : $"{_lastDetectedGameProcess}.exe";
+            var activeGame = DescribeProcess(snapshot.ActiveGame, "No active game detected");
+            var activeStreamer = DescribeProcess(snapshot.ActiveStreamer, "Not detected");
+            var discord = DescribeProcess(snapshot.DiscordProcess, "Not detected");
 
             BoosterSummaryText.Text =
                 $"Booster state: {activeMode}{Environment.NewLine}" +
                 $"Detected game: {activeGame}{Environment.NewLine}" +
+                $"Detected streamer: {activeStreamer}{Environment.NewLine}" +
+                $"Discord: {discord}{Environment.NewLine}" +
                 "Use Gaming Mode for profile/session rules. Use Gaming Booster for one-shot optimization.";
 
             BoosterRecommendationText.Text =
@@ -3362,6 +3383,7 @@ namespace HyperBoostX
 
             BoosterTargetText.Text =
                 $"Current target: {activeGame}{Environment.NewLine}" +
+                $"Streaming companion: {activeStreamer}{Environment.NewLine}" +
                 "Start Game Boost works best after a real game executable is detected.";
 
             BoosterReportText.Text = string.IsNullOrWhiteSpace(GamingBoostResultsText?.Text)
@@ -3444,7 +3466,7 @@ namespace HyperBoostX
         {
             AppendDriversHistory($"{((sender as Button)?.Content?.ToString() ?? "Driver scan")} executed.");
             await RefreshDrivers();
-            ShowActionStatus(ActionState.Success, "Driver Scanner", "Driver scan refreshed.", DriversDashboardText.Text);
+            ShowRequestedStatus("Driver Scanner", "Driver inventory diperbarui untuk review.", DriversDashboardText.Text);
         }
 
         private async void CheckDriverUpdates_Click(object sender, RoutedEventArgs e)
@@ -3457,8 +3479,8 @@ namespace HyperBoostX
             }
 
             AppendDriversHistory("Driver update check completed.");
-            DriversQuickResultText.Text = "Drivers Updated Successfully\nRecommended driver updates reviewed";
-            ShowActionStatus(ActionState.Success, "Driver check complete", "Driver update scan finished successfully.", HyperBoostBackendClient.FormatJson(result));
+            DriversQuickResultText.Text = "Driver Scan Complete\nRecommended driver updates reviewed";
+            ShowRequestedStatus("Driver check complete", "Driver update scan selesai untuk review. Instalasi driver tidak dijalankan otomatis.", HyperBoostBackendClient.FormatJson(result));
             await RefreshDrivers();
         }
 
@@ -3473,7 +3495,7 @@ namespace HyperBoostX
             var (success, output) = await ExecutePowerShellScriptAsync("pnputil /scan-devices");
             DriversQuickResultText.Text = "Driver Issues Fixed\nQuick repair requested";
             AppendDriversHistory("Quick fix driver requested.");
-            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "QUICK FIX DRIVER", "Driver quick-fix diproses.", output);
+            ShowAppliedStatus(success, "QUICK FIX DRIVER", "Driver rescan diminta. Review hasil PnP scan untuk langkah lanjutan.", "Driver quick-fix menghasilkan warning.", output);
             await RefreshDrivers();
         }
 
@@ -3486,8 +3508,8 @@ namespace HyperBoostX
                 return;
             }
 
-            DriversQuickResultText.Text = "Drivers Updated Successfully\n3 drivers optimized";
-            ShowActionStatus(ActionState.Success, actionName, "Driver update workflow dijalankan.", HyperBoostBackendClient.FormatJson(result));
+            DriversQuickResultText.Text = "Driver Review Ready\nUpdate recommendation refreshed";
+            ShowRequestedStatus(actionName, "Driver update workflow diminta untuk review. Driver tidak diinstal otomatis oleh langkah ini.", HyperBoostBackendClient.FormatJson(result));
             await RefreshDrivers();
         }
 
@@ -3501,7 +3523,7 @@ namespace HyperBoostX
         {
             LaunchWindowsTool("devmgmt.msc", null, "Driver Rollback");
             AppendDriversHistory("Driver rollback review opened.");
-            ShowActionStatus(ActionState.Warning, "Driver Rollback", "Gunakan Device Manager untuk rollback driver yang bermasalah.");
+            ShowActionStatus(ActionState.Info, "Driver Rollback", "Device Manager dibuka. Lakukan rollback driver secara manual dari sana.");
         }
 
         private async void ReinstallDriver_Click(object sender, RoutedEventArgs e)
@@ -3667,7 +3689,7 @@ namespace HyperBoostX
             }
 
             AppendRepairHistory("SFC scan started.");
-            ShowActionStatus(ActionState.Success, "SFC scan started", "System File Checker has been launched.", HyperBoostBackendClient.FormatJson(result));
+            ShowActionStatus(ActionState.Info, "SFC scan started", "System File Checker berhasil diminta. Proses scan berjalan terpisah di Windows.", HyperBoostBackendClient.FormatJson(result));
             await RefreshRepairViewAsync();
         }
 
@@ -3681,7 +3703,7 @@ namespace HyperBoostX
             }
 
             AppendRepairHistory("DISM repair started.");
-            ShowActionStatus(ActionState.Success, "DISM repair started", "DISM repair has been launched.", HyperBoostBackendClient.FormatJson(result));
+            ShowActionStatus(ActionState.Info, "DISM repair started", "DISM repair berhasil diminta. Proses repair berjalan terpisah di Windows.", HyperBoostBackendClient.FormatJson(result));
             await RefreshRepairViewAsync();
         }
 
@@ -3695,7 +3717,7 @@ namespace HyperBoostX
             }
 
             AppendRepairHistory("Cleanup repair completed.");
-            ShowActionStatus(ActionState.Success, "Cleanup complete", "Temporary file cleanup finished.", HyperBoostBackendClient.FormatJson(result));
+            ShowActionStatus(ActionState.Info, "Cleanup complete", "Cleanup aman diminta. Review hasil freed space untuk memastikan perubahan aktual.", HyperBoostBackendClient.FormatJson(result));
             await RefreshRepairViewAsync();
         }
 
@@ -3721,9 +3743,9 @@ namespace HyperBoostX
             var (svcSuccess, svcOutput) = await ExecutePowerShellScriptAsync("Restart-Service -Name wuauserv,AudioSrv,Dnscache -ErrorAction SilentlyContinue; 'Important services restart requested.'");
             notes.Add(svcSuccess ? "Important services restarted" : svcOutput);
 
-            RepairQuickResultText.Text = $"System Repaired{Environment.NewLine}Issues Fixed: {notes.Count}";
+            RepairQuickResultText.Text = $"Quick Repair Requested{Environment.NewLine}Actions queued: {notes.Count}";
             AppendRepairHistory("Quick repair completed.");
-            ShowActionStatus(ActionState.Success, "Quick Repair", "Quick repair selesai.", string.Join(Environment.NewLine, notes));
+            ShowActionStatus(ActionState.Info, "Quick Repair", "Quick repair request dikirim. Sebagian aksi berjalan asinkron atau perlu review hasil manual.", string.Join(Environment.NewLine, notes));
             await RefreshRepairViewAsync();
         }
 
@@ -3741,9 +3763,9 @@ namespace HyperBoostX
             var (svcSuccess, svcOutput) = await ExecutePowerShellScriptAsync("Restart-Service -Name wuauserv,BITS,AudioSrv,Dnscache,Spooler -ErrorAction SilentlyContinue; 'Core services restart requested.'");
             notes.Add(svcSuccess ? "Core services restart requested" : svcOutput);
 
-            RepairQuickResultText.Text = "Full Repair Completed";
+            RepairQuickResultText.Text = "Full Repair Requested";
             AppendRepairHistory("Full system repair launched.");
-            ShowActionStatus(ActionState.Success, "Full System Repair", "Full repair workflow dijalankan.", string.Join(Environment.NewLine, notes));
+            ShowActionStatus(ActionState.Info, "Full System Repair", "Full repair workflow diminta. SFC, DISM, reset network, dan service restart tidak selesai instan.", string.Join(Environment.NewLine, notes));
             await RefreshRepairViewAsync();
         }
 
@@ -3758,7 +3780,7 @@ namespace HyperBoostX
             var reset = await SafeApiCall(() => _backendClient.ResetNetworkAsync());
             var (success, output) = await ExecutePowerShellScriptAsync("Restart-Service -Name wuauserv,AudioSrv,Dnscache -ErrorAction SilentlyContinue; 'Smart repair service reset requested.'");
             AppendRepairHistory("Smart repair auto-fix executed.");
-            ShowActionStatus(ActionState.Success, "Smart Repair", "Auto fix all dijalankan.", string.Join(Environment.NewLine, new[]
+            ShowActionStatus(ActionState.Info, "Smart Repair", "Auto fix all diminta. Review hasil setiap langkah untuk memastikan perbaikan benar-benar selesai.", string.Join(Environment.NewLine, new[]
             {
                 cleanup != null ? "Cache corruption repair requested" : null,
                 reset != null ? "Network repair requested" : null,
@@ -3876,14 +3898,14 @@ namespace HyperBoostX
         {
             LaunchWindowsTool("cmd.exe", "/c start ms-settings:windowsupdate", "Permission Repair");
             AppendRepairHistory("Permission repair review opened.");
-            ShowActionStatus(ActionState.Warning, "Permission Repair", "Permission reset penuh berisiko. Review tool advanced / admin workflow sebelum melanjutkan.");
+            ShowActionStatus(ActionState.Info, "Permission Repair", "Halaman review dibuka. Permission reset penuh tidak dijalankan otomatis karena berisiko tinggi.");
         }
 
         private void OpenAdvancedRepairTools_Click(object sender, RoutedEventArgs e)
         {
             LaunchWindowsTool("cmd.exe", null, "Advanced Repair Tools");
             AppendRepairHistory("Advanced repair tools opened.");
-            ShowActionStatus(ActionState.Warning, "Advanced Repair Tools", "Command tools dibuka untuk power-user repair workflow.");
+            ShowActionStatus(ActionState.Info, "Advanced Repair Tools", "Command tools dibuka untuk workflow repair manual tingkat lanjut.");
         }
 
         #endregion
@@ -4025,7 +4047,7 @@ namespace HyperBoostX
                 : $"Disable-WindowsOptionalFeature -Online -FeatureName '{featureName}' -NoRestart";
             var (success, output) = await ExecutePowerShellScriptAsync(command);
             AppendWindowsFeaturesHistory($"{(enable ? "Enable" : "Disable")} feature requested: {featureName}");
-            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, enable ? "Enable Feature" : "Disable Feature", success ? $"Feature {featureName} diproses." : "Feature action warning.", output);
+            ShowAppliedStatus(success, enable ? "Enable Feature" : "Disable Feature", $"Feature {featureName} diminta. Restart mungkin diperlukan sebelum efeknya terlihat.", "Feature action menghasilkan warning.", output);
             await RefreshWindowsFeaturesViewAsync();
         }
 
@@ -4087,7 +4109,7 @@ namespace HyperBoostX
             WindowsFeaturesQuickResultText.Text = "Windows Features Optimized";
             AppendWindowsFeaturesHistory("Feature optimization requested.");
             await RefreshWindowsFeaturesViewAsync();
-            ShowActionStatus(ActionState.Success, "Apply Feature Optimization", "Windows Features optimization flow dijalankan.", WindowsFeaturesRecommendationText.Text);
+            ShowRequestedStatus("Apply Feature Optimization", "Windows Features optimization flow diminta. Review rekomendasi dan status feature untuk hasil akhirnya.", WindowsFeaturesRecommendationText.Text);
         }
 
         private void ReviewWindowsFeaturesRecommendation_Click(object sender, RoutedEventArgs e)
@@ -4355,10 +4377,10 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
 Set-Service -Name DoSvc -StartupType Manual -ErrorAction SilentlyContinue;
 Stop-Service -Name wuauserv -Force -ErrorAction SilentlyContinue;
 Stop-Service -Name BITS -Force -ErrorAction SilentlyContinue;
-Stop-Service -Name DoSvc -Force -ErrorAction SilentlyContinue;
+            Stop-Service -Name DoSvc -Force -ErrorAction SilentlyContinue;
 'Pause / temporary stop for update-related services requested.'");
             AppendUpdateControlHistory($"{label} requested.");
-            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, label, "Temporary pause / resume control diproses.", output);
+            ShowActionStatus(success ? ActionState.Info : ActionState.Warning, label, success ? "Pause / resume update diminta. Review status Windows Update untuk memastikan perubahan aktif." : "Pause / resume update menghasilkan warning.", output);
             LaunchWindowsUri("ms-settings:windowsupdate", "Pause & Schedule Update");
             await RefreshUpdateControlViewAsync();
         }
@@ -4378,7 +4400,7 @@ reg add ""HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Co
 
             var (success, output) = await ExecutePowerShellScriptAsync(script);
             AppendUpdateControlHistory($"{label} applied.");
-            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Background Update Control", $"{label} diproses.", output);
+            ShowActionStatus(success ? ActionState.Info : ActionState.Warning, "Background Update Control", success ? $"{label} diminta. Review Delivery Optimization dan service update untuk hasil akhirnya." : $"{label} menghasilkan warning.", output);
             await RefreshUpdateControlViewAsync();
         }
 
@@ -4414,7 +4436,7 @@ if (Test-Path $env:SystemRoot'\SoftwareDistribution\Download') {
 
             var (success, output) = await ExecutePowerShellScriptAsync(script);
             AppendUpdateControlHistory($"{label} requested.");
-            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Update Cleanup", $"{label} diproses.", output);
+            ShowActionStatus(success ? ActionState.Info : ActionState.Warning, "Update Cleanup", success ? $"{label} diminta. Beberapa cleanup Windows Update bisa berjalan bertahap." : $"{label} menghasilkan warning.", output);
             await RefreshUpdateControlViewAsync();
         }
 
@@ -4429,7 +4451,7 @@ if (Test-Path $env:SystemRoot'\SoftwareDistribution\Download') {
         {
             LaunchWindowsUri("ms-settings:windowsupdate-history", "Update Rollback");
             AppendUpdateControlHistory("Update rollback review opened.");
-            ShowActionStatus(ActionState.Warning, "Update Rollback", "Review update history lalu uninstall / rollback update yang bermasalah dari Windows.");
+            ShowActionStatus(ActionState.Info, "Update Rollback", "Riwayat update dibuka. Rollback update perlu ditinjau dan dijalankan manual dari Windows.");
         }
 
         private async void ApplyUpdateRecommendation_Click(object sender, RoutedEventArgs e)
@@ -4466,7 +4488,7 @@ if ($svc -and $svc.Status -eq 'Running') {
 
             var (success, output) = await ExecutePowerShellScriptAsync(script);
             AppendUpdateControlHistory($"{label} requested.");
-            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Update Service Control", $"{label} diproses.", output);
+            ShowActionStatus(success ? ActionState.Info : ActionState.Warning, "Update Service Control", success ? $"{label} diminta. Cek kembali status service update untuk hasil aktual." : $"{label} menghasilkan warning.", output);
             await RefreshUpdateControlViewAsync();
         }
 
@@ -4507,7 +4529,7 @@ if ($svc -and $svc.Status -eq 'Running') {
             UpdateModeStatusText.Text = "Mode aktif: Automatic (security focus)";
             AppendUpdateControlHistory("Security update focus enabled.");
             LaunchWindowsUri("ms-settings:windowsupdate", "Security Update Focus");
-            ShowActionStatus(ActionState.Success, "Security Update Focus", "Prioritize security updates dan review feature update secara manual.");
+            ShowActionStatus(ActionState.Info, "Security Update Focus", "Preferensi UI diarahkan ke security focus dan halaman Windows Update dibuka untuk review manual.");
         }
 
         private void AutoUpdateRules_Click(object sender, RoutedEventArgs e)
@@ -4608,7 +4630,7 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
             await ApplySystemTweaksCoreAsync(notes);
             TweaksMasterResultText.Text = "System Optimized\nTweaks Applied Successfully";
             AppendTweaksHistory("Smart tweaks applied.");
-            ShowActionStatus(ActionState.Success, "Apply Smart Tweaks", "Safe tweaks applied successfully.", string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x))));
+            ShowRequestedStatus("Apply Smart Tweaks", "Safe tweak batch diminta. Beberapa tweak mungkin butuh review hasil manual atau restart.", string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x))));
             await RefreshTweaksCenterViewAsync();
         }
 
@@ -4655,7 +4677,7 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
             var notes = new List<string>();
             await ApplyPerformanceTweaksCoreAsync(notes);
             AppendTweaksHistory("Performance tweaks applied.");
-            ShowActionStatus(ActionState.Success, "Performance Tweaks", "Performance tweaks applied.", string.Join(Environment.NewLine, notes));
+            ShowRequestedStatus("Performance Tweaks", "Performance tweak batch diminta.", string.Join(Environment.NewLine, notes));
         }
 
         private async void ApplyGamingTweaksCenter_Click(object sender, RoutedEventArgs e)
@@ -4669,7 +4691,7 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
             var notes = new List<string>();
             await ApplyNetworkTweaksCoreAsync(notes);
             AppendTweaksHistory("Network tweaks applied.");
-            ShowActionStatus(ActionState.Success, "Network Tweaks", "Network tweaks applied.", string.Join(Environment.NewLine, notes));
+            ShowRequestedStatus("Network Tweaks", "Network tweak batch diminta.", string.Join(Environment.NewLine, notes));
         }
 
         private async void ApplyPrivacyTweaksCenter_Click(object sender, RoutedEventArgs e)
@@ -4677,7 +4699,7 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
             var notes = new List<string>();
             await ApplyPrivacyTweaksCoreAsync(notes);
             AppendTweaksHistory("Privacy tweaks applied.");
-            ShowActionStatus(ActionState.Success, "Privacy Tweaks", "Privacy tweaks applied.", string.Join(Environment.NewLine, notes));
+            ShowRequestedStatus("Privacy Tweaks", "Privacy tweak batch diminta.", string.Join(Environment.NewLine, notes));
         }
 
         private async void ApplySystemTweaksCenter_Click(object sender, RoutedEventArgs e)
@@ -4685,7 +4707,7 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
             var notes = new List<string>();
             await ApplySystemTweaksCoreAsync(notes);
             AppendTweaksHistory("System tweaks applied.");
-            ShowActionStatus(ActionState.Success, "System Tweaks", "System tweaks applied.", string.Join(Environment.NewLine, notes));
+            ShowRequestedStatus("System Tweaks", "System tweak batch diminta.", string.Join(Environment.NewLine, notes));
         }
 
         private async void ApplyUiTweaksCenter_Click(object sender, RoutedEventArgs e)
@@ -7943,7 +7965,7 @@ if (-not $result) { 'Unavailable'; return }
             return string.Join(Environment.NewLine, lines);
         }
 
-        private async Task<double> GetDirectorySizeMbAsync(string path)
+        private async Task<double> GetDirectorySizeMbAsync(string path, ISet<string> allowedExtensions = null)
         {
             if (string.IsNullOrWhiteSpace(path) || !Directory.Exists(path))
                 return 0;
@@ -7957,6 +7979,9 @@ if (-not $result) { 'Unavailable'; return }
                     {
                         try
                         {
+                            var extension = Path.GetExtension(file);
+                            if (allowedExtensions != null && !allowedExtensions.Contains(extension))
+                                continue;
                             bytes += new FileInfo(file).Length;
                         }
                         catch
@@ -7974,17 +7999,8 @@ if (-not $result) { 'Unavailable'; return }
 
         private async Task<double> GetBrowserCacheSizeMbAsync()
         {
-            var local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var paths = new[]
-            {
-                Path.Combine(local, @"Google\Chrome\User Data\Default\Cache"),
-                Path.Combine(local, @"Microsoft\Edge\User Data\Default\Cache"),
-                Path.Combine(roaming, @"Mozilla\Firefox\Profiles")
-            };
-
             double total = 0;
-            foreach (var path in paths)
+            foreach (var path in GetBrowserCachePaths())
             {
                 total += await GetDirectorySizeMbAsync(path);
             }
@@ -7996,20 +8012,65 @@ if (-not $result) { 'Unavailable'; return }
         {
             var local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             var programData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+            var windowsLogExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ".etl",
+                ".evtx",
+                ".log",
+                ".txt",
+                ".cab",
+                ".dmp",
+                ".tmp"
+            };
             var paths = new[]
             {
-                Path.Combine(programData, @"Microsoft\Windows\WER"),
-                Path.Combine(local, @"CrashDumps"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), @"Logs")
+                (Path: Path.Combine(programData, @"Microsoft\Windows\WER"), AllowedExtensions: (ISet<string>)null),
+                (Path: Path.Combine(local, @"CrashDumps"), AllowedExtensions: (ISet<string>)null),
+                (Path: Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), @"Logs"), AllowedExtensions: windowsLogExtensions)
             };
 
             double total = 0;
             foreach (var path in paths)
             {
-                total += await GetDirectorySizeMbAsync(path);
+                total += await GetDirectorySizeMbAsync(path.Path, path.AllowedExtensions);
             }
 
             return total;
+        }
+
+        private IEnumerable<string> GetBrowserCachePaths()
+        {
+            var local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var paths = new List<string>
+            {
+                Path.Combine(local, @"Google\Chrome\User Data\Default\Cache"),
+                Path.Combine(local, @"Google\Chrome\User Data\Default\Code Cache"),
+                Path.Combine(local, @"Google\Chrome\User Data\Default\GPUCache"),
+                Path.Combine(local, @"Microsoft\Edge\User Data\Default\Cache"),
+                Path.Combine(local, @"Microsoft\Edge\User Data\Default\Code Cache"),
+                Path.Combine(local, @"Microsoft\Edge\User Data\Default\GPUCache")
+            };
+
+            var firefoxProfiles = Path.Combine(roaming, @"Mozilla\Firefox\Profiles");
+            if (Directory.Exists(firefoxProfiles))
+            {
+                try
+                {
+                    foreach (var profile in Directory.EnumerateDirectories(firefoxProfiles))
+                    {
+                        paths.Add(Path.Combine(profile, "cache2"));
+                        paths.Add(Path.Combine(profile, "startupCache"));
+                        paths.Add(Path.Combine(profile, "jumpListCache"));
+                        paths.Add(Path.Combine(profile, "shader-cache"));
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            return paths;
         }
 
         private async Task<double> GetRecycleBinSizeMbAsync()
@@ -8103,15 +8164,22 @@ if (-not $result) { 'Unavailable'; return }
 
                 var duplicates = groups.Values.Where(x => x.Count > 1).Take(6).ToList();
                 if (duplicates.Count == 0)
+                {
+                    _lastDuplicateDeleteCandidates = new List<string>();
                     return "Tidak ada duplicate file yang terdeteksi dari scan cepat Documents.";
+                }
 
                 var lines = new List<string>();
+                var deleteCandidates = new List<string>();
                 foreach (var group in duplicates)
                 {
+                    var orderedGroup = group.OrderBy(file => file.FullName.Length).ThenBy(file => file.FullName, StringComparer.OrdinalIgnoreCase).ToList();
+                    deleteCandidates.AddRange(orderedGroup.Skip(1).Select(file => file.FullName));
                     lines.Add($"Duplicate set: {group[0].Name} | {group[0].Length / 1024d / 1024d:0.#} MB");
                     lines.AddRange(group.Select(file => $"  - {file.FullName}"));
                 }
 
+                _lastDuplicateDeleteCandidates = deleteCandidates;
                 return string.Join(Environment.NewLine, lines);
             });
         }
@@ -8133,40 +8201,115 @@ if (-not $result) { 'Unavailable'; return }
             }
         }
 
-        private async Task RunCleanNowAsync()
+        private async Task<(long cleanedBytes, string details)> RunCleanNowAsync()
         {
-            await CleanTempCoreAsync();
-            await ClearCacheCoreAsync();
+            var recycleBeforeMb = await GetRecycleBinSizeMbAsync();
+            var cleanupResult = await SafeApiCall(() => _backendClient.CleanupAsync("safe_all"));
+            if (cleanupResult == null)
+            {
+                ShowActionStatus(ActionState.Error, "Clean Now", "Unable to run quick clean right now.");
+                return (0, "Backend cleanup request failed.");
+            }
+
+            AppendCleanupHistory("Quick Clean core cleanup executed.");
             await EmptyRecycleCoreAsync();
             await CleanClipboardCoreAsync();
             AppendCleanupHistory("Quick Clean completed.");
             CleanupHistoryText.Text = string.Join(Environment.NewLine, _cleanupHistory.Reverse());
+            var cleanedBytes = GetCleanupFreedBytes(cleanupResult) + (long)Math.Round(recycleBeforeMb * 1024d * 1024d);
+            var details = BuildQuickCleanDetails(cleanupResult, recycleBeforeMb, cleanedBytes);
+            return (cleanedBytes, details);
         }
 
         private async Task CleanTempCoreAsync()
         {
-            var result = await SafeApiCall(() => _backendClient.CleanupAsync());
-            if (result == null)
-            {
-                ShowActionStatus(ActionState.Error, "Clean Temp", "Unable to clean temporary files right now.");
-                return;
-            }
-
-            AppendCleanupHistory("Temporary files cleaned.");
-            ShowActionStatus(ActionState.Success, "Clean Temp", "Temporary files cleaned successfully.", HyperBoostBackendClient.FormatJson(result));
+            await RunScopedCleanupAsync("temp_files", "Clean Temp", "Temporary files cleaned successfully.", "Temporary files cleaned.");
         }
 
         private async Task ClearCacheCoreAsync()
         {
-            var result = await SafeApiCall(() => _backendClient.CleanupAsync());
+            await RunScopedCleanupAsync("system_cache", "Clear Cache", "System cache cleanup completed.", "System cache cleaned.");
+        }
+
+        private async Task CleanJunkCoreAsync()
+        {
+            await RunScopedCleanupAsync("junk_files", "Clean Junk Files", "Safe junk cleanup finished.", "Junk files cleaned.");
+        }
+
+        private async Task RunScopedCleanupAsync(string scope, string title, string successMessage, string historyMessage)
+        {
+            var result = await SafeApiCall(() => _backendClient.CleanupAsync(scope));
             if (result == null)
             {
-                ShowActionStatus(ActionState.Error, "Clear Cache", "Unable to clear cache right now.");
+                ShowActionStatus(ActionState.Error, title, $"Unable to run {title.ToLowerInvariant()} right now.");
                 return;
             }
 
-            AppendCleanupHistory("System cache cleaned.");
-            ShowActionStatus(ActionState.Success, "Clear Cache", "System cache cleanup completed.", HyperBoostBackendClient.FormatJson(result));
+            var freedBytes = GetCleanupFreedBytes(result);
+            AppendCleanupHistory($"{historyMessage} Freed {FormatBytes(freedBytes)}.");
+            ShowActionStatus(
+                freedBytes > 0 ? ActionState.Success : ActionState.Info,
+                title,
+                freedBytes > 0 ? $"{successMessage} {FormatBytes(freedBytes)} removed." : "Cleanup completed, but no removable files were found.",
+                BuildCleanupResultDetails(result));
+        }
+
+        private static long GetCleanupFreedBytes(dynamic result)
+        {
+            try
+            {
+                return result?["freed_bytes"]?.Value<long?>()
+                    ?? (long)Math.Round((result?["freed_mb"]?.Value<double?>() ?? 0) * 1024d * 1024d);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        private static string BuildCleanupResultDetails(dynamic result)
+        {
+            if (result is not JObject json)
+                return HyperBoostBackendClient.FormatJson(result);
+
+            var lines = new List<string>
+            {
+                $"Scope: {json.Value<string>("scope") ?? "cleanup"}",
+                $"Freed: {FormatBytes(json.Value<long?>("freed_bytes") ?? 0)}",
+                $"Files deleted: {json.Value<int?>("deleted_files") ?? 0}",
+                $"Directories deleted: {json.Value<int?>("deleted_directories") ?? 0}",
+            };
+
+            if (json["categories"] is JObject categories)
+            {
+                foreach (var property in categories.Properties())
+                {
+                    if (property.Value is not JObject category)
+                        continue;
+
+                    var freedBytes = category.Value<long?>("freed_bytes") ?? 0;
+                    var deletedFiles = category.Value<int?>("deleted_files") ?? 0;
+                    var deletedDirectories = category.Value<int?>("deleted_directories") ?? 0;
+                    if (freedBytes <= 0 && deletedFiles <= 0 && deletedDirectories <= 0)
+                        continue;
+
+                    lines.Add(
+                        $"{property.Name}: {FormatBytes(freedBytes)} | files {deletedFiles} | dirs {deletedDirectories}");
+                }
+            }
+
+            return string.Join(Environment.NewLine, lines);
+        }
+
+        private static string BuildQuickCleanDetails(dynamic result, double recycleBeforeMb, long totalBytes)
+        {
+            var lines = new List<string>
+            {
+                $"Quick Clean total: {FormatBytes(totalBytes)}",
+                $"Recycle Bin before clean: {FormatBytes((long)Math.Round(recycleBeforeMb * 1024d * 1024d))}",
+                BuildCleanupResultDetails(result),
+            };
+            return string.Join(Environment.NewLine, lines.Where(line => !string.IsNullOrWhiteSpace(line)));
         }
 
         private async Task EmptyRecycleCoreAsync()
@@ -8185,6 +8328,76 @@ if (-not $result) { 'Unavailable'; return }
                 "Clipboard Cleanup",
                 "Clipboard cache dibersihkan.");
             AppendCleanupHistory("Clipboard cache cleaned.");
+        }
+
+        private Task DeleteScannedDuplicatesAsync()
+        {
+            if (_lastDuplicateDeleteCandidates.Count == 0)
+            {
+                ShowActionStatus(ActionState.Warning, "Duplicate File Cleaner", "Jalankan scan duplicates dulu supaya kandidat hapus bisa dipilih aman.");
+                return Task.CompletedTask;
+            }
+
+            var deleted = new List<string>();
+            long freedBytes = 0;
+            foreach (var path in _lastDuplicateDeleteCandidates.ToList())
+            {
+                try
+                {
+                    if (!File.Exists(path))
+                        continue;
+
+                    var info = new FileInfo(path);
+                    freedBytes += info.Length;
+                    File.Delete(path);
+                    deleted.Add(path);
+                }
+                catch
+                {
+                }
+            }
+
+            _lastDuplicateDeleteCandidates = _lastDuplicateDeleteCandidates.Except(deleted, StringComparer.OrdinalIgnoreCase).ToList();
+            CleanupDuplicateFilesText.Text = deleted.Count > 0
+                ? $"Deleted duplicate files: {deleted.Count}\nFreed: {FormatBytes(freedBytes)}\n" + string.Join(Environment.NewLine, deleted.Take(8))
+                : "Tidak ada duplicate candidate yang berhasil dihapus. Pastikan file tidak sedang dipakai.";
+            ShowActionStatus(
+                deleted.Count > 0 ? ActionState.Success : ActionState.Warning,
+                "Duplicate File Cleaner",
+                deleted.Count > 0 ? $"{deleted.Count} duplicate files deleted." : "No duplicate files were deleted.",
+                CleanupDuplicateFilesText.Text);
+            AppendCleanupHistory($"Duplicate cleanup executed. Freed {FormatBytes(freedBytes)}.");
+            return Task.CompletedTask;
+        }
+
+        private void KeepOriginalDuplicateFiles()
+        {
+            if (_lastDuplicateDeleteCandidates.Count == 0)
+            {
+                ShowActionStatus(ActionState.Info, "Duplicate File Cleaner", "Belum ada duplicate candidates aktif. Jalankan scan terlebih dulu.");
+                return;
+            }
+
+            CleanupDuplicateFilesText.Text =
+                $"Original files preserved. Duplicate candidates pending review: {_lastDuplicateDeleteCandidates.Count}\n" +
+                string.Join(Environment.NewLine, _lastDuplicateDeleteCandidates.Take(8));
+            ShowActionStatus(ActionState.Info, "Duplicate File Cleaner", "Original file tetap dipertahankan. Kandidat lain tidak dihapus.", CleanupDuplicateFilesText.Text);
+        }
+
+        private async Task CreateCleanupScheduleAsync(string frequency)
+        {
+            var taskName = $"HyperBoostX-{frequency}-Cleanup";
+            var schedule = frequency.ToUpperInvariant();
+            var script =
+                $"schtasks /Create /F /SC {schedule} /TN '{taskName}' /TR 'powershell.exe -NoProfile -WindowStyle Hidden -Command \"Clear-RecycleBin -Force -ErrorAction SilentlyContinue; $temp=[IO.Path]::GetTempPath(); if(Test-Path $temp){{ Get-ChildItem -LiteralPath $temp -Force -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue }}\"' /ST 12:00";
+            var (success, output) = await ExecutePowerShellScriptAsync(script);
+            ShowActionStatus(
+                success ? ActionState.Success : ActionState.Warning,
+                "Auto Cleanup",
+                success ? $"Auto cleanup {frequency.ToLowerInvariant()} berhasil dijadwalkan jam 12:00." : $"Gagal membuat auto cleanup {frequency.ToLowerInvariant()}.",
+                output);
+            if (success)
+                AppendCleanupHistory($"Auto cleanup {frequency.ToLowerInvariant()} scheduled.");
         }
 
         private async void CleanTemp_Click(object sender, RoutedEventArgs e)
@@ -8207,7 +8420,7 @@ if (-not $result) { 'Unavailable'; return }
 
         private async void DeepCleanup_Click(object sender, RoutedEventArgs e)
         {
-            var result = await SafeApiCall(() => _backendClient.CleanupAsync());
+            var result = await SafeApiCall(() => _backendClient.CleanupAsync("deep_cleanup"));
             LaunchWindowsTool("cleanmgr.exe", null, "Deep Cleanup");
 
             if (result == null)
@@ -8240,11 +8453,17 @@ if (-not $result) { 'Unavailable'; return }
                     break;
 
                 case "clean_now":
-                    await RunCleanNowAsync();
-                    ShowActionStatus(ActionState.Success, "CLEAN NOW", "Quick clean selesai. 2.4GB storage freed (estimated).");
+                    var quickClean = await RunCleanNowAsync();
+                    ShowActionStatus(
+                        quickClean.cleanedBytes > 0 ? ActionState.Success : ActionState.Info,
+                        "CLEAN NOW",
+                        quickClean.cleanedBytes > 0
+                            ? $"Quick clean selesai. {FormatBytes(quickClean.cleanedBytes)} storage freed."
+                            : "Quick clean selesai. Tidak ada file aman yang perlu dibersihkan saat ini.",
+                        quickClean.details);
                     break;
                 case "clean_junk":
-                    await ClearCacheCoreAsync();
+                    await CleanJunkCoreAsync();
                     break;
                 case "clean_temp":
                     await CleanTempCoreAsync();
@@ -8260,29 +8479,59 @@ if (-not $result) { 'Unavailable'; return }
                     break;
 
                 case "advanced_system_files":
+                    await RunScopedCleanupAsync("advanced_system_files", "System Files", "System file cleanup completed.", "System file cleanup completed.");
+                    break;
                 case "advanced_windows_temp":
+                    await RunScopedCleanupAsync("advanced_windows_temp", "Windows Temp", "Windows Temp cleanup completed.", "Windows Temp cleanup completed.");
+                    break;
                 case "advanced_prefetch":
+                    await RunScopedCleanupAsync("advanced_prefetch", "Prefetch Files", "Prefetch cleanup completed.", "Prefetch cleanup completed.");
+                    break;
                 case "advanced_update_cache":
+                    await RunScopedCleanupAsync("advanced_update_cache", "Windows Update Cache", "Windows Update cache cleanup completed.", "Windows Update cache cleanup completed.");
+                    break;
                 case "advanced_delivery_opt":
+                    await RunScopedCleanupAsync("advanced_delivery_opt", "Delivery Optimization Files", "Delivery Optimization cleanup completed.", "Delivery Optimization cleanup completed.");
+                    break;
                 case "advanced_logs":
+                    await RunScopedCleanupAsync("advanced_logs", "Error Reports & Logs", "Logs cleanup completed.", "Logs cleanup completed.");
+                    break;
                 case "advanced_user_temp":
+                    await RunScopedCleanupAsync("advanced_user_temp", "Temp User Files", "User temp cleanup completed.", "User temp cleanup completed.");
+                    break;
                 case "advanced_recent_files":
+                    await RunScopedCleanupAsync("advanced_recent_files", "Recent Files History", "Recent files history cleanup completed.", "Recent files history cleanup completed.");
+                    break;
                 case "advanced_thumbnail":
+                    await RunScopedCleanupAsync("advanced_thumbnail", "Thumbnail Cache", "Thumbnail cache cleanup completed.", "Thumbnail cache cleanup completed.");
+                    break;
                 case "advanced_app_cache":
-                    await ClearCacheCoreAsync();
+                    await RunScopedCleanupAsync("advanced_app_cache", "Application Cache", "Application cache cleanup completed.", "Application cache cleanup completed.");
                     break;
 
                 case "browser_clear_cache":
+                    await RunScopedCleanupAsync("browser_cache", "Browser Cache", "Browser cache cleanup completed.", "Browser cache cleanup completed.");
+                    break;
                 case "browser_clear_cookies":
+                    await RunScopedCleanupAsync("browser_cookies", "Browser Cookies", "Browser cookies cleanup completed.", "Browser cookies cleanup completed.");
+                    break;
                 case "browser_clear_history":
+                    await RunScopedCleanupAsync("browser_history", "Browser History", "Browser history cleanup completed.", "Browser history cleanup completed.");
+                    break;
                 case "browser_clear_downloads":
+                    await RunScopedCleanupAsync("browser_downloads", "Browser Download History", "Browser download history cleanup completed.", "Browser download history cleanup completed.");
+                    break;
                 case "browser_clear_sessions":
-                    LaunchWindowsTool("RunDll32.exe", "InetCpl.cpl,ClearMyTracksByProcess 255", "Browser Cleaner");
-                    AppendCleanupHistory("Browser cleaner launched.");
+                    await RunScopedCleanupAsync("browser_sessions", "Browser Sessions", "Browser session cleanup completed.", "Browser session cleanup completed.");
                     break;
 
                 case "smart_apply":
-                    await RunCleanNowAsync();
+                    var smartClean = await RunCleanNowAsync();
+                    ShowActionStatus(
+                        smartClean.cleanedBytes > 0 ? ActionState.Success : ActionState.Info,
+                        "Smart Cleanup Recommendation",
+                        smartClean.cleanedBytes > 0 ? $"Recommended cleanup executed. {FormatBytes(smartClean.cleanedBytes)} removed." : "Recommended cleanup executed. No removable files were found.",
+                        smartClean.details);
                     break;
 
                 case "large_100":
@@ -8302,10 +8551,10 @@ if (-not $result) { 'Unavailable'; return }
                     CleanupDuplicateFilesText.Text = await ScanDuplicateFilesAsync();
                     break;
                 case "duplicate_delete":
-                    ShowActionStatus(ActionState.Warning, "Duplicate File Cleaner", "Review hasil duplicate dulu, lalu hapus manual untuk menghindari kehilangan file penting.");
+                    await DeleteScannedDuplicatesAsync();
                     break;
                 case "duplicate_keep":
-                    ShowActionStatus(ActionState.Info, "Duplicate File Cleaner", "Original file tetap dipertahankan. Review kandidat duplicate secara manual.");
+                    KeepOriginalDuplicateFiles();
                     break;
 
                 case "deep_cleanup":
@@ -8333,10 +8582,13 @@ if (-not $result) { 'Unavailable'; return }
                     break;
 
                 case "auto_daily":
+                    await CreateCleanupScheduleAsync("DAILY");
+                    break;
                 case "auto_weekly":
+                    await CreateCleanupScheduleAsync("WEEKLY");
+                    break;
                 case "auto_monthly":
-                    LaunchWindowsTool("taskschd.msc", null, "Auto Cleanup");
-                    ShowActionStatus(ActionState.Info, "Auto Cleanup", $"Task Scheduler dibuka untuk membuat schedule {action.Replace("auto_", "")}.");
+                    await CreateCleanupScheduleAsync("MONTHLY");
                     break;
             }
 
@@ -8772,7 +9024,16 @@ if (-not $result) { 'Unavailable'; return }
             _ = RefreshGamingBoosterViewAsync();
         }
 
-        private IEnumerable<Process> GetCandidateGameProcesses()
+        private sealed class SessionDetectionSnapshot
+        {
+            public List<Process> GameCandidates { get; init; } = new();
+            public List<Process> StreamingCandidates { get; init; } = new();
+            public Process ActiveGame { get; init; }
+            public Process ActiveStreamer { get; init; }
+            public Process DiscordProcess { get; init; }
+        }
+
+        private SessionDetectionSnapshot BuildSessionDetectionSnapshot()
         {
             var ignored = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
@@ -8780,8 +9041,19 @@ if (-not $result) { 'Unavailable'; return }
                 "runtimebroker", "applicationframehost", "textinputhost", "startmenuexperiencehost", "widgetservice",
                 "msedgewebview2", "steam", "discord", "obs64", "rtss", "msiafterburner", "nvidia share", "radeonsoftware"
             };
+            var primaryStreamingTokens = new[] { "obs", "streamlabs", "tiktok", "xsplit", "prism", "vmix" };
 
-            return Process.GetProcesses()
+            List<Process> processes;
+            try
+            {
+                processes = Process.GetProcesses().ToList();
+            }
+            catch
+            {
+                processes = new List<Process>();
+            }
+
+            var gameCandidates = processes
                 .Where(p =>
                 {
                     try
@@ -8809,6 +9081,67 @@ if (-not $result) { 'Unavailable'; return }
                 })
                 .Take(8)
                 .ToList();
+
+            var streamingCandidates = processes
+                .Where(p =>
+                {
+                    try
+                    {
+                        var name = p.ProcessName.ToLowerInvariant();
+                        if (primaryStreamingTokens.Any(t => name.Contains(t)))
+                            return true;
+
+                        return !string.IsNullOrWhiteSpace(p.MainWindowTitle) &&
+                               p.WorkingSet64 > 250L * 1024 * 1024 &&
+                               (p.MainWindowTitle.Contains("OBS", StringComparison.OrdinalIgnoreCase) ||
+                                p.MainWindowTitle.Contains("Stream", StringComparison.OrdinalIgnoreCase) ||
+                                p.MainWindowTitle.Contains("TikTok", StringComparison.OrdinalIgnoreCase));
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                })
+                .OrderByDescending(p =>
+                {
+                    try { return p.WorkingSet64; }
+                    catch { return 0; }
+                })
+                .Take(8)
+                .ToList();
+
+            var discordProcess = processes
+                .Where(p =>
+                {
+                    try
+                    {
+                        return p.ProcessName.Contains("discord", StringComparison.OrdinalIgnoreCase);
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                })
+                .OrderByDescending(p =>
+                {
+                    try { return p.WorkingSet64; }
+                    catch { return 0; }
+                })
+                .FirstOrDefault();
+
+            return new SessionDetectionSnapshot
+            {
+                GameCandidates = gameCandidates,
+                StreamingCandidates = streamingCandidates,
+                ActiveGame = gameCandidates.FirstOrDefault(),
+                ActiveStreamer = streamingCandidates.FirstOrDefault(),
+                DiscordProcess = discordProcess,
+            };
+        }
+
+        private IEnumerable<Process> GetCandidateGameProcesses()
+        {
+            return BuildSessionDetectionSnapshot().GameCandidates;
         }
 
         private Process TryResolveSelectedGameProcess()
@@ -8841,7 +9174,7 @@ if (-not $result) { 'Unavailable'; return }
                 }
             }
 
-            return GetCandidateGameProcesses().FirstOrDefault();
+            return BuildSessionDetectionSnapshot().ActiveGame;
         }
 
         private string BuildGamingRecommendation(Process activeGame, double usedRamPercent)
@@ -8877,8 +9210,9 @@ if (-not $result) { 'Unavailable'; return }
         {
             try
             {
-                var candidates = await Task.Run(() => GetCandidateGameProcesses().ToList());
-                var activeGame = candidates.FirstOrDefault();
+                var snapshot = await Task.Run(BuildSessionDetectionSnapshot);
+                var candidates = snapshot.GameCandidates;
+                var activeGame = snapshot.ActiveGame;
                 if (activeGame != null)
                 {
                     _lastDetectedGameProcess = activeGame.ProcessName;
@@ -8961,6 +9295,7 @@ if (-not $result) { 'Unavailable'; return }
                     {
                         "Real-time" => ProcessPriorityClass.RealTime,
                         "High" => ProcessPriorityClass.High,
+                        "Above Normal" => ProcessPriorityClass.AboveNormal,
                         _ => ProcessPriorityClass.Normal
                     };
 
@@ -9044,13 +9379,21 @@ if (-not $result) { 'Unavailable'; return }
 
         private async Task ApplyQuickStreamingGamingAsync()
         {
+            var snapshot = BuildSessionDetectionSnapshot();
             var notes = new List<string>();
+            notes.Add($"Session detect: game={DescribeProcess(snapshot.ActiveGame, "none")} | streamer={DescribeProcess(snapshot.ActiveStreamer, "none")} | discord={DescribeProcess(snapshot.DiscordProcess, "none")}");
             notes.Add(await ApplyProcessTargetsAsync(new[] { "OneDrive", "Teams", "Widgets", "GoogleDriveFS", "AdobeGCClient" }.Where(x => !IsWhitelistedProcess(x)), "Quick Streaming Gaming"));
             var result = await SafeApiCall(() => _backendClient.ApplyBoosterAsync("streaming"));
-            if (result != null)
-            {
-                notes.Add("Streaming booster profile applied");
-            }
+            notes.Add(DidBackendOperationSucceed(result) ? "Streaming booster profile applied" : "Streaming booster profile returned warning");
+
+            if (snapshot.ActiveGame != null)
+                notes.Add(await SetProcessPriorityAsync(snapshot.ActiveGame, "High"));
+
+            if (snapshot.ActiveStreamer != null)
+                notes.Add(await SetProcessPriorityAsync(snapshot.ActiveStreamer, "Above Normal"));
+
+            if (snapshot.DiscordProcess != null)
+                notes.Add("Discord process kept as protected companion app.");
 
             notes.Add(await ApplyNetworkPresetAsync());
             notes.Add("Protected apps kept alive via whitelist, including Discord, Steam, OBS, RTSS, MSI Afterburner, LG HUB, Riot Client Services, and VGC.");
@@ -9058,7 +9401,7 @@ if (-not $result) { 'Unavailable'; return }
             GamingBoostResultsText.Text = "Gaming Mode Activated\nStreaming preset applied\nProtected apps kept active\nNetwork refreshed";
             await RefreshGamingBoosterViewAsync();
             await RefreshGamingBoosterHubAsync();
-            ShowActionStatus(ActionState.Success, "Quick Streaming Gaming", "Streaming gaming preset applied.", string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x))));
+            ShowActionStatus(DidBackendOperationSucceed(result) ? ActionState.Success : ActionState.Warning, "Quick Streaming Gaming", "Streaming gaming preset applied with shared session detection.", string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x))));
         }
 
         private async Task<string> ApplyPerformancePresetAsync(bool bestPerformance, bool disableTransparency, bool disableAnimations, bool highPriority)
@@ -9090,7 +9433,8 @@ if (-not $result) { 'Unavailable'; return }
 
         private async void StartGameBoost_Click(object sender, RoutedEventArgs e)
         {
-            var activeGame = TryResolveSelectedGameProcess();
+            var snapshot = BuildSessionDetectionSnapshot();
+            var activeGame = TryResolveSelectedGameProcess() ?? snapshot.ActiveGame;
             if (activeGame == null)
             {
                 await RefreshGamingBoosterViewAsync();
@@ -9099,8 +9443,13 @@ if (-not $result) { 'Unavailable'; return }
             }
 
             var notes = new List<string>();
+            notes.Add($"Session detect: game={DescribeProcess(activeGame, "none")} | streamer={DescribeProcess(snapshot.ActiveStreamer, "none")} | discord={DescribeProcess(snapshot.DiscordProcess, "none")}");
             var priorityLabel = (GamePriorityCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "High";
             notes.Add(await SetProcessPriorityAsync(activeGame, priorityLabel));
+            if (snapshot.ActiveStreamer != null)
+                notes.Add("Streaming companion detected. Background cleanup kept conservative for encoder stability.");
+            if (snapshot.DiscordProcess != null)
+                notes.Add("Discord companion detected and preserved.");
             notes.Add(await ApplyProcessTargetsAsync(GetManualProcessTargets(), "Gaming Background Control"));
             notes.Add(await ApplyPerformancePresetAsync(bestPerformance: true, disableTransparency: true, disableAnimations: true, highPriority: true));
             notes.Add(await ApplyOverlayTargetsAsync());
@@ -9489,34 +9838,68 @@ if (-not $result) { 'Unavailable'; return }
 
         private IEnumerable<Process> GetCandidateStreamingProcesses()
         {
-            var tokens = new[] { "obs", "streamlabs", "tiktok", "discord", "xsplit", "prism", "vmix" };
-            return Process.GetProcesses()
-                .Where(p =>
-                {
-                    try
-                    {
-                        var name = p.ProcessName.ToLowerInvariant();
-                        if (tokens.Any(t => name.Contains(t)))
-                            return true;
+            return BuildSessionDetectionSnapshot().StreamingCandidates;
+        }
 
-                        return !string.IsNullOrWhiteSpace(p.MainWindowTitle) &&
-                               p.WorkingSet64 > 250L * 1024 * 1024 &&
-                               (p.MainWindowTitle.Contains("OBS", StringComparison.OrdinalIgnoreCase) ||
-                                p.MainWindowTitle.Contains("Stream", StringComparison.OrdinalIgnoreCase) ||
-                                p.MainWindowTitle.Contains("TikTok", StringComparison.OrdinalIgnoreCase));
-                    }
-                    catch
-                    {
-                        return false;
-                    }
-                })
-                .OrderByDescending(p =>
-                {
-                    try { return p.WorkingSet64; }
-                    catch { return 0; }
-                })
-                .Take(8)
-                .ToList();
+        private Process TryResolveDiscordProcess()
+        {
+            return BuildSessionDetectionSnapshot().DiscordProcess;
+        }
+
+        private Process TryResolveActiveGameForStreaming()
+        {
+            try
+            {
+                return BuildSessionDetectionSnapshot().ActiveGame;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private string NormalizePriorityLabel(string priorityLabel)
+        {
+            return (priorityLabel ?? string.Empty).Trim() switch
+            {
+                "Real-time" => "Real-time",
+                "High" => "High",
+                "Above Normal" => "Above Normal",
+                _ => "Normal"
+            };
+        }
+
+        private static bool DidBackendOperationSucceed(dynamic result)
+        {
+            try
+            {
+                if (result == null)
+                    return false;
+
+                if (result is JObject json)
+                    return json.Value<bool?>("success") ?? true;
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static string DescribeProcess(Process process, string emptyLabel)
+        {
+            if (process == null)
+                return emptyLabel;
+
+            try
+            {
+                return $"{process.ProcessName}.exe";
+            }
+            catch
+            {
+                return emptyLabel;
+            }
         }
 
         private Process TryResolveStreamingProcess()
@@ -9549,7 +9932,7 @@ if (-not $result) { 'Unavailable'; return }
                 }
             }
 
-            return GetCandidateStreamingProcesses().FirstOrDefault();
+            return BuildSessionDetectionSnapshot().ActiveStreamer;
         }
 
         private bool IsStreamingProtectedProcess(string processName)
@@ -9562,6 +9945,8 @@ if (-not $result) { 'Unavailable'; return }
         private string BuildStreamingRecommendation(Process activeApp, double usedRamPercent)
         {
             var lines = new List<string>();
+            var discordApp = TryResolveDiscordProcess();
+            var activeGame = TryResolveActiveGameForStreaming();
 
             if (activeApp == null)
             {
@@ -9572,6 +9957,12 @@ if (-not $result) { 'Unavailable'; return }
                 lines.Add($"Detected app: {activeApp.ProcessName}.exe");
                 lines.Add("Prioritize streaming app dan jaga encoder process agar tidak drop.");
             }
+
+            if (discordApp != null)
+                lines.Add($"Discord companion detected: {discordApp.ProcessName}.exe");
+
+            if (activeGame != null)
+                lines.Add($"Game session detected: {activeGame.ProcessName}.exe. Gunakan Stream Priority Mode jika live mulai drop.");
 
             if (usedRamPercent >= 80)
                 lines.Add("RAM usage tinggi. Clear standby memory dan reserve RAM untuk streaming app.");
@@ -9586,16 +9977,22 @@ if (-not $result) { 'Unavailable'; return }
         {
             try
             {
-                var candidates = await Task.Run(() => GetCandidateStreamingProcesses().ToList());
-                var activeApp = candidates.FirstOrDefault();
+                var snapshot = await Task.Run(BuildSessionDetectionSnapshot);
+                var candidates = snapshot.StreamingCandidates;
+                var activeApp = snapshot.ActiveStreamer;
+                var discordApp = snapshot.DiscordProcess;
+                var activeGame = snapshot.ActiveGame;
                 if (activeApp != null)
                 {
                     _lastDetectedStreamingProcess = activeApp.ProcessName;
                 }
 
-                StreamingDetectedAppText.Text = activeApp == null
+                var primaryText = activeApp == null
                     ? "Auto detect streaming app: belum ada app streaming terdeteksi."
                     : $"Auto detect streaming app: {activeApp.ProcessName}.exe | RAM {activeApp.WorkingSet64 / 1024d / 1024d:0} MB | Window: {activeApp.MainWindowTitle}";
+                var discordText = $"Discord: {DescribeProcess(discordApp, "not detected")}";
+                var gameText = $"Game: {DescribeProcess(activeGame, "not detected")}";
+                StreamingDetectedAppText.Text = $"{primaryText}{Environment.NewLine}{discordText}{Environment.NewLine}{gameText}";
 
                 StreamingProcessListText.Text = candidates.Count == 0
                     ? "Belum ada app streaming aktif yang terdeteksi."
@@ -9618,6 +10015,8 @@ if (-not $result) { 'Unavailable'; return }
                 var droppedFrames = (_streamingModeActive && usedRamPercent > 85) ? "Warning" : "Normal";
                 StreamingMonitorText.Text =
                     $"Streaming App: {activeText}{Environment.NewLine}" +
+                    $"Discord: {DescribeProcess(discordApp, "Not detected")}{Environment.NewLine}" +
+                    $"Game: {DescribeProcess(activeGame, "Not detected")}{Environment.NewLine}" +
                     $"CPU: {CpuText?.Text ?? "--"}{Environment.NewLine}" +
                     $"GPU: {DashboardGpuText?.Text ?? "GPU --"}{Environment.NewLine}" +
                     $"RAM Used: {usedRamPercent:0}%{Environment.NewLine}" +
@@ -9667,6 +10066,8 @@ if (-not $result) { 'Unavailable'; return }
         private async void StartStreamingMode_Click(object sender, RoutedEventArgs e)
         {
             var app = TryResolveStreamingProcess();
+            var discordApp = TryResolveDiscordProcess();
+            var activeGame = TryResolveActiveGameForStreaming();
             if (app == null)
             {
                 await RefreshStreamingViewAsync();
@@ -9676,16 +10077,17 @@ if (-not $result) { 'Unavailable'; return }
 
             var notes = new List<string>();
             var priorityLabel = (StreamingPriorityCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "High";
-            notes.Add(await SetProcessPriorityAsync(app, priorityLabel == "Above Normal" ? "Normal" : "High"));
+            notes.Add(await SetProcessPriorityAsync(app, NormalizePriorityLabel(priorityLabel)));
+            notes.Add($"Session detect: streamer={DescribeProcess(app, "none")} | discord={DescribeProcess(discordApp, "none")} | game={DescribeProcess(activeGame, "none")}");
             var result = await SafeApiCall(() => _backendClient.ApplyBoosterAsync("streaming"));
-            if (result != null)
-                notes.Add("Streaming booster profile applied");
+            var backendApplied = DidBackendOperationSucceed(result);
+            notes.Add(backendApplied ? "Streaming booster profile applied" : "Streaming booster profile request returned warning");
 
             notes.Add(await ApplyProcessTargetsAsync(new[] { "OneDrive", "GoogleDriveFS", "Dropbox", "AdobeGCClient", "Teams", "Spotify" }.Where(x => !IsStreamingProtectedProcess(x)), "Streaming Background Noise Reduction"));
             var tcp = await SafeApiCall(() => _backendClient.OptimizeTcpAsync());
-            if (tcp != null) notes.Add("Upload/network priority optimization requested");
+            notes.Add(DidBackendOperationSucceed(tcp) ? "Upload/network priority optimization applied" : "Upload/network priority optimization returned warning");
             var dns = await SafeApiCall(() => _backendClient.FlushDnsAsync());
-            if (dns != null) notes.Add("DNS cache refreshed");
+            notes.Add(DidBackendOperationSucceed(dns) ? "DNS cache refreshed" : "DNS refresh returned warning");
             var (notifSuccess, notifOutput) = await ExecutePowerShellScriptAsync("reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Notifications\\Settings\" /v NOC_GLOBAL_SETTING_TOASTS_ENABLED /t REG_DWORD /d 0 /f");
             notes.Add(notifSuccess ? "Notifications reduced for clean stream" : notifOutput);
 
@@ -9693,7 +10095,11 @@ if (-not $result) { 'Unavailable'; return }
             _lastDetectedStreamingProcess = app.ProcessName;
             StreamingResultsText.Text = "Streaming Mode Activated\nSystem optimized for stable streaming";
             await RefreshStreamingViewAsync();
-            ShowActionStatus(ActionState.Success, "Start Streaming Mode", $"Streaming mode aktif untuk {app.ProcessName}.exe", string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x))));
+            var finalState = backendApplied ? ActionState.Success : ActionState.Warning;
+            var finalMessage = backendApplied
+                ? $"Streaming mode aktif untuk {app.ProcessName}.exe"
+                : $"Streaming mode dimulai untuk {app.ProcessName}.exe dengan beberapa warning";
+            ShowActionStatus(finalState, "Start Streaming Mode", finalMessage, string.Join(Environment.NewLine, notes.Where(x => !string.IsNullOrWhiteSpace(x))));
         }
 
         private async void RefreshStreamingDetect_Click(object sender, RoutedEventArgs e)
@@ -9727,9 +10133,10 @@ if (-not $result) { 'Unavailable'; return }
             }
 
             var priorityLabel = (StreamingPriorityCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "High";
-            var result = await SetProcessPriorityAsync(app, priorityLabel == "Above Normal" ? "Normal" : "High");
+            var result = await SetProcessPriorityAsync(app, NormalizePriorityLabel(priorityLabel));
             await RefreshStreamingViewAsync();
-            ShowActionStatus(ActionState.Success, "Apply App Priority", result);
+            var state = result.Contains("failed", StringComparison.OrdinalIgnoreCase) ? ActionState.Warning : ActionState.Success;
+            ShowActionStatus(state, "Apply App Priority", result);
         }
 
         private async void PrioritizeStreamingEncoder_Click(object sender, RoutedEventArgs e)
@@ -9813,7 +10220,7 @@ if (-not $result) { 'Unavailable'; return }
             var notes = new List<string> { $"Selected balance mode: {mode}" };
             if (app != null)
             {
-                notes.Add(await SetProcessPriorityAsync(app, mode == "Game Priority Mode" ? "Normal" : "High"));
+                notes.Add(await SetProcessPriorityAsync(app, mode == "Game Priority Mode" ? "Normal" : "Above Normal"));
             }
 
             if (mode == "Stream Priority Mode")
@@ -9878,7 +10285,7 @@ if (-not $result) { 'Unavailable'; return }
             if (app == null)
                 return;
             var priorityLabel = (StreamingPriorityCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "High";
-            await SetProcessPriorityAsync(app, priorityLabel == "Above Normal" ? "Normal" : "High");
+            await SetProcessPriorityAsync(app, NormalizePriorityLabel(priorityLabel));
             await SafeApiCall(() => _backendClient.ApplyBoosterAsync("streaming"));
             _streamingModeActive = true;
         }
@@ -13210,7 +13617,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
         {
             var (success, output) = await ExecutePowerShellScriptAsync("reg add \"HKLM\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl\" /v Win32PrioritySeparation /t REG_DWORD /d 38 /f; reg add \"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Power\\PowerThrottling\" /v PowerThrottlingOff /t REG_DWORD /d 1 /f");
             AppendAdvancedHistory("Low-level performance tweaks applied.");
-            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Low-Level Performance Tweaks", "Scheduler / priority / throttling tweak diproses.", output);
+            ShowAppliedStatus(success, "Low-Level Performance Tweaks", "Scheduler / priority / throttling tweak diminta. Review system stability setelah perubahan.", "Low-level performance tweak menghasilkan warning.", output);
             await RefreshAdvancedTweaksViewAsync();
         }
 
@@ -13218,7 +13625,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
         {
             var (success, output) = await ExecutePowerShellScriptAsync("netsh interface tcp set global autotuninglevel=normal; netsh interface tcp set supplemental template=internet congestionprovider=ctcp");
             AppendAdvancedHistory("Advanced network tweaks applied.");
-            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Advanced Network Tweaks", "Low-level TCP / congestion tweak diproses.", output);
+            ShowAppliedStatus(success, "Advanced Network Tweaks", "Low-level TCP / congestion tweak diminta. Review koneksi setelah perubahan.", "Advanced network tweak menghasilkan warning.", output);
             await RefreshAdvancedTweaksViewAsync();
         }
 
@@ -13226,7 +13633,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
         {
             var (success, output) = await ExecutePowerShellScriptAsync("reg add \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System\" /v EnableSmartScreen /t REG_DWORD /d 1 /f; reg add \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet\" /v SpyNetReporting /t REG_DWORD /d 1 /f");
             AppendAdvancedHistory("Advanced security hardening applied.");
-            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Security Hardening", "Advanced hardening tweak diproses.", output);
+            ShowAppliedStatus(success, "Security Hardening", "Advanced hardening tweak diminta. Review compatibility jika ada kebijakan keamanan pihak ketiga.", "Security hardening menghasilkan warning.", output);
             await RefreshAdvancedTweaksViewAsync();
         }
 
@@ -13463,6 +13870,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
         {
             LaunchWindowsTool("rstrui.exe", null, "Undo Optimization");
             AppendRestoreBackupHistory("System Restore wizard opened.");
+            ShowActionStatus(ActionState.Info, "Undo Optimization", "System Restore dibuka. Pilih restore point yang ingin dipakai untuk rollback manual.");
         }
 
         private async void RefreshRestoreBackup_Click(object sender, RoutedEventArgs e)
@@ -13587,7 +13995,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
         {
             UndoOptimization_Click(sender, e);
             AppendRestoreBackupHistory("One-click restore requested.");
-            ShowActionStatus(ActionState.Warning, "One-Click Restore", "System Restore dibuka untuk rollback cepat ke last stable state.");
+            ShowOpenedStatus("One-Click Restore", "System Restore dibuka untuk rollback cepat. Pilih restore point secara manual untuk melanjutkan.");
         }
 
         private void BackupProtection_Click(object sender, RoutedEventArgs e)
@@ -13696,7 +14104,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             var escaped = description.Replace("'", "''");
             var (success, output) = await ExecutePowerShellScriptAsync($"Checkpoint-Computer -Description '{escaped}' -RestorePointType 'MODIFY_SETTINGS'");
             AppendRestorePointHistory($"Restore point create requested: {description}");
-            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Create Restore Point", success ? "Restore point creation diproses." : "Restore point creation warning.", output);
+            ShowAppliedStatus(success, "Create Restore Point", "Restore point creation diminta. Windows mungkin butuh waktu sebelum snapshot muncul di daftar.", "Restore point creation warning.", output);
             await RefreshRestorePointManagerViewAsync();
         }
 
@@ -14117,7 +14525,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             AppendAutomationHistory($"Goal-based automation applied: {goal}.");
             AppendAutomationAudit("Info", $"Goal changed to {goal} and rule set regenerated.");
             await PersistAndRefreshAutomationAsync(refreshView: false);
-            ShowActionStatus(ActionState.Success, "Goal-Based Automation", $"{goal} diterapkan sebagai automation goal.", AutomationScenarioText.Text);
+            ShowRequestedStatus("Goal-Based Automation", $"{goal} disimpan sebagai automation goal. Eksekusi nyata tetap mengikuti kondisi aman dan queue automation.", AutomationScenarioText.Text);
         }
 
         private async void RunScenarioAutomation_Click(object sender, RoutedEventArgs e)
@@ -14155,7 +14563,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             AppendAutomationHistory("Chain automation workflow generated.");
             AppendAutomationAudit("Info", "Workflow queue regenerated from current automation goal.");
             await PersistAndRefreshAutomationAsync(refreshView: false);
-            ShowActionStatus(ActionState.Info, "Chain Automation / Workflow Builder", "Workflow automation contoh berhasil dibuat.", AutomationWorkflowText.Text);
+            ShowRequestedStatus("Chain Automation / Workflow Builder", "Workflow automation contoh diperbarui sebagai template. Belum semua langkah langsung dieksekusi.", AutomationWorkflowText.Text);
         }
 
         private async void RunSelfHealingAutomation_Click(object sender, RoutedEventArgs e)
@@ -14391,53 +14799,71 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
         private async void RunUtilitiesCategory_Click(object sender, RoutedEventArgs e)
         {
             var tag = (sender as Button)?.Tag?.ToString() ?? "storage";
+            var resultState = ActionState.Info;
+            var resultMessage = $"Kategori utility {tag} dijalankan.";
             switch (tag)
             {
                 case "storage":
                     await CleanupEverythingInternalAsync();
+                    resultMessage = "Utility storage dijalankan. Review detail cleanup untuk hasil aktual.";
                     break;
                 case "diagnostics":
                     await RefreshDashboard();
+                    resultMessage = "Utility diagnostics dijalankan dan dashboard diperbarui.";
                     break;
                 case "repair":
                     await RunPowerShellActionAsync("sfc /scannow", "Repair Utilities", "SFC scan requested.", TimeSpan.FromMinutes(20));
+                    resultMessage = "Utility repair meminta SFC scan. Proses berjalan terpisah di Windows.";
                     break;
                 case "network":
                     await SafeApiCall(() => _backendClient.FlushDnsAsync());
                     await SafeApiCall(() => _backendClient.ResetNetworkAsync());
+                    resultMessage = "Utility network mengirim request flush DNS dan reset network.";
                     break;
                 case "control":
                     LaunchWindowsTool("taskmgr.exe", null, "System Control Tools");
+                    resultMessage = "Task Manager dibuka untuk utility control manual.";
                     break;
                 case "filesystem":
                     LaunchWindowsTool("cmd.exe", "/k certutil -hashfile %windir%\\explorer.exe SHA256", "File System Utilities");
+                    resultMessage = "Command prompt dibuka untuk utility filesystem manual.";
                     break;
                 case "security":
                     LaunchWindowsUri("windowsdefender:", "Security Utilities");
+                    resultMessage = "Windows Security dibuka untuk utility security manual.";
                     break;
                 case "registry":
                     LaunchWindowsTool("regedit.exe", null, "Registry Utilities");
+                    resultMessage = "Registry Editor dibuka untuk utility registry manual.";
                     break;
                 case "performance":
                     await ApplyBoosterProfileAsync("productivity", "Performance Utilities");
+                    resultMessage = "Utility performance menjalankan booster profile productivity.";
                     break;
                 case "driver":
                     await CheckDriverUpdatesCoreAsync("Driver Utilities");
+                    resultMessage = "Utility driver menjalankan review update driver.";
                     break;
                 case "display":
                     LaunchWindowsTool("cttune.exe", null, "Display & UI Utilities");
+                    resultMessage = "ClearType tuner dibuka untuk utility display manual.";
                     break;
                 case "power":
                     await ApplyPowerModeCoreAsync("balanced", "Power Utilities");
+                    resultMessage = "Utility power meminta mode balanced.";
                     break;
                 case "monitoring":
                     LaunchWindowsTool("perfmon.exe", null, "Monitoring Utilities");
+                    resultMessage = "Performance Monitor dibuka untuk utility monitoring manual.";
+                    break;
+                default:
+                    resultMessage = $"Kategori utility {tag} belum punya klasifikasi hasil yang spesifik.";
                     break;
             }
 
             AppendUtilitiesHistory($"Utility category executed: {tag}.");
             await RefreshUtilitiesViewAsync();
-            ShowActionStatus(ActionState.Success, "Utilities Tools", $"Kategori utility {tag} diproses.");
+            ShowActionStatus(resultState, "Utilities Tools", resultMessage);
         }
 
         private async Task CleanupEverythingInternalAsync()
@@ -15663,12 +16089,11 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
 
                 if (!_featureAuditCancellationRequested)
                 {
-                    ShowActionStatus(
-                        failed == 0 ? ActionState.Success : ActionState.Warning,
+                    ShowRequestedStatus(
                         "Feature Audit",
                         failed == 0
-                            ? $"{_lastFeatureAuditMode} feature audit completed successfully."
-                            : $"{_lastFeatureAuditMode} feature audit completed with {failed} failing module(s).",
+                            ? $"{_lastFeatureAuditMode} feature audit selesai. Hasil ini adalah probe internal, bukan jaminan semua workflow real-world sudah tervalidasi."
+                            : $"{_lastFeatureAuditMode} feature audit selesai dengan {failed} probe gagal. Review report untuk detail kegagalan.",
                         report);
                 }
             }
@@ -15766,12 +16191,11 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
 
                 if (!_featureAuditCancellationRequested)
                 {
-                    ShowActionStatus(
-                        failed == 0 ? ActionState.Success : ActionState.Warning,
+                    ShowRequestedStatus(
                         suiteName,
                         failed == 0
-                            ? $"{suiteName} testing suite completed successfully."
-                            : $"{suiteName} testing suite completed with {failed} failing probe(s).",
+                            ? $"{suiteName} testing suite selesai. Ini adalah internal probe suite, bukan pengganti test runner eksternal penuh."
+                            : $"{suiteName} testing suite selesai dengan {failed} probe gagal. Review report untuk detailnya.",
                         report);
                 }
             }
@@ -15860,12 +16284,11 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
 
                 if (!_featureAuditCancellationRequested)
                 {
-                    ShowActionStatus(
-                        failed == 0 ? ActionState.Success : ActionState.Warning,
+                    ShowRequestedStatus(
                         "Full QA Matrix",
                         failed == 0
-                            ? "Full QA Matrix completed successfully."
-                            : $"Full QA Matrix completed with {failed} failing probe(s).",
+                            ? "Full QA Matrix selesai. Hasil ini merangkum internal probe matrix, bukan sertifikasi QA eksternal penuh."
+                            : $"Full QA Matrix selesai dengan {failed} probe gagal. Review report untuk detailnya.",
                         report);
                 }
             }
@@ -16278,6 +16701,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
 
         private void PopulateSmartRecommendationUi(dynamic stats, dynamic processes, dynamic dns, dynamic systemInfo = null)
         {
+            var sessionSnapshot = BuildSessionDetectionSnapshot();
             var statsJson = stats as JObject;
             var processesJson = processes as JObject;
             var processArray = processesJson?["processes"] as JArray;
@@ -16376,6 +16800,9 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                 $"Mode paling cocok saat ini: {_smartRecommendedUsageMode}\n" +
                 $"Adaptive bottleneck: {bottleneck}\n" +
                 $"Expected gain on this device class: {expectedGain}\n" +
+                $"Detected game: {DescribeProcess(sessionSnapshot.ActiveGame, "none")}\n" +
+                $"Detected streamer: {DescribeProcess(sessionSnapshot.ActiveStreamer, "none")}\n" +
+                $"Detected Discord: {DescribeProcess(sessionSnapshot.DiscordProcess, "none")}\n" +
                 "Contoh personalized optimization:\n" +
                 " Prioritaskan aplikasi aktif utama\n" +
                 " Disable browser berat saat gaming\n" +
