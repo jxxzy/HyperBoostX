@@ -21,7 +21,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-set "publishDir=%~dp0launcher\bin\Release\net8.0-windows\win-x64\publish"
+set "publishDir=%~dp0launcher\bin\Release\net8.0-windows\win-x64"
 if not exist "%publishDir%\HyperBoostLauncher.exe" (
     echo.
     echo ERROR: Publish output was not found.

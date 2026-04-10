@@ -2,6 +2,10 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.2.2-dev - 2026-04-10
+- Began the next development cycle after the `v1.2.1` release.
+- Aligned packaging scripts and installer metadata so future release assets are built from the current binaries more reliably.
+
 ## v1.2.1 - 2026-04-10
 - Fixed startup item collection so missing `memory_info` on some Windows processes no longer crashes the startup list API.
 - Expanded cleanup scopes across backend and WPF so temp, cache, browser, logs, and advanced cleanup actions return richer structured results.

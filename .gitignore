@@ -13,6 +13,8 @@ app/services/repair/__pycache__/
 app/utils/__pycache__/
 tests/__pycache__/
 .pytest_cache/
+pytest-cache-files-*/
+temp/
 
 launcher/bin/
 launcher/obj/

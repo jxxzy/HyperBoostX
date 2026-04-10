@@ -13,12 +13,13 @@ if errorlevel 1 (
 )
 
 echo Publishing WPF release...
-cd /d "%~dp0wpf"
+pushd "%~dp0wpf"
 dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=false
 if errorlevel 1 (
     echo.
     echo ERROR: Publish failed.
     pause
+    popd
     exit /b 1
 )
 
@@ -27,6 +28,7 @@ if not exist "%publishDir%" (
     echo.
     echo ERROR: Publish output was not found.
     pause
+    popd
     exit /b 1
 )
 
@@ -37,4 +39,5 @@ echo.
 echo Release built successfully.
 echo Output copied to: "%~dp0release\wpf\"
 pause
+popd
 exit /b 0
