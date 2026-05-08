@@ -2,6 +2,11 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.2.7 - 2026-05-08
+- Moved Voice Meter and Webcam Settings from utility/driver-adjacent placement into Streaming Mode.
+- Added advanced streaming mic controls for diagnostics, audio service reset, sound settings, device refresh, and privacy.
+- Added advanced webcam controls for camera diagnostics, Windows Camera app launch, camera settings, privacy, and Device Manager.
+
 ## v1.2.6 - 2026-05-08
 - Added Voice Meter in Utilities Tools with live microphone input level, peak reading, device refresh, and microphone privacy shortcut.
 - Added Webcam Settings in Utilities Tools with camera device scan, Windows Camera settings, camera privacy, and Device Manager shortcuts.

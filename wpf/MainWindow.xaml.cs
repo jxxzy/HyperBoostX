@@ -302,7 +302,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.2.6";
+            ?? "1.2.7";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -14961,6 +14961,92 @@ if (-not $devices) {
         {
             LaunchWindowsTool("devmgmt.msc", null, "Camera Device Manager");
             AppendUtilitiesHistory("Device Manager opened for camera review.");
+        }
+
+        private async void RunMicrophoneDiagnostics_Click(object sender, RoutedEventArgs e)
+        {
+            VoiceMeterStatusText.Text = "Running microphone diagnostics...";
+            var devices = BuildMicrophoneDeviceSummary();
+            var script = @"
+$audioServices = Get-Service AudioSrv,AudioEndpointBuilder -ErrorAction SilentlyContinue |
+  Select-Object Name, Status, StartType
+$privacy = Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone' -ErrorAction SilentlyContinue
+'Audio services:'
+$audioServices | ForEach-Object { ""$($_.Name) | Status=$($_.Status) | StartType=$($_.StartType)"" }
+$consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown' }
+'Microphone consent: ' + $consent
+";
+            var (success, output) = await ExecutePowerShellScriptAsync(script, TimeSpan.FromSeconds(12));
+            var summary =
+                "Microphone device summary:" + Environment.NewLine +
+                devices + Environment.NewLine +
+                "---" + Environment.NewLine +
+                output + Environment.NewLine +
+                "---" + Environment.NewLine +
+                "Streaming setup checklist:" + Environment.NewLine +
+                "- OBS / TikTok LIVE Studio input device should match the default communications mic." + Environment.NewLine +
+                "- Keep input peak below 85% to avoid clipping." + Environment.NewLine +
+                "- If meter stays at 0%, check Windows microphone privacy and app permission.";
+            VoiceMeterStatusText.Text = success ? "Microphone diagnostics completed." : "Microphone diagnostics returned a warning.";
+            VoiceMeterDevicesText.Text = summary;
+            AppendUtilitiesHistory("Streaming microphone diagnostics executed.");
+            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Advanced Mic Diagnostics", VoiceMeterStatusText.Text, summary);
+        }
+
+        private async void ResetStreamingAudioService_Click(object sender, RoutedEventArgs e)
+        {
+            StopVoiceMeterCapture();
+            var (success, output) = await ExecutePowerShellScriptAsync(
+                "Restart-Service -Name AudioSrv -ErrorAction SilentlyContinue; Restart-Service -Name AudioEndpointBuilder -ErrorAction SilentlyContinue; 'Audio service reset requested.'",
+                TimeSpan.FromSeconds(20));
+            VoiceMeterLevelBar.Value = 0;
+            VoiceMeterPeakText.Text = "Input level: 0% | Peak: 0%";
+            VoiceMeterStatusText.Text = success ? "Audio service reset requested. Start Voice Meter again after a moment." : $"Audio reset warning: {output}";
+            AppendUtilitiesHistory("Streaming audio service reset requested.");
+            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Advanced Mic Settings", VoiceMeterStatusText.Text, output);
+        }
+
+        private void OpenStreamingSoundSettings_Click(object sender, RoutedEventArgs e)
+        {
+            LaunchWindowsUri("ms-settings:sound", "Streaming Sound Settings");
+            AppendUtilitiesHistory("Streaming sound settings opened.");
+        }
+
+        private async void RunWebcamDiagnostics_Click(object sender, RoutedEventArgs e)
+        {
+            WebcamSettingsStatusText.Text = "Running camera diagnostics...";
+            var script = @"
+$devices = Get-CimInstance Win32_PnPEntity |
+  Where-Object { $_.PNPClass -in @('Camera','Image') -or $_.Name -match 'camera|webcam|video' } |
+  Select-Object -First 12 Name, Status, PNPClass, Manufacturer, DeviceID
+$privacy = Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam' -ErrorAction SilentlyContinue
+if ($devices) {
+  'Camera devices:'
+  $devices | ForEach-Object { ""$($_.Name) | Status=$($_.Status) | Class=$($_.PNPClass) | Vendor=$($_.Manufacturer)"" }
+} else {
+  'No camera device detected by Windows.'
+}
+$consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown' }
+'Camera consent: ' + $consent
+";
+            var (success, output) = await ExecutePowerShellScriptAsync(script, TimeSpan.FromSeconds(12));
+            var summary =
+                output + Environment.NewLine +
+                "---" + Environment.NewLine +
+                "Streaming camera checklist:" + Environment.NewLine +
+                "- Select the same camera in OBS / TikTok LIVE Studio / Discord." + Environment.NewLine +
+                "- If the camera is busy, close apps that may already be using it." + Environment.NewLine +
+                "- Use Camera Privacy to allow desktop apps before starting stream.";
+            WebcamSettingsStatusText.Text = success ? "Camera diagnostics completed." : "Camera diagnostics returned a warning.";
+            WebcamDevicesText.Text = summary;
+            AppendUtilitiesHistory("Streaming webcam diagnostics executed.");
+            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Advanced Webcam Settings", WebcamSettingsStatusText.Text, summary);
+        }
+
+        private void OpenWindowsCameraApp_Click(object sender, RoutedEventArgs e)
+        {
+            LaunchWindowsUri("microsoft.windows.camera:", "Windows Camera");
+            AppendUtilitiesHistory("Windows Camera app opened.");
         }
 
         private string BuildMicrophoneDeviceSummary()
