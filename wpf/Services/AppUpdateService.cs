@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -399,7 +399,7 @@ namespace HyperBoostX.Services
             {
                 Timeout = TimeSpan.FromSeconds(12)
             };
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("HyperBoostX/1.2.4");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("HyperBoostX/1.2.5");
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
             return client;
         }

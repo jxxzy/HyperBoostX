@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -297,7 +297,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.2.4";
+            ?? "1.2.5";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -3196,12 +3196,43 @@ namespace HyperBoostX
 
         private int CalculateDashboardPerformanceScore(double cpu, double memory, double disk, int backgroundCount, int highImpactStartup)
         {
-            var score = 100;
-            score -= (int)Math.Round(cpu * 0.18);
-            score -= (int)Math.Round(memory * 0.22);
-            score -= (int)Math.Round(disk * 0.14);
-            score -= Math.Min(18, backgroundCount / 3);
-            score -= Math.Min(16, highImpactStartup * 4);
+            var score = 100d;
+            score -= CalculatePressurePenalty(cpu, healthyUntil: 20, criticalAt: 95, maxPenalty: 20);
+            score -= CalculatePressurePenalty(memory, healthyUntil: 55, criticalAt: 92, maxPenalty: 22);
+            score -= CalculatePressurePenalty(disk, healthyUntil: 70, criticalAt: 95, maxPenalty: 16);
+            score -= CalculateBackgroundProcessPenalty(backgroundCount);
+            score -= Math.Min(12, highImpactStartup * 3);
+            return Math.Max(0, Math.Min(100, (int)Math.Round(score)));
+        }
+
+        private static double CalculatePressurePenalty(double value, double healthyUntil, double criticalAt, double maxPenalty)
+        {
+            if (value <= healthyUntil)
+                return 0;
+
+            var span = Math.Max(1, criticalAt - healthyUntil);
+            var pressure = Math.Max(0, Math.Min(1, (value - healthyUntil) / span));
+            return Math.Pow(pressure, 1.25) * maxPenalty;
+        }
+
+        private static double CalculateBackgroundProcessPenalty(int processCount)
+        {
+            if (processCount <= 55)
+                return 0;
+
+            var extraProcesses = processCount - 55;
+            return Math.Min(10, extraProcesses / 9d);
+        }
+
+        private static int CalculateComponentScore(double value, double healthyUntil, double criticalAt, int minimumScore)
+        {
+            var penalty = CalculatePressurePenalty(value, healthyUntil, criticalAt, 100 - minimumScore);
+            return Math.Max(minimumScore, Math.Min(100, (int)Math.Round(100 - penalty)));
+        }
+
+        private static int CalculateStartupOptimizationScore(int highImpact, int mediumImpact, int lowImpact)
+        {
+            var score = 100 - (highImpact * 10) - (mediumImpact * 4) - Math.Min(8, lowImpact);
             return Math.Max(0, Math.Min(100, score));
         }
 
@@ -4930,7 +4961,7 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
         private async Task RefreshAboutViewAsync()
         {
             if (AboutVersionText != null)
-                AboutVersionText.Text = $"{NormalizeVersionLabel(_currentAppVersion)} — 2026";
+                AboutVersionText.Text = $"{NormalizeVersionLabel(_currentAppVersion)} â€” 2026";
 
             if (AboutVersionText != null)
                 AboutVersionText.Text = $"{NormalizeVersionLabel(_currentAppVersion)} - {(IsStableBuild(_currentAppVersion) ? "Stable" : "Prerelease")} - 2026";
@@ -16769,11 +16800,11 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                 $"Network response: {dnsTime:0} ms\n" +
                 $"{BuildDeviceProfileSummary(deviceProfile, systemDrive)}";
 
-            var cpuScore = Math.Max(20, 100 - (int)Math.Round(cpu));
-            var ramScore = Math.Max(20, 100 - (int)Math.Round(memory));
-            var diskScore = Math.Max(20, 100 - (int)Math.Round(disk * 0.8));
-            var startupScore = Math.Max(20, 100 - (startupHigh * 15) - (startupMedium * 7));
-            var overall = (cpuScore + ramScore + diskScore + startupScore) / 4;
+            var cpuScore = CalculateComponentScore(cpu, healthyUntil: 20, criticalAt: 95, minimumScore: 35);
+            var ramScore = CalculateComponentScore(memory, healthyUntil: 55, criticalAt: 92, minimumScore: 35);
+            var diskScore = CalculateComponentScore(disk, healthyUntil: 70, criticalAt: 95, minimumScore: 45);
+            var startupScore = CalculateStartupOptimizationScore(startupHigh, startupMedium, startupLow);
+            var overall = (int)Math.Round((cpuScore * 0.28) + (ramScore * 0.30) + (diskScore * 0.22) + (startupScore * 0.20));
             var improvementPossible = Math.Max(5, 100 - overall);
             var bottleneck = ReadStringToken(deviceProfile, "bottleneck");
             var recommendedProfile = ReadStringToken(deviceProfile, "recommended_profile");

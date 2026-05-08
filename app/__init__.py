@@ -1,8 +1,8 @@
-"""
+﻿"""
 HyperBoost X - Premium Windows Optimization & Gaming Boost Utility
 Main application package.
 """
 
-__version__ = "1.2.4"
+__version__ = "1.2.5"
 __author__ = "HyperBoost Team"
 __description__ = "Premium Windows Optimization & Gaming Boost Utility"

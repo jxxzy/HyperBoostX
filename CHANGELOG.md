@@ -2,6 +2,11 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.2.5 - 2026-05-08
+- Rebalanced dashboard performance scoring so normal Windows process counts do not unfairly cap the score.
+- Rebalanced Smart Recommendation optimization scoring with pressure-based CPU, RAM, disk, and startup components.
+- Kept high-load systems clearly lower while making healthy idle systems read as healthy.
+
 ## v1.2.4 - 2026-05-08
 - Fixed release-update Discord notifications after update webhook credentials are changed while the app is already open.
 - Both Feature Audit and App Update notifications now reload secure webhook settings before sending.
