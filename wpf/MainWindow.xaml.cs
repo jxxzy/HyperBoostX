@@ -297,7 +297,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.2.2";
+            ?? "1.2.3";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -15988,9 +15988,11 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
 
         private async Task SendFeatureAuditReportToDiscordAsync(string report)
         {
-            if (!_discordWebhookEnabled || string.IsNullOrWhiteSpace(_discordWebhookUrl))
+            await LoadSensitiveConfigurationAsync();
+
+            if (string.IsNullOrWhiteSpace(_discordWebhookUrl))
             {
-                AppendFeatureAuditHistory("Discord delivery skipped: webhook not configured.");
+                AppendFeatureAuditHistory("Discord delivery skipped: error/audit webhook not configured.");
                 return;
             }
 

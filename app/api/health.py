@@ -17,7 +17,7 @@ def health_check():
     try:
         return jsonify({
             "status": "ok",
-            "version": "1.2.2",
+            "version": "1.2.3",
             "service": "HyperBoost X Backend"
         })
     except Exception as e:

@@ -2,6 +2,10 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.2.3 - 2026-05-08
+- Fixed Feature Audit Discord delivery after webhook credentials are updated while the app is already open.
+- Manual Feature Audit report sending now reloads secure webhook settings from Windows Credential Manager before posting.
+
 ## v1.2.2 - 2026-05-08
 - Fixed startup item collection and process memory handling so missing `memory_info` fields no longer break startup views after boost actions.
 - Hardened backend shell execution and local CORS handling for safer desktop-only API usage.
