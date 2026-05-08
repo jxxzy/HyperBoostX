@@ -297,7 +297,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.2.3";
+            ?? "1.2.4";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -5496,6 +5496,8 @@ if (-not $result) { 'Unavailable'; return }
 
         private async Task ReportAppUpdateToDiscordAsync(AppReleaseCheckResult result, bool userInitiated)
         {
+            await LoadSensitiveConfigurationAsync();
+
             if (string.IsNullOrWhiteSpace(_discordUpdateWebhookUrl))
                 return;
 

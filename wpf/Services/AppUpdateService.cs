@@ -34,7 +34,10 @@ namespace HyperBoostX.Services
     {
         private const string ReleasesApiUrl = "https://api.github.com/repos/jxxzy/HyperBoostX/releases";
         private const string ReleasesPageUrl = "https://github.com/jxxzy/HyperBoostX/releases";
+        private const string LatestReleasePageUrl = "https://github.com/jxxzy/HyperBoostX/releases/latest";
         private const string ExpectedRepoDownloadPrefix = "https://github.com/jxxzy/HyperBoostX/releases/download/";
+        private const string InstallerAssetFileName = "HyperBoostXInstaller.exe";
+        private const string ChecksumsAssetFileName = "SHA256SUMS.txt";
         private static readonly HttpClient HttpClient = CreateHttpClient();
 
         public sealed class InstallerVerificationResult
@@ -71,7 +74,11 @@ namespace HyperBoostX.Services
                 var payload = await response.Content.ReadAsStringAsync();
                 if (!response.IsSuccessStatusCode)
                 {
-                    result.ErrorMessage = $"GitHub API returned {(int)response.StatusCode}.";
+                    var fallback = await CheckLatestReleasePageAsync(normalizedCurrent);
+                    if (fallback.Success)
+                        return fallback;
+
+                    result.ErrorMessage = $"GitHub API returned {(int)response.StatusCode}. {fallback.ErrorMessage}".Trim();
                     result.Summary = "Unable to check latest release right now.";
                     return result;
                 }
@@ -138,10 +145,86 @@ namespace HyperBoostX.Services
             }
             catch (Exception ex)
             {
-                result.ErrorMessage = ex.Message;
+                var fallback = await CheckLatestReleasePageAsync(normalizedCurrent);
+                if (fallback.Success)
+                    return fallback;
+
+                result.ErrorMessage = $"{ex.Message} {fallback.ErrorMessage}".Trim();
                 result.Summary = "Unable to reach the release server.";
                 return result;
             }
+        }
+
+        private static async Task<AppReleaseCheckResult> CheckLatestReleasePageAsync(string normalizedCurrent)
+        {
+            var result = new AppReleaseCheckResult
+            {
+                CurrentVersion = normalizedCurrent,
+                LatestReleaseUrl = ReleasesPageUrl
+            };
+
+            try
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Get, LatestReleasePageUrl);
+                using var response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+                var finalUri = response.RequestMessage?.RequestUri;
+                if (!response.IsSuccessStatusCode || finalUri == null)
+                {
+                    result.ErrorMessage = $"Latest release page returned {(int)response.StatusCode}.";
+                    result.Summary = "Unable to check latest release right now.";
+                    return result;
+                }
+
+                var tagName = ExtractReleaseTagFromUrl(finalUri.ToString());
+                if (string.IsNullOrWhiteSpace(tagName))
+                {
+                    result.ErrorMessage = "Latest release page did not resolve to a release tag.";
+                    result.Summary = "Unable to identify the latest release.";
+                    return result;
+                }
+
+                var latestVersion = NormalizeVersionLabel(tagName);
+                result.Success = true;
+                result.LatestVersion = latestVersion;
+                result.LatestReleaseUrl = $"https://github.com/jxxzy/HyperBoostX/releases/tag/{tagName}";
+                result.ReleaseChannel = latestVersion.Contains("-", StringComparison.OrdinalIgnoreCase) ? "Prerelease" : "Stable";
+                result.InstallerAssetName = InstallerAssetFileName;
+                result.InstallerDownloadUrl = $"{ExpectedRepoDownloadPrefix}{Uri.EscapeDataString(tagName)}/{InstallerAssetFileName}";
+                result.ChecksumsAssetName = ChecksumsAssetFileName;
+                result.ChecksumsDownloadUrl = $"{ExpectedRepoDownloadPrefix}{Uri.EscapeDataString(tagName)}/{ChecksumsAssetFileName}";
+                result.IsUpdateAvailable = CompareVersions(latestVersion, normalizedCurrent) > 0;
+                result.Summary = result.IsUpdateAvailable
+                    ? $"New version available: {latestVersion} ({result.ReleaseChannel})."
+                    : $"You are already on the latest known release ({normalizedCurrent}).";
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.ErrorMessage = ex.Message;
+                result.Summary = "Unable to reach the release page.";
+                return result;
+            }
+        }
+
+        public static string ExtractReleaseTagFromUrl(string releaseUrl)
+        {
+            if (string.IsNullOrWhiteSpace(releaseUrl) ||
+                !Uri.TryCreate(releaseUrl, UriKind.Absolute, out var uri))
+            {
+                return "";
+            }
+
+            var segments = uri.AbsolutePath
+                .Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            for (var index = 0; index < segments.Length - 1; index++)
+            {
+                if (segments[index].Equals("tag", StringComparison.OrdinalIgnoreCase))
+                    return Uri.UnescapeDataString(segments[index + 1]);
+            }
+
+            return "";
         }
 
         public async Task<string> DownloadInstallerAsync(string downloadUrl, string versionLabel, string destinationDirectory, IProgress<double> progress = null, CancellationToken cancellationToken = default)
@@ -316,7 +399,7 @@ namespace HyperBoostX.Services
             {
                 Timeout = TimeSpan.FromSeconds(12)
             };
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("HyperBoostX/1.2.3");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("HyperBoostX/1.2.4");
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
             return client;
         }

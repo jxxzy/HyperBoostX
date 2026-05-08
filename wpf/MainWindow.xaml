@@ -5811,13 +5811,13 @@
                                 <TextBlock Text="MR.4NONY" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,16"/>
 
                                 <TextBlock Text="VERSION" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
-                                <TextBlock Name="AboutVersionText" Text="1.2.3 - Stable - 2026" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,8"/>
+                                <TextBlock Name="AboutVersionText" Text="1.2.4 - Stable - 2026" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,8"/>
                                 <WrapPanel Margin="0,0,0,12">
                                     <Border Background="#14532d" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
                                         <TextBlock Text="STABLE RELEASE" Foreground="#dcfce7" FontSize="11" FontWeight="Bold"/>
                                     </Border>
                                     <Border Background="#0f172a" BorderBrush="#38bdf8" BorderThickness="1" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
-                                        <TextBlock Text="v1.2.3" Foreground="#bae6fd" FontSize="11" FontWeight="Bold"/>
+                                        <TextBlock Text="v1.2.4" Foreground="#bae6fd" FontSize="11" FontWeight="Bold"/>
                                     </Border>
                                     <Border Background="#3f3f46" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
                                         <TextBlock Text="QA 56/56 PASSED" Foreground="#f8fafc" FontSize="11" FontWeight="Bold"/>

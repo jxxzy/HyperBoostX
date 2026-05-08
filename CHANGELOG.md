@@ -2,6 +2,10 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.2.4 - 2026-05-08
+- Fixed release-update Discord notifications after update webhook credentials are changed while the app is already open.
+- Both Feature Audit and App Update notifications now reload secure webhook settings before sending.
+
 ## v1.2.3 - 2026-05-08
 - Fixed Feature Audit Discord delivery after webhook credentials are updated while the app is already open.
 - Manual Feature Audit report sending now reloads secure webhook settings from Windows Credential Manager before posting.

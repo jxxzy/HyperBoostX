@@ -30,4 +30,12 @@ public class AppUpdateServiceTests
         Assert.False(result.AllowManualInstall);
         Assert.False(result.AllowAutomaticInstall);
     }
+
+    [Fact]
+    public void ExtractReleaseTagFromUrl_ReturnsTagSegment()
+    {
+        var tag = AppUpdateService.ExtractReleaseTagFromUrl("https://github.com/jxxzy/HyperBoostX/releases/tag/v1.2.4");
+
+        Assert.Equal("v1.2.4", tag);
+    }
 }
