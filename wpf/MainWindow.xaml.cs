@@ -240,6 +240,11 @@ namespace HyperBoostX
         private double _micMixerGatePercent = 8;
         private double _micMixerCompressorPercent = 25;
         private string _detectedVoicemeeterPath = "";
+        private double _cameraBrightnessPercent = 8;
+        private double _cameraContrastPercent = 12;
+        private double _cameraSharpnessPercent = 35;
+        private double _cameraExposureEv;
+        private double _cameraFpsTarget = 30;
         private readonly List<FeatureAuditResult> _lastFeatureAuditResults = new();
         private readonly List<FeatureAuditIncident> _featureAuditIncidents = new();
         private string _lastFeatureAuditSummary = "No audit has been executed yet.";
@@ -307,7 +312,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.2.9";
+            ?? "1.2.10";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -14926,6 +14931,8 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
         private void MicMixerControl_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             RefreshMicMixerStatus();
+            if (IsLoaded)
+                ApplyDefaultMicrophoneEndpointState();
         }
 
         private void ApplyStreamingMicPreset_Click(object sender, RoutedEventArgs e)
@@ -14938,14 +14945,24 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             MicMixerCompressorSlider.Value = 35;
             _micMixerMuted = false;
             RefreshMicMixerStatus();
+            ApplyDefaultMicrophoneEndpointState();
             AppendUtilitiesHistory("Streaming mic preset applied.");
             ShowActionStatus(ActionState.Success, "Mic Mixer", "Preset streaming mic diterapkan.", MicMixerStatusText.Text);
+        }
+
+        private void ApplyMicMixerSettings_Click(object sender, RoutedEventArgs e)
+        {
+            RefreshMicMixerStatus();
+            ApplyDefaultMicrophoneEndpointState();
+            AppendUtilitiesHistory("Mic mixer settings applied to default Windows microphone.");
+            ShowActionStatus(ActionState.Success, "Mic Mixer", "Mic settings diterapkan ke default Windows microphone.", MicMixerStatusText.Text);
         }
 
         private void ToggleMicMixerMute_Click(object sender, RoutedEventArgs e)
         {
             _micMixerMuted = !_micMixerMuted;
             RefreshMicMixerStatus();
+            ApplyDefaultMicrophoneEndpointState();
             AppendUtilitiesHistory(_micMixerMuted ? "Mic mixer muted." : "Mic mixer unmuted.");
             ShowActionStatus(_micMixerMuted ? ActionState.Warning : ActionState.Success, "Mic Mixer", _micMixerMuted ? "Mic mixer mute aktif." : "Mic mixer mute dimatikan.", MicMixerStatusText.Text);
         }
@@ -15005,6 +15022,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
 
         private async void RefreshWebcamSettings_Click(object sender, RoutedEventArgs e)
         {
+            RefreshCameraStudioStatus();
             WebcamSettingsStatusText.Text = "Scanning camera devices...";
             var script = @"
 $devices = Get-CimInstance Win32_PnPEntity |
@@ -15022,6 +15040,71 @@ if (-not $devices) {
             WebcamDevicesText.Text = output;
             AppendUtilitiesHistory("Webcam device scan refreshed.");
             ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Webcam Settings", WebcamSettingsStatusText.Text, output);
+        }
+
+        private void CameraStudioControl_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            RefreshCameraStudioStatus();
+        }
+
+        private void ApplyStreamingCameraPreset_Click(object sender, RoutedEventArgs e)
+        {
+            if (CameraBrightnessSlider == null || CameraContrastSlider == null || CameraSharpnessSlider == null || CameraExposureSlider == null || CameraFpsSlider == null)
+                return;
+
+            CameraBrightnessSlider.Value = 10;
+            CameraContrastSlider.Value = 15;
+            CameraSharpnessSlider.Value = 40;
+            CameraExposureSlider.Value = 0;
+            CameraFpsSlider.Value = 30;
+            RefreshCameraStudioStatus();
+            AppendUtilitiesHistory("Streaming camera preset applied.");
+            ShowActionStatus(ActionState.Success, "Camera Studio", "Preset webcam streaming diterapkan.", BuildCameraStudioChecklist());
+        }
+
+        private void ApplyLowLightCameraPreset_Click(object sender, RoutedEventArgs e)
+        {
+            if (CameraBrightnessSlider == null || CameraContrastSlider == null || CameraSharpnessSlider == null || CameraExposureSlider == null || CameraFpsSlider == null)
+                return;
+
+            CameraBrightnessSlider.Value = 24;
+            CameraContrastSlider.Value = 8;
+            CameraSharpnessSlider.Value = 28;
+            CameraExposureSlider.Value = 1.2;
+            CameraFpsSlider.Value = 30;
+            RefreshCameraStudioStatus();
+            AppendUtilitiesHistory("Low light camera preset applied.");
+            ShowActionStatus(ActionState.Success, "Camera Studio", "Preset low light webcam diterapkan.", BuildCameraStudioChecklist());
+        }
+
+        private void ApplySharpFaceCameraPreset_Click(object sender, RoutedEventArgs e)
+        {
+            if (CameraBrightnessSlider == null || CameraContrastSlider == null || CameraSharpnessSlider == null || CameraExposureSlider == null || CameraFpsSlider == null)
+                return;
+
+            CameraBrightnessSlider.Value = 6;
+            CameraContrastSlider.Value = 20;
+            CameraSharpnessSlider.Value = 58;
+            CameraExposureSlider.Value = -0.2;
+            CameraFpsSlider.Value = 60;
+            RefreshCameraStudioStatus();
+            AppendUtilitiesHistory("Sharp face camera preset applied.");
+            ShowActionStatus(ActionState.Success, "Camera Studio", "Preset sharp face webcam diterapkan.", BuildCameraStudioChecklist());
+        }
+
+        private void ResetCameraStudioProfile_Click(object sender, RoutedEventArgs e)
+        {
+            if (CameraBrightnessSlider == null || CameraContrastSlider == null || CameraSharpnessSlider == null || CameraExposureSlider == null || CameraFpsSlider == null)
+                return;
+
+            CameraBrightnessSlider.Value = 0;
+            CameraContrastSlider.Value = 0;
+            CameraSharpnessSlider.Value = 25;
+            CameraExposureSlider.Value = 0;
+            CameraFpsSlider.Value = 30;
+            RefreshCameraStudioStatus();
+            AppendUtilitiesHistory("Camera studio profile reset.");
+            ShowActionStatus(ActionState.Info, "Camera Studio", "Profil webcam dikembalikan ke baseline.", BuildCameraStudioChecklist());
         }
 
         private void OpenMicrophonePrivacy_Click(object sender, RoutedEventArgs e)
@@ -15099,6 +15182,7 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
 
         private async void RunWebcamDiagnostics_Click(object sender, RoutedEventArgs e)
         {
+            RefreshCameraStudioStatus();
             WebcamSettingsStatusText.Text = "Running camera diagnostics...";
             var script = @"
 $devices = Get-CimInstance Win32_PnPEntity |
@@ -15117,6 +15201,8 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
             var (success, output) = await ExecutePowerShellScriptAsync(script, TimeSpan.FromSeconds(12));
             var summary =
                 output + Environment.NewLine +
+                "---" + Environment.NewLine +
+                BuildCameraStudioChecklist() + Environment.NewLine +
                 "---" + Environment.NewLine +
                 "Streaming camera checklist:" + Environment.NewLine +
                 "- Select the same camera in OBS / TikTok LIVE Studio / Discord." + Environment.NewLine +
@@ -15149,6 +15235,73 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
             MicMixerStatusText.Text =
                 $"Mixer strip: gain {_micMixerGainDb:+0;-0;0} dB | gate {_micMixerGatePercent:0}% | compressor {_micMixerCompressorPercent:0}% | " +
                 $"mute {(_micMixerMuted ? "on" : "off")} | route: {route}.";
+        }
+
+        private void ApplyDefaultMicrophoneEndpointState()
+        {
+            try
+            {
+                using var enumerator = new MMDeviceEnumerator();
+                using var device = enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications)
+                    ?? enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Multimedia);
+                if (device == null)
+                    return;
+
+                var endpointVolume = device.AudioEndpointVolume;
+                if (endpointVolume == null)
+                    return;
+
+                endpointVolume.Mute = _micMixerMuted;
+                var scalar = Math.Max(0.05f, Math.Min(1f, (float)((_micMixerGainDb + 24d) / 48d)));
+                endpointVolume.MasterVolumeLevelScalar = scalar;
+                RefreshMicMixerStatus();
+            }
+            catch (Exception ex)
+            {
+                if (MicMixerStatusText != null)
+                    MicMixerStatusText.Text = $"{MicMixerStatusText.Text}{Environment.NewLine}Windows mic endpoint apply warning: {ex.Message}";
+            }
+        }
+
+        private void RefreshCameraStudioStatus()
+        {
+            if (CameraBrightnessSlider == null || CameraContrastSlider == null || CameraSharpnessSlider == null ||
+                CameraExposureSlider == null || CameraFpsSlider == null || CameraStudioStatusText == null)
+                return;
+
+            _cameraBrightnessPercent = CameraBrightnessSlider.Value;
+            _cameraContrastPercent = CameraContrastSlider.Value;
+            _cameraSharpnessPercent = CameraSharpnessSlider.Value;
+            _cameraExposureEv = CameraExposureSlider.Value;
+            _cameraFpsTarget = CameraFpsSlider.Value;
+
+            CameraStudioStatusText.Text =
+                $"Camera studio: brightness {_cameraBrightnessPercent:+0;-0;0}% | contrast {_cameraContrastPercent:+0;-0;0}% | " +
+                $"sharpness {_cameraSharpnessPercent:0}% | exposure {_cameraExposureEv:+0.0;-0.0;0.0} EV | target {_cameraFpsTarget:0} FPS.";
+        }
+
+        private string BuildCameraStudioChecklist()
+        {
+            RefreshCameraStudioStatus();
+            var exposureMode = _cameraExposureEv < -0.5
+                ? "room too bright / reduce exposure"
+                : _cameraExposureEv > 0.5
+                    ? "room too dark / add light first"
+                    : "balanced exposure";
+            var fpsMode = _cameraFpsTarget >= 55
+                ? "60 FPS motion"
+                : _cameraFpsTarget >= 45
+                    ? "high motion"
+                    : "stable streaming";
+
+            return
+                "Camera studio profile:" + Environment.NewLine +
+                $"- Brightness: {_cameraBrightnessPercent:+0;-0;0}%" + Environment.NewLine +
+                $"- Contrast: {_cameraContrastPercent:+0;-0;0}%" + Environment.NewLine +
+                $"- Sharpness: {_cameraSharpnessPercent:0}%" + Environment.NewLine +
+                $"- Exposure: {_cameraExposureEv:+0.0;-0.0;0.0} EV ({exposureMode})" + Environment.NewLine +
+                $"- FPS target: {_cameraFpsTarget:0} ({fpsMode})" + Environment.NewLine +
+                "- Apply these values in your camera driver panel, OBS Video Capture Device properties, TikTok LIVE Studio camera settings, or Discord camera settings.";
         }
 
         private string DetectVoicemeeterPath()
@@ -17497,6 +17650,7 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
         }
     }
 }
+
 
 
 

@@ -13,7 +13,7 @@ class Config:
     """Application configuration handler."""
     
     APP_NAME = "HyperBoost X"
-    VERSION = "1.2.9"
+    VERSION = "1.2.10"
     
     # Default paths
     APP_DIR = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "HyperBoost X"
@@ -91,4 +91,5 @@ class Config:
     def get_all(cls) -> Dict[str, Any]:
         """Get all configuration values."""
         return cls._config.copy()
+
 

@@ -5,12 +5,12 @@ Name "HyperBoost X"
 OutFile "HyperBoostXInstaller.exe"
 InstallDir "$PROGRAMFILES64\HyperBoost X"
 RequestExecutionLevel admin
-VIProductVersion "1.2.9.0"
+VIProductVersion "1.2.10.0"
 VIAddVersionKey "ProductName" "HyperBoost X"
 VIAddVersionKey "CompanyName" "MR.4NONY"
 VIAddVersionKey "FileDescription" "HyperBoost X Installer"
-VIAddVersionKey "FileVersion" "1.2.9"
-VIAddVersionKey "ProductVersion" "1.2.9"
+VIAddVersionKey "FileVersion" "1.2.10"
+VIAddVersionKey "ProductVersion" "1.2.10"
 VIAddVersionKey "LegalCopyright" "Copyright (c) MR.4NONY"
 !define MUI_ICON "wpf\Assets\HyperBoostX.ico"
 !define MUI_UNICON "wpf\Assets\HyperBoostX.ico"
@@ -80,7 +80,7 @@ Section "Install"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "DisplayIcon" "$INSTDIR\HyperBoostX.exe"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "InstallLocation" "$INSTDIR"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "Publisher" "MR.4NONY"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "DisplayVersion" "1.2.9"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "DisplayVersion" "1.2.10"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "UninstallString" "$\"$INSTDIR\Uninstall.exe$\""
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "NoRepair" 1
@@ -108,4 +108,5 @@ Section "Uninstall"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX"
   RMDir /r "$INSTDIR"
 SectionEnd
+
 

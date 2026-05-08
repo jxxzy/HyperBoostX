@@ -2,6 +2,11 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.2.10 - 2026-05-08
+- Adds Apply Mic Settings so the Streaming Voice Mixer can push mute and default microphone volume to the active Windows communications microphone.
+- Upgrades Streaming Mode webcam tools into Advanced Webcam Studio with brightness, contrast, sharpness, exposure, FPS target, streaming, low-light, and sharp-face presets.
+- Adds camera studio profile output to webcam diagnostics for OBS, TikTok LIVE Studio, Discord, and camera driver setup.
+
 ## v1.2.9 - 2026-05-08
 - Upgrades Streaming Mode mic tools into a Voicemeeter-style Voice Mixer strip with gain, noise gate, compressor preview, mute, and streaming preset controls.
 - Adds Voicemeeter detection, launch, official download, and Windows Volume Mixer shortcuts for safer virtual-audio setup.

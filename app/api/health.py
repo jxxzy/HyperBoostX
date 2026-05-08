@@ -17,10 +17,11 @@ def health_check():
     try:
         return jsonify({
             "status": "ok",
-            "version": "1.2.9",
+            "version": "1.2.10",
             "service": "HyperBoost X Backend"
         })
     except Exception as e:
         logger.error(f"Error in /api/health: {e}")
         return jsonify({"error": str(e)}), 500
+
 
