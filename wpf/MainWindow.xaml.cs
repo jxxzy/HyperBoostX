@@ -235,6 +235,11 @@ namespace HyperBoostX
         private WasapiCapture _voiceMeterCapture;
         private DateTime _voiceMeterStartedAt = DateTime.MinValue;
         private double _voiceMeterPeak;
+        private bool _micMixerMuted;
+        private double _micMixerGainDb;
+        private double _micMixerGatePercent = 8;
+        private double _micMixerCompressorPercent = 25;
+        private string _detectedVoicemeeterPath = "";
         private readonly List<FeatureAuditResult> _lastFeatureAuditResults = new();
         private readonly List<FeatureAuditIncident> _featureAuditIncidents = new();
         private string _lastFeatureAuditSummary = "No audit has been executed yet.";
@@ -302,7 +307,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.2.8";
+            ?? "1.2.9";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -14918,6 +14923,86 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             ShowActionStatus(ActionState.Info, "Voice Meter", "Voice meter dihentikan.");
         }
 
+        private void MicMixerControl_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            RefreshMicMixerStatus();
+        }
+
+        private void ApplyStreamingMicPreset_Click(object sender, RoutedEventArgs e)
+        {
+            if (MicMixerGainSlider == null || MicMixerGateSlider == null || MicMixerCompressorSlider == null)
+                return;
+
+            MicMixerGainSlider.Value = 6;
+            MicMixerGateSlider.Value = 10;
+            MicMixerCompressorSlider.Value = 35;
+            _micMixerMuted = false;
+            RefreshMicMixerStatus();
+            AppendUtilitiesHistory("Streaming mic preset applied.");
+            ShowActionStatus(ActionState.Success, "Mic Mixer", "Preset streaming mic diterapkan.", MicMixerStatusText.Text);
+        }
+
+        private void ToggleMicMixerMute_Click(object sender, RoutedEventArgs e)
+        {
+            _micMixerMuted = !_micMixerMuted;
+            RefreshMicMixerStatus();
+            AppendUtilitiesHistory(_micMixerMuted ? "Mic mixer muted." : "Mic mixer unmuted.");
+            ShowActionStatus(_micMixerMuted ? ActionState.Warning : ActionState.Success, "Mic Mixer", _micMixerMuted ? "Mic mixer mute aktif." : "Mic mixer mute dimatikan.", MicMixerStatusText.Text);
+        }
+
+        private void DetectVoicemeeter_Click(object sender, RoutedEventArgs e)
+        {
+            var path = DetectVoicemeeterPath();
+            RefreshMicMixerStatus();
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                VoiceMeterDevicesText.Text = BuildMicrophoneDeviceSummary() + Environment.NewLine + Environment.NewLine + $"Voicemeeter detected: {path}";
+                AppendUtilitiesHistory("Voicemeeter detected.");
+                ShowActionStatus(ActionState.Success, "Voicemeeter", "Voicemeeter terdeteksi.", path);
+                return;
+            }
+
+            AppendUtilitiesHistory("Voicemeeter detection did not find an installation.");
+            ShowActionStatus(ActionState.Warning, "Voicemeeter", "Voicemeeter belum terdeteksi.", "Install Voicemeeter resmi lalu reboot Windows supaya virtual audio device muncul.");
+        }
+
+        private void OpenVoicemeeter_Click(object sender, RoutedEventArgs e)
+        {
+            var path = string.IsNullOrWhiteSpace(_detectedVoicemeeterPath)
+                ? DetectVoicemeeterPath()
+                : _detectedVoicemeeterPath;
+
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+            {
+                RefreshMicMixerStatus();
+                ShowActionStatus(ActionState.Warning, "Voicemeeter", "Voicemeeter belum terpasang.", "Gunakan Download Voicemeeter, jalankan installer sebagai admin, lalu reboot Windows.");
+                return;
+            }
+
+            try
+            {
+                Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+                AppendUtilitiesHistory("Voicemeeter launched.");
+                ShowActionStatus(ActionState.Success, "Voicemeeter", "Voicemeeter dibuka.", path);
+            }
+            catch (Exception ex)
+            {
+                ShowActionStatus(ActionState.Warning, "Voicemeeter", "Voicemeeter gagal dibuka.", ex.Message);
+            }
+        }
+
+        private void OpenVoicemeeterDownload_Click(object sender, RoutedEventArgs e)
+        {
+            LaunchExternalUrl("https://vb-audio.com/Voicemeeter/", "Voicemeeter Download");
+            AppendUtilitiesHistory("Voicemeeter official download page opened.");
+        }
+
+        private void OpenWindowsVolumeMixer_Click(object sender, RoutedEventArgs e)
+        {
+            LaunchWindowsUri("ms-settings:apps-volume", "Windows Volume Mixer");
+            AppendUtilitiesHistory("Windows volume mixer opened.");
+        }
+
         private async void RefreshWebcamSettings_Click(object sender, RoutedEventArgs e)
         {
             WebcamSettingsStatusText.Text = "Scanning camera devices...";
@@ -15049,6 +15134,58 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
             AppendUtilitiesHistory("Windows Camera app opened.");
         }
 
+        private void RefreshMicMixerStatus()
+        {
+            if (MicMixerGainSlider == null || MicMixerGateSlider == null || MicMixerCompressorSlider == null || MicMixerStatusText == null)
+                return;
+
+            _micMixerGainDb = MicMixerGainSlider.Value;
+            _micMixerGatePercent = MicMixerGateSlider.Value;
+            _micMixerCompressorPercent = MicMixerCompressorSlider.Value;
+
+            var route = string.IsNullOrWhiteSpace(_detectedVoicemeeterPath)
+                ? "Windows default mic"
+                : $"Voicemeeter linked ({Path.GetFileNameWithoutExtension(_detectedVoicemeeterPath)})";
+            MicMixerStatusText.Text =
+                $"Mixer strip: gain {_micMixerGainDb:+0;-0;0} dB | gate {_micMixerGatePercent:0}% | compressor {_micMixerCompressorPercent:0}% | " +
+                $"mute {(_micMixerMuted ? "on" : "off")} | route: {route}.";
+        }
+
+        private string DetectVoicemeeterPath()
+        {
+            var programFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+            var programFilesX86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
+            var candidates = new[]
+            {
+                Path.Combine(programFilesX86, "VB", "Voicemeeter", "voicemeeter8.exe"),
+                Path.Combine(programFilesX86, "VB", "Voicemeeter", "voicemeeterpro.exe"),
+                Path.Combine(programFilesX86, "VB", "Voicemeeter", "voicemeeter.exe"),
+                Path.Combine(programFiles, "VB", "Voicemeeter", "voicemeeter8.exe"),
+                Path.Combine(programFiles, "VB", "Voicemeeter", "voicemeeterpro.exe"),
+                Path.Combine(programFiles, "VB", "Voicemeeter", "voicemeeter.exe")
+            };
+
+            _detectedVoicemeeterPath = candidates.FirstOrDefault(File.Exists) ?? "";
+            return _detectedVoicemeeterPath;
+        }
+
+        private double ApplyMicMixerPreview(double rawLevel)
+        {
+            if (_micMixerMuted)
+                return 0;
+
+            var gatedLevel = rawLevel < _micMixerGatePercent ? 0 : rawLevel;
+            var gainMultiplier = Math.Pow(10, _micMixerGainDb / 20d);
+            var gainedLevel = gatedLevel * gainMultiplier;
+            var threshold = 70d;
+            var compressorRatio = 1d + (_micMixerCompressorPercent / 25d);
+            var compressedLevel = gainedLevel <= threshold
+                ? gainedLevel
+                : threshold + ((gainedLevel - threshold) / compressorRatio);
+
+            return Math.Max(0, Math.Min(100, compressedLevel));
+        }
+
         private string BuildMicrophoneDeviceSummary()
         {
             try
@@ -15083,16 +15220,19 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
             if (capture == null)
                 return;
 
-            var level = CalculateAudioLevelPercent(e.Buffer, e.BytesRecorded, capture.WaveFormat);
+            var rawLevel = CalculateAudioLevelPercent(e.Buffer, e.BytesRecorded, capture.WaveFormat);
+            var level = ApplyMicMixerPreview(rawLevel);
             _voiceMeterPeak = Math.Max(_voiceMeterPeak, level);
             Dispatcher.Invoke(() =>
             {
                 VoiceMeterLevelBar.Value = level;
-                VoiceMeterPeakText.Text = $"Input level: {level:0}% | Peak: {_voiceMeterPeak:0}%";
+                VoiceMeterPeakText.Text = $"Raw: {rawLevel:0}% | Mixer: {level:0}% | Peak: {_voiceMeterPeak:0}%";
                 VoiceMeterStatusText.Text =
                     $"Voice meter running for {(DateTime.Now - _voiceMeterStartedAt).TotalSeconds:0}s.{Environment.NewLine}" +
-                    (level < 3
-                        ? "Input is very low. Check mic permission, mute switch, or selected device."
+                    (_micMixerMuted
+                        ? "Mixer mute is on. Toggle mute to restore preview level."
+                        : rawLevel < 3
+                            ? "Input is very low. Check mic permission, mute switch, or selected device."
                         : level > 85
                             ? "Input is peaking. Lower microphone gain to avoid clipping."
                             : "Input level looks usable.");
@@ -17357,5 +17497,6 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
         }
     }
 }
+
 
 

@@ -2,6 +2,11 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.2.9 - 2026-05-08
+- Upgrades Streaming Mode mic tools into a Voicemeeter-style Voice Mixer strip with gain, noise gate, compressor preview, mute, and streaming preset controls.
+- Adds Voicemeeter detection, launch, official download, and Windows Volume Mixer shortcuts for safer virtual-audio setup.
+- Keeps webcam and mic controls inside Streaming Mode so users on the latest installer see the same feature set.
+
 ## v1.2.8 - 2026-05-08
 - Reissued the Streaming Mode mic/webcam build under a new version so every PC can update past older same-label installs.
 - Keeps Advanced Mic / Voice Meter and Advanced Webcam Settings directly inside Streaming Mode.

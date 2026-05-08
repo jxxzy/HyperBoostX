@@ -3322,19 +3322,45 @@
 
                             <Border Grid.Column="0" Style="{StaticResource InfoCardStyle}" Margin="0,0,12,0">
                                 <StackPanel>
-                                    <TextBlock Text="3. Advanced Mic / Voice Meter" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Live input meter, microphone diagnostics, device refresh, audio service repair, dan privacy setting untuk setup streaming." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,12"/>
+                                    <TextBlock Text="3. Advanced Mic / Voice Mixer" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Voicemeeter-style mic strip untuk gain, gate, compressor preview, mute, device check, dan integrasi Voicemeeter resmi." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,12"/>
                                     <WrapPanel Margin="0,0,0,12">
                                         <Button Content="Refresh Microphones" Click="RefreshVoiceMeterDevices_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Start Voice Meter" Click="StartVoiceMeter_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Stop Voice Meter" Click="StopVoiceMeter_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Stream Mic Preset" Click="ApplyStreamingMicPreset_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Toggle Mute" Click="ToggleMicMixerMute_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Mic Diagnostics" Click="RunMicrophoneDiagnostics_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Reset Audio Service" Click="ResetStreamingAudioService_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Sound Settings" Click="OpenStreamingSoundSettings_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Volume Mixer" Click="OpenWindowsVolumeMixer_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Detect Voicemeeter" Click="DetectVoicemeeter_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Open Voicemeeter" Click="OpenVoicemeeter_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Download Voicemeeter" Click="OpenVoicemeeterDownload_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Mic Privacy" Click="OpenMicrophonePrivacy_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                     </WrapPanel>
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                            <TextBlock Text="Gain dB" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <Slider Name="MicMixerGainSlider" Minimum="-24" Maximum="24" Value="0" TickFrequency="6" IsSnapToTickEnabled="False" ValueChanged="MicMixerControl_ValueChanged"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                                            <TextBlock Text="Noise Gate %" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <Slider Name="MicMixerGateSlider" Minimum="0" Maximum="60" Value="8" TickFrequency="5" IsSnapToTickEnabled="False" ValueChanged="MicMixerControl_ValueChanged"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Compressor %" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <Slider Name="MicMixerCompressorSlider" Minimum="0" Maximum="100" Value="25" TickFrequency="10" IsSnapToTickEnabled="False" ValueChanged="MicMixerControl_ValueChanged"/>
+                                        </StackPanel>
+                                    </Grid>
                                     <ProgressBar Name="VoiceMeterLevelBar" Height="16" Minimum="0" Maximum="100" Value="0" Margin="0,0,0,8"/>
                                     <TextBlock Name="VoiceMeterPeakText" Text="Input level: 0% | Peak: 0%" Foreground="#38bdf8" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                    <TextBlock Name="MicMixerStatusText" Text="Mixer strip: gain +0 dB | gate 8% | compressor 25% | mute off | route: Windows default mic." Foreground="#86efac" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                     <TextBlock Name="VoiceMeterStatusText" Text="Voice meter idle." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                     <TextBlock Name="VoiceMeterDevicesText" Text="Microphone devices will appear here." Foreground="#94a3b8" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
                                 </StackPanel>
@@ -5855,13 +5881,13 @@
                                 <TextBlock Text="MR.4NONY" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,16"/>
 
                                 <TextBlock Text="VERSION" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
-                                <TextBlock Name="AboutVersionText" Text="1.2.8 - Stable - 2026" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,8"/>
+                                <TextBlock Name="AboutVersionText" Text="1.2.9 - Stable - 2026" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,8"/>
                                 <WrapPanel Margin="0,0,0,12">
                                     <Border Background="#14532d" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
                                         <TextBlock Text="STABLE RELEASE" Foreground="#dcfce7" FontSize="11" FontWeight="Bold"/>
                                     </Border>
                                     <Border Background="#0f172a" BorderBrush="#38bdf8" BorderThickness="1" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
-                                        <TextBlock Text="v1.2.8" Foreground="#bae6fd" FontSize="11" FontWeight="Bold"/>
+                                        <TextBlock Text="v1.2.9" Foreground="#bae6fd" FontSize="11" FontWeight="Bold"/>
                                     </Border>
                                     <Border Background="#3f3f46" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
                                         <TextBlock Text="QA 56/56 PASSED" Foreground="#f8fafc" FontSize="11" FontWeight="Bold"/>
@@ -5897,3 +5923,4 @@
         </Grid>
     </Grid>
 </Window>
+

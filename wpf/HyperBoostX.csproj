@@ -16,10 +16,10 @@
     <Authors>MR.4NONY</Authors>
     <Product>HyperBoost X</Product>
     <Copyright>Copyright (c) MR.4NONY</Copyright>
-    <Version>1.2.8</Version>
-    <AssemblyVersion>1.2.8.0</AssemblyVersion>
-    <FileVersion>1.2.8.0</FileVersion>
-    <InformationalVersion>1.2.8</InformationalVersion>
+    <Version>1.2.9</Version>
+    <AssemblyVersion>1.2.9.0</AssemblyVersion>
+    <FileVersion>1.2.9.0</FileVersion>
+    <InformationalVersion>1.2.9</InformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -51,3 +51,4 @@
   </ItemGroup>
 
 </Project>
+
