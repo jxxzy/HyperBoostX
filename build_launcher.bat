@@ -13,7 +13,10 @@ if errorlevel 1 (
 )
 
 echo Publishing launcher...
-dotnet publish launcher\HyperBoostLauncher.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true
+set "releaseLauncherDir=%~dp0release\launcher"
+if exist "%releaseLauncherDir%" rmdir /s /q "%releaseLauncherDir%"
+mkdir "%releaseLauncherDir%" >nul 2>&1
+dotnet publish launcher\HyperBoostLauncher.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true -o "%releaseLauncherDir%"
 if errorlevel 1 (
     echo.
     echo ERROR: Launcher publish failed.
@@ -21,19 +24,15 @@ if errorlevel 1 (
     exit /b 1
 )
 
-set "publishDir=%~dp0launcher\bin\Release\net8.0-windows\win-x64"
-if not exist "%publishDir%\HyperBoostLauncher.exe" (
+if not exist "%releaseLauncherDir%\HyperBoostLauncher.exe" (
     echo.
     echo ERROR: Publish output was not found.
     pause
     exit /b 1
 )
 
-mkdir "%~dp0release\launcher" >nul 2>&1
-xcopy "%publishDir%\*" "%~dp0release\launcher\" /y /q
-
 echo.
 echo Launcher built successfully.
-echo Output copied to: "%~dp0release\launcher\"
+echo Output copied to: "%releaseLauncherDir%\"
 pause
 exit /b 0

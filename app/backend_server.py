@@ -7,7 +7,8 @@ Refactored with Flask blueprints for better organization and maintainability
 import json
 import threading
 from typing import Dict, Any
-from flask import Flask
+from urllib.parse import urlparse
+from flask import Flask, request
 from core.config import Config
 from core.logger import Logger
 
@@ -27,6 +28,8 @@ from api.middleware import APIMiddleware
 Config.initialize()
 Logger.initialize()
 logger = Logger.get_logger(__name__)
+
+ALLOWED_CORS_HOSTS = {"127.0.0.1", "localhost"}
 
 
 class HyperBoostBackendServer:
@@ -60,10 +63,21 @@ class HyperBoostBackendServer:
         # Add CORS headers for cross-origin requests (useful for web clients)
         @self.app.after_request
         def add_cors_headers(response):
-            response.headers['Access-Control-Allow-Origin'] = '*'
-            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+            origin = request.headers.get('Origin', '')
+            if self._is_allowed_cors_origin(origin):
+                response.headers['Access-Control-Allow-Origin'] = origin
+                response.headers['Vary'] = 'Origin'
+                response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+                response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
             return response
+
+    @staticmethod
+    def _is_allowed_cors_origin(origin: str) -> bool:
+        if not origin:
+            return False
+
+        parsed = urlparse(origin)
+        return parsed.scheme in {"http", "https"} and parsed.hostname in ALLOWED_CORS_HOSTS
     
     def _register_blueprints(self):
         """Register API blueprints."""

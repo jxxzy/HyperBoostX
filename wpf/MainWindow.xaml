@@ -101,72 +101,72 @@
                     <Border Background="#2196F3" CornerRadius="3" Margin="15,5,15,10" Padding="8" Name="BackendHealthIndicator">
                         <TextBlock Text="Connecting..." Foreground="#ffffff" FontSize="11"/>
                     </Border>
-                    <Button Name="ExitBtn" Content="0. Exit" Click="ExitBtn_Click" Style="{StaticResource NavButtonStyle}" Margin="0,0,0,10"/>
+                    <Button Name="ExitBtn" Content="Exit" Click="ExitBtn_Click" Style="{StaticResource NavButtonStyle}" Margin="0,0,0,10"/>
                 </StackPanel>
 
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="0,10,0,0">
                         <Border Padding="15,8,15,4"><TextBlock Text="🔥 QUICK ACCESS" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
-                        <Button Name="OneClickBoostBtn" Content="1. One Click Boost" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="GamingModeBtn" Content="2. Gaming Mode" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="SmartRecommendationBtn" Content="3. Smart Recommendation" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="OneClickBoostBtn" Content="One Click Boost" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="GamingModeBtn" Content="Gaming Mode" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="SmartRecommendationBtn" Content="Smart Recommendation" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
                         <Border Padding="15,12,15,4"><TextBlock Text="📊 CORE SYSTEM" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
-                        <Button Name="DashboardBtn" Content="4. Dashboard" Click="DashboardBtn_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="PerformanceBtn" Content="5. Performance" Click="PerformanceBtn_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="StartupBtn" Content="6. Startup" Click="StartupBtn_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="BackgroundAppsBtn" Content="7. Background Apps" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="CleanupBtn" Content="8. Cleanup" Click="CleanupBtn_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="StorageBtn" Content="9. Storage" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="DashboardBtn" Content="Dashboard" Click="DashboardBtn_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="PerformanceBtn" Content="Performance" Click="PerformanceBtn_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="StartupBtn" Content="Startup" Click="StartupBtn_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="BackgroundAppsBtn" Content="Background Apps" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="CleanupBtn" Content="Cleanup" Click="CleanupBtn_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="StorageBtn" Content="Storage" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
                         <Border Padding="15,12,15,4"><TextBlock Text="🎮 GAMING &amp; CREATOR" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
-                        <Button Name="GamingBoosterBtn" Content="10. Gaming Booster" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="StreamingModeBtn" Content="11. Streaming Mode" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="CreatorModeBtn" Content="12. Creator Mode" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="GamingBoosterBtn" Content="Gaming Booster" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="StreamingModeBtn" Content="Streaming Mode" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="CreatorModeBtn" Content="Creator Mode" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
                         <Border Padding="15,12,15,4"><TextBlock Text="🌐 NETWORK" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
-                        <Button Name="NetworkBoosterBtn" Content="13. Network Booster" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="DnsLatencyToolsBtn" Content="14. DNS &amp; Latency Tools" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="NetworkBoosterBtn" Content="Network Booster" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="DnsLatencyToolsBtn" Content="DNS &amp; Latency Tools" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
                         <Border Padding="15,12,15,4"><TextBlock Text="🔒 PRIVACY &amp; SECURITY" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
-                        <Button Name="PrivacyCenterBtn" Content="15. Privacy Center" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="SecurityHealthBtn" Content="16. Security &amp; Health" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="PrivacyCenterBtn" Content="Privacy Center" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="SecurityHealthBtn" Content="Security &amp; Health" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
                         <Border Padding="15,12,15,4"><TextBlock Text="📦 APP MANAGEMENT (WINUTIL)" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
-                        <Button Name="AppsManagerBtn" Content="17. Apps Manager" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="AppsManagerBtn" Content="Apps Manager" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
                         <Border Padding="15,12,15,4"><TextBlock Text="⚙️ SYSTEM CONFIG (WINUTIL)" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
-                        <Button Name="TweaksCenterBtn" Content="18. Tweaks Center" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="WindowsFeaturesBtn" Content="19. Windows Features" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="UpdateControlBtn" Content="20. Update Control" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="TweaksCenterBtn" Content="Tweaks Center" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="WindowsFeaturesBtn" Content="Windows Features" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="UpdateControlBtn" Content="Update Control" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
                         <Border Padding="15,12,15,4"><TextBlock Text="🛠️ SYSTEM TOOLS" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
-                        <Button Name="RepairToolsBtn" Content="21. Repair Tools" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="DriverUpdateCenterBtn" Content="22. Driver &amp; Update Center" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="AppUninstallerBtn" Content="23. App Uninstaller" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="RepairToolsBtn" Content="Repair Tools" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="DriverUpdateCenterBtn" Content="Driver &amp; Update Center" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="AppUninstallerBtn" Content="App Uninstaller" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
                         <Border Padding="15,12,15,4"><TextBlock Text="⚙️ ADVANCED SYSTEM" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
-                        <Button Name="AdvancedTweaksBtn" Content="24. Advanced Tweaks" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="WindowsServicesBtn" Content="25. Windows Services" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="PowerOptimizationBtn" Content="26. Power Optimization" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="VisualEffectsBtn" Content="27. Visual Effects" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="AdvancedTweaksBtn" Content="Advanced Tweaks" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="WindowsServicesBtn" Content="Windows Services" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="PowerOptimizationBtn" Content="Power Optimization" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="VisualEffectsBtn" Content="Visual Effects" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
                         <Border Padding="15,12,15,4"><TextBlock Text="♻️ BACKUP &amp; RESTORE" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
-                        <Button Name="RestoreBackupBtn" Content="28. Restore &amp; Backup" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="RestorePointManagerBtn" Content="29. Restore Point Manager" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="RestoreBackupBtn" Content="Restore &amp; Backup" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="RestorePointManagerBtn" Content="Restore Point Manager" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
                         <Border Padding="15,12,15,4"><TextBlock Text="🤖 AUTOMATION" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
-                        <Button Name="ScheduledAutomationBtn" Content="30. Scheduled Automation" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="ScheduledAutomationBtn" Content="Scheduled Automation" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
                         <Border Padding="15,12,15,4"><TextBlock Text="🧰 EXTRA TOOLS" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
-                        <Button Name="UtilitiesToolsBtn" Content="31. Utilities Tools" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
-                        <Button Name="FeatureAuditBtn" Content="32. Feature Audit" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="UtilitiesToolsBtn" Content="Utilities Tools" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="FeatureAuditBtn" Content="Feature Audit" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
                         <Border Padding="15,12,15,4"><TextBlock Text="⚙️ SETTINGS" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
-                        <Button Name="SettingsBtn" Content="33. App Settings" Click="SettingsBtn_Click" Style="{StaticResource NavButtonStyle}"/>
+                        <Button Name="SettingsBtn" Content="App Settings" Click="SettingsBtn_Click" Style="{StaticResource NavButtonStyle}"/>
 
                         <Border Padding="15,12,15,4"><TextBlock Text="ℹ️ ABOUT" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
-                        <Button Name="AboutAppBtn" Content="34. About App" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}" Margin="0,0,0,12"/>
+                        <Button Name="AboutAppBtn" Content="About App" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}" Margin="0,0,0,12"/>
                     </StackPanel>
                 </ScrollViewer>
             </DockPanel>
@@ -2449,8 +2449,10 @@
                                     <TextBlock Name="OpenAiSettingsStatusText" Text="AI Copilot is offline. Configure API key to enable OpenAI integration." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,12"/>
                                     <Separator Margin="0,4,0,12" Background="#1e293b"/>
                                     <TextBlock Text="Discord Error Reporting" Foreground="#f8fafc" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Discord Webhook URL:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/>
+                                    <TextBlock Text="Error / Audit Webhook URL:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/>
                                     <TextBox Name="DiscordWebhookUrlInput" Text="" Background="#0f172a" Foreground="#ffffff" Padding="10" Margin="0,0,0,12" BorderThickness="1" BorderBrush="#7c3aed"/>
+                                    <TextBlock Text="Release Update Webhook URL:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/>
+                                    <TextBox Name="DiscordUpdateWebhookUrlInput" Text="" Background="#0f172a" Foreground="#ffffff" Padding="10" Margin="0,0,0,12" BorderThickness="1" BorderBrush="#334155"/>
                                     <WrapPanel Margin="0,0,0,12">
                                         <StackPanel Margin="0,0,12,0">
                                             <TextBlock Text="Minimum Level:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/>
@@ -5809,13 +5811,13 @@
                                 <TextBlock Text="MR.4NONY" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,16"/>
 
                                 <TextBlock Text="VERSION" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
-                                <TextBlock Name="AboutVersionText" Text="1.2.2-dev - Preview - 2026" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,8"/>
+                                <TextBlock Name="AboutVersionText" Text="1.2.2 - Stable - 2026" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,8"/>
                                 <WrapPanel Margin="0,0,0,12">
                                     <Border Background="#14532d" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
                                         <TextBlock Text="STABLE RELEASE" Foreground="#dcfce7" FontSize="11" FontWeight="Bold"/>
                                     </Border>
                                     <Border Background="#0f172a" BorderBrush="#38bdf8" BorderThickness="1" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
-                                        <TextBlock Text="v1.2.2-dev" Foreground="#bae6fd" FontSize="11" FontWeight="Bold"/>
+                                        <TextBlock Text="v1.2.2" Foreground="#bae6fd" FontSize="11" FontWeight="Bold"/>
                                     </Border>
                                     <Border Background="#3f3f46" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
                                         <TextBlock Text="QA 56/56 PASSED" Foreground="#f8fafc" FontSize="11" FontWeight="Bold"/>

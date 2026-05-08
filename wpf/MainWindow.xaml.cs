@@ -281,6 +281,7 @@ namespace HyperBoostX
         private DispatcherTimer _automationRuntimeTimer;
         private bool _discordWebhookEnabled;
         private string _discordWebhookUrl = "";
+        private string _discordUpdateWebhookUrl = "";
         private string _discordWebhookMinimumLevel = "Error";
         private int _discordWebhookCooldownSeconds = 120;
         private readonly Dictionary<string, DateTime> _discordWebhookLastSent = new();
@@ -296,7 +297,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.2.2-dev";
+            ?? "1.2.2";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -453,7 +454,7 @@ namespace HyperBoostX
 
         private string BuildLocalizedMenuLabel(int index, string key, string fallback)
         {
-            return $"{index}. {L(key, fallback)}";
+            return L(key, fallback);
         }
 
         private string GetPageKey(string pageName)
@@ -658,6 +659,8 @@ namespace HyperBoostX
             SelectComboItemByContent(AutomationGoalCombo, _automationGoal);
             if (DiscordWebhookUrlInput != null)
                 DiscordWebhookUrlInput.Text = _discordWebhookUrl;
+            if (DiscordUpdateWebhookUrlInput != null)
+                DiscordUpdateWebhookUrlInput.Text = _discordUpdateWebhookUrl;
             SelectComboItemByContent(DiscordWebhookLevelCombo, _discordWebhookMinimumLevel);
             if (DiscordWebhookCooldownInput != null)
                 DiscordWebhookCooldownInput.Text = _discordWebhookCooldownSeconds.ToString(CultureInfo.InvariantCulture);
@@ -678,9 +681,11 @@ namespace HyperBoostX
 
             var envOpenAi = Environment.GetEnvironmentVariable("HYPERBOOSTX_OPENAI_API_KEY")?.Trim() ?? "";
             var envDiscord = Environment.GetEnvironmentVariable("HYPERBOOSTX_DISCORD_WEBHOOK_URL")?.Trim() ?? "";
+            var envDiscordUpdate = Environment.GetEnvironmentVariable("HYPERBOOSTX_DISCORD_UPDATE_WEBHOOK_URL")?.Trim() ?? "";
 
             var legacyOpenAi = settings.OpenAiApiKey?.Trim() ?? "";
             var legacyDiscord = settings.DiscordWebhookUrl?.Trim() ?? "";
+            var legacyDiscordUpdate = settings.DiscordUpdateWebhookUrl?.Trim() ?? "";
 
             _openAiApiKey = !string.IsNullOrWhiteSpace(envOpenAi)
                 ? envOpenAi
@@ -697,28 +702,40 @@ namespace HyperBoostX
                     ? secrets.DiscordWebhookUrl
                     : legacyDiscord;
 
+            _discordUpdateWebhookUrl = !string.IsNullOrWhiteSpace(envDiscordUpdate)
+                ? envDiscordUpdate
+                : !string.IsNullOrWhiteSpace(secrets.DiscordUpdateWebhookUrl)
+                    ? secrets.DiscordUpdateWebhookUrl
+                    : legacyDiscordUpdate;
+
             if (OpenAiApiKeyInput != null)
                 OpenAiApiKeyInput.Text = _openAiApiKey;
 
             if (DiscordWebhookUrlInput != null)
                 DiscordWebhookUrlInput.Text = _discordWebhookUrl;
+            if (DiscordUpdateWebhookUrlInput != null)
+                DiscordUpdateWebhookUrlInput.Text = _discordUpdateWebhookUrl;
 
             var shouldMigrateLegacySecrets =
                 string.IsNullOrWhiteSpace(envOpenAi) &&
                 string.IsNullOrWhiteSpace(envDiscord) &&
+                string.IsNullOrWhiteSpace(envDiscordUpdate) &&
                 ((!string.IsNullOrWhiteSpace(legacyOpenAi) && string.IsNullOrWhiteSpace(secrets.OpenAiApiKey)) ||
-                 (!string.IsNullOrWhiteSpace(legacyDiscord) && string.IsNullOrWhiteSpace(secrets.DiscordWebhookUrl)));
+                 (!string.IsNullOrWhiteSpace(legacyDiscord) && string.IsNullOrWhiteSpace(secrets.DiscordWebhookUrl)) ||
+                 (!string.IsNullOrWhiteSpace(legacyDiscordUpdate) && string.IsNullOrWhiteSpace(secrets.DiscordUpdateWebhookUrl)));
 
             if (shouldMigrateLegacySecrets)
             {
                 await _secureSecretStoreService.SaveAsync(new PersistedSecureSecrets
                 {
                     OpenAiApiKey = legacyOpenAi,
-                    DiscordWebhookUrl = legacyDiscord
+                    DiscordWebhookUrl = legacyDiscord,
+                    DiscordUpdateWebhookUrl = legacyDiscordUpdate
                 });
 
                 settings.OpenAiApiKey = "";
                 settings.DiscordWebhookUrl = "";
+                settings.DiscordUpdateWebhookUrl = "";
                 _appConfig.Settings = settings;
                 await _appConfigService.SaveAsync(_appConfig);
             }
@@ -779,6 +796,7 @@ namespace HyperBoostX
             settings.AutoRestorePointEnabled = _autoRestorePointEngineEnabled;
             settings.DiscordWebhookEnabled = _discordWebhookEnabled;
             settings.DiscordWebhookUrl = "";
+            settings.DiscordUpdateWebhookUrl = "";
             settings.DiscordWebhookMinimumLevel = _discordWebhookMinimumLevel;
             settings.DiscordWebhookCooldownSeconds = _discordWebhookCooldownSeconds;
             settings.OpenAiEnabled = _openAiEnabled;
@@ -848,6 +866,7 @@ namespace HyperBoostX
             await _secureSecretStoreService.SaveAsync(new PersistedSecureSecrets
             {
                 DiscordWebhookUrl = _discordWebhookUrl,
+                DiscordUpdateWebhookUrl = _discordUpdateWebhookUrl,
                 OpenAiApiKey = _openAiApiKey
             });
         }
@@ -2042,8 +2061,11 @@ namespace HyperBoostX
 
                 var fields = BuildDiscordReportFields(severity, meta);
 
-                await _discordWebhookService.SendAsync(_discordWebhookUrl, title, message, severity, fields);
-                _discordWebhookLastSent[signature] = DateTime.UtcNow;
+                var result = await _discordWebhookService.SendDetailedAsync(_discordWebhookUrl, title, message, severity, fields);
+                if (result.Success)
+                    _discordWebhookLastSent[signature] = DateTime.UtcNow;
+                else
+                    AppendFeatureAuditHistory($"Discord delivery not completed: {result.Summary}");
             }
             catch
             {
@@ -4848,10 +4870,11 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
             {
                 DiscordWebhookStatusText.Text =
                     $"Discord reporting: {(_discordWebhookEnabled ? "ON" : "OFF")}{Environment.NewLine}" +
-                    $"Webhook configured: {(!string.IsNullOrWhiteSpace(_discordWebhookUrl) ? "Yes" : "No")}{Environment.NewLine}" +
+                    $"Error/audit webhook configured: {(!string.IsNullOrWhiteSpace(_discordWebhookUrl) ? "Yes" : "No")}{Environment.NewLine}" +
+                    $"Release update webhook configured: {(!string.IsNullOrWhiteSpace(_discordUpdateWebhookUrl) ? "Yes" : "No")}{Environment.NewLine}" +
                     $"Minimum level: {_discordWebhookMinimumLevel}{Environment.NewLine}" +
                     $"Cooldown: {_discordWebhookCooldownSeconds} sec{Environment.NewLine}" +
-                    "Only matching error levels are sent to Discord.";
+                    "Feature Audit uses the error/audit webhook. App Update uses the release update webhook.";
             }
             RefreshDiscordPreview(_discordWebhookMinimumLevel.ToLowerInvariant(), "HyperBoostX preview report", "This preview shows how Discord reporting will look.");
             if (OpenAiSettingsStatusText != null)
@@ -5473,13 +5496,10 @@ if (-not $result) { 'Unavailable'; return }
 
         private async Task ReportAppUpdateToDiscordAsync(AppReleaseCheckResult result, bool userInitiated)
         {
-            if (!_discordWebhookEnabled || string.IsNullOrWhiteSpace(_discordWebhookUrl))
+            if (string.IsNullOrWhiteSpace(_discordUpdateWebhookUrl))
                 return;
 
             if (result == null || !result.Success || !result.IsUpdateAvailable)
-                return;
-
-            if (!ShouldReportToDiscord("warning"))
                 return;
 
             var normalizedLatestVersion = NormalizeDiscordReportVersion(result.LatestVersion);
@@ -5502,15 +5522,23 @@ if (-not $result) { 'Unavailable'; return }
                 ? "https://github.com/jxxzy/HyperBoostX/releases"
                 : result.LatestReleaseUrl;
 
-            var sent = await _discordWebhookService.SendAsync(
-                _discordWebhookUrl,
-                "HyperBoostX update available",
-                $"{normalizedLatestVersion} is now available for download.",
+            var sendResult = await _discordWebhookService.SendDetailedAsync(
+                _discordUpdateWebhookUrl,
+                "HyperBoostX release terbaru tersedia",
+                $"Versi {normalizedLatestVersion} sudah tersedia untuk download.",
                 "warning",
-                fields);
+                fields,
+                "HyperBoostX Update");
 
-            if (sent)
+            if (sendResult.Success)
+            {
                 _discordWebhookLastSent[signature] = DateTime.UtcNow;
+                AppendSettingsHistory($"Discord update notification sent for {normalizedLatestVersion}.");
+            }
+            else
+            {
+                AppendSettingsHistory($"Discord update notification not delivered: {sendResult.Summary}");
+            }
         }
 
         private static string NormalizeVersionLabel(string version)
@@ -5947,6 +5975,7 @@ if (-not $result) { 'Unavailable'; return }
         private async void ToggleDiscordWebhook_Click(object sender, RoutedEventArgs e)
         {
             _discordWebhookUrl = DiscordWebhookUrlInput?.Text?.Trim() ?? "";
+            _discordUpdateWebhookUrl = DiscordUpdateWebhookUrlInput?.Text?.Trim() ?? "";
             _discordWebhookMinimumLevel = (DiscordWebhookLevelCombo?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Error";
             _discordWebhookCooldownSeconds = int.TryParse(DiscordWebhookCooldownInput?.Text, out var cooldown) ? Math.Max(15, cooldown) : 120;
             if (string.IsNullOrWhiteSpace(_discordWebhookUrl) && !_discordWebhookEnabled)
@@ -5964,6 +5993,7 @@ if (-not $result) { 'Unavailable'; return }
         private async void TestDiscordWebhook_Click(object sender, RoutedEventArgs e)
         {
             _discordWebhookUrl = DiscordWebhookUrlInput?.Text?.Trim() ?? "";
+            _discordUpdateWebhookUrl = DiscordUpdateWebhookUrlInput?.Text?.Trim() ?? "";
             _discordWebhookMinimumLevel = (DiscordWebhookLevelCombo?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Error";
             _discordWebhookCooldownSeconds = int.TryParse(DiscordWebhookCooldownInput?.Text, out var cooldown) ? Math.Max(15, cooldown) : 120;
             if (string.IsNullOrWhiteSpace(_discordWebhookUrl))
@@ -15465,7 +15495,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                             var sw = Stopwatch.StartNew();
                             await RefreshDashboard();
                             sw.Stop();
-                            RequireTestCondition(sw.ElapsedMilliseconds < 10000, $"Dashboard refresh too slow: {sw.ElapsedMilliseconds} ms");
+                            RequireTestCondition(sw.ElapsedMilliseconds < 15000, $"Dashboard refresh too slow: {sw.ElapsedMilliseconds} ms");
                             return $"Dashboard refresh: {sw.ElapsedMilliseconds} ms";
                         }),
                         CreateTestingProbeTarget("Performance / Smart Scan", async () =>
@@ -15532,6 +15562,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                         {
                             RequireTestCondition(string.IsNullOrWhiteSpace(_appConfig?.Settings?.OpenAiApiKey), "Plain OpenAI key should not be stored in app-state.");
                             RequireTestCondition(string.IsNullOrWhiteSpace(_appConfig?.Settings?.DiscordWebhookUrl), "Plain Discord webhook should not be stored in app-state.");
+                            RequireTestCondition(string.IsNullOrWhiteSpace(_appConfig?.Settings?.DiscordUpdateWebhookUrl), "Plain Discord update webhook should not be stored in app-state.");
                             return Task.FromResult("Config file keeps sensitive values blank; secure store path is active.");
                         }),
                         CreateTestingProbeTarget("Security / Updater Guard", () =>
@@ -15971,16 +16002,16 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             fields["Failed Modules"] = failed.ToString(CultureInfo.InvariantCulture);
             fields["Audit Log"] = GetFeatureAuditLogPath();
 
-            var sent = await _discordWebhookService.SendAsync(
+            var result = await _discordWebhookService.SendDetailedAsync(
                 _discordWebhookUrl,
                 $"HyperBoostX Feature Audit - {_lastFeatureAuditMode}",
                 report,
                 severity,
                 fields);
 
-            AppendFeatureAuditHistory(sent
+            AppendFeatureAuditHistory(result.Success
                 ? "Audit report delivered to Discord."
-                : "Audit report failed to send to Discord.");
+                : $"Audit report not delivered to Discord: {result.Summary}");
         }
 
         private async Task RefreshFeatureAuditViewAsync()

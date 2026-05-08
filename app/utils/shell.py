@@ -4,7 +4,7 @@ Provides system shell command execution.
 """
 
 import subprocess
-from typing import Tuple, Optional
+from typing import Tuple
 from core.logger import Logger
 from core.permissions import Permissions
 
@@ -14,6 +14,18 @@ logger = Logger.get_logger(__name__)
 
 class ShellUtil:
     """Shell command execution utility."""
+
+    @staticmethod
+    def _powershell_args(command: str) -> list[str]:
+        return [
+            'powershell',
+            '-NoProfile',
+            '-NonInteractive',
+            '-ExecutionPolicy',
+            'Bypass',
+            '-Command',
+            command,
+        ]
     
     @staticmethod
     def execute_command(command: str, admin: bool = False) -> Tuple[bool, str]:
@@ -24,21 +36,12 @@ class ShellUtil:
                 logger.warning(f"Admin command blocked without elevation: {command}")
                 return False, message
 
-            if admin:
-                process = subprocess.Popen(
-                    ['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', command],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    text=True
-                )
-            else:
-                process = subprocess.Popen(
-                    command,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    shell=True,
-                    text=True
-                )
+            process = subprocess.Popen(
+                ShellUtil._powershell_args(command),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
             
             stdout, stderr = process.communicate()
             success = process.returncode == 0
@@ -60,5 +63,4 @@ class ShellUtil:
     @staticmethod
     def run_powershell(script: str, admin: bool = False) -> Tuple[bool, str]:
         """Run PowerShell script."""
-        command = f'powershell -NoProfile -ExecutionPolicy Bypass -Command "{script}"'
-        return ShellUtil.execute_command(command, admin)
+        return ShellUtil.execute_command(script, admin)

@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using Xunit;
 
 namespace HyperBoostX.Tests;
@@ -13,7 +14,7 @@ public class FeatureAuditRegressionTests
     {
         var result = await RunOnStaThreadAsync(async () =>
         {
-            Application app = null;
+            Application? app = null;
             try
             {
                 app = new Application();
@@ -76,14 +77,27 @@ public class FeatureAuditRegressionTests
 
         var thread = new Thread(() =>
         {
-            try
+            var dispatcher = Dispatcher.CurrentDispatcher;
+            SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(dispatcher));
+
+            _ = RunCallbackAsync();
+            Dispatcher.Run();
+
+            async Task RunCallbackAsync()
             {
-                var result = callback().GetAwaiter().GetResult();
-                tcs.SetResult(result);
-            }
-            catch (Exception ex)
-            {
-                tcs.SetException(ex);
+                try
+                {
+                    var result = await callback();
+                    tcs.SetResult(result);
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+                finally
+                {
+                    dispatcher.BeginInvokeShutdown(DispatcherPriority.Background);
+                }
             }
         });
 

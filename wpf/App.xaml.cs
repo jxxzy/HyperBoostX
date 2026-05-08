@@ -129,10 +129,10 @@ namespace HyperBoostX
 
                 var version = GetPublicAppVersion();
                 var signature = $"critical|{source}|{details}";
-                if (!ShouldSendByCooldown(signature, settings.CooldownSeconds))
+                if (IsWithinDiscordCooldown(signature, settings.CooldownSeconds))
                     return;
 
-                _discordWebhookService.SendAsync(
+                var result = _discordWebhookService.SendDetailedAsync(
                     settings.WebhookUrl,
                     "HyperBoostX critical error",
                     details,
@@ -143,6 +143,11 @@ namespace HyperBoostX
                         ["App Version"] = version,
                         ["Timestamp"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                     }).GetAwaiter().GetResult();
+
+                if (result.Success)
+                    MarkDiscordSent(signature);
+                else
+                    Log($"Discord webhook delivery not completed: {result.Summary}");
             }
             catch
             {
@@ -199,11 +204,11 @@ namespace HyperBoostX
                         continue;
 
                     var signature = $"{Path.GetFileName(logPath)}|{severity}|{entry.Trim()}";
-                    if (!ShouldSendByCooldown(signature, settings.CooldownSeconds))
+                    if (IsWithinDiscordCooldown(signature, settings.CooldownSeconds))
                         continue;
 
                     var contextBlock = string.Join(Environment.NewLine, recentContext.Where(x => !string.IsNullOrWhiteSpace(x)));
-                    await _discordWebhookService.SendAsync(
+                    var result = await _discordWebhookService.SendDetailedAsync(
                         settings.WebhookUrl,
                         $"HyperBoostX auto log alert ({Path.GetFileName(logPath)})",
                         entry,
@@ -216,6 +221,11 @@ namespace HyperBoostX
                             ["App Version"] = GetPublicAppVersion(),
                             ["Timestamp"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                         });
+
+                    if (result.Success)
+                        MarkDiscordSent(signature);
+                    else
+                        Log($"Discord webhook delivery not completed: {result.Summary}");
                 }
             }
         }
@@ -305,16 +315,15 @@ namespace HyperBoostX
             }
         }
 
-        private bool ShouldSendByCooldown(string signature, int cooldownSeconds)
+        private bool IsWithinDiscordCooldown(string signature, int cooldownSeconds)
         {
-            if (_discordReportCooldown.TryGetValue(signature, out var lastSentUtc) &&
-                DateTime.UtcNow - lastSentUtc < TimeSpan.FromSeconds(Math.Max(15, cooldownSeconds)))
-            {
-                return false;
-            }
+            return _discordReportCooldown.TryGetValue(signature, out var lastSentUtc) &&
+                DateTime.UtcNow - lastSentUtc < TimeSpan.FromSeconds(Math.Max(15, cooldownSeconds));
+        }
 
+        private void MarkDiscordSent(string signature)
+        {
             _discordReportCooldown[signature] = DateTime.UtcNow;
-            return true;
         }
 
         private static bool ShouldSendForSeverity(string severity, string minimumLevel)

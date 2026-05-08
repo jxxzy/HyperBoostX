@@ -11,6 +11,7 @@ namespace HyperBoostX.Services
     public sealed class PersistedSecureSecrets
     {
         public string DiscordWebhookUrl { get; set; } = "";
+        public string DiscordUpdateWebhookUrl { get; set; } = "";
         public string OpenAiApiKey { get; set; } = "";
     }
 
@@ -18,6 +19,7 @@ namespace HyperBoostX.Services
     {
         private const string OpenAiTarget = "HyperBoostX:OpenAI:ApiKey";
         private const string DiscordTarget = "HyperBoostX:Discord:WebhookUrl";
+        private const string DiscordUpdateTarget = "HyperBoostX:Discord:UpdateWebhookUrl";
         private const int CredTypeGeneric = 1;
         private const int CredPersistLocalMachine = 2;
         private static readonly byte[] AdditionalEntropy = Encoding.UTF8.GetBytes("HyperBoostX.SecretStore.v1");
@@ -38,14 +40,19 @@ namespace HyperBoostX.Services
             var secrets = new PersistedSecureSecrets
             {
                 OpenAiApiKey = ReadCredential(OpenAiTarget),
-                DiscordWebhookUrl = ReadCredential(DiscordTarget)
+                DiscordWebhookUrl = ReadCredential(DiscordTarget),
+                DiscordUpdateWebhookUrl = ReadCredential(DiscordUpdateTarget)
             };
 
-            if (!string.IsNullOrWhiteSpace(secrets.OpenAiApiKey) || !string.IsNullOrWhiteSpace(secrets.DiscordWebhookUrl))
+            if (!string.IsNullOrWhiteSpace(secrets.OpenAiApiKey) ||
+                !string.IsNullOrWhiteSpace(secrets.DiscordWebhookUrl) ||
+                !string.IsNullOrWhiteSpace(secrets.DiscordUpdateWebhookUrl))
                 return secrets;
 
             var legacy = await LoadLegacySecretsAsync();
-            if (!string.IsNullOrWhiteSpace(legacy.OpenAiApiKey) || !string.IsNullOrWhiteSpace(legacy.DiscordWebhookUrl))
+            if (!string.IsNullOrWhiteSpace(legacy.OpenAiApiKey) ||
+                !string.IsNullOrWhiteSpace(legacy.DiscordWebhookUrl) ||
+                !string.IsNullOrWhiteSpace(legacy.DiscordUpdateWebhookUrl))
             {
                 await SaveAsync(legacy);
                 TryDeleteLegacySecretFile();
@@ -59,6 +66,7 @@ namespace HyperBoostX.Services
         {
             WriteCredential(OpenAiTarget, secrets.OpenAiApiKey);
             WriteCredential(DiscordTarget, secrets.DiscordWebhookUrl);
+            WriteCredential(DiscordUpdateTarget, secrets.DiscordUpdateWebhookUrl);
             return Task.CompletedTask;
         }
 

@@ -5,9 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <BaseIntermediateOutputPath>..\..\build_tmp\dotnet-tests\HyperBoostX.Tests\obj\</BaseIntermediateOutputPath>
     <BaseOutputPath>..\..\build_tmp\dotnet-tests\HyperBoostX.Tests\bin\</BaseOutputPath>
-    <MSBuildProjectExtensionsPath>..\..\build_tmp\dotnet-tests\HyperBoostX.Tests\obj\</MSBuildProjectExtensionsPath>
   </PropertyGroup>
 
   <ItemGroup>

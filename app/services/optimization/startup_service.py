@@ -25,7 +25,8 @@ class StartupService:
     _cache_items: List[Dict[str, Any]] = []
     _cache_utc = 0.0
     _cache_lifetime_seconds = 30.0
-    _subprocess_timeout_seconds = 4.0
+    _subprocess_timeout_seconds = 2.0
+    _process_memory_snapshot: Dict[str, float] = {}
 
     SAFE_DISABLE_TOKENS = [
         "onedrive", "teams", "widgets", "spotify", "discord", "steam",
@@ -45,6 +46,7 @@ class StartupService:
 
         items: List[Dict[str, Any]] = []
         seen = set()
+        StartupService._process_memory_snapshot = StartupService._build_process_memory_snapshot()
 
         registry_locations = [
             (winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", True),
@@ -147,6 +149,10 @@ class StartupService:
 
     @staticmethod
     def _read_scheduled_tasks(seen: set) -> List[Dict[str, Any]]:
+        items = StartupService._read_scheduled_tasks_basic(seen)
+        if items:
+            return items
+
         items: List[Dict[str, Any]] = []
         try:
             output = subprocess.check_output(
@@ -189,13 +195,10 @@ class StartupService:
                     )
                 )
         except subprocess.TimeoutExpired as exc:
-            logger.warning(f"Timed out reading scheduled tasks with schtasks: {exc}")
-            items.extend(StartupService._read_scheduled_tasks_basic(seen))
+            logger.debug(f"Timed out reading scheduled tasks with verbose schtasks: {exc}")
         except Exception as exc:
-            logger.warning(f"Unable to read scheduled tasks with schtasks: {exc}")
+            logger.debug(f"Unable to read scheduled tasks with verbose schtasks: {exc}")
             items.extend(StartupService._read_scheduled_tasks_powershell(seen))
-            if not items:
-                items.extend(StartupService._read_scheduled_tasks_basic(seen))
 
         return items
 
@@ -384,15 +387,9 @@ class StartupService:
                 file_size_mb = 0.0
 
         process_hint = Path(executable_path).stem.lower() if executable_path else name.lower()
-        for proc in psutil.process_iter(["name", "memory_info"]):
-            try:
-                proc_name = (proc.info.get("name") or "").lower()
-                if process_hint and process_hint in proc_name:
-                    memory_info = proc.info.get("memory_info")
-                    rss = getattr(memory_info, "rss", 0) or 0
-                    running_memory_mb = max(running_memory_mb, rss / (1024 * 1024))
-            except (psutil.NoSuchProcess, psutil.AccessDenied, AttributeError):
-                continue
+        for proc_name, memory_mb in StartupService._process_memory_snapshot.items():
+            if process_hint and process_hint in proc_name:
+                running_memory_mb = max(running_memory_mb, memory_mb)
 
         score = 10
         if any(token in lowered for token in ["defender", "security", "adobe", "onedrive", "teams", "obs", "discord", "steam", "launcher"]):
@@ -420,6 +417,23 @@ class StartupService:
             "estimated_memory_mb": round(running_memory_mb or max(file_size_mb * 0.6, 0.0), 1),
             "estimated_load_time_s": estimated_load_time,
         }
+
+    @staticmethod
+    def _build_process_memory_snapshot() -> Dict[str, float]:
+        snapshot: Dict[str, float] = {}
+        for proc in psutil.process_iter(["name", "memory_info"]):
+            try:
+                proc_name = (proc.info.get("name") or "").lower()
+                if not proc_name:
+                    continue
+
+                memory_info = proc.info.get("memory_info")
+                rss = getattr(memory_info, "rss", 0) or 0
+                snapshot[proc_name] = max(snapshot.get(proc_name, 0.0), rss / (1024 * 1024))
+            except (psutil.NoSuchProcess, psutil.AccessDenied, AttributeError):
+                continue
+
+        return snapshot
 
     @staticmethod
     def _extract_executable_path(command: str) -> Optional[str]:

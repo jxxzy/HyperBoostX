@@ -2,9 +2,13 @@
 
 All notable changes to HyperBoostX are documented here.
 
-## v1.2.2-dev - 2026-04-10
-- Began the next development cycle after the `v1.2.1` release.
-- Aligned packaging scripts and installer metadata so future release assets are built from the current binaries more reliably.
+## v1.2.2 - 2026-05-08
+- Fixed startup item collection and process memory handling so missing `memory_info` fields no longer break startup views after boost actions.
+- Hardened backend shell execution and local CORS handling for safer desktop-only API usage.
+- Improved Discord webhook alert delivery with validated webhook URLs and detailed send results.
+- Added latest-release Discord notification support for users who enable update alerts.
+- Removed numeric prefixes from the WPF sidebar navigation labels for a cleaner menu.
+- Aligned WPF, launcher, backend, and installer metadata for the stable `v1.2.2` release.
 
 ## v1.2.1 - 2026-04-10
 - Fixed startup item collection so missing `memory_info` on some Windows processes no longer crashes the startup list API.

@@ -7,6 +7,14 @@ using Newtonsoft.Json;
 
 namespace HyperBoostX.Services
 {
+    public sealed class DiscordWebhookSendResult
+    {
+        public bool Success { get; set; }
+        public int StatusCode { get; set; }
+        public string ErrorMessage { get; set; } = "";
+        public string Summary { get; set; } = "Not sent.";
+    }
+
     public sealed class DiscordWebhookService
     {
         private static readonly HttpClient HttpClient = new HttpClient
@@ -14,19 +22,62 @@ namespace HyperBoostX.Services
             Timeout = TimeSpan.FromSeconds(8)
         };
 
-        public async Task<bool> SendAsync(string webhookUrl, string title, string message, string severity, IDictionary<string, string> fields = null)
+        public async Task<bool> SendAsync(string webhookUrl, string title, string message, string severity, IDictionary<string, string> fields = null, string username = "HyperBoostX Logs")
         {
-            if (string.IsNullOrWhiteSpace(webhookUrl))
-                return false;
-
-            var response = await HttpClient.PostAsync(
-                webhookUrl,
-                new StringContent(BuildPayloadJson(title, message, severity, fields), Encoding.UTF8, "application/json"));
-
-            return response.IsSuccessStatusCode;
+            var result = await SendDetailedAsync(webhookUrl, title, message, severity, fields, username);
+            return result.Success;
         }
 
-        public static string BuildPayloadJson(string title, string message, string severity, IDictionary<string, string> fields = null)
+        public async Task<DiscordWebhookSendResult> SendDetailedAsync(string webhookUrl, string title, string message, string severity, IDictionary<string, string> fields = null, string username = "HyperBoostX Logs")
+        {
+            if (string.IsNullOrWhiteSpace(webhookUrl))
+            {
+                return new DiscordWebhookSendResult
+                {
+                    ErrorMessage = "Webhook URL is empty.",
+                    Summary = "Discord webhook URL is not configured."
+                };
+            }
+
+            if (!Uri.TryCreate(webhookUrl, UriKind.Absolute, out var uri) ||
+                !uri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase) ||
+                (!uri.Host.EndsWith("discord.com", StringComparison.OrdinalIgnoreCase) &&
+                 !uri.Host.EndsWith("discordapp.com", StringComparison.OrdinalIgnoreCase)))
+            {
+                return new DiscordWebhookSendResult
+                {
+                    ErrorMessage = "Webhook URL is not a valid Discord HTTPS webhook.",
+                    Summary = "Discord webhook URL validation failed."
+                };
+            }
+
+            try
+            {
+                var response = await HttpClient.PostAsync(
+                    webhookUrl,
+                    new StringContent(BuildPayloadJson(title, message, severity, fields, username), Encoding.UTF8, "application/json"));
+
+                return new DiscordWebhookSendResult
+                {
+                    Success = response.IsSuccessStatusCode,
+                    StatusCode = (int)response.StatusCode,
+                    ErrorMessage = response.IsSuccessStatusCode ? "" : response.ReasonPhrase ?? "",
+                    Summary = response.IsSuccessStatusCode
+                        ? "Discord webhook delivered."
+                        : $"Discord webhook returned HTTP {(int)response.StatusCode}."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new DiscordWebhookSendResult
+                {
+                    ErrorMessage = ex.Message,
+                    Summary = "Discord webhook request could not be completed."
+                };
+            }
+        }
+
+        public static string BuildPayloadJson(string title, string message, string severity, IDictionary<string, string> fields = null, string username = "HyperBoostX Logs")
         {
             var embedFields = new List<object>();
             if (fields != null)
@@ -47,7 +98,7 @@ namespace HyperBoostX.Services
 
             var payload = new
             {
-                username = "HyperBoostX",
+                username = Trim(username, 80),
                 embeds = new[]
                 {
                     new

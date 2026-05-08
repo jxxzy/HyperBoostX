@@ -31,6 +31,7 @@ namespace HyperBoostX.Services
         public bool SilentExecutionEnabled { get; set; } = true;
         public bool DiscordWebhookEnabled { get; set; }
         public string DiscordWebhookUrl { get; set; } = "";
+        public string DiscordUpdateWebhookUrl { get; set; } = "";
         public string DiscordWebhookMinimumLevel { get; set; } = "Error";
         public int DiscordWebhookCooldownSeconds { get; set; } = 120;
         public bool OpenAiEnabled { get; set; }

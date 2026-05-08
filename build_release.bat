@@ -13,6 +13,8 @@ if errorlevel 1 (
 )
 
 echo Publishing WPF release...
+set "publishDir=%~dp0wpf\bin\Release\net8.0-windows\win-x64\publish"
+if exist "%publishDir%" rmdir /s /q "%publishDir%"
 pushd "%~dp0wpf"
 dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=false
 if errorlevel 1 (
@@ -23,7 +25,6 @@ if errorlevel 1 (
     exit /b 1
 )
 
-set "publishDir=%~dp0wpf\bin\Release\net8.0-windows\win-x64\publish"
 if not exist "%publishDir%" (
     echo.
     echo ERROR: Publish output was not found.
@@ -32,6 +33,7 @@ if not exist "%publishDir%" (
     exit /b 1
 )
 
+if exist "%~dp0release\wpf" rmdir /s /q "%~dp0release\wpf"
 mkdir "%~dp0release\wpf" >nul 2>&1
 xcopy "%publishDir%\*" "%~dp0release\wpf\" /y /q
 
