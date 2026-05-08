@@ -2,6 +2,10 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.2.8 - 2026-05-08
+- Reissued the Streaming Mode mic/webcam build under a new version so every PC can update past older same-label installs.
+- Keeps Advanced Mic / Voice Meter and Advanced Webcam Settings directly inside Streaming Mode.
+
 ## v1.2.7 - 2026-05-08
 - Moved Voice Meter and Webcam Settings from utility/driver-adjacent placement into Streaming Mode.
 - Added advanced streaming mic controls for diagnostics, audio service reset, sound settings, device refresh, and privacy.
