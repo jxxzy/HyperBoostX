@@ -14,6 +14,8 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using HyperBoostX.Services;
 using Microsoft.Win32;
+using NAudio.CoreAudioApi;
+using NAudio.Wave;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Windows.Media;
@@ -230,6 +232,9 @@ namespace HyperBoostX
         private readonly Queue<string> _featureAuditHistory = new();
         private string _lastUtilitiesWorkflowOutput = "";
         private string _utilitiesMode = "Smart Assist";
+        private WasapiCapture _voiceMeterCapture;
+        private DateTime _voiceMeterStartedAt = DateTime.MinValue;
+        private double _voiceMeterPeak;
         private readonly List<FeatureAuditResult> _lastFeatureAuditResults = new();
         private readonly List<FeatureAuditIncident> _featureAuditIncidents = new();
         private string _lastFeatureAuditSummary = "No audit has been executed yet.";
@@ -297,7 +302,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.2.5";
+            ?? "1.2.6";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -402,6 +407,7 @@ namespace HyperBoostX
             _settingsTimer.Stop();
             _automationRuntimeTimer.Stop();
             _realtimePageTimer.Stop();
+            StopVoiceMeterCapture();
         }
 
         protected override void OnClosed(EventArgs e)
@@ -415,6 +421,7 @@ namespace HyperBoostX
             _settingsTimer.Stop();
             _automationRuntimeTimer.Stop();
             _realtimePageTimer.Stop();
+            StopVoiceMeterCapture();
             _backendClient?.Dispose();
             base.OnClosed(e);
         }
@@ -14830,6 +14837,8 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             UtilitiesHardwareText.Text =
                 "Driver utilities: info / backup / restore / update check" + Environment.NewLine +
                 "Display & UI: ClearType, DPI, refresh rate, screen info" + Environment.NewLine +
+                "Voice meter: microphone level monitor and input privacy shortcut" + Environment.NewLine +
+                "Webcam settings: camera scan, privacy, device manager, and Windows camera settings" + Environment.NewLine +
                 "Power: battery report, power reset, energy scan" + Environment.NewLine +
                 "Monitoring: CPU / RAM / Disk / Network threshold-aware monitoring";
 
@@ -14857,6 +14866,224 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             AppendUtilitiesHistory($"Utilities mode switched to {_utilitiesMode}.");
             _ = RefreshUtilitiesViewAsync();
             ShowActionStatus(ActionState.Info, "Utilities Mode", $"Utilities mode sekarang {_utilitiesMode}.");
+        }
+
+        private void RefreshVoiceMeterDevices_Click(object sender, RoutedEventArgs e)
+        {
+            VoiceMeterDevicesText.Text = BuildMicrophoneDeviceSummary();
+            VoiceMeterStatusText.Text = "Microphone device list refreshed.";
+            AppendUtilitiesHistory("Voice meter microphone list refreshed.");
+            ShowActionStatus(ActionState.Info, "Voice Meter", "Daftar microphone diperbarui.", VoiceMeterDevicesText.Text);
+        }
+
+        private void StartVoiceMeter_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                StopVoiceMeterCapture();
+                using var enumerator = new MMDeviceEnumerator();
+                var device = enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications)
+                    ?? enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Multimedia);
+
+                _voiceMeterCapture = new WasapiCapture(device);
+                _voiceMeterCapture.DataAvailable += VoiceMeterCapture_DataAvailable;
+                _voiceMeterCapture.RecordingStopped += VoiceMeterCapture_RecordingStopped;
+                _voiceMeterStartedAt = DateTime.Now;
+                _voiceMeterPeak = 0;
+                _voiceMeterCapture.StartRecording();
+
+                VoiceMeterStatusText.Text =
+                    $"Voice meter running.{Environment.NewLine}" +
+                    $"Device: {device.FriendlyName}{Environment.NewLine}" +
+                    $"Format: {_voiceMeterCapture.WaveFormat}";
+                VoiceMeterDevicesText.Text = BuildMicrophoneDeviceSummary();
+                AppendUtilitiesHistory("Voice meter started.");
+                ShowActionStatus(ActionState.Success, "Voice Meter", "Voice meter aktif. Bicara ke microphone untuk melihat level input.");
+            }
+            catch (Exception ex)
+            {
+                StopVoiceMeterCapture();
+                VoiceMeterStatusText.Text = $"Voice meter failed: {ex.Message}";
+                ShowActionStatus(ActionState.Warning, "Voice Meter", "Voice meter belum bisa aktif.", ex.Message);
+            }
+        }
+
+        private void StopVoiceMeter_Click(object sender, RoutedEventArgs e)
+        {
+            StopVoiceMeterCapture();
+            VoiceMeterLevelBar.Value = 0;
+            VoiceMeterPeakText.Text = "Input level: 0% | Peak: 0%";
+            VoiceMeterStatusText.Text = "Voice meter stopped.";
+            AppendUtilitiesHistory("Voice meter stopped.");
+            ShowActionStatus(ActionState.Info, "Voice Meter", "Voice meter dihentikan.");
+        }
+
+        private async void RefreshWebcamSettings_Click(object sender, RoutedEventArgs e)
+        {
+            WebcamSettingsStatusText.Text = "Scanning camera devices...";
+            var script = @"
+$devices = Get-CimInstance Win32_PnPEntity |
+  Where-Object { $_.PNPClass -in @('Camera','Image') -or $_.Name -match 'camera|webcam|video' } |
+  Select-Object -First 12 Name, Status, PNPClass, Manufacturer
+if (-not $devices) {
+  'No camera device detected by Windows.'
+} else {
+  $devices | ForEach-Object {
+    ""$($_.Name) | Status=$($_.Status) | Class=$($_.PNPClass) | Vendor=$($_.Manufacturer)""
+  }
+}";
+            var (success, output) = await ExecutePowerShellScriptAsync(script, TimeSpan.FromSeconds(12));
+            WebcamSettingsStatusText.Text = success ? "Camera device scan completed." : "Camera device scan warning.";
+            WebcamDevicesText.Text = output;
+            AppendUtilitiesHistory("Webcam device scan refreshed.");
+            ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Webcam Settings", WebcamSettingsStatusText.Text, output);
+        }
+
+        private void OpenMicrophonePrivacy_Click(object sender, RoutedEventArgs e)
+        {
+            LaunchWindowsUri("ms-settings:privacy-microphone", "Microphone Privacy");
+            AppendUtilitiesHistory("Microphone privacy settings opened.");
+        }
+
+        private void OpenCameraSettings_Click(object sender, RoutedEventArgs e)
+        {
+            LaunchWindowsUri("ms-settings:camera", "Camera Settings");
+            AppendUtilitiesHistory("Camera settings opened.");
+        }
+
+        private void OpenCameraPrivacy_Click(object sender, RoutedEventArgs e)
+        {
+            LaunchWindowsUri("ms-settings:privacy-webcam", "Camera Privacy");
+            AppendUtilitiesHistory("Camera privacy settings opened.");
+        }
+
+        private void OpenCameraDeviceManager_Click(object sender, RoutedEventArgs e)
+        {
+            LaunchWindowsTool("devmgmt.msc", null, "Camera Device Manager");
+            AppendUtilitiesHistory("Device Manager opened for camera review.");
+        }
+
+        private string BuildMicrophoneDeviceSummary()
+        {
+            try
+            {
+                using var enumerator = new MMDeviceEnumerator();
+                var devices = enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active);
+                if (devices.Count == 0)
+                    return "No active microphone input detected.";
+
+                var defaultName = "";
+                try
+                {
+                    defaultName = enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications)?.FriendlyName ?? "";
+                }
+                catch
+                {
+                    defaultName = "";
+                }
+
+                return string.Join(Environment.NewLine, devices.Select((device, index) =>
+                    $"{index + 1}. {device.FriendlyName} | State={device.State} | Default={(device.FriendlyName == defaultName ? "Yes" : "No")}"));
+            }
+            catch (Exception ex)
+            {
+                return $"Microphone device query failed: {ex.Message}";
+            }
+        }
+
+        private void VoiceMeterCapture_DataAvailable(object sender, WaveInEventArgs e)
+        {
+            var capture = _voiceMeterCapture;
+            if (capture == null)
+                return;
+
+            var level = CalculateAudioLevelPercent(e.Buffer, e.BytesRecorded, capture.WaveFormat);
+            _voiceMeterPeak = Math.Max(_voiceMeterPeak, level);
+            Dispatcher.Invoke(() =>
+            {
+                VoiceMeterLevelBar.Value = level;
+                VoiceMeterPeakText.Text = $"Input level: {level:0}% | Peak: {_voiceMeterPeak:0}%";
+                VoiceMeterStatusText.Text =
+                    $"Voice meter running for {(DateTime.Now - _voiceMeterStartedAt).TotalSeconds:0}s.{Environment.NewLine}" +
+                    (level < 3
+                        ? "Input is very low. Check mic permission, mute switch, or selected device."
+                        : level > 85
+                            ? "Input is peaking. Lower microphone gain to avoid clipping."
+                            : "Input level looks usable.");
+            });
+        }
+
+        private void VoiceMeterCapture_RecordingStopped(object sender, StoppedEventArgs e)
+        {
+            if (e.Exception != null)
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    VoiceMeterStatusText.Text = $"Voice meter stopped with error: {e.Exception.Message}";
+                });
+            }
+        }
+
+        private static double CalculateAudioLevelPercent(byte[] buffer, int bytesRecorded, WaveFormat format)
+        {
+            if (buffer == null || bytesRecorded <= 0 || format == null)
+                return 0;
+
+            double peak = 0;
+            if (format.Encoding == WaveFormatEncoding.IeeeFloat && format.BitsPerSample == 32)
+            {
+                for (var offset = 0; offset + 3 < bytesRecorded; offset += 4)
+                {
+                    var sample = Math.Abs(BitConverter.ToSingle(buffer, offset));
+                    if (sample > peak)
+                        peak = sample;
+                }
+            }
+            else if (format.BitsPerSample == 16)
+            {
+                for (var offset = 0; offset + 1 < bytesRecorded; offset += 2)
+                {
+                    var sample = Math.Abs(BitConverter.ToInt16(buffer, offset) / 32768d);
+                    if (sample > peak)
+                        peak = sample;
+                }
+            }
+            else if (format.BitsPerSample == 24)
+            {
+                for (var offset = 0; offset + 2 < bytesRecorded; offset += 3)
+                {
+                    var sample = buffer[offset] | (buffer[offset + 1] << 8) | (buffer[offset + 2] << 16);
+                    if ((sample & 0x800000) != 0)
+                        sample |= unchecked((int)0xFF000000);
+
+                    peak = Math.Max(peak, Math.Abs(sample / 8388608d));
+                }
+            }
+
+            return Math.Max(0, Math.Min(100, peak * 100));
+        }
+
+        private void StopVoiceMeterCapture()
+        {
+            var capture = _voiceMeterCapture;
+            if (capture == null)
+                return;
+
+            _voiceMeterCapture = null;
+            try
+            {
+                capture.DataAvailable -= VoiceMeterCapture_DataAvailable;
+                capture.RecordingStopped -= VoiceMeterCapture_RecordingStopped;
+                capture.StopRecording();
+            }
+            catch
+            {
+                // Capture devices can disappear while the app is closing.
+            }
+            finally
+            {
+                capture.Dispose();
+            }
         }
 
         private async void RunUtilitiesCategory_Click(object sender, RoutedEventArgs e)

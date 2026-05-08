@@ -2,6 +2,11 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.2.6 - 2026-05-08
+- Added Voice Meter in Utilities Tools with live microphone input level, peak reading, device refresh, and microphone privacy shortcut.
+- Added Webcam Settings in Utilities Tools with camera device scan, Windows Camera settings, camera privacy, and Device Manager shortcuts.
+- Added NAudio-powered microphone capture handling with safe cleanup when the app closes.
+
 ## v1.2.5 - 2026-05-08
 - Rebalanced dashboard performance scoring so normal Windows process counts do not unfairly cap the score.
 - Rebalanced Smart Recommendation optimization scoring with pressure-based CPU, RAM, disk, and startup components.

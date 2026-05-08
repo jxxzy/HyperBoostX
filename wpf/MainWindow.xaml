@@ -703,6 +703,43 @@
 
                             <Border Grid.Column="0" Style="{StaticResource InfoCardStyle}" Margin="0,0,12,0">
                                 <StackPanel>
+                                    <TextBlock Text="16. Voice Meter" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <WrapPanel Margin="0,0,0,12">
+                                        <Button Content="Refresh Microphones" Click="RefreshVoiceMeterDevices_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Start Voice Meter" Click="StartVoiceMeter_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Stop Voice Meter" Click="StopVoiceMeter_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Microphone Privacy" Click="OpenMicrophonePrivacy_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    </WrapPanel>
+                                    <ProgressBar Name="VoiceMeterLevelBar" Height="16" Minimum="0" Maximum="100" Value="0" Margin="0,0,0,8"/>
+                                    <TextBlock Name="VoiceMeterPeakText" Text="Input level: 0% | Peak: 0%" Foreground="#38bdf8" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                    <TextBlock Name="VoiceMeterStatusText" Text="Voice meter idle." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                    <TextBlock Name="VoiceMeterDevicesText" Text="Microphone devices will appear here." Foreground="#94a3b8" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="1" Style="{StaticResource InfoCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="17. Webcam Settings" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <WrapPanel Margin="0,0,0,12">
+                                        <Button Content="Scan Cameras" Click="RefreshWebcamSettings_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Camera Settings" Click="OpenCameraSettings_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Camera Privacy" Click="OpenCameraPrivacy_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Device Manager" Click="OpenCameraDeviceManager_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    </WrapPanel>
+                                    <TextBlock Name="WebcamSettingsStatusText" Text="Webcam settings ready." Foreground="#38bdf8" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                    <TextBlock Name="WebcamDevicesText" Text="Camera devices will appear here." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Style="{StaticResource InfoCardStyle}" Margin="0,0,12,0">
+                                <StackPanel>
                                     <TextBlock Text="2. Driver Scanner" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                     <WrapPanel>
                                         <Button Content="Quick Scan" Click="RefreshDrivers_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
@@ -5581,7 +5618,7 @@
 
                             <Border Grid.Column="1" Style="{StaticResource InfoCardStyle}">
                                 <StackPanel>
-                                    <TextBlock Text="16-18. Automation / Recommendation / Execution Engine" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <TextBlock Text="18-20. Automation / Recommendation / Execution Engine" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                     <WrapPanel>
                                         <Button Content="Automation-Linked Utilities" Click="ReviewUtilitiesAutomationLink_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Smart Recommendation" Click="ReviewUtilitiesRecommendation_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
@@ -5600,7 +5637,7 @@
 
                             <Border Grid.Column="0" Style="{StaticResource InfoCardStyle}" Margin="0,0,12,0">
                                 <StackPanel>
-                                    <TextBlock Text="19-23. Safety / Self-Healing / Log / Impact / Goal-Based" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <TextBlock Text="21-25. Safety / Self-Healing / Log / Impact / Goal-Based" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                     <WrapPanel>
                                         <Button Content="Safe Execution Layer" Click="ReviewUtilitiesSafety_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Self-Healing" Click="ReviewUtilitiesSelfHealing_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
@@ -5613,7 +5650,7 @@
 
                             <Border Grid.Column="1" Style="{StaticResource InfoCardStyle}">
                                 <StackPanel>
-                                    <TextBlock Text="24-26. Autonomous / Workflow / Emergency" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <TextBlock Text="26-28. Autonomous / Workflow / Emergency" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                     <WrapPanel>
                                         <Button Content="Autonomous Utilities Mode" Click="RunUtilitiesAutonomousMode_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Workflow Builder" Click="BuildUtilitiesWorkflow_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
@@ -5811,13 +5848,13 @@
                                 <TextBlock Text="MR.4NONY" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,16"/>
 
                                 <TextBlock Text="VERSION" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
-                                <TextBlock Name="AboutVersionText" Text="1.2.5 - Stable - 2026" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,8"/>
+                                <TextBlock Name="AboutVersionText" Text="1.2.6 - Stable - 2026" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,8"/>
                                 <WrapPanel Margin="0,0,0,12">
                                     <Border Background="#14532d" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
                                         <TextBlock Text="STABLE RELEASE" Foreground="#dcfce7" FontSize="11" FontWeight="Bold"/>
                                     </Border>
                                     <Border Background="#0f172a" BorderBrush="#38bdf8" BorderThickness="1" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
-                                        <TextBlock Text="v1.2.5" Foreground="#bae6fd" FontSize="11" FontWeight="Bold"/>
+                                        <TextBlock Text="v1.2.6" Foreground="#bae6fd" FontSize="11" FontWeight="Bold"/>
                                     </Border>
                                     <Border Background="#3f3f46" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
                                         <TextBlock Text="QA 56/56 PASSED" Foreground="#f8fafc" FontSize="11" FontWeight="Bold"/>
