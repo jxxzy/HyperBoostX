@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$SourceRuntimeRoot = (Join-Path (Join-Path (Split-Path -Parent $PSScriptRoot) "artifacts\local-deploy") "app"),
+    [string]$SourceRuntimeRoot = "",
     [string]$InstallRoot = "C:\Program Files\HyperBoost X",
     [switch]$SkipBuild
 )
@@ -10,6 +10,10 @@ $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $projectRoot
+
+if ([string]::IsNullOrWhiteSpace($SourceRuntimeRoot)) {
+    $SourceRuntimeRoot = Join-Path (Join-Path $projectRoot "artifacts\local-deploy") "app"
+}
 
 function Ensure-Dir {
     param([string]$PathValue)

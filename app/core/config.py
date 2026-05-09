@@ -1,4 +1,4 @@
-﻿"""
+"""
 Configuration management for HyperBoost X.
 Handles app settings, paths, and configuration files.
 """
@@ -13,7 +13,7 @@ class Config:
     """Application configuration handler."""
     
     APP_NAME = "HyperBoost X"
-    VERSION = "1.2.11"
+    VERSION = "1.2.12"
     
     # Default paths
     APP_DIR = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "HyperBoost X"

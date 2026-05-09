@@ -1,4 +1,4 @@
-﻿"""
+"""
 HyperBoost X - Premium Windows Optimization & Gaming Boost Utility
 Main entry point for the application.
 """
@@ -37,7 +37,7 @@ def main():
     # Create application
     app = QApplication(sys.argv)
     app.setApplicationName("HyperBoost X")
-    app.setApplicationVersion("1.2.11")
+    app.setApplicationVersion("1.2.12")
     
     # Apply dark theme
     apply_dark_theme(app)

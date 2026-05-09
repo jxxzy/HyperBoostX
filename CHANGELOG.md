@@ -2,6 +2,11 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.2.12 - 2026-05-09
+- Adds a dedicated `Send Test Update` action for the release-update Discord webhook so update alerts can be verified separately from error/audit alerts.
+- Confirms release-update webhook credentials remain in Windows Credential Manager and are not written back into app-state.
+- Fixes the local runtime deploy script default path so local deployment works more reliably from PowerShell.
+
 ## v1.2.11 - 2026-05-09
 - Fixes Discord webhook storage so saved webhook URLs are kept in Windows Credential Manager without being shown in Settings.
 - Adds an explicit Save Webhooks action, keeps Feature Audit delivery as one combined report, and removes `feature-audit.log` from runtime auto-log spam.

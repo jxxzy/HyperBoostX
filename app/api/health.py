@@ -1,4 +1,4 @@
-﻿"""
+"""
 Health API Blueprint for HyperBoost X
 Handles health checks and service status
 """
@@ -17,7 +17,7 @@ def health_check():
     try:
         return jsonify({
             "status": "ok",
-            "version": "1.2.11",
+            "version": "1.2.12",
             "service": "HyperBoost X Backend"
         })
     except Exception as e:
