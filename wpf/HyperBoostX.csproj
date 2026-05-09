@@ -12,19 +12,21 @@
     <LangVersion>latest</LangVersion>
     <AssemblyTitle>HyperBoost X</AssemblyTitle>
     <Description>All-in-one Windows optimization, automation, repair, and AI-assisted control center.</Description>
-    <Company>MR.4NONY</Company>
-    <Authors>MR.4NONY</Authors>
+    <Company>MR.4NONY - HYPERINDO CYBER TEAM</Company>
+    <Authors>MR.4NONY - HYPERINDO CYBER TEAM</Authors>
     <Product>HyperBoost X</Product>
-    <Copyright>Copyright (c) MR.4NONY</Copyright>
-    <Version>1.2.10</Version>
-    <AssemblyVersion>1.2.10.0</AssemblyVersion>
-    <FileVersion>1.2.10.0</FileVersion>
-    <InformationalVersion>1.2.10</InformationalVersion>
+    <Copyright>Copyright (c) MR.4NONY - HYPERINDO CYBER TEAM</Copyright>
+    <Version>1.2.11</Version>
+    <AssemblyVersion>1.2.11.0</AssemblyVersion>
+    <FileVersion>1.2.11.0</FileVersion>
+    <InformationalVersion>1.2.11</InformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.13.0.20260302" />
+    <PackageReference Include="OpenCvSharp4.WpfExtensions" Version="4.13.0.20260302" />
   </ItemGroup>
 
   <ItemGroup>

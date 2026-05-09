@@ -3,13 +3,13 @@
 HyperBoost X is a Windows optimization suite with a native WPF desktop client, a Python backend, and a .NET launcher. The current stable release turns the app into a single control center for performance, cleanup, automation, repair, AI-assisted actions, and recovery.
 
 Current stable version:
-- `1.2.10`
+- `1.2.11`
 
 Planning:
 - See [RELEASE_BLUEPRINT.md](/f:/BOOSTER%20BY%20MR.4NONY/RELEASE_BLUEPRINT.md) for the consolidated release plan for `v1.1.10` and `v1.2.0`.
 
 Author:
-- `MR.4NONY`
+- `MR.4NONY - HYPERINDO CYBER TEAM`
 
 ## Architecture
 

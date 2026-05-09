@@ -4,7 +4,7 @@ Release target:
 - `HyperBoostX v1.1.0-beta`
 
 Author:
-- `MR.4NONY`
+- `MR.4NONY - HYPERINDO CYBER TEAM`
 
 Use this checklist before promoting a beta build to a wider release.
 

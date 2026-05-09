@@ -239,12 +239,22 @@ namespace HyperBoostX
         private double _micMixerGainDb;
         private double _micMixerGatePercent = 8;
         private double _micMixerCompressorPercent = 25;
-        private string _detectedVoicemeeterPath = "";
+        private double _micWindowsVolumePercent = 75;
+        private double _micMonitorMixPercent;
+        private double _micLimiterPercent = 90;
         private double _cameraBrightnessPercent = 8;
         private double _cameraContrastPercent = 12;
         private double _cameraSharpnessPercent = 35;
+        private double _cameraSaturationPercent = 55;
+        private double _cameraWhiteBalanceKelvin = 4500;
+        private double _cameraFovPercent = 100;
         private double _cameraExposureEv;
         private double _cameraFpsTarget = 30;
+        private bool _cameraTrackingEnabled;
+        private string _cameraTrackingTarget = "Motion Center";
+        private string _cameraFramingMode = "Medium";
+        private double _cameraTrackingSmoothnessPercent = 65;
+        private double _cameraTrackingDeadZonePercent = 12;
         private readonly List<FeatureAuditResult> _lastFeatureAuditResults = new();
         private readonly List<FeatureAuditIncident> _featureAuditIncidents = new();
         private string _lastFeatureAuditSummary = "No audit has been executed yet.";
@@ -312,7 +322,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.2.10";
+            ?? "1.2.11";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -325,6 +335,8 @@ namespace HyperBoostX
         private string _lastAppUpdateSummary = "Update status has not been checked yet.";
         private DateTime? _lastAppUpdateCheckUtc;
         private DateTime? _latestKnownReleasePublishedUtc;
+        private string _lastAppUpdateNotificationVersion = "";
+        private DateTime? _lastAppUpdateNotificationUtc;
         private bool _isAppUpdateAvailable;
         private bool _appUpdateCheckInProgress;
         private bool _appUpdateInstallInProgress;
@@ -563,7 +575,7 @@ namespace HyperBoostX
             ExitBtn.Content = $"0. {L("menu.exit", "Exit")}";
 
             SettingsLocalizationTitleText.Text = L("settings.language.overview_title", "Language & Localization");
-            ApplyUiSettingsBtn.Content = L("settings.language.apply", "Apply Language");
+            ApplyUiSettingsBtn.Content = L("settings.ui.apply", "Terapkan UI & Tema");
             FollowSystemLanguageBtn.Content = L("settings.language.follow_system", "Follow System");
             AutoDetectLanguageBtn.Content = L("settings.language.auto_detect", "Auto Detect");
             OpenLanguagePacksBtn.Content = L("settings.language.open_packs", "Open Language Packs");
@@ -612,6 +624,8 @@ namespace HyperBoostX
                 ? "Update status has not been checked yet."
                 : settings.LastAppUpdateSummary;
             _lastAppUpdateCheckUtc = settings.LastAppUpdateCheckUtc;
+            _lastAppUpdateNotificationVersion = settings.LastAppUpdateNotificationVersion ?? "";
+            _lastAppUpdateNotificationUtc = settings.LastAppUpdateNotificationUtc;
             if (DateTime.TryParse(settings.LastKnownReleasePublishedUtc, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var releasePublishedUtc))
                 _latestKnownReleasePublishedUtc = releasePublishedUtc;
             _automationMode = settings.AutomationMode;
@@ -674,10 +688,7 @@ namespace HyperBoostX
             SelectComboItemByContent(SettingsDensityCombo, settings.Density);
             SelectComboItemByTag(SettingsLanguageCombo, settings.Language);
             SelectComboItemByContent(AutomationGoalCombo, _automationGoal);
-            if (DiscordWebhookUrlInput != null)
-                DiscordWebhookUrlInput.Text = _discordWebhookUrl;
-            if (DiscordUpdateWebhookUrlInput != null)
-                DiscordUpdateWebhookUrlInput.Text = _discordUpdateWebhookUrl;
+            RefreshDiscordWebhookInputHints();
             SelectComboItemByContent(DiscordWebhookLevelCombo, _discordWebhookMinimumLevel);
             if (DiscordWebhookCooldownInput != null)
                 DiscordWebhookCooldownInput.Text = _discordWebhookCooldownSeconds.ToString(CultureInfo.InvariantCulture);
@@ -689,6 +700,9 @@ namespace HyperBoostX
             SelectComboItemByContent(OpenAiPermissionCombo, _openAiPermissionLevel);
             if (ToggleAutoAppUpdateBtn != null)
                 ToggleAutoAppUpdateBtn.Content = _autoCheckAppUpdates ? "Auto Check Updates: ON" : "Auto Check Updates: OFF";
+
+            ApplyAppTheme();
+            UpdateThemeToggleButton();
         }
 
         private async Task LoadSensitiveConfigurationAsync()
@@ -728,10 +742,7 @@ namespace HyperBoostX
             if (OpenAiApiKeyInput != null)
                 OpenAiApiKeyInput.Text = _openAiApiKey;
 
-            if (DiscordWebhookUrlInput != null)
-                DiscordWebhookUrlInput.Text = _discordWebhookUrl;
-            if (DiscordUpdateWebhookUrlInput != null)
-                DiscordUpdateWebhookUrlInput.Text = _discordUpdateWebhookUrl;
+            RefreshDiscordWebhookInputHints();
 
             var shouldMigrateLegacySecrets =
                 string.IsNullOrWhiteSpace(envOpenAi) &&
@@ -788,6 +799,30 @@ namespace HyperBoostX
             }
         }
 
+        private void ApplyAppTheme()
+        {
+            var resolvedTheme = "Dark";
+            UpdateThemeToggleButton(resolvedTheme);
+
+            if (SettingsUiText != null)
+            {
+                SettingsUiText.Text =
+                    $"Theme: Dark (safe mode){Environment.NewLine}" +
+                    $"Density: {((SettingsDensityCombo?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Comfortable")}{Environment.NewLine}" +
+                    $"Language: {(SettingsLanguageCombo?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? _localizationService.CurrentLocale}{Environment.NewLine}" +
+                    $"Sidebar: {_settingsSidebarMode}{Environment.NewLine}" +
+                    "Theme engine: safe dark mode active";
+            }
+        }
+
+        private void UpdateThemeToggleButton(string resolvedTheme = null)
+        {
+            if (ThemeToggleBtn == null)
+                return;
+
+            ThemeToggleBtn.Content = "Theme: Dark";
+        }
+
         private async Task SavePersistedConfigurationAsync()
         {
             if (_appConfig == null)
@@ -830,6 +865,8 @@ namespace HyperBoostX
             settings.LastKnownReleasePublishedUtc = _latestKnownReleasePublishedUtc?.ToString("o", CultureInfo.InvariantCulture) ?? "";
             settings.LastAppUpdateSummary = _lastAppUpdateSummary;
             settings.LastAppUpdateCheckUtc = _lastAppUpdateCheckUtc;
+            settings.LastAppUpdateNotificationVersion = _lastAppUpdateNotificationVersion;
+            settings.LastAppUpdateNotificationUtc = _lastAppUpdateNotificationUtc;
 
             var automation = _appConfig.Automation ?? new PersistedAutomationState();
             automation.Goal = _automationGoal;
@@ -943,6 +980,49 @@ namespace HyperBoostX
         {
             await SavePersistedConfigurationAsync();
             await RefreshSettingsViewAsync();
+        }
+
+        private void RefreshDiscordWebhookInputHints()
+        {
+            if (DiscordWebhookUrlInput != null)
+            {
+                DiscordWebhookUrlInput.Text = "";
+                DiscordWebhookUrlInput.ToolTip = string.IsNullOrWhiteSpace(_discordWebhookUrl)
+                    ? "Paste error/audit webhook URL here, then click Save Webhooks."
+                    : "Error/audit webhook is stored securely. Leave blank to keep it.";
+            }
+
+            if (DiscordUpdateWebhookUrlInput != null)
+            {
+                DiscordUpdateWebhookUrlInput.Text = "";
+                DiscordUpdateWebhookUrlInput.ToolTip = string.IsNullOrWhiteSpace(_discordUpdateWebhookUrl)
+                    ? "Paste release update webhook URL here, then click Save Webhooks."
+                    : "Release update webhook is stored securely. Leave blank to keep it.";
+            }
+        }
+
+        private bool ReadDiscordWebhookInputs(bool requireErrorWebhook)
+        {
+            var errorInput = DiscordWebhookUrlInput?.Text?.Trim() ?? "";
+            var updateInput = DiscordUpdateWebhookUrlInput?.Text?.Trim() ?? "";
+
+            if (!string.IsNullOrWhiteSpace(errorInput))
+                _discordWebhookUrl = errorInput;
+            if (!string.IsNullOrWhiteSpace(updateInput))
+                _discordUpdateWebhookUrl = updateInput;
+
+            _discordWebhookMinimumLevel = (DiscordWebhookLevelCombo?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Error";
+            _discordWebhookCooldownSeconds = int.TryParse(DiscordWebhookCooldownInput?.Text, out var cooldown)
+                ? Math.Max(15, cooldown)
+                : 120;
+
+            if (requireErrorWebhook && string.IsNullOrWhiteSpace(_discordWebhookUrl))
+            {
+                ShowActionStatus(ActionState.Warning, "Discord Error Reporting", "Masukkan error/audit webhook URL lalu Save Webhooks, atau pastikan credential lama masih tersimpan.");
+                return false;
+            }
+
+            return true;
         }
 
         private async Task PersistAndRefreshAutomationAsync(bool refreshView = true)
@@ -4874,13 +4954,14 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
                 L("messages.language.restart_notice", "Some language changes may fully apply after restart.");
 
             SettingsUiText.Text =
-                $"Theme: {_settingsTheme}{Environment.NewLine}" +
+                $"Theme: Dark (safe mode){Environment.NewLine}" +
                 $"Density: {((SettingsDensityCombo?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Comfortable")}{Environment.NewLine}" +
                 $"Language: {selectedLanguage}{Environment.NewLine}" +
                 $"Language engine mode: {_settingsLanguageMode}{Environment.NewLine}" +
                 $"Fallback locale: {_localizationService.FallbackLocale}{Environment.NewLine}" +
                 $"Sidebar: {_settingsSidebarMode} / customizable" + Environment.NewLine +
-                "UX behavior: confirm dialog + quick action mode available";
+                "UX behavior: confirm dialog + quick action mode available" + Environment.NewLine +
+                "Theme engine: safe dark mode active";
 
             SettingsAutomationText.Text =
                 $"Automation mode: {_automationMode}{Environment.NewLine}" +
@@ -4978,13 +5059,26 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
         private async Task RefreshAboutViewAsync()
         {
             if (AboutVersionText != null)
-                AboutVersionText.Text = $"{NormalizeVersionLabel(_currentAppVersion)} â€” 2026";
-
-            if (AboutVersionText != null)
                 AboutVersionText.Text = $"{NormalizeVersionLabel(_currentAppVersion)} - {(IsStableBuild(_currentAppVersion) ? "Stable" : "Prerelease")} - 2026";
 
+            RefreshAboutQaBadge();
             RefreshAppUpdatePanels();
             await Task.CompletedTask;
+        }
+
+        private void RefreshAboutQaBadge()
+        {
+            if (AboutQaBadgeText == null)
+                return;
+
+            if (_lastFeatureAuditResults.Count == 0)
+            {
+                AboutQaBadgeText.Text = "QA NOT RUN";
+                return;
+            }
+
+            var passed = _lastFeatureAuditResults.Count(x => x.Success);
+            AboutQaBadgeText.Text = $"QA {passed}/{_lastFeatureAuditResults.Count} PASSED";
         }
 
         private static bool IsStableBuild(string version)
@@ -4995,6 +5089,8 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
 
         private void RefreshAppUpdatePanels()
         {
+            EnsureAppUpdateInstallerFallback();
+            RefreshAboutQaBadge();
             var lastCheck = _lastAppUpdateCheckUtc.HasValue
                 ? _lastAppUpdateCheckUtc.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm")
                 : "Never";
@@ -5004,6 +5100,9 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
             var latestVersion = string.IsNullOrWhiteSpace(_latestKnownAppVersion) ? "Unknown" : _latestKnownAppVersion;
             var releaseUrl = string.IsNullOrWhiteSpace(_latestKnownReleaseUrl) ? "https://github.com/jxxzy/HyperBoostX/releases" : _latestKnownReleaseUrl;
             var installerAsset = string.IsNullOrWhiteSpace(_latestKnownInstallerAssetName) ? "Unavailable" : _latestKnownInstallerAssetName;
+            var lastAnnounced = string.IsNullOrWhiteSpace(_lastAppUpdateNotificationVersion)
+                ? "None"
+                : $"{_lastAppUpdateNotificationVersion} at {_lastAppUpdateNotificationUtc?.ToLocalTime().ToString("dd MMM yyyy HH:mm") ?? "unknown time"}";
             var statusText =
                 $"Current version: {NormalizeVersionLabel(_currentAppVersion)}{Environment.NewLine}" +
                 $"Latest known release: {latestVersion}{Environment.NewLine}" +
@@ -5013,6 +5112,7 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
                 $"Last check: {lastCheck}{Environment.NewLine}" +
                 $"Published: {published}{Environment.NewLine}" +
                 $"Installer asset: {installerAsset}{Environment.NewLine}" +
+                $"Last update notification: {lastAnnounced}{Environment.NewLine}" +
                 $"{_lastAppUpdateReadiness}{Environment.NewLine}" +
                 $"{_lastAppUpdateSummary}{Environment.NewLine}" +
                 $"Download page: {releaseUrl}";
@@ -5046,6 +5146,34 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
             {
                 AboutInstallLatestUpdateBtn.Content = installContent;
                 AboutInstallLatestUpdateBtn.IsEnabled = !_appUpdateInstallInProgress && (!_appUpdateCheckInProgress || _isAppUpdateAvailable);
+            }
+        }
+
+        private void EnsureAppUpdateInstallerFallback()
+        {
+            var latestVersion = NormalizeVersionLabel(string.IsNullOrWhiteSpace(_latestKnownAppVersion) ? _currentAppVersion : _latestKnownAppVersion);
+            if (string.IsNullOrWhiteSpace(latestVersion) || latestVersion == "0.0.0")
+                return;
+
+            if (string.IsNullOrWhiteSpace(_latestKnownInstallerAssetName))
+                _latestKnownInstallerAssetName = "HyperBoostXInstaller.exe";
+
+            if (string.IsNullOrWhiteSpace(_latestKnownInstallerDownloadUrl))
+            {
+                var tag = latestVersion.StartsWith("v", StringComparison.OrdinalIgnoreCase) ? latestVersion : $"v{latestVersion}";
+                _latestKnownInstallerDownloadUrl = $"https://github.com/jxxzy/HyperBoostX/releases/download/{tag}/HyperBoostXInstaller.exe";
+            }
+
+            if (string.IsNullOrWhiteSpace(_latestKnownChecksumsDownloadUrl))
+            {
+                var tag = latestVersion.StartsWith("v", StringComparison.OrdinalIgnoreCase) ? latestVersion : $"v{latestVersion}";
+                _latestKnownChecksumsDownloadUrl = $"https://github.com/jxxzy/HyperBoostX/releases/download/{tag}/SHA256SUMS.txt";
+            }
+
+            if (_lastAppUpdateReadiness.Contains("unknown", StringComparison.OrdinalIgnoreCase) ||
+                _lastAppUpdateReadiness.Contains("release page only", StringComparison.OrdinalIgnoreCase))
+            {
+                _lastAppUpdateReadiness = "Readiness: installer URL fallback available";
             }
         }
 
@@ -5497,6 +5625,7 @@ if (-not $result) { 'Unavailable'; return }
                         : "Readiness: already on latest known release"
                     : "Readiness: update check failed";
                 _lastAppUpdateSummary = result.Summary;
+                EnsureAppUpdateInstallerFallback();
                 RefreshAppUpdatePanels();
                 await SavePersistedConfigurationAsync();
                 await ReportAppUpdateToDiscordAsync(result, userInitiated);
@@ -5553,7 +5682,17 @@ if (-not $result) { 'Unavailable'; return }
                 return;
 
             var normalizedLatestVersion = NormalizeDiscordReportVersion(result.LatestVersion);
-            var normalizedCurrentVersion = NormalizeDiscordReportVersion(_currentAppVersion);
+            var normalizedCurrentVersion = NormalizeDiscordReportVersion(
+                string.IsNullOrWhiteSpace(result.CurrentVersion) ? _currentAppVersion : result.CurrentVersion);
+            if (string.Equals(normalizedLatestVersion, normalizedCurrentVersion, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            if (string.Equals(_lastAppUpdateNotificationVersion, normalizedLatestVersion, StringComparison.OrdinalIgnoreCase))
+            {
+                AppendSettingsHistory($"Discord update notification skipped; {normalizedLatestVersion} was already announced.");
+                return;
+            }
+
             var signature = $"app-update|{normalizedLatestVersion}";
             if (_discordWebhookLastSent.TryGetValue(signature, out var lastSent) &&
                 DateTime.UtcNow - lastSent < TimeSpan.FromHours(12))
@@ -5561,7 +5700,9 @@ if (-not $result) { 'Unavailable'; return }
                 return;
             }
 
-            var fields = BuildDiscordReportFields("warning", "New app update detected.");
+            var fields = BuildDiscordReportFields("info", "New app update detected.");
+            fields["Module"] = "App Update";
+            fields["Page"] = "Update Notification";
             fields["Current Version"] = normalizedCurrentVersion;
             fields["Latest Version"] = normalizedLatestVersion;
             fields["Channel"] = string.IsNullOrWhiteSpace(result.ReleaseChannel) ? "Unknown" : result.ReleaseChannel;
@@ -5576,13 +5717,16 @@ if (-not $result) { 'Unavailable'; return }
                 _discordUpdateWebhookUrl,
                 "HyperBoostX release terbaru tersedia",
                 $"Versi {normalizedLatestVersion} sudah tersedia untuk download.",
-                "warning",
+                "info",
                 fields,
                 "HyperBoostX Update");
 
             if (sendResult.Success)
             {
                 _discordWebhookLastSent[signature] = DateTime.UtcNow;
+                _lastAppUpdateNotificationVersion = normalizedLatestVersion;
+                _lastAppUpdateNotificationUtc = DateTime.UtcNow;
+                await SavePersistedConfigurationAsync();
                 AppendSettingsHistory($"Discord update notification sent for {normalizedLatestVersion}.");
             }
             else
@@ -5650,7 +5794,9 @@ if (-not $result) { 'Unavailable'; return }
             if (_appUpdateInstallInProgress)
                 return;
 
-            if (!_isAppUpdateAvailable && !autoTriggered)
+            EnsureAppUpdateInstallerFallback();
+
+            if (!_isAppUpdateAvailable && !autoTriggered && string.IsNullOrWhiteSpace(_latestKnownInstallerDownloadUrl))
             {
                 ShowActionStatus(ActionState.Info, "App Update", "Belum ada versi baru yang diketahui untuk diinstal.");
                 return;
@@ -5955,11 +6101,23 @@ if (-not $result) { 'Unavailable'; return }
 
         private async void ApplyUiSettings_Click(object sender, RoutedEventArgs e)
         {
-            _settingsTheme = (SettingsThemeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Auto";
-            AppendSettingsHistory($"UI settings applied: theme {_settingsTheme}.");
+            _settingsTheme = "Dark";
+            SelectComboItemByContent(SettingsThemeCombo, _settingsTheme);
+            AppendSettingsHistory("UI settings applied: safe dark theme.");
             await ApplyLanguageSelectionAsync(LocalizationMode.ManualSelection, useSelectedLocale: true);
+            ApplyAppTheme();
             await SavePersistedConfigurationAsync();
             ShowActionStatus(ActionState.Success, "USER INTERFACE & EXPERIENCE", "UI settings berhasil diterapkan.", SettingsUiText.Text);
+        }
+
+        private async void ThemeToggle_Click(object sender, RoutedEventArgs e)
+        {
+            _settingsTheme = "Dark";
+            SelectComboItemByContent(SettingsThemeCombo, _settingsTheme);
+            ApplyAppTheme();
+            AppendSettingsHistory("Theme quick toggle kept in safe dark mode.");
+            await SavePersistedConfigurationAsync();
+            ShowActionStatus(ActionState.Info, "Theme", "Tampilan dikembalikan ke safe dark mode supaya UI stabil.");
         }
 
         private async void ToggleSidebarMode_Click(object sender, RoutedEventArgs e)
@@ -6024,15 +6182,8 @@ if (-not $result) { 'Unavailable'; return }
 
         private async void ToggleDiscordWebhook_Click(object sender, RoutedEventArgs e)
         {
-            _discordWebhookUrl = DiscordWebhookUrlInput?.Text?.Trim() ?? "";
-            _discordUpdateWebhookUrl = DiscordUpdateWebhookUrlInput?.Text?.Trim() ?? "";
-            _discordWebhookMinimumLevel = (DiscordWebhookLevelCombo?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Error";
-            _discordWebhookCooldownSeconds = int.TryParse(DiscordWebhookCooldownInput?.Text, out var cooldown) ? Math.Max(15, cooldown) : 120;
-            if (string.IsNullOrWhiteSpace(_discordWebhookUrl) && !_discordWebhookEnabled)
-            {
-                ShowActionStatus(ActionState.Warning, "Discord Error Reporting", "Masukkan Discord webhook URL dulu.");
+            if (!ReadDiscordWebhookInputs(requireErrorWebhook: !_discordWebhookEnabled))
                 return;
-            }
 
             _discordWebhookEnabled = !_discordWebhookEnabled;
             AppendSettingsHistory($"Discord error reporting {(_discordWebhookEnabled ? "enabled" : "disabled")}.");
@@ -6040,37 +6191,77 @@ if (-not $result) { 'Unavailable'; return }
             ShowActionStatus(ActionState.Info, "Discord Error Reporting", $"Discord error reporting sekarang {(_discordWebhookEnabled ? "ON" : "OFF")}.");
         }
 
-        private async void TestDiscordWebhook_Click(object sender, RoutedEventArgs e)
+        private async void SaveDiscordWebhooks_Click(object sender, RoutedEventArgs e)
         {
-            _discordWebhookUrl = DiscordWebhookUrlInput?.Text?.Trim() ?? "";
-            _discordUpdateWebhookUrl = DiscordUpdateWebhookUrlInput?.Text?.Trim() ?? "";
-            _discordWebhookMinimumLevel = (DiscordWebhookLevelCombo?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Error";
-            _discordWebhookCooldownSeconds = int.TryParse(DiscordWebhookCooldownInput?.Text, out var cooldown) ? Math.Max(15, cooldown) : 120;
-            if (string.IsNullOrWhiteSpace(_discordWebhookUrl))
+            if (!ReadDiscordWebhookInputs(requireErrorWebhook: false))
+                return;
+
+            if (string.IsNullOrWhiteSpace(_discordWebhookUrl) && string.IsNullOrWhiteSpace(_discordUpdateWebhookUrl))
             {
-                ShowActionStatus(ActionState.Warning, "Discord Error Reporting", "Masukkan Discord webhook URL dulu.");
+                ShowActionStatus(ActionState.Warning, "Discord Webhooks", "Belum ada webhook yang bisa disimpan.");
                 return;
             }
 
-            RefreshDiscordPreview("warning", "HyperBoostX test error report", "This is a test notification from HyperBoostX Discord integration.");
-            var sent = await _discordWebhookService.SendAsync(
+            _discordWebhookEnabled = !string.IsNullOrWhiteSpace(_discordWebhookUrl);
+            AppendSettingsHistory("Discord webhooks saved to Windows Credential Manager.");
+            await PersistAndRefreshSettingsAsync();
+            ShowActionStatus(
+                ActionState.Success,
+                "Discord Webhooks",
+                "Webhook Discord tersimpan aman.",
+                $"Error/audit webhook: {(!string.IsNullOrWhiteSpace(_discordWebhookUrl) ? "Configured" : "Not configured")}{Environment.NewLine}" +
+                $"Release update webhook: {(!string.IsNullOrWhiteSpace(_discordUpdateWebhookUrl) ? "Configured" : "Not configured")}");
+        }
+
+        private async void TestDiscordWebhook_Click(object sender, RoutedEventArgs e)
+        {
+            if (!ReadDiscordWebhookInputs(requireErrorWebhook: true))
+                return;
+
+            RefreshDiscordPreview("error", "HyperBoostX test error report", "This is a test notification from HyperBoostX Discord integration.");
+            var result = await _discordWebhookService.SendDetailedAsync(
                 _discordWebhookUrl,
                 "HyperBoostX test error report",
                 "This is a test notification from HyperBoostX Discord integration.",
-                "warning",
-                BuildDiscordReportFields("warning", $"Cooldown: {_discordWebhookCooldownSeconds} sec"));
+                "error",
+                BuildDiscordReportFields("error", $"Cooldown: {_discordWebhookCooldownSeconds} sec"));
 
-            if (sent)
+            if (result.Success)
             {
                 _discordWebhookEnabled = true;
                 AppendSettingsHistory("Discord webhook test notification sent.");
                 await PersistAndRefreshSettingsAsync();
-                ShowActionStatus(ActionState.Success, "Discord Error Reporting", "Test message berhasil dikirim ke Discord.");
+                ShowActionStatus(ActionState.Success, "Discord Error Reporting", "Test error message berhasil dikirim ke Discord.", result.Summary);
             }
             else
             {
-                ShowActionStatus(ActionState.Error, "Discord Error Reporting", "Gagal mengirim test message ke Discord.", "Periksa webhook URL dan koneksi internet.");
+                var details =
+                    $"{result.Summary}{Environment.NewLine}" +
+                    $"HTTP status: {(result.StatusCode > 0 ? result.StatusCode.ToString(CultureInfo.InvariantCulture) : "n/a")}{Environment.NewLine}" +
+                    $"Reason: {(string.IsNullOrWhiteSpace(result.ErrorMessage) ? "n/a" : result.ErrorMessage)}{Environment.NewLine}" +
+                    "403/404 biasanya berarti webhook salah channel, sudah dihapus, token tidak valid, atau permission channel berubah.";
+                if (result.StatusCode == 403 || result.StatusCode == 404)
+                    _discordWebhookEnabled = false;
+                AppendSettingsHistory($"Discord webhook test failed: {result.Summary}");
+                await PersistAndRefreshSettingsAsync();
+                ShowActionStatus(ActionState.Error, "Discord Error Reporting", "Gagal mengirim test error ke Discord.", details);
             }
+        }
+
+        private async void ClearDiscordWebhooks_Click(object sender, RoutedEventArgs e)
+        {
+            _discordWebhookUrl = "";
+            _discordUpdateWebhookUrl = "";
+            _discordWebhookEnabled = false;
+            if (DiscordWebhookUrlInput != null)
+                DiscordWebhookUrlInput.Text = "";
+            if (DiscordUpdateWebhookUrlInput != null)
+                DiscordUpdateWebhookUrlInput.Text = "";
+
+            await _secureSecretStoreService.ClearDiscordAsync();
+            await PersistAndRefreshSettingsAsync();
+            AppendSettingsHistory("Saved Discord webhooks cleared from Windows Credential Manager.");
+            ShowActionStatus(ActionState.Info, "Discord Webhooks", "Webhook Discord tersimpan sudah dihapus. Masukkan webhook baru lalu Save Webhooks.");
         }
 
         private void PreviewDiscordWebhook_Click(object sender, RoutedEventArgs e)
@@ -8853,7 +9044,11 @@ if (-not $result) { 'Unavailable'; return }
             try
             {
                 var effectiveTimeout = timeout ?? TimeSpan.FromSeconds(45);
-                var encoded = Convert.ToBase64String(Encoding.Unicode.GetBytes(script));
+                var safeScript =
+                    "$ProgressPreference='SilentlyContinue'; $InformationPreference='SilentlyContinue'; " +
+                    "$WarningPreference='Continue';" + Environment.NewLine +
+                    script;
+                var encoded = Convert.ToBase64String(Encoding.Unicode.GetBytes(safeScript));
                 var startInfo = new ProcessStartInfo("powershell.exe")
                 {
                     UseShellExecute = false,
@@ -9476,7 +9671,7 @@ if (-not $result) { 'Unavailable'; return }
                 notes.Add("Discord process kept as protected companion app.");
 
             notes.Add(await ApplyNetworkPresetAsync());
-            notes.Add("Protected apps kept alive via whitelist, including Discord, Steam, OBS, RTSS, MSI Afterburner, LG HUB, Riot Client Services, and VGC.");
+            notes.Add("Protected apps kept alive via whitelist, including Discord, Steam, OBS, RTSS, MSI Afterburner, device utility services, Riot Client Services, and VGC.");
             _gamingBoostActive = true;
             GamingBoostResultsText.Text = "Gaming Mode Activated\nStreaming preset applied\nProtected apps kept active\nNetwork refreshed";
             await RefreshGamingBoosterViewAsync();
@@ -9904,6 +10099,12 @@ if (-not $result) { 'Unavailable'; return }
 
             if (StreamingBalanceModeCombo != null && StreamingBalanceModeCombo.SelectedIndex < 0)
                 StreamingBalanceModeCombo.SelectedIndex = 2;
+
+            if (VoiceMeterDeviceCombo != null && VoiceMeterDeviceCombo.Items.Count == 0)
+                PopulateVoiceMeterDeviceCombo();
+
+            if (CameraDeviceCombo != null && CameraDeviceCombo.Items.Count == 0)
+                PopulateCameraDeviceCombo("", probeOpenCv: false);
 
             UpdateStreamingProfileSummary();
         }
@@ -14847,7 +15048,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             UtilitiesHardwareText.Text =
                 "Driver utilities: info / backup / restore / update check" + Environment.NewLine +
                 "Display & UI: ClearType, DPI, refresh rate, screen info" + Environment.NewLine +
-                "Voice meter: microphone level monitor and input privacy shortcut" + Environment.NewLine +
+                "Mic meter: microphone level monitor and input privacy shortcut" + Environment.NewLine +
                 "Webcam settings: camera scan, privacy, device manager, and Windows camera settings" + Environment.NewLine +
                 "Power: battery report, power reset, energy scan" + Environment.NewLine +
                 "Monitoring: CPU / RAM / Disk / Network threshold-aware monitoring";
@@ -14880,10 +15081,11 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
 
         private void RefreshVoiceMeterDevices_Click(object sender, RoutedEventArgs e)
         {
+            PopulateVoiceMeterDeviceCombo();
             VoiceMeterDevicesText.Text = BuildMicrophoneDeviceSummary();
             VoiceMeterStatusText.Text = "Microphone device list refreshed.";
-            AppendUtilitiesHistory("Voice meter microphone list refreshed.");
-            ShowActionStatus(ActionState.Info, "Voice Meter", "Daftar microphone diperbarui.", VoiceMeterDevicesText.Text);
+            AppendUtilitiesHistory("Mic meter microphone list refreshed.");
+            ShowActionStatus(ActionState.Info, "Mic Meter", "Daftar microphone diperbarui.", VoiceMeterDevicesText.Text);
         }
 
         private void StartVoiceMeter_Click(object sender, RoutedEventArgs e)
@@ -14892,8 +15094,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             {
                 StopVoiceMeterCapture();
                 using var enumerator = new MMDeviceEnumerator();
-                var device = enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications)
-                    ?? enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Multimedia);
+                var device = ResolveSelectedVoiceMeterDevice(enumerator);
 
                 _voiceMeterCapture = new WasapiCapture(device);
                 _voiceMeterCapture.DataAvailable += VoiceMeterCapture_DataAvailable;
@@ -14903,18 +15104,19 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
                 _voiceMeterCapture.StartRecording();
 
                 VoiceMeterStatusText.Text =
-                    $"Voice meter running.{Environment.NewLine}" +
+                    $"Mic meter running.{Environment.NewLine}" +
                     $"Device: {device.FriendlyName}{Environment.NewLine}" +
                     $"Format: {_voiceMeterCapture.WaveFormat}";
                 VoiceMeterDevicesText.Text = BuildMicrophoneDeviceSummary();
-                AppendUtilitiesHistory("Voice meter started.");
-                ShowActionStatus(ActionState.Success, "Voice Meter", "Voice meter aktif. Bicara ke microphone untuk melihat level input.");
+                PopulateVoiceMeterDeviceCombo(device.ID);
+                AppendUtilitiesHistory("Mic meter started.");
+                ShowActionStatus(ActionState.Success, "Mic Meter", "Mic meter aktif. Bicara ke microphone untuk melihat level input.");
             }
             catch (Exception ex)
             {
                 StopVoiceMeterCapture();
-                VoiceMeterStatusText.Text = $"Voice meter failed: {ex.Message}";
-                ShowActionStatus(ActionState.Warning, "Voice Meter", "Voice meter belum bisa aktif.", ex.Message);
+                VoiceMeterStatusText.Text = $"Mic meter failed: {ex.Message}";
+                ShowActionStatus(ActionState.Warning, "Mic Meter", "Mic meter belum bisa aktif.", ex.Message);
             }
         }
 
@@ -14923,95 +15125,57 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             StopVoiceMeterCapture();
             VoiceMeterLevelBar.Value = 0;
             VoiceMeterPeakText.Text = "Input level: 0% | Peak: 0%";
-            VoiceMeterStatusText.Text = "Voice meter stopped.";
-            AppendUtilitiesHistory("Voice meter stopped.");
-            ShowActionStatus(ActionState.Info, "Voice Meter", "Voice meter dihentikan.");
+            VoiceMeterStatusText.Text = "Mic meter stopped.";
+            AppendUtilitiesHistory("Mic meter stopped.");
+            ShowActionStatus(ActionState.Info, "Mic Meter", "Mic meter dihentikan.");
         }
 
         private void MicMixerControl_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             RefreshMicMixerStatus();
-            if (IsLoaded)
+        }
+
+        private void MicEndpointControl_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            RefreshMicMixerStatus();
+            if (IsLoaded && e != null)
                 ApplyDefaultMicrophoneEndpointState();
         }
 
         private void ApplyStreamingMicPreset_Click(object sender, RoutedEventArgs e)
         {
-            if (MicMixerGainSlider == null || MicMixerGateSlider == null || MicMixerCompressorSlider == null)
+            if (MicMixerGainSlider == null || MicMixerGateSlider == null || MicMixerCompressorSlider == null ||
+                MicWindowsVolumeSlider == null || MicMonitorMixSlider == null || MicLimiterSlider == null)
                 return;
 
             MicMixerGainSlider.Value = 6;
             MicMixerGateSlider.Value = 10;
             MicMixerCompressorSlider.Value = 35;
+            MicWindowsVolumeSlider.Value = 80;
+            MicMonitorMixSlider.Value = 0;
+            MicLimiterSlider.Value = 88;
             _micMixerMuted = false;
             RefreshMicMixerStatus();
-            ApplyDefaultMicrophoneEndpointState();
+            var endpointResult = ApplyDefaultMicrophoneEndpointState();
             AppendUtilitiesHistory("Streaming mic preset applied.");
-            ShowActionStatus(ActionState.Success, "Mic Mixer", "Preset streaming mic diterapkan.", MicMixerStatusText.Text);
+            ShowActionStatus(ActionState.Success, "Mic Mixer", "Preset streaming mic diterapkan.", $"{MicMixerStatusText.Text}{Environment.NewLine}{endpointResult}");
         }
 
         private void ApplyMicMixerSettings_Click(object sender, RoutedEventArgs e)
         {
             RefreshMicMixerStatus();
-            ApplyDefaultMicrophoneEndpointState();
-            AppendUtilitiesHistory("Mic mixer settings applied to default Windows microphone.");
-            ShowActionStatus(ActionState.Success, "Mic Mixer", "Mic settings diterapkan ke default Windows microphone.", MicMixerStatusText.Text);
+            var endpointResult = ApplyDefaultMicrophoneEndpointState();
+            AppendUtilitiesHistory("Mic mixer endpoint settings applied to selected Windows microphone.");
+            ShowActionStatus(ActionState.Success, "Mic Mixer", "Mic settings diterapkan ke selected Windows microphone.", $"{MicMixerStatusText.Text}{Environment.NewLine}{endpointResult}");
         }
 
         private void ToggleMicMixerMute_Click(object sender, RoutedEventArgs e)
         {
             _micMixerMuted = !_micMixerMuted;
             RefreshMicMixerStatus();
-            ApplyDefaultMicrophoneEndpointState();
+            var endpointResult = ApplyDefaultMicrophoneEndpointState();
             AppendUtilitiesHistory(_micMixerMuted ? "Mic mixer muted." : "Mic mixer unmuted.");
-            ShowActionStatus(_micMixerMuted ? ActionState.Warning : ActionState.Success, "Mic Mixer", _micMixerMuted ? "Mic mixer mute aktif." : "Mic mixer mute dimatikan.", MicMixerStatusText.Text);
-        }
-
-        private void DetectVoicemeeter_Click(object sender, RoutedEventArgs e)
-        {
-            var path = DetectVoicemeeterPath();
-            RefreshMicMixerStatus();
-            if (!string.IsNullOrWhiteSpace(path))
-            {
-                VoiceMeterDevicesText.Text = BuildMicrophoneDeviceSummary() + Environment.NewLine + Environment.NewLine + $"Voicemeeter detected: {path}";
-                AppendUtilitiesHistory("Voicemeeter detected.");
-                ShowActionStatus(ActionState.Success, "Voicemeeter", "Voicemeeter terdeteksi.", path);
-                return;
-            }
-
-            AppendUtilitiesHistory("Voicemeeter detection did not find an installation.");
-            ShowActionStatus(ActionState.Warning, "Voicemeeter", "Voicemeeter belum terdeteksi.", "Install Voicemeeter resmi lalu reboot Windows supaya virtual audio device muncul.");
-        }
-
-        private void OpenVoicemeeter_Click(object sender, RoutedEventArgs e)
-        {
-            var path = string.IsNullOrWhiteSpace(_detectedVoicemeeterPath)
-                ? DetectVoicemeeterPath()
-                : _detectedVoicemeeterPath;
-
-            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
-            {
-                RefreshMicMixerStatus();
-                ShowActionStatus(ActionState.Warning, "Voicemeeter", "Voicemeeter belum terpasang.", "Gunakan Download Voicemeeter, jalankan installer sebagai admin, lalu reboot Windows.");
-                return;
-            }
-
-            try
-            {
-                Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
-                AppendUtilitiesHistory("Voicemeeter launched.");
-                ShowActionStatus(ActionState.Success, "Voicemeeter", "Voicemeeter dibuka.", path);
-            }
-            catch (Exception ex)
-            {
-                ShowActionStatus(ActionState.Warning, "Voicemeeter", "Voicemeeter gagal dibuka.", ex.Message);
-            }
-        }
-
-        private void OpenVoicemeeterDownload_Click(object sender, RoutedEventArgs e)
-        {
-            LaunchExternalUrl("https://vb-audio.com/Voicemeeter/", "Voicemeeter Download");
-            AppendUtilitiesHistory("Voicemeeter official download page opened.");
+            ShowActionStatus(_micMixerMuted ? ActionState.Warning : ActionState.Success, "Mic Mixer", _micMixerMuted ? "Mic mixer mute aktif." : "Mic mixer mute dimatikan.", $"{MicMixerStatusText.Text}{Environment.NewLine}{endpointResult}");
         }
 
         private void OpenWindowsVolumeMixer_Click(object sender, RoutedEventArgs e)
@@ -15026,7 +15190,10 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             WebcamSettingsStatusText.Text = "Scanning camera devices...";
             var script = @"
 $devices = Get-CimInstance Win32_PnPEntity |
-  Where-Object { $_.PNPClass -in @('Camera','Image') -or $_.Name -match 'camera|webcam|video' } |
+  Where-Object {
+    ($_.PNPClass -in @('Camera','Image') -or $_.Name -match 'camera|webcam|video') -and
+    $_.Name -notmatch 'microphone|audio|speaker|headset|headphone'
+  } |
   Select-Object -First 12 Name, Status, PNPClass, Manufacturer
 if (-not $devices) {
   'No camera device detected by Windows.'
@@ -15038,6 +15205,7 @@ if (-not $devices) {
             var (success, output) = await ExecutePowerShellScriptAsync(script, TimeSpan.FromSeconds(12));
             WebcamSettingsStatusText.Text = success ? "Camera device scan completed." : "Camera device scan warning.";
             WebcamDevicesText.Text = output;
+            PopulateCameraDeviceCombo(output, probeOpenCv: false);
             AppendUtilitiesHistory("Webcam device scan refreshed.");
             ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Webcam Settings", WebcamSettingsStatusText.Text, output);
         }
@@ -15047,64 +15215,169 @@ if (-not $devices) {
             RefreshCameraStudioStatus();
         }
 
+        private void CameraStudioCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            RefreshCameraStudioStatus();
+        }
+
         private void ApplyStreamingCameraPreset_Click(object sender, RoutedEventArgs e)
         {
-            if (CameraBrightnessSlider == null || CameraContrastSlider == null || CameraSharpnessSlider == null || CameraExposureSlider == null || CameraFpsSlider == null)
+            if (CameraBrightnessSlider == null || CameraContrastSlider == null || CameraSharpnessSlider == null ||
+                CameraSaturationSlider == null || CameraWhiteBalanceSlider == null || CameraFovSlider == null ||
+                CameraExposureSlider == null || CameraFpsSlider == null)
                 return;
 
             CameraBrightnessSlider.Value = 10;
             CameraContrastSlider.Value = 15;
             CameraSharpnessSlider.Value = 40;
+            CameraSaturationSlider.Value = 58;
+            CameraWhiteBalanceSlider.Value = 4600;
+            CameraFovSlider.Value = 92;
             CameraExposureSlider.Value = 0;
             CameraFpsSlider.Value = 30;
             RefreshCameraStudioStatus();
             AppendUtilitiesHistory("Streaming camera preset applied.");
-            ShowActionStatus(ActionState.Success, "Camera Studio", "Preset webcam streaming diterapkan.", BuildCameraStudioChecklist());
+            ShowActionStatus(ActionState.Info, "Camera Studio", "Preset webcam streaming disiapkan di profil HyperBoost.", BuildCameraStudioChecklist());
         }
 
         private void ApplyLowLightCameraPreset_Click(object sender, RoutedEventArgs e)
         {
-            if (CameraBrightnessSlider == null || CameraContrastSlider == null || CameraSharpnessSlider == null || CameraExposureSlider == null || CameraFpsSlider == null)
+            if (CameraBrightnessSlider == null || CameraContrastSlider == null || CameraSharpnessSlider == null ||
+                CameraSaturationSlider == null || CameraWhiteBalanceSlider == null || CameraFovSlider == null ||
+                CameraExposureSlider == null || CameraFpsSlider == null)
                 return;
 
             CameraBrightnessSlider.Value = 24;
             CameraContrastSlider.Value = 8;
             CameraSharpnessSlider.Value = 28;
+            CameraSaturationSlider.Value = 62;
+            CameraWhiteBalanceSlider.Value = 4300;
+            CameraFovSlider.Value = 100;
             CameraExposureSlider.Value = 1.2;
             CameraFpsSlider.Value = 30;
             RefreshCameraStudioStatus();
             AppendUtilitiesHistory("Low light camera preset applied.");
-            ShowActionStatus(ActionState.Success, "Camera Studio", "Preset low light webcam diterapkan.", BuildCameraStudioChecklist());
+            ShowActionStatus(ActionState.Info, "Camera Studio", "Preset low light disiapkan di profil HyperBoost.", BuildCameraStudioChecklist());
         }
 
         private void ApplySharpFaceCameraPreset_Click(object sender, RoutedEventArgs e)
         {
-            if (CameraBrightnessSlider == null || CameraContrastSlider == null || CameraSharpnessSlider == null || CameraExposureSlider == null || CameraFpsSlider == null)
+            if (CameraBrightnessSlider == null || CameraContrastSlider == null || CameraSharpnessSlider == null ||
+                CameraSaturationSlider == null || CameraWhiteBalanceSlider == null || CameraFovSlider == null ||
+                CameraExposureSlider == null || CameraFpsSlider == null)
                 return;
 
             CameraBrightnessSlider.Value = 6;
             CameraContrastSlider.Value = 20;
             CameraSharpnessSlider.Value = 58;
+            CameraSaturationSlider.Value = 54;
+            CameraWhiteBalanceSlider.Value = 4800;
+            CameraFovSlider.Value = 88;
             CameraExposureSlider.Value = -0.2;
             CameraFpsSlider.Value = 60;
             RefreshCameraStudioStatus();
-            AppendUtilitiesHistory("Sharp face camera preset applied.");
-            ShowActionStatus(ActionState.Success, "Camera Studio", "Preset sharp face webcam diterapkan.", BuildCameraStudioChecklist());
+            AppendUtilitiesHistory("Sharp detail camera preset applied.");
+            ShowActionStatus(ActionState.Info, "Camera Studio", "Preset sharp detail disiapkan di profil HyperBoost.", BuildCameraStudioChecklist());
+        }
+
+        private void ApplyCameraStudioSettings_Click(object sender, RoutedEventArgs e)
+        {
+            RefreshCameraStudioStatus();
+            if (CameraDeviceCombo != null && CameraDeviceCombo.Items.Count == 0)
+                PopulateCameraDeviceCombo("", probeOpenCv: false);
+
+            var result = ApplyCameraStudioSettingsToDevice();
+            WebcamSettingsStatusText.Text = result.Contains("warning", StringComparison.OrdinalIgnoreCase)
+                || result.Contains("could not", StringComparison.OrdinalIgnoreCase)
+                    ? "Camera settings apply warning."
+                    : "Camera settings apply completed.";
+            WebcamDevicesText.Text = result;
+            AppendUtilitiesHistory("Camera studio settings applied to selected OpenCV camera.");
+            ShowActionStatus(
+                WebcamSettingsStatusText.Text.Contains("warning", StringComparison.OrdinalIgnoreCase) ? ActionState.Warning : ActionState.Success,
+                "Camera Studio",
+                WebcamSettingsStatusText.Text,
+                result);
         }
 
         private void ResetCameraStudioProfile_Click(object sender, RoutedEventArgs e)
         {
-            if (CameraBrightnessSlider == null || CameraContrastSlider == null || CameraSharpnessSlider == null || CameraExposureSlider == null || CameraFpsSlider == null)
+            if (CameraBrightnessSlider == null || CameraContrastSlider == null || CameraSharpnessSlider == null ||
+                CameraSaturationSlider == null || CameraWhiteBalanceSlider == null || CameraFovSlider == null ||
+                CameraExposureSlider == null || CameraFpsSlider == null)
                 return;
 
             CameraBrightnessSlider.Value = 0;
             CameraContrastSlider.Value = 0;
             CameraSharpnessSlider.Value = 25;
+            CameraSaturationSlider.Value = 55;
+            CameraWhiteBalanceSlider.Value = 4500;
+            CameraFovSlider.Value = 100;
             CameraExposureSlider.Value = 0;
             CameraFpsSlider.Value = 30;
             RefreshCameraStudioStatus();
             AppendUtilitiesHistory("Camera studio profile reset.");
-            ShowActionStatus(ActionState.Info, "Camera Studio", "Profil webcam dikembalikan ke baseline.", BuildCameraStudioChecklist());
+            ShowActionStatus(ActionState.Info, "Camera Studio", "Profil webcam dikembalikan ke baseline. Hardware belum diubah.", BuildCameraStudioChecklist());
+        }
+
+        private void EnableCameraTrackingProfile_Click(object sender, RoutedEventArgs e)
+        {
+            _cameraTrackingEnabled = true;
+            RefreshCameraStudioStatus();
+            AppendUtilitiesHistory("Camera tracking profile enabled.");
+            ShowActionStatus(ActionState.Success, "Camera Tracking", "Profil tracking kamera diaktifkan.", BuildCameraTrackingProfile());
+        }
+
+        private void OpenRealTimeCameraTracker_Click(object sender, RoutedEventArgs e)
+        {
+            _cameraTrackingEnabled = true;
+            RefreshCameraStudioStatus();
+            if (CameraDeviceCombo != null && CameraDeviceCombo.Items.Count == 0)
+                PopulateCameraDeviceCombo("", probeOpenCv: false);
+
+            var cameraIndex = ResolveSelectedOpenCvCameraIndex();
+            var tracker = new CameraTrackingWindow(
+                cameraIndex,
+                _cameraTrackingTarget,
+                _cameraFramingMode,
+                _cameraTrackingSmoothnessPercent,
+                _cameraTrackingDeadZonePercent,
+                _cameraBrightnessPercent,
+                _cameraContrastPercent,
+                _cameraSharpnessPercent,
+                _cameraExposureEv,
+                _cameraFpsTarget)
+            {
+                Owner = this
+            };
+            tracker.Show();
+            AppendUtilitiesHistory("Real-time camera tracker opened.");
+            ShowActionStatus(ActionState.Success, "Camera Tracking", "Real-time camera tracker dibuka.", BuildCameraTrackingProfile());
+        }
+
+        private void DisableCameraTrackingProfile_Click(object sender, RoutedEventArgs e)
+        {
+            _cameraTrackingEnabled = false;
+            RefreshCameraStudioStatus();
+            AppendUtilitiesHistory("Camera tracking profile disabled.");
+            ShowActionStatus(ActionState.Info, "Camera Tracking", "Profil tracking kamera dimatikan.", BuildCameraTrackingProfile());
+        }
+
+        private void RunCameraTrackingDiagnostics_Click(object sender, RoutedEventArgs e)
+        {
+            RefreshCameraStudioStatus();
+            var summary =
+                BuildCameraTrackingProfile() + Environment.NewLine +
+                "---" + Environment.NewLine +
+                "Tracking readiness:" + Environment.NewLine +
+                "- Use Motion Center or Presenter Framing for webcam talking-head streams." + Environment.NewLine +
+                "- Use Movement Follow when you want the preview box to follow the strongest motion." + Environment.NewLine +
+                "- Keep smoothness high for less jitter; increase dead-zone if the frame moves too often." + Environment.NewLine +
+                "- Current tracker is OpenCV motion tracking. Face landmark tracking requires a future MediaPipe/face model pipeline.";
+            WebcamSettingsStatusText.Text = "Camera tracking diagnostics completed.";
+            WebcamDevicesText.Text = summary;
+            AppendUtilitiesHistory("Camera tracking diagnostics executed.");
+            ShowActionStatus(ActionState.Info, "Camera Tracking", "Diagnostics tracking kamera selesai.", summary);
         }
 
         private void OpenMicrophonePrivacy_Click(object sender, RoutedEventArgs e)
@@ -15169,7 +15442,7 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
                 TimeSpan.FromSeconds(20));
             VoiceMeterLevelBar.Value = 0;
             VoiceMeterPeakText.Text = "Input level: 0% | Peak: 0%";
-            VoiceMeterStatusText.Text = success ? "Audio service reset requested. Start Voice Meter again after a moment." : $"Audio reset warning: {output}";
+            VoiceMeterStatusText.Text = success ? "Audio service reset requested. Start Mic Meter again after a moment." : $"Audio reset warning: {output}";
             AppendUtilitiesHistory("Streaming audio service reset requested.");
             ShowActionStatus(success ? ActionState.Success : ActionState.Warning, "Advanced Mic Settings", VoiceMeterStatusText.Text, output);
         }
@@ -15186,7 +15459,10 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
             WebcamSettingsStatusText.Text = "Running camera diagnostics...";
             var script = @"
 $devices = Get-CimInstance Win32_PnPEntity |
-  Where-Object { $_.PNPClass -in @('Camera','Image') -or $_.Name -match 'camera|webcam|video' } |
+  Where-Object {
+    ($_.PNPClass -in @('Camera','Image') -or $_.Name -match 'camera|webcam|video') -and
+    $_.Name -notmatch 'microphone|audio|speaker|headset|headphone'
+  } |
   Select-Object -First 12 Name, Status, PNPClass, Manufacturer, DeviceID
 $privacy = Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam' -ErrorAction SilentlyContinue
 if ($devices) {
@@ -15222,62 +15498,296 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
 
         private void RefreshMicMixerStatus()
         {
-            if (MicMixerGainSlider == null || MicMixerGateSlider == null || MicMixerCompressorSlider == null || MicMixerStatusText == null)
+            if (MicMixerGainSlider == null || MicMixerGateSlider == null || MicMixerCompressorSlider == null ||
+                MicWindowsVolumeSlider == null || MicMonitorMixSlider == null || MicLimiterSlider == null || MicMixerStatusText == null)
                 return;
 
             _micMixerGainDb = MicMixerGainSlider.Value;
             _micMixerGatePercent = MicMixerGateSlider.Value;
             _micMixerCompressorPercent = MicMixerCompressorSlider.Value;
+            _micWindowsVolumePercent = MicWindowsVolumeSlider.Value;
+            _micMonitorMixPercent = MicMonitorMixSlider.Value;
+            _micLimiterPercent = MicLimiterSlider.Value;
 
-            var route = string.IsNullOrWhiteSpace(_detectedVoicemeeterPath)
+            var selectedMic = (VoiceMeterDeviceCombo?.SelectedItem as ComboBoxItem)?.Content?.ToString();
+            var route = string.IsNullOrWhiteSpace(selectedMic)
                 ? "Windows default mic"
-                : $"Voicemeeter linked ({Path.GetFileNameWithoutExtension(_detectedVoicemeeterPath)})";
+                : selectedMic;
             MicMixerStatusText.Text =
-                $"Mixer strip: gain {_micMixerGainDb:+0;-0;0} dB | gate {_micMixerGatePercent:0}% | compressor {_micMixerCompressorPercent:0}% | " +
-                $"mute {(_micMixerMuted ? "on" : "off")} | route: {route}.";
+                $"Mixer strip: win volume {_micWindowsVolumePercent:0}% | gain {_micMixerGainDb:+0;-0;0} dB | gate {_micMixerGatePercent:0}% | " +
+                $"compressor {_micMixerCompressorPercent:0}% | limiter {_micLimiterPercent:0}% | monitor {_micMonitorMixPercent:0}% | " +
+                $"mute {(_micMixerMuted ? "on" : "off")} | route: {route} | endpoint apply: volume/mute only.";
         }
 
-        private void ApplyDefaultMicrophoneEndpointState()
+        private string ApplyDefaultMicrophoneEndpointState()
         {
             try
             {
                 using var enumerator = new MMDeviceEnumerator();
-                using var device = enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications)
-                    ?? enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Multimedia);
+                using var device = ResolveSelectedVoiceMeterDevice(enumerator);
                 if (device == null)
-                    return;
+                    return "Mic endpoint apply: no selected microphone device.";
 
                 var endpointVolume = device.AudioEndpointVolume;
                 if (endpointVolume == null)
-                    return;
+                    return $"Mic endpoint apply: {device.FriendlyName} has no endpoint volume control.";
 
+                var beforeVolume = endpointVolume.MasterVolumeLevelScalar * 100d;
+                var beforeMute = endpointVolume.Mute;
                 endpointVolume.Mute = _micMixerMuted;
-                var scalar = Math.Max(0.05f, Math.Min(1f, (float)((_micMixerGainDb + 24d) / 48d)));
+                var scalar = Math.Max(0f, Math.Min(1f, (float)(_micWindowsVolumePercent / 100d)));
                 endpointVolume.MasterVolumeLevelScalar = scalar;
+                var afterVolume = endpointVolume.MasterVolumeLevelScalar * 100d;
+                var afterMute = endpointVolume.Mute;
                 RefreshMicMixerStatus();
+                return
+                    $"Mic endpoint applied: {device.FriendlyName}{Environment.NewLine}" +
+                    $"Volume {beforeVolume:0}% -> {afterVolume:0}% | Mute {beforeMute} -> {afterMute}";
             }
             catch (Exception ex)
             {
                 if (MicMixerStatusText != null)
                     MicMixerStatusText.Text = $"{MicMixerStatusText.Text}{Environment.NewLine}Windows mic endpoint apply warning: {ex.Message}";
+                return $"Mic endpoint apply warning: {ex.Message}";
             }
+        }
+
+        private MMDevice ResolveSelectedVoiceMeterDevice(MMDeviceEnumerator enumerator)
+        {
+            var selectedId = (VoiceMeterDeviceCombo?.SelectedItem as ComboBoxItem)?.Tag?.ToString();
+            if (!string.IsNullOrWhiteSpace(selectedId))
+            {
+                try
+                {
+                    return enumerator.GetDevice(selectedId);
+                }
+                catch
+                {
+                    // Fall back to Windows default when a previously selected device disappears.
+                }
+            }
+
+            return enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications)
+                ?? enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Multimedia);
+        }
+
+        private void PopulateVoiceMeterDeviceCombo(string preferredDeviceId = "")
+        {
+            if (VoiceMeterDeviceCombo == null)
+                return;
+
+            try
+            {
+                using var enumerator = new MMDeviceEnumerator();
+                var devices = enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active);
+                var previousId = string.IsNullOrWhiteSpace(preferredDeviceId)
+                    ? (VoiceMeterDeviceCombo.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? ""
+                    : preferredDeviceId;
+
+                VoiceMeterDeviceCombo.Items.Clear();
+                foreach (var device in devices)
+                {
+                    var item = new ComboBoxItem
+                    {
+                        Content = device.FriendlyName,
+                        Tag = device.ID
+                    };
+                    VoiceMeterDeviceCombo.Items.Add(item);
+                    if (!string.IsNullOrWhiteSpace(previousId) && string.Equals(device.ID, previousId, StringComparison.OrdinalIgnoreCase))
+                        VoiceMeterDeviceCombo.SelectedItem = item;
+                }
+
+                if (VoiceMeterDeviceCombo.SelectedItem == null && VoiceMeterDeviceCombo.Items.Count > 0)
+                    VoiceMeterDeviceCombo.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                VoiceMeterDevicesText.Text = $"Microphone selector refresh failed: {ex.Message}";
+            }
+        }
+
+        private void PopulateCameraDeviceCombo(string deviceSummary, bool probeOpenCv = false)
+        {
+            if (CameraDeviceCombo == null)
+                return;
+
+            var previous = (CameraDeviceCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "";
+            CameraDeviceCombo.Items.Clear();
+            var addedOpenCvCamera = false;
+            var cameraIndexes = probeOpenCv ? DiscoverOpenCvCameraIndexes(6) : new List<int> { 0, 1, 2 };
+            foreach (var cameraIndex in cameraIndexes)
+            {
+                var label = probeOpenCv
+                    ? $"Camera {cameraIndex} (OpenCV capture)"
+                    : $"Camera {cameraIndex} (OpenCV index)";
+                var item = new ComboBoxItem
+                {
+                    Content = label,
+                    Tag = cameraIndex
+                };
+                CameraDeviceCombo.Items.Add(item);
+                addedOpenCvCamera = true;
+                if (string.Equals(label, previous, StringComparison.OrdinalIgnoreCase))
+                    CameraDeviceCombo.SelectedItem = item;
+            }
+
+            foreach (var line in (deviceSummary ?? "").Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (!TryParseCameraDeviceSummaryLine(line, out var name))
+                    continue;
+
+                var item = new ComboBoxItem
+                {
+                    Content = addedOpenCvCamera ? $"{name} (Windows device info)" : name,
+                    Tag = addedOpenCvCamera ? null : 0
+                };
+                CameraDeviceCombo.Items.Add(item);
+                if (string.Equals(name, previous, StringComparison.OrdinalIgnoreCase))
+                    CameraDeviceCombo.SelectedItem = item;
+            }
+
+            if (CameraDeviceCombo.SelectedItem == null && CameraDeviceCombo.Items.Count > 0)
+                CameraDeviceCombo.SelectedIndex = 0;
+        }
+
+        private static bool TryParseCameraDeviceSummaryLine(string line, out string name)
+        {
+            name = "";
+            var text = (line ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(text))
+                return false;
+
+            if (text.StartsWith("#<", StringComparison.OrdinalIgnoreCase) ||
+                text.StartsWith("<Objs", StringComparison.OrdinalIgnoreCase) ||
+                text.Contains("System.Management.Automation.PSCustomObject", StringComparison.OrdinalIgnoreCase) ||
+                text.Contains("CLIXML", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            if (text.StartsWith("No camera", StringComparison.OrdinalIgnoreCase) ||
+                text.StartsWith("Camera consent", StringComparison.OrdinalIgnoreCase) ||
+                text.StartsWith("Camera devices", StringComparison.OrdinalIgnoreCase) ||
+                text.StartsWith("---", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            if (!text.Contains("Status=", StringComparison.OrdinalIgnoreCase) &&
+                !text.Contains("Class=", StringComparison.OrdinalIgnoreCase) &&
+                !text.Contains("camera", StringComparison.OrdinalIgnoreCase) &&
+                !text.Contains("webcam", StringComparison.OrdinalIgnoreCase) &&
+                !text.Contains("video", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            if (text.Contains("microphone", StringComparison.OrdinalIgnoreCase) ||
+                text.Contains("audio", StringComparison.OrdinalIgnoreCase) ||
+                text.Contains("speaker", StringComparison.OrdinalIgnoreCase) ||
+                text.Contains("headset", StringComparison.OrdinalIgnoreCase) ||
+                text.Contains("headphone", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            var candidate = text.Split('|').FirstOrDefault()?.Trim() ?? "";
+            if (string.IsNullOrWhiteSpace(candidate))
+                return false;
+
+            if (!candidate.Contains("camera", StringComparison.OrdinalIgnoreCase) &&
+                !candidate.Contains("webcam", StringComparison.OrdinalIgnoreCase) &&
+                !candidate.Contains("video", StringComparison.OrdinalIgnoreCase) &&
+                !text.Contains("Class=Camera", StringComparison.OrdinalIgnoreCase) &&
+                !text.Contains("Class=Image", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            name = candidate;
+            return true;
+        }
+
+        private static List<int> DiscoverOpenCvCameraIndexes(int maxIndex)
+        {
+            var indexes = new List<int>();
+            for (var cameraIndex = 0; cameraIndex < maxIndex; cameraIndex++)
+            {
+                try
+                {
+                    using var capture = new OpenCvSharp.VideoCapture(cameraIndex);
+                    if (capture.IsOpened())
+                        indexes.Add(cameraIndex);
+                }
+                catch
+                {
+                    // Some camera drivers throw while probing indexes; skip and keep scanning.
+                }
+            }
+
+            return indexes.Count > 0 ? indexes : new List<int> { 0 };
+        }
+
+        private int ResolveSelectedOpenCvCameraIndex()
+        {
+            if ((CameraDeviceCombo?.SelectedItem as ComboBoxItem)?.Tag is int index)
+                return Math.Max(0, index);
+
+            return 0;
+        }
+
+        private string ApplyCameraStudioSettingsToDevice()
+        {
+            var cameraIndex = ResolveSelectedOpenCvCameraIndex();
+            var selectedCamera = (CameraDeviceCombo?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? $"Camera {cameraIndex}";
+            var lines = new List<string>
+            {
+                $"Camera profile target: {selectedCamera}",
+                $"OpenCV index: {cameraIndex}",
+                "Profile saved in HyperBoost only. No webcam hardware property was changed.",
+                $"Requested profile: brightness {_cameraBrightnessPercent:+0;-0;0}% | contrast {_cameraContrastPercent:+0;-0;0}% | saturation {_cameraSaturationPercent:0}% | sharpness {_cameraSharpnessPercent:0}% | WB {_cameraWhiteBalanceKelvin:0}K | FOV {_cameraFovPercent:0}% | exposure {_cameraExposureEv:+0.0;-0.0;0.0} EV | FPS {_cameraFpsTarget:0}.",
+                "To avoid autofocus/exposure driver bugs, HyperBoost no longer writes webcam hardware controls automatically."
+            };
+
+            return string.Join(Environment.NewLine, lines);
         }
 
         private void RefreshCameraStudioStatus()
         {
             if (CameraBrightnessSlider == null || CameraContrastSlider == null || CameraSharpnessSlider == null ||
+                CameraSaturationSlider == null || CameraWhiteBalanceSlider == null || CameraFovSlider == null ||
                 CameraExposureSlider == null || CameraFpsSlider == null || CameraStudioStatusText == null)
                 return;
 
             _cameraBrightnessPercent = CameraBrightnessSlider.Value;
             _cameraContrastPercent = CameraContrastSlider.Value;
             _cameraSharpnessPercent = CameraSharpnessSlider.Value;
+            _cameraSaturationPercent = CameraSaturationSlider.Value;
+            _cameraWhiteBalanceKelvin = CameraWhiteBalanceSlider.Value;
+            _cameraFovPercent = CameraFovSlider.Value;
             _cameraExposureEv = CameraExposureSlider.Value;
             _cameraFpsTarget = CameraFpsSlider.Value;
+            _cameraTrackingTarget = (CameraTrackingTargetCombo?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Motion Center";
+            _cameraFramingMode = (CameraFramingCombo?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Medium";
+            _cameraTrackingSmoothnessPercent = CameraTrackingSmoothnessSlider?.Value ?? 65;
+            _cameraTrackingDeadZonePercent = CameraTrackingDeadZoneSlider?.Value ?? 12;
 
             CameraStudioStatusText.Text =
                 $"Camera studio: brightness {_cameraBrightnessPercent:+0;-0;0}% | contrast {_cameraContrastPercent:+0;-0;0}% | " +
-                $"sharpness {_cameraSharpnessPercent:0}% | exposure {_cameraExposureEv:+0.0;-0.0;0.0} EV | target {_cameraFpsTarget:0} FPS.";
+                $"saturation {_cameraSaturationPercent:0}% | sharpness {_cameraSharpnessPercent:0}% | WB {_cameraWhiteBalanceKelvin:0}K | " +
+                $"FOV {_cameraFovPercent:0}% | exposure {_cameraExposureEv:+0.0;-0.0;0.0} EV | target {_cameraFpsTarget:0} FPS.";
+            if (CameraTrackingStatusText != null)
+            {
+                CameraTrackingStatusText.Text =
+                    $"Tracking profile: {(_cameraTrackingEnabled ? "on" : "off")} | target {_cameraTrackingTarget} | framing {_cameraFramingMode} | " +
+                    $"smoothness {_cameraTrackingSmoothnessPercent:0}% | dead-zone {_cameraTrackingDeadZonePercent:0}%.";
+            }
+        }
+
+        private string BuildCameraTrackingProfile()
+        {
+            RefreshCameraStudioStatus();
+            var selectedCamera = (CameraDeviceCombo?.SelectedItem as ComboBoxItem)?.Content?.ToString();
+            return
+                "Real-time camera tracking profile:" + Environment.NewLine +
+                $"- State: {(_cameraTrackingEnabled ? "enabled" : "disabled")}" + Environment.NewLine +
+                $"- Camera: {(string.IsNullOrWhiteSpace(selectedCamera) ? "camera index 0 / not selected" : selectedCamera)}" + Environment.NewLine +
+                $"- OpenCV index: {ResolveSelectedOpenCvCameraIndex()}" + Environment.NewLine +
+                $"- Target: {_cameraTrackingTarget}" + Environment.NewLine +
+                $"- Framing: {_cameraFramingMode}" + Environment.NewLine +
+                $"- Smoothness: {_cameraTrackingSmoothnessPercent:0}%" + Environment.NewLine +
+                $"- Dead-zone: {_cameraTrackingDeadZonePercent:0}%" + Environment.NewLine +
+                "- Current engine: OpenCV real-time motion tracking with live preview and bounding box.";
         }
 
         private string BuildCameraStudioChecklist()
@@ -15293,33 +15803,21 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
                 : _cameraFpsTarget >= 45
                     ? "high motion"
                     : "stable streaming";
+            var selectedCamera = (CameraDeviceCombo?.SelectedItem as ComboBoxItem)?.Content?.ToString();
 
             return
                 "Camera studio profile:" + Environment.NewLine +
+                $"- Selected camera: {(string.IsNullOrWhiteSpace(selectedCamera) ? "not selected" : selectedCamera)}" + Environment.NewLine +
                 $"- Brightness: {_cameraBrightnessPercent:+0;-0;0}%" + Environment.NewLine +
                 $"- Contrast: {_cameraContrastPercent:+0;-0;0}%" + Environment.NewLine +
+                $"- Saturation: {_cameraSaturationPercent:0}%" + Environment.NewLine +
                 $"- Sharpness: {_cameraSharpnessPercent:0}%" + Environment.NewLine +
+                $"- White balance: {_cameraWhiteBalanceKelvin:0}K" + Environment.NewLine +
+                $"- FOV / Zoom: {_cameraFovPercent:0}%" + Environment.NewLine +
                 $"- Exposure: {_cameraExposureEv:+0.0;-0.0;0.0} EV ({exposureMode})" + Environment.NewLine +
                 $"- FPS target: {_cameraFpsTarget:0} ({fpsMode})" + Environment.NewLine +
-                "- Apply these values in your camera driver panel, OBS Video Capture Device properties, TikTok LIVE Studio camera settings, or Discord camera settings.";
-        }
-
-        private string DetectVoicemeeterPath()
-        {
-            var programFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-            var programFilesX86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
-            var candidates = new[]
-            {
-                Path.Combine(programFilesX86, "VB", "Voicemeeter", "voicemeeter8.exe"),
-                Path.Combine(programFilesX86, "VB", "Voicemeeter", "voicemeeterpro.exe"),
-                Path.Combine(programFilesX86, "VB", "Voicemeeter", "voicemeeter.exe"),
-                Path.Combine(programFiles, "VB", "Voicemeeter", "voicemeeter8.exe"),
-                Path.Combine(programFiles, "VB", "Voicemeeter", "voicemeeterpro.exe"),
-                Path.Combine(programFiles, "VB", "Voicemeeter", "voicemeeter.exe")
-            };
-
-            _detectedVoicemeeterPath = candidates.FirstOrDefault(File.Exists) ?? "";
-            return _detectedVoicemeeterPath;
+                $"- Tracking: {(_cameraTrackingEnabled ? "enabled" : "disabled")} / {_cameraTrackingTarget} / {_cameraFramingMode}" + Environment.NewLine +
+                "- HyperBoost workflow: tune the profile here, use safe recovery for color, and use native driver controls only when Windows exposes them.";
         }
 
         private double ApplyMicMixerPreview(double rawLevel)
@@ -15336,7 +15834,10 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
                 ? gainedLevel
                 : threshold + ((gainedLevel - threshold) / compressorRatio);
 
-            return Math.Max(0, Math.Min(100, compressedLevel));
+            var monitorBlend = Math.Max(0, Math.Min(1, _micMonitorMixPercent / 100d));
+            var monitoredLevel = (compressedLevel * (1d - monitorBlend)) + (rawLevel * monitorBlend);
+            var limitedLevel = Math.Min(monitoredLevel, _micLimiterPercent);
+            return Math.Max(0, Math.Min(100, limitedLevel));
         }
 
         private string BuildMicrophoneDeviceSummary()
@@ -16240,6 +16741,22 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
             }
         }
 
+        private static IEnumerable<T> FindVisualChildren<T>(DependencyObject parent) where T : DependencyObject
+        {
+            if (parent == null)
+                yield break;
+
+            for (var i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T typedChild)
+                    yield return typedChild;
+
+                foreach (var descendant in FindVisualChildren<T>(child))
+                    yield return descendant;
+            }
+        }
+
         private List<FeatureAuditTarget> BuildFeatureAuditTargets(bool fullAudit)
         {
             var targets = new List<FeatureAuditTarget>
@@ -16406,6 +16923,63 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
                     },
                     Snapshot = () => StreamingDetectedAppText?.Text ?? StreamingRecommendationText?.Text
                 },
+                CreateTestingProbeTarget("Streaming / Advanced Mic Mixer", () =>
+                {
+                    InitializeStreamingDefaults();
+                    RefreshMicMixerStatus();
+                    PopulateVoiceMeterDeviceCombo();
+                    var summary = BuildMicrophoneDeviceSummary();
+                    RequireTestCondition(VoiceMeterDeviceCombo != null, "Voice meter device selector missing.");
+                    RequireTestCondition(MicMixerStatusText != null && !string.IsNullOrWhiteSpace(MicMixerStatusText.Text), "Mic mixer status not rendered.");
+                    RequireTestCondition(VoiceMeterStatusText != null, "Voice meter status text missing.");
+                    RequireTestCondition(VoiceMeterLevelBar != null, "Voice meter level bar missing.");
+                    return Task.FromResult(TrimFeatureAuditText($"{MicMixerStatusText.Text} | Devices: {summary}"));
+                }),
+                CreateTestingProbeTarget("Streaming / Advanced Webcam Studio", () =>
+                {
+                    InitializeStreamingDefaults();
+                    RefreshCameraStudioStatus();
+                    RequireTestCondition(!TryParseCameraDeviceSummaryLine("Microphone (C922 Pro Stream Webcam) | Status=OK | Class=Image | Vendor=USB Camera", out _), "Camera parser accepted microphone device.");
+                    RequireTestCondition(!TryParseCameraDeviceSummaryLine("#< CLIXML <Objs Version='1.1.0.1'>", out _), "Camera parser accepted PowerShell CLIXML noise.");
+                    RequireTestCondition(TryParseCameraDeviceSummaryLine("C922 Pro Stream Webcam | Status=OK | Class=Camera | Vendor=USB Camera", out var parsedCamera), "Camera parser rejected valid webcam.");
+                    RequireTestCondition(parsedCamera.Contains("C922", StringComparison.OrdinalIgnoreCase), "Camera parser returned wrong camera name.");
+                    RequireTestCondition(CameraDeviceCombo != null && CameraDeviceCombo.Items.Count > 0, "Camera device selector has no fallback camera indexes.");
+                    RequireTestCondition(CameraStudioStatusText != null && !string.IsNullOrWhiteSpace(CameraStudioStatusText.Text), "Camera studio status not rendered.");
+                    RequireTestCondition(WebcamSettingsStatusText != null, "Webcam settings status text missing.");
+                    return Task.FromResult(TrimFeatureAuditText(BuildCameraStudioChecklist()));
+                }),
+                CreateTestingProbeTarget("Streaming / Camera Tracking Profile", () =>
+                {
+                    InitializeStreamingDefaults();
+                    RefreshCameraStudioStatus();
+                    RequireTestCondition(CameraTrackingTargetCombo != null && CameraTrackingTargetCombo.Items.Count >= 4, "Tracking target options incomplete.");
+                    RequireTestCondition(CameraFramingCombo != null && CameraFramingCombo.Items.Count >= 3, "Camera framing options incomplete.");
+                    RequireTestCondition(CameraTrackingSmoothnessSlider != null && CameraTrackingDeadZoneSlider != null, "Tracking sliders missing.");
+                    RequireTestCondition(CameraTrackingStatusText != null && CameraTrackingStatusText.Text.Contains("Motion Center", StringComparison.OrdinalIgnoreCase), "Tracking status did not render Motion Center profile.");
+                    return Task.FromResult(TrimFeatureAuditText(BuildCameraTrackingProfile()));
+                }),
+                CreateTestingProbeTarget("UI / ComboBox Readability Coverage", () =>
+                {
+                    var comboBoxes = FindVisualChildren<ComboBox>(this).ToList();
+                    RequireTestCondition(comboBoxes.Count >= 30, $"Expected at least 30 comboboxes, found {comboBoxes.Count}.");
+                    RequireTestCondition(comboBoxes.All(combo => combo.Foreground != null), "One or more ComboBox controls has no foreground brush.");
+                    RequireTestCondition(comboBoxes.All(combo => combo.Background != null), "One or more ComboBox controls has no background brush.");
+                    return Task.FromResult($"ComboBox controls detected: {comboBoxes.Count}. Global dark-readable style active.");
+                }),
+                CreateTestingProbeTarget("Logs / Discord Error Reporting", () =>
+                {
+                    var logRoot = GetAppLogsDirectory();
+                    var watchedLogs = new[]
+                    {
+                        "hyperboost-wpf.log",
+                        "hyperboost-launcher.log",
+                        "hyperboost.log"
+                    };
+                    Directory.CreateDirectory(logRoot);
+                    RequireTestCondition(watchedLogs.All(name => !string.IsNullOrWhiteSpace(Path.Combine(logRoot, name))), "Log path mapping failed.");
+                    RequireTestCondition(DiscordWebhookStatusText != null && !string.IsNullOrWhiteSpace(DiscordWebhookStatusText.Text), "Discord webhook status not rendered.");
+                    return Task.FromResult($"Watched logs: {string.Join(", ", watchedLogs)} | {TrimFeatureAuditText(DiscordWebhookStatusText.Text)}");
+                }),
                 new FeatureAuditTarget
                 {
                     Name = "Creator Mode",
@@ -16498,6 +17072,17 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
                     },
                     Snapshot = () => SettingsAppUpdateStatusText?.Text ?? AboutUpdateStatusText?.Text
                 },
+                CreateTestingProbeTarget("App Update Notification Routing", () =>
+                {
+                    var current = NormalizeDiscordReportVersion(_currentAppVersion);
+                    var latest = NormalizeDiscordReportVersion(string.IsNullOrWhiteSpace(_latestKnownAppVersion) ? current : _latestKnownAppVersion);
+                    RequireTestCondition(!string.Equals(_discordWebhookUrl, _discordUpdateWebhookUrl, StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(_discordUpdateWebhookUrl),
+                        "Error/audit webhook and release update webhook should not be the same URL.");
+                    RequireTestCondition(!string.IsNullOrWhiteSpace(_latestKnownReleaseUrl), "Latest release URL state is empty.");
+                    return Task.FromResult(
+                        $"Current={current} | Latest={latest} | Release webhook configured={!string.IsNullOrWhiteSpace(_discordUpdateWebhookUrl)} | " +
+                        $"Last announced={(string.IsNullOrWhiteSpace(_lastAppUpdateNotificationVersion) ? "none" : _lastAppUpdateNotificationVersion)}");
+                }),
                 new FeatureAuditTarget
                 {
                     Name = "Integration Status",

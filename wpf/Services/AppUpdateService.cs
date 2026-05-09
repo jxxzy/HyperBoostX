@@ -289,6 +289,7 @@ namespace HyperBoostX.Services
                 result.Publisher = x509.Subject;
                 result.PublisherTrusted =
                     x509.Subject.Contains("MR.4NONY", StringComparison.OrdinalIgnoreCase) ||
+                    x509.Subject.Contains("HYPERINDO CYBER TEAM", StringComparison.OrdinalIgnoreCase) ||
                     x509.Subject.Contains("HyperBoost", StringComparison.OrdinalIgnoreCase);
             }
             catch
@@ -399,7 +400,7 @@ namespace HyperBoostX.Services
             {
                 Timeout = TimeSpan.FromSeconds(12)
             };
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("HyperBoostX/1.2.10");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("HyperBoostX/1.2.11");
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
             return client;
         }

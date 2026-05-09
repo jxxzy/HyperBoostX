@@ -2,14 +2,20 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.2.11 - 2026-05-09
+- Fixes Discord webhook storage so saved webhook URLs are kept in Windows Credential Manager without being shown in Settings.
+- Adds an explicit Save Webhooks action, keeps Feature Audit delivery as one combined report, and removes `feature-audit.log` from runtime auto-log spam.
+- Hardens Streaming Mode wording and behavior for safer mic endpoint volume/mute control, webcam profile diagnostics, and OpenCV motion tracking.
+- Rebuilds the portable and installer artifacts for the stable release line.
+
 ## v1.2.10 - 2026-05-08
 - Adds Apply Mic Settings so the Streaming Voice Mixer can push mute and default microphone volume to the active Windows communications microphone.
-- Upgrades Streaming Mode webcam tools into Advanced Webcam Studio with brightness, contrast, sharpness, exposure, FPS target, streaming, low-light, and sharp-face presets.
+- Upgrades Streaming Mode webcam tools into Advanced Webcam Studio with local profile controls, diagnostics, streaming, low-light, and sharp-detail presets.
 - Adds camera studio profile output to webcam diagnostics for OBS, TikTok LIVE Studio, Discord, and camera driver setup.
 
 ## v1.2.9 - 2026-05-08
-- Upgrades Streaming Mode mic tools into a Voicemeeter-style Voice Mixer strip with gain, noise gate, compressor preview, mute, and streaming preset controls.
-- Adds Voicemeeter detection, launch, official download, and Windows Volume Mixer shortcuts for safer virtual-audio setup.
+- Upgrades Streaming Mode mic tools into a mixer-style control strip with Windows endpoint volume/mute, live meter, profile preview, and streaming preset controls.
+- Adds Windows Volume Mixer, sound settings, diagnostics, and privacy shortcuts for safer audio setup without bundling external audio apps.
 - Keeps webcam and mic controls inside Streaming Mode so users on the latest installer see the same feature set.
 
 ## v1.2.8 - 2026-05-08
@@ -235,7 +241,7 @@ All notable changes to HyperBoostX are documented here.
 - Separated automation runtime mode from policy profile.
 - Upgraded Scheduled Automation from summary UI to persistent rules, queue, deferred tasks, retry state, and audit tracking.
 - Updated About App, binary metadata, and installer metadata to `1.1.0-beta`.
-- Synced installer publisher/author metadata to `MR.4NONY`.
+- Synced installer publisher/author metadata to `MR.4NONY - HYPERINDO CYBER TEAM`.
 - Updated the installer upgrade flow to remove the previous app version first while preserving user config, logs, backups, and runtime state in `%LocalAppData%\HyperBoost X`.
 - Improved runtime safety for PowerShell execution, backend API failure handling, and activity logging.
 - Refreshed README to document the beta architecture and current feature scope.

@@ -62,4 +62,19 @@ public class DiscordWebhookServiceTests
         Assert.False(result.Success);
         Assert.Contains("validation failed", result.Summary);
     }
+
+    [Fact]
+    public void RedactSensitiveText_MasksWebhookAndTokenLikeValues()
+    {
+        var webhook = "https://discord.com/api/webhooks/" + "123456789" + "/" + "abcdef_SECRET";
+        var apiKey = "sk-" + "testsecret1234567890";
+        var text = $"url={webhook} token={apiKey}";
+
+        var redacted = DiscordWebhookService.RedactSensitiveText(text);
+
+        Assert.DoesNotContain("abcdef_SECRET", redacted);
+        Assert.DoesNotContain(apiKey, redacted);
+        Assert.Contains("[redacted]", redacted);
+        Assert.Contains("[redacted-token]", redacted);
+    }
 }

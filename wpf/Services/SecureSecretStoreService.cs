@@ -70,6 +70,13 @@ namespace HyperBoostX.Services
             return Task.CompletedTask;
         }
 
+        public Task ClearDiscordAsync()
+        {
+            DeleteCredential(DiscordTarget);
+            DeleteCredential(DiscordUpdateTarget);
+            return Task.CompletedTask;
+        }
+
         public string GetSecretPath()
         {
             return "Windows Credential Manager";

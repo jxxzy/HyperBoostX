@@ -199,7 +199,7 @@ namespace HyperBoostX
                         recentContext.Dequeue();
                     recentContext.Enqueue(entry);
 
-                    var severity = DetectLogSeverity(entry);
+                    var severity = DetectLogSeverity(Path.GetFileName(logPath), entry);
                     if (severity == null || !ShouldSendForSeverity(severity, settings.MinimumLevel))
                         continue;
 
@@ -259,7 +259,7 @@ namespace HyperBoostX
             return lines;
         }
 
-        private static string DetectLogSeverity(string line)
+        private static string DetectLogSeverity(string sourceLogName, string line)
         {
             var text = line?.Trim() ?? "";
             if (string.IsNullOrWhiteSpace(text))

@@ -48,6 +48,8 @@ namespace HyperBoostX.Services
         public string LastKnownReleasePublishedUtc { get; set; } = "";
         public string LastAppUpdateSummary { get; set; } = "Update status has not been checked yet.";
         public DateTime? LastAppUpdateCheckUtc { get; set; }
+        public string LastAppUpdateNotificationVersion { get; set; } = "";
+        public DateTime? LastAppUpdateNotificationUtc { get; set; }
         public int CpuThreshold { get; set; } = 80;
         public int RamThreshold { get; set; } = 80;
         public int DiskThreshold { get; set; } = 85;

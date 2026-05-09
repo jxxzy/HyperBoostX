@@ -1,0 +1,19 @@
+HyperBoost X v1.2.11
+
+Stable patch release focused on webhook reliability, safer streaming controls, and release packaging.
+
+Changes:
+- Discord webhook URLs are stored in Windows Credential Manager and no longer displayed raw in Settings.
+- Added a Save Webhooks action so error/audit and release-update webhooks can be saved explicitly.
+- Feature Audit now stays as a single combined report path instead of being watched as per-line runtime log alerts.
+- Runtime auto-log alerts now monitor WPF, launcher, and backend logs only.
+- Streaming mic controls clarify that Windows endpoint volume/mute are applied directly, while gain/gate/compressor values are profile guidance.
+- Webcam wording now avoids overclaiming face AI and keeps OpenCV camera tracking positioned as motion tracking.
+- Portable package and installer rebuilt from the latest validated source.
+
+Validation:
+- .NET tests passed.
+- Python backend tests passed.
+- WPF Debug and Release builds passed.
+- Launcher Release build passed.
+- NSIS installer build passed.

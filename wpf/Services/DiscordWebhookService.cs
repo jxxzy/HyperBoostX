@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -17,6 +18,12 @@ namespace HyperBoostX.Services
 
     public sealed class DiscordWebhookService
     {
+        private static readonly Regex DiscordWebhookRegex = new Regex(
+            @"https://(?:canary\.|ptb\.)?discord(?:app)?\.com/api/webhooks/\d+/[A-Za-z0-9_\-]+",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex TokenLikeRegex = new Regex(
+            @"(?i)(sk-[A-Za-z0-9_\-]{12,}|github_pat_[A-Za-z0-9_]+|ghp_[A-Za-z0-9_]+|xox[baprs]-[A-Za-z0-9\-]+)",
+            RegexOptions.Compiled);
         private static readonly HttpClient HttpClient = new HttpClient
         {
             Timeout = TimeSpan.FromSeconds(8)
@@ -71,7 +78,7 @@ namespace HyperBoostX.Services
             {
                 return new DiscordWebhookSendResult
                 {
-                    ErrorMessage = ex.Message,
+                    ErrorMessage = RedactSensitiveText(ex.Message),
                     Summary = "Discord webhook request could not be completed."
                 };
             }
@@ -120,9 +127,20 @@ namespace HyperBoostX.Services
             if (string.IsNullOrWhiteSpace(value))
                 return "-";
 
+            value = RedactSensitiveText(value);
             return value.Length <= maxLength
                 ? value
                 : value.Substring(0, maxLength - 3) + "...";
+        }
+
+        public static string RedactSensitiveText(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return value ?? "";
+
+            var redacted = DiscordWebhookRegex.Replace(value, "https://discord.com/api/webhooks/[redacted]");
+            redacted = TokenLikeRegex.Replace(redacted, "[redacted-token]");
+            return redacted;
         }
 
         private static int GetSeverityColor(string severity)

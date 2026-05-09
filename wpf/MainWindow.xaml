@@ -75,6 +75,93 @@
             <Setter Property="Padding" Value="16"/>
             <Setter Property="Margin" Value="0,0,0,16"/>
         </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="#0f172a"/>
+            <Setter Property="Foreground" Value="#f8fafc"/>
+            <Setter Property="BorderBrush" Value="#334155"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="MinHeight" Value="34"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Border x:Name="ComboBoxBorder"
+                                    Background="#0f172a"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="3"/>
+                            <ContentPresenter x:Name="ContentSite"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
+                                              Margin="10,0,34,0"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Center"
+                                              IsHitTestVisible="False"
+                                              TextElement.Foreground="#f8fafc"/>
+                            <TextBlock Text="▼"
+                                       Foreground="#cbd5e1"
+                                       FontSize="10"
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,12,0"
+                                       IsHitTestVisible="False"/>
+                            <ToggleButton x:Name="DropDownToggle"
+                                          Background="Transparent"
+                                          BorderThickness="0"
+                                          Focusable="False"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"/>
+                            <Popup x:Name="PART_Popup"
+                                   Placement="Bottom"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="Slide">
+                                <Border Background="#0f172a"
+                                        BorderBrush="#334155"
+                                        BorderThickness="1"
+                                        MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                        MaxHeight="280">
+                                    <ScrollViewer CanContentScroll="True">
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ComboBoxBorder" Property="BorderBrush" Value="#38bdf8"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ComboBoxBorder" Property="Opacity" Value="0.6"/>
+                                <Setter TargetName="ContentSite" Property="Opacity" Value="0.75"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="#0f172a"/>
+            <Setter Property="Foreground" Value="#f8fafc"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#0f172a"/>
+                    <Setter Property="Foreground" Value="#64748b"/>
+                </Trigger>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" Value="#1d4ed8"/>
+                    <Setter Property="Foreground" Value="#ffffff"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#1e40af"/>
+                    <Setter Property="Foreground" Value="#ffffff"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -195,14 +282,20 @@
                                    TextWrapping="Wrap"/>
                     </StackPanel>
 
-                    <Border Grid.Column="1"
-                            Name="HeaderBackendBadge"
-                            Background="#1d4ed8"
-                            CornerRadius="14"
-                            Padding="12,6"
-                            VerticalAlignment="Top">
-                        <TextBlock Name="HeaderBackendText" Text="Backend checking..." Foreground="White" FontSize="11" FontWeight="SemiBold"/>
-                    </Border>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                        <Button Name="ThemeToggleBtn"
+                                Content="Theme: Auto"
+                                Click="ThemeToggle_Click"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Padding="12,6"
+                                Margin="0,0,10,0"/>
+                        <Border Name="HeaderBackendBadge"
+                                Background="#1d4ed8"
+                                CornerRadius="14"
+                                Padding="12,6">
+                            <TextBlock Name="HeaderBackendText" Text="Backend checking..." Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+                        </Border>
+                    </StackPanel>
                 </Grid>
             </Border>
 
@@ -1409,7 +1502,7 @@
                                 <StackPanel>
                                     <TextBlock Text="12. Feature Presets" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                     <WrapPanel>
-                                        <ComboBox Name="WindowsFeaturesPresetCombo" Width="220" SelectedIndex="0" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8" Margin="0,0,12,12">
+                                        <ComboBox Name="WindowsFeaturesPresetCombo" Width="220" SelectedIndex="0" Margin="0,0,12,12">
                                             <ComboBoxItem Content="Gaming Setup"/>
                                             <ComboBoxItem Content="Developer Setup"/>
                                             <ComboBoxItem Content="Creator Setup"/>
@@ -1517,7 +1610,7 @@
                                 <StackPanel>
                                     <TextBlock Text="3. Update Control Mode" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                     <WrapPanel>
-                                        <ComboBox Name="UpdateControlModeCombo" Width="220" SelectedIndex="0" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8" Margin="0,0,12,12">
+                                        <ComboBox Name="UpdateControlModeCombo" Width="220" SelectedIndex="0" Margin="0,0,12,12">
                                             <ComboBoxItem Content="Automatic"/>
                                             <ComboBoxItem Content="Manual"/>
                                             <ComboBoxItem Content="Disabled"/>
@@ -2114,7 +2207,7 @@
                                 <StackPanel>
                                     <TextBlock Text="13. Custom Tweaks Profile" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                     <WrapPanel>
-                                        <ComboBox Name="TweaksProfileCombo" Width="240" SelectedIndex="0" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8" Margin="0,0,12,12">
+                                        <ComboBox Name="TweaksProfileCombo" Width="240" SelectedIndex="0" Margin="0,0,12,12">
                                             <ComboBoxItem Content="Gaming Mode Tweaks"/>
                                             <ComboBoxItem Content="Performance Tweaks"/>
                                             <ComboBoxItem Content="Privacy Mode"/>
@@ -2295,17 +2388,26 @@
                                     <TextBlock Name="SettingsLocalizationTitleText" Text="1-2. UI / Localization" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                     <TextBlock Name="SettingsLanguageOverviewText" Text="Current language, detected system locale, language pack coverage, fallback chain, and apply mode will appear here." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,12"/>
                                     <WrapPanel Margin="0,0,0,12">
-                                        <ComboBox Name="SettingsThemeCombo" Width="140" SelectedIndex="2" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8">
-                                            <ComboBoxItem Content="Light"/>
-                                            <ComboBoxItem Content="Dark"/>
-                                            <ComboBoxItem Content="Auto"/>
-                                        </ComboBox>
-                                        <ComboBox Name="SettingsDensityCombo" Width="150" SelectedIndex="1" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8" Margin="12,0,0,0">
-                                            <ComboBoxItem Content="Compact"/>
-                                            <ComboBoxItem Content="Comfortable"/>
-                                            <ComboBoxItem Content="Detailed"/>
-                                        </ComboBox>
-                                        <ComboBox Name="SettingsLanguageCombo" Width="220" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8" Margin="12,0,0,0"/>
+                                        <StackPanel Width="140" Margin="0,0,12,0">
+                                            <TextBlock Text="Tema" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <ComboBox Name="SettingsThemeCombo" SelectedIndex="1">
+                                                <ComboBoxItem Content="Light" IsEnabled="False"/>
+                                                <ComboBoxItem Content="Dark"/>
+                                                <ComboBoxItem Content="Auto" IsEnabled="False"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                        <StackPanel Width="150" Margin="0,0,12,0">
+                                            <TextBlock Text="Tampilan" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <ComboBox Name="SettingsDensityCombo" SelectedIndex="1">
+                                                <ComboBoxItem Content="Compact"/>
+                                                <ComboBoxItem Content="Comfortable"/>
+                                                <ComboBoxItem Content="Detailed"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                        <StackPanel Width="220">
+                                            <TextBlock Text="Bahasa" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <ComboBox Name="SettingsLanguageCombo"/>
+                                        </StackPanel>
                                     </WrapPanel>
                                     <WrapPanel>
                                         <Button Name="ApplyUiSettingsBtn" Content="Apply UI Settings" Click="ApplyUiSettings_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
@@ -2425,7 +2527,7 @@
                                         </StackPanel>
                                         <StackPanel Margin="0,0,12,0">
                                             <TextBlock Text="AI Mode:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/>
-                                            <ComboBox Name="OpenAiModeCombo" Width="140" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8">
+                                            <ComboBox Name="OpenAiModeCombo" Width="140">
                                                 <ComboBoxItem Content="Chat"/>
                                                 <ComboBoxItem Content="Assistant" IsSelected="True"/>
                                                 <ComboBoxItem Content="Action"/>
@@ -2434,7 +2536,7 @@
                                         </StackPanel>
                                         <StackPanel>
                                             <TextBlock Text="Permission:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/>
-                                            <ComboBox Name="OpenAiPermissionCombo" Width="140" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8">
+                                            <ComboBox Name="OpenAiPermissionCombo" Width="140">
                                                 <ComboBoxItem Content="Suggest"/>
                                                 <ComboBoxItem Content="Ask" IsSelected="True"/>
                                                 <ComboBoxItem Content="Auto Safe"/>
@@ -2453,10 +2555,11 @@
                                     <TextBox Name="DiscordWebhookUrlInput" Text="" Background="#0f172a" Foreground="#ffffff" Padding="10" Margin="0,0,0,12" BorderThickness="1" BorderBrush="#7c3aed"/>
                                     <TextBlock Text="Release Update Webhook URL:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/>
                                     <TextBox Name="DiscordUpdateWebhookUrlInput" Text="" Background="#0f172a" Foreground="#ffffff" Padding="10" Margin="0,0,0,12" BorderThickness="1" BorderBrush="#334155"/>
+                                    <TextBlock Text="Webhook tersimpan tidak ditampilkan lagi di layar. Kosongkan field untuk tetap memakai credential yang sudah tersimpan, isi URL baru hanya saat ingin mengganti." Foreground="#94a3b8" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12"/>
                                     <WrapPanel Margin="0,0,0,12">
                                         <StackPanel Margin="0,0,12,0">
                                             <TextBlock Text="Minimum Level:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/>
-                                            <ComboBox Name="DiscordWebhookLevelCombo" Width="150" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8">
+                                            <ComboBox Name="DiscordWebhookLevelCombo" Width="150">
                                                 <ComboBoxItem Content="Warning"/>
                                                 <ComboBoxItem Content="Error" IsSelected="True"/>
                                                 <ComboBoxItem Content="Critical"/>
@@ -2468,9 +2571,11 @@
                                         </StackPanel>
                                     </WrapPanel>
                                     <WrapPanel>
+                                        <Button Name="SaveDiscordWebhooksBtn" Content="Save Webhooks" Click="SaveDiscordWebhooks_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Name="ToggleDiscordWebhookBtn" Content="Enable Discord Reporting" Click="ToggleDiscordWebhook_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Name="TestDiscordWebhookBtn" Content="Send Test Error" Click="TestDiscordWebhook_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Name="PreviewDiscordWebhookBtn" Content="Preview Payload" Click="PreviewDiscordWebhook_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Name="ClearDiscordWebhooksBtn" Content="Clear Saved Webhooks" Click="ClearDiscordWebhooks_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Name="OpenErrorLogFolderBtn" Content="Open Error Logs" Click="OpenErrorLogFolder_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                     </WrapPanel>
                                     <TextBlock Name="DiscordWebhookStatusText" Text="Discord webhook reporting is OFF." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,12"/>
@@ -2758,7 +2863,7 @@
                                     <Button Content="Browse App" Click="BrowseStartupApp_Click" Style="{StaticResource ActionButtonStyle}" Margin="12,0,0,0"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal">
-                                    <ComboBox Name="StartupAddModeCombo" Width="220" SelectedIndex="0" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8">
+                                    <ComboBox Name="StartupAddModeCombo" Width="220" SelectedIndex="0">
                                         <ComboBoxItem Content="Registry (Current User)"/>
                                         <ComboBoxItem Content="Startup Folder (Current User)"/>
                                     </ComboBox>
@@ -2981,7 +3086,7 @@
                                     <TextBlock Text="Real-Time Detection" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                     <TextBlock Name="StorageDetectionText" Text="Monitoring storage changes..." Foreground="#38bdf8" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,12"/>
                                     <TextBlock Text="Filter" Foreground="#94a3b8" FontSize="12" Margin="0,0,0,6"/>
-                                    <ComboBox Name="StorageFilterCombo" SelectionChanged="StorageFilterCombo_SelectionChanged" SelectedIndex="0" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8" Margin="0,0,0,12">
+                                    <ComboBox Name="StorageFilterCombo" SelectionChanged="StorageFilterCombo_SelectionChanged" SelectedIndex="0" Margin="0,0,0,12">
                                         <ComboBoxItem Content="All Devices"/>
                                         <ComboBoxItem Content="Internal Only"/>
                                         <ComboBoxItem Content="Removable Only"/>
@@ -2989,7 +3094,7 @@
                                         <ComboBoxItem Content="Optical Only"/>
                                     </ComboBox>
                                     <TextBlock Text="Select Drive" Foreground="#94a3b8" FontSize="12" Margin="0,0,0,6"/>
-                                    <ComboBox Name="StorageDriveCombo" SelectionChanged="StorageDriveCombo_SelectionChanged" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8"/>
+                                    <ComboBox Name="StorageDriveCombo" SelectionChanged="StorageDriveCombo_SelectionChanged"/>
                                 </StackPanel>
                             </Border>
                         </Grid>
@@ -3084,7 +3189,7 @@
                                     <WrapPanel Margin="0,0,0,12">
                                         <StackPanel Margin="0,0,12,12">
                                             <TextBlock Text="Set priority" Foreground="#94a3b8" FontSize="12" Margin="0,0,0,6"/>
-                                            <ComboBox Name="GamePriorityCombo" Width="180" SelectedIndex="1" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8">
+                                            <ComboBox Name="GamePriorityCombo" Width="180" SelectedIndex="1">
                                                 <ComboBoxItem Content="Normal"/>
                                                 <ComboBoxItem Content="High"/>
                                                 <ComboBoxItem Content="Real-time"/>
@@ -3209,7 +3314,7 @@
                                 <TextBlock Text="10. Game Profiles" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,10"/>
                                 <TextBlock Text="Simpan atau pakai profile cepat per game, lalu sesuaikan lagi secara manual kalau perlu." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,12"/>
                                 <WrapPanel Margin="0,0,0,12">
-                                    <ComboBox Name="GamingProfileCombo" Width="260" SelectedIndex="0" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8" Margin="0,0,12,12">
+                                    <ComboBox Name="GamingProfileCombo" Width="260" SelectedIndex="0" Margin="0,0,12,12">
                                         <ComboBoxItem Content="Valorant - aggressive boost"/>
                                         <ComboBoxItem Content="GTA V - balanced"/>
                                         <ComboBoxItem Content="Emulator - RAM heavy"/>
@@ -3238,7 +3343,7 @@
                                 <TextBlock Text="13. Auto Activation &amp; Restore After Exit" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,10"/>
                                 <TextBlock Text="Pilih executable game, aktifkan profile mode saat game dibuka, lalu pulihkan setting normal setelah sesi selesai kalau diperlukan." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,12"/>
                                 <StackPanel Orientation="Horizontal">
-                                    <ComboBox Name="GameLaunchModeCombo" Width="260" SelectedIndex="0" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8">
+                                    <ComboBox Name="GameLaunchModeCombo" Width="260" SelectedIndex="0">
                                         <ComboBoxItem Content="Quick Safe Gaming"/>
                                         <ComboBoxItem Content="Quick Competitive Gaming"/>
                                         <ComboBoxItem Content="Quick Streaming Gaming"/>
@@ -3283,7 +3388,7 @@
                                         <Button Content="Browse App" Click="BrowseStreamingApp_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,0"/>
                                     </DockPanel>
                                     <WrapPanel>
-                                        <ComboBox Name="StreamingPriorityCombo" Width="180" SelectedIndex="1" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8" Margin="0,0,12,12">
+                                        <ComboBox Name="StreamingPriorityCombo" Width="180" SelectedIndex="1" Margin="0,0,12,12">
                                             <ComboBoxItem Content="Above Normal"/>
                                             <ComboBoxItem Content="High"/>
                                         </ComboBox>
@@ -3322,12 +3427,20 @@
 
                             <Border Grid.Column="0" Style="{StaticResource InfoCardStyle}" Margin="0,0,12,0">
                                 <StackPanel>
-                                    <TextBlock Text="3. Advanced Mic / Voice Mixer" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Voicemeeter-style mic strip untuk gain, gate, compressor preview, mute, device check, dan integrasi Voicemeeter resmi." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,12"/>
+                                    <TextBlock Text="3. Advanced Mic Mixer" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
+                                    <TextBlock Text="HyperBoost mic control untuk Windows input volume, mute, live meter, preset profile, dan device diagnostics tanpa aplikasi tambahan. Gain/gate/compressor adalah profil panduan, bukan virtual audio driver." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,12"/>
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Input Device" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        <ComboBox Grid.Column="1" Name="VoiceMeterDeviceCombo"/>
+                                    </Grid>
                                     <WrapPanel Margin="0,0,0,12">
                                         <Button Content="Refresh Microphones" Click="RefreshVoiceMeterDevices_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
-                                        <Button Content="Start Voice Meter" Click="StartVoiceMeter_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
-                                        <Button Content="Stop Voice Meter" Click="StopVoiceMeter_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Start Mic Meter" Click="StartVoiceMeter_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Stop Mic Meter" Click="StopVoiceMeter_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Stream Mic Preset" Click="ApplyStreamingMicPreset_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Apply Mic Settings" Click="ApplyMicMixerSettings_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Toggle Mute" Click="ToggleMicMixerMute_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
@@ -3335,9 +3448,6 @@
                                         <Button Content="Reset Audio Service" Click="ResetStreamingAudioService_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Sound Settings" Click="OpenStreamingSoundSettings_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Volume Mixer" Click="OpenWindowsVolumeMixer_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
-                                        <Button Content="Detect Voicemeeter" Click="DetectVoicemeeter_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
-                                        <Button Content="Open Voicemeeter" Click="OpenVoicemeeter_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
-                                        <Button Content="Download Voicemeeter" Click="OpenVoicemeeterDownload_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Mic Privacy" Click="OpenMicrophonePrivacy_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                     </WrapPanel>
                                     <Grid Margin="0,0,0,12">
@@ -3359,10 +3469,29 @@
                                             <Slider Name="MicMixerCompressorSlider" Minimum="0" Maximum="100" Value="25" TickFrequency="10" IsSnapToTickEnabled="False" ValueChanged="MicMixerControl_ValueChanged"/>
                                         </StackPanel>
                                     </Grid>
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                            <TextBlock Text="Windows Volume %" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <Slider Name="MicWindowsVolumeSlider" Minimum="0" Maximum="100" Value="75" TickFrequency="5" IsSnapToTickEnabled="False" ValueChanged="MicEndpointControl_ValueChanged"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                                            <TextBlock Text="Monitor Mix %" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <Slider Name="MicMonitorMixSlider" Minimum="0" Maximum="100" Value="0" TickFrequency="10" IsSnapToTickEnabled="False" ValueChanged="MicMixerControl_ValueChanged"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Limiter %" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <Slider Name="MicLimiterSlider" Minimum="60" Maximum="100" Value="90" TickFrequency="5" IsSnapToTickEnabled="False" ValueChanged="MicMixerControl_ValueChanged"/>
+                                        </StackPanel>
+                                    </Grid>
                                     <ProgressBar Name="VoiceMeterLevelBar" Height="16" Minimum="0" Maximum="100" Value="0" Margin="0,0,0,8"/>
                                     <TextBlock Name="VoiceMeterPeakText" Text="Input level: 0% | Peak: 0%" Foreground="#38bdf8" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                     <TextBlock Name="MicMixerStatusText" Text="Mixer strip: gain +0 dB | gate 8% | compressor 25% | mute off | route: Windows default mic." Foreground="#86efac" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,8"/>
-                                    <TextBlock Name="VoiceMeterStatusText" Text="Voice meter idle." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                    <TextBlock Name="VoiceMeterStatusText" Text="Mic meter idle." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                     <TextBlock Name="VoiceMeterDevicesText" Text="Microphone devices will appear here." Foreground="#94a3b8" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Border>
@@ -3370,11 +3499,20 @@
                             <Border Grid.Column="1" Style="{StaticResource InfoCardStyle}">
                                 <StackPanel>
                                     <TextBlock Text="4. Advanced Webcam Studio" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Camera studio panel untuk brightness, contrast, sharpness, exposure profile, FPS target, device scan, privacy, dan setup OBS / TikTok LIVE Studio / Discord." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,12"/>
+                                    <TextBlock Text="HyperBoost camera studio untuk brightness, contrast, saturation, sharpness, white balance, exposure, FOV/FPS, color recovery, dan tracking." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,12"/>
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Camera Device" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        <ComboBox Grid.Column="1" Name="CameraDeviceCombo"/>
+                                    </Grid>
                                     <WrapPanel Margin="0,0,0,12">
                                         <Button Content="Stream Camera Preset" Click="ApplyStreamingCameraPreset_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Low Light Preset" Click="ApplyLowLightCameraPreset_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
-                                        <Button Content="Sharp Face Preset" Click="ApplySharpFaceCameraPreset_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Sharp Detail Preset" Click="ApplySharpFaceCameraPreset_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Apply Safe Camera Settings" Click="ApplyCameraStudioSettings_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Reset Camera Profile" Click="ResetCameraStudioProfile_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Scan Cameras" Click="RefreshWebcamSettings_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Content="Camera Diagnostics" Click="RunWebcamDiagnostics_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
@@ -3406,6 +3544,25 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                            <TextBlock Text="Saturation %" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <Slider Name="CameraSaturationSlider" Minimum="0" Maximum="100" Value="55" TickFrequency="10" IsSnapToTickEnabled="False" ValueChanged="CameraStudioControl_ValueChanged"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                                            <TextBlock Text="White Balance K" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <Slider Name="CameraWhiteBalanceSlider" Minimum="2800" Maximum="7500" Value="4500" TickFrequency="100" IsSnapToTickEnabled="False" ValueChanged="CameraStudioControl_ValueChanged"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="FOV / Zoom %" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <Slider Name="CameraFovSlider" Minimum="78" Maximum="100" Value="100" TickFrequency="2" IsSnapToTickEnabled="False" ValueChanged="CameraStudioControl_ValueChanged"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0" Margin="0,0,12,0">
                                             <TextBlock Text="Exposure EV" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
@@ -3416,7 +3573,51 @@
                                             <Slider Name="CameraFpsSlider" Minimum="24" Maximum="60" Value="30" TickFrequency="6" IsSnapToTickEnabled="False" ValueChanged="CameraStudioControl_ValueChanged"/>
                                         </StackPanel>
                                     </Grid>
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                            <TextBlock Text="Tracking Target" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <ComboBox Name="CameraTrackingTargetCombo" SelectedIndex="0" SelectionChanged="CameraStudioCombo_SelectionChanged">
+                                                <ComboBoxItem Content="Motion Center"/>
+                                                <ComboBoxItem Content="Presenter Framing"/>
+                                                <ComboBoxItem Content="Movement Follow"/>
+                                                <ComboBoxItem Content="Product Desk"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="Framing" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <ComboBox Name="CameraFramingCombo" SelectedIndex="1" SelectionChanged="CameraStudioCombo_SelectionChanged">
+                                                <ComboBoxItem Content="Tight"/>
+                                                <ComboBoxItem Content="Medium"/>
+                                                <ComboBoxItem Content="Wide"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                            <TextBlock Text="Tracking Smoothness %" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <Slider Name="CameraTrackingSmoothnessSlider" Minimum="0" Maximum="100" Value="65" TickFrequency="10" IsSnapToTickEnabled="False" ValueChanged="CameraStudioControl_ValueChanged"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="Dead Zone %" Foreground="#cbd5e1" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <Slider Name="CameraTrackingDeadZoneSlider" Minimum="0" Maximum="35" Value="12" TickFrequency="5" IsSnapToTickEnabled="False" ValueChanged="CameraStudioControl_ValueChanged"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <WrapPanel Margin="0,0,0,12">
+                                        <Button Content="Enable Tracking Profile" Click="EnableCameraTrackingProfile_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Open Real-Time Tracker" Click="OpenRealTimeCameraTracker_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Disable Tracking" Click="DisableCameraTrackingProfile_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Content="Tracking Diagnostics" Click="RunCameraTrackingDiagnostics_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    </WrapPanel>
                                     <TextBlock Name="CameraStudioStatusText" Text="Camera studio: brightness +8% | contrast +12% | sharpness 35% | exposure +0.0 EV | target 30 FPS." Foreground="#86efac" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                    <TextBlock Name="CameraTrackingStatusText" Text="Tracking profile: off | target Motion Center | framing Medium | smoothness 65% | dead-zone 12%." Foreground="#facc15" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                     <TextBlock Name="WebcamSettingsStatusText" Text="Webcam settings ready." Foreground="#38bdf8" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                     <TextBlock Name="WebcamDevicesText" Text="Camera devices will appear here." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap"/>
                                 </StackPanel>
@@ -3523,7 +3724,7 @@
                                     <TextBlock Text="12. Stream + Gaming Balance Mode" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                     <TextBlock Text="Pilih sesuai kebutuhan: FPS tinggi, stream stabil, atau seimbang." Foreground="#94a3b8" FontSize="12" Margin="0,0,0,12"/>
                                     <WrapPanel>
-                                        <ComboBox Name="StreamingBalanceModeCombo" Width="220" SelectedIndex="2" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8" Margin="0,0,12,12">
+                                        <ComboBox Name="StreamingBalanceModeCombo" Width="220" SelectedIndex="2" Margin="0,0,12,12">
                                             <ComboBoxItem Content="Game Priority Mode"/>
                                             <ComboBoxItem Content="Stream Priority Mode"/>
                                             <ComboBoxItem Content="Balanced Mode"/>
@@ -3538,7 +3739,7 @@
                             <StackPanel>
                                 <TextBlock Text="13. Streaming Profiles" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                 <WrapPanel Margin="0,0,0,12">
-                                    <ComboBox Name="StreamingProfileCombo" Width="260" SelectedIndex="0" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8" Margin="0,0,12,12">
+                                    <ComboBox Name="StreamingProfileCombo" Width="260" SelectedIndex="0" Margin="0,0,12,12">
                                         <ComboBoxItem Content="TikTok LIVE Mode"/>
                                         <ComboBoxItem Content="YouTube Streaming Mode"/>
                                         <ComboBoxItem Content="OBS Recording Mode"/>
@@ -3583,7 +3784,7 @@
                                         <Button Content="Browse App" Click="BrowseCreatorApp_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,0"/>
                                     </DockPanel>
                                     <WrapPanel>
-                                        <ComboBox Name="CreatorPriorityCombo" Width="180" SelectedIndex="1" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8" Margin="0,0,12,12">
+                                        <ComboBox Name="CreatorPriorityCombo" Width="180" SelectedIndex="1" Margin="0,0,12,12">
                                             <ComboBoxItem Content="Above Normal"/>
                                             <ComboBoxItem Content="High"/>
                                         </ComboBox>
@@ -3720,7 +3921,7 @@
                             <StackPanel>
                                 <TextBlock Text="13. Creator Profiles" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                 <WrapPanel Margin="0,0,0,12">
-                                    <ComboBox Name="CreatorProfileCombo" Width="260" SelectedIndex="0" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8" Margin="0,0,12,12">
+                                    <ComboBox Name="CreatorProfileCombo" Width="260" SelectedIndex="0" Margin="0,0,12,12">
                                         <ComboBoxItem Content="Video Editing Mode"/>
                                         <ComboBoxItem Content="Design Mode (Photoshop)"/>
                                         <ComboBoxItem Content="Rendering Mode (Blender)"/>
@@ -3851,7 +4052,7 @@
                                 <StackPanel>
                                     <TextBlock Text="9. DNS Manager" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                     <WrapPanel Margin="0,0,0,12">
-                                        <ComboBox Name="NetworkDnsCombo" Width="220" SelectedIndex="1" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8" Margin="0,0,12,12">
+                                        <ComboBox Name="NetworkDnsCombo" Width="220" SelectedIndex="1" Margin="0,0,12,12">
                                             <ComboBoxItem Content="Auto Select Fastest DNS"/>
                                             <ComboBoxItem Content="Cloudflare DNS"/>
                                             <ComboBoxItem Content="Google DNS"/>
@@ -3958,7 +4159,7 @@
                                         <TextBox Name="DnsSecondaryInput" Width="160" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="10" Margin="0,0,12,12"/>
                                     </WrapPanel>
                                     <WrapPanel>
-                                        <ComboBox Name="DnsPresetCombo" Width="220" SelectedIndex="1" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8" Margin="0,0,12,12">
+                                        <ComboBox Name="DnsPresetCombo" Width="220" SelectedIndex="1" Margin="0,0,12,12">
                                             <ComboBoxItem Content="Reset ke default ISP"/>
                                             <ComboBoxItem Content="Cloudflare DNS"/>
                                             <ComboBoxItem Content="Google DNS"/>
@@ -4513,7 +4714,7 @@
                                     <TextBlock Text="1. Services List (Core Panel)" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                     <WrapPanel Margin="0,0,0,12">
                                         <TextBox Name="ServicesSearchInput" Width="260" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="10" Margin="0,0,12,0"/>
-                                        <ComboBox Name="ServicesFilterCombo" Width="180" SelectedIndex="0" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8" Margin="0,0,12,0">
+                                        <ComboBox Name="ServicesFilterCombo" Width="180" SelectedIndex="0" Margin="0,0,12,0">
                                             <ComboBoxItem Content="All services"/>
                                             <ComboBoxItem Content="Running"/>
                                             <ComboBoxItem Content="Stopped"/>
@@ -5126,7 +5327,7 @@
                                 <StackPanel>
                                     <TextBlock Text="10. Custom Script Executor" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                     <WrapPanel Margin="0,0,0,12">
-                                        <ComboBox Name="AdvancedScriptTypeCombo" Width="160" SelectedIndex="0" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8" Margin="0,0,12,0">
+                                        <ComboBox Name="AdvancedScriptTypeCombo" Width="160" SelectedIndex="0" Margin="0,0,12,0">
                                             <ComboBoxItem Content="PowerShell"/>
                                             <ComboBoxItem Content="CMD"/>
                                         </ComboBox>
@@ -5344,7 +5545,7 @@
                                     <TextBlock Text="3. Advanced Creation / 18. Snapshot Tagging" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                     <WrapPanel Margin="0,0,0,12">
                                         <TextBox Name="RestorePointNameInput" Width="260" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="10" Text="HyperBoostX Smart Restore Point"/>
-                                        <ComboBox Name="RestorePointTagCombo" Width="180" SelectedIndex="0" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8" Margin="12,0,0,0">
+                                        <ComboBox Name="RestorePointTagCombo" Width="180" SelectedIndex="0" Margin="12,0,0,0">
                                             <ComboBoxItem Content="Stable system"/>
                                             <ComboBoxItem Content="Gaming config"/>
                                             <ComboBoxItem Content="Before tweak"/>
@@ -5512,7 +5713,7 @@
                                 <StackPanel>
                                     <TextBlock Text="7-9. Goal / Scenario / Event Trigger" FontSize="14" FontWeight="Bold" Foreground="#f8fafc" Margin="0,0,0,8"/>
                                     <WrapPanel>
-                                        <ComboBox Name="AutomationGoalCombo" Width="220" SelectedIndex="0" Background="#0f172a" Foreground="#f8fafc" BorderBrush="#334155" Padding="8" Margin="0,0,12,12">
+                                        <ComboBox Name="AutomationGoalCombo" Width="220" SelectedIndex="0" Margin="0,0,12,12">
                                             <ComboBoxItem Content="Keep PC Fast"/>
                                             <ComboBoxItem Content="Keep Gaming Ready"/>
                                             <ComboBoxItem Content="Keep Storage Clean"/>
@@ -5893,6 +6094,7 @@
                                 <TextBlock Text="Startup Manager, Cleanup &amp; Storage Tools" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
                                 <TextBlock Text="Network Optimization Module" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
                                 <TextBlock Text="Gaming Booster, Streaming Mode, Creator Mode" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Advanced Mic Mixer, Webcam Studio &amp; Real-time Camera Tracking" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
                                 <TextBlock Text="Privacy Center &amp; Security Health Tools" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
                                 <TextBlock Text="Repair Tools &amp; Driver / Update Center" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
                                 <TextBlock Text="Tweaks Center &amp; Advanced Tweaks" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
@@ -5901,7 +6103,8 @@
                                 <TextBlock Text="Backup &amp; Restore + Restore Point Manager" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
                                 <TextBlock Text="Scheduled Automation (task &amp; rule system)" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
                                 <TextBlock Text="AI Assistant (HyperBoostX Copilot - OpenAI integration)" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
-                                <TextBlock Text="Discord Webhook Error Reporting" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Discord Webhook Error Reporting &amp; Release Update Notification" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="Master Test Engine &amp; Feature Audit Matrix" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
                                 <TextBlock Text="Multi-language Support (Localization System)" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,16"/>
 
                                 <TextBlock Text="PURPOSE" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
@@ -5917,19 +6120,19 @@
                                 <TextBlock Text=".NET Launcher -> lifecycle management (start, monitor, shutdown)" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,16"/>
 
                                 <TextBlock Text="DEVELOPER / AUTHOR" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
-                                <TextBlock Text="MR.4NONY" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,16"/>
+                                <TextBlock Text="MR.4NONY - HYPERINDO CYBER TEAM" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,16"/>
 
                                 <TextBlock Text="VERSION" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
-                                <TextBlock Name="AboutVersionText" Text="1.2.10 - Stable - 2026" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,8"/>
+                                <TextBlock Name="AboutVersionText" Text="1.2.11 - Stable - 2026" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,8"/>
                                 <WrapPanel Margin="0,0,0,12">
                                     <Border Background="#14532d" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
                                         <TextBlock Text="STABLE RELEASE" Foreground="#dcfce7" FontSize="11" FontWeight="Bold"/>
                                     </Border>
                                     <Border Background="#0f172a" BorderBrush="#38bdf8" BorderThickness="1" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
-                                        <TextBlock Text="v1.2.10" Foreground="#bae6fd" FontSize="11" FontWeight="Bold"/>
+                                        <TextBlock Text="v1.2.11" Foreground="#bae6fd" FontSize="11" FontWeight="Bold"/>
                                     </Border>
                                     <Border Background="#3f3f46" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
-                                        <TextBlock Text="QA 56/56 PASSED" Foreground="#f8fafc" FontSize="11" FontWeight="Bold"/>
+                                        <TextBlock Name="AboutQaBadgeText" Text="QA NOT RUN" Foreground="#f8fafc" FontSize="11" FontWeight="Bold"/>
                                     </Border>
                                 </WrapPanel>
                                 <TextBlock Name="AboutUpdateStatusText" Text="Update status will appear here." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,12"/>
@@ -5962,5 +6165,3 @@
         </Grid>
     </Grid>
 </Window>
-
-
