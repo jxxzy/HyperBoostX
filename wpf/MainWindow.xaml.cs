@@ -6248,6 +6248,70 @@ if (-not $result) { 'Unavailable'; return }
             }
         }
 
+        private async void TestDiscordUpdateWebhook_Click(object sender, RoutedEventArgs e)
+        {
+            if (!ReadDiscordWebhookInputs(requireErrorWebhook: false))
+                return;
+
+            if (string.IsNullOrWhiteSpace(_discordUpdateWebhookUrl))
+            {
+                ShowActionStatus(
+                    ActionState.Warning,
+                    "Discord Update Webhook",
+                    "Masukkan release update webhook URL lalu Save Webhooks, atau pastikan credential lama masih tersimpan.");
+                return;
+            }
+
+            var latestVersion = string.IsNullOrWhiteSpace(_latestKnownAppVersion)
+                ? NormalizeDiscordReportVersion(_currentAppVersion)
+                : NormalizeDiscordReportVersion(_latestKnownAppVersion);
+            var releaseUrl = string.IsNullOrWhiteSpace(_latestKnownReleaseUrl)
+                ? "https://github.com/jxxzy/HyperBoostX/releases"
+                : _latestKnownReleaseUrl;
+
+            var fields = BuildDiscordReportFields("info", "Manual release update webhook test.");
+            fields["Module"] = "App Update";
+            fields["Page"] = "Update Notification";
+            fields["Current Version"] = NormalizeDiscordReportVersion(_currentAppVersion);
+            fields["Latest Version"] = latestVersion;
+            fields["Channel"] = string.IsNullOrWhiteSpace(_latestKnownReleaseChannel) ? "Stable" : _latestKnownReleaseChannel;
+            fields["Published"] = _latestKnownReleasePublishedUtc?.ToLocalTime().ToString("dd MMM yyyy HH:mm") ?? "Unknown";
+            fields["Installer Asset"] = string.IsNullOrWhiteSpace(_latestKnownInstallerAssetName) ? "Unavailable" : _latestKnownInstallerAssetName;
+            fields["Triggered By"] = "Manual webhook test";
+            fields["Release URL"] = releaseUrl;
+
+            RefreshDiscordPreview(
+                "info",
+                "HyperBoostX update webhook test",
+                "This is a test notification from HyperBoostX release update integration.");
+
+            var result = await _discordWebhookService.SendDetailedAsync(
+                _discordUpdateWebhookUrl,
+                "HyperBoostX update webhook test",
+                $"Release update webhook siap. Latest known release: {latestVersion}.",
+                "info",
+                fields,
+                "HyperBoostX Update");
+
+            if (result.Success)
+            {
+                AppendSettingsHistory("Discord update webhook test notification sent.");
+                await PersistAndRefreshSettingsAsync();
+                ShowActionStatus(ActionState.Success, "Discord Update Webhook", "Test update message berhasil dikirim ke Discord.", result.Summary);
+            }
+            else
+            {
+                var details =
+                    $"{result.Summary}{Environment.NewLine}" +
+                    $"HTTP status: {(result.StatusCode > 0 ? result.StatusCode.ToString(CultureInfo.InvariantCulture) : "n/a")}{Environment.NewLine}" +
+                    $"Reason: {(string.IsNullOrWhiteSpace(result.ErrorMessage) ? "n/a" : result.ErrorMessage)}{Environment.NewLine}" +
+                    "403/404 biasanya berarti webhook salah channel, sudah dihapus, token tidak valid, atau permission channel berubah.";
+                AppendSettingsHistory($"Discord update webhook test failed: {result.Summary}");
+                await PersistAndRefreshSettingsAsync();
+                ShowActionStatus(ActionState.Error, "Discord Update Webhook", "Gagal mengirim test update ke Discord.", details);
+            }
+        }
+
         private async void ClearDiscordWebhooks_Click(object sender, RoutedEventArgs e)
         {
             _discordWebhookUrl = "";

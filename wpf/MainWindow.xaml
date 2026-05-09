@@ -2574,6 +2574,7 @@
                                         <Button Name="SaveDiscordWebhooksBtn" Content="Save Webhooks" Click="SaveDiscordWebhooks_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Name="ToggleDiscordWebhookBtn" Content="Enable Discord Reporting" Click="ToggleDiscordWebhook_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Name="TestDiscordWebhookBtn" Content="Send Test Error" Click="TestDiscordWebhook_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Name="TestDiscordUpdateWebhookBtn" Content="Send Test Update" Click="TestDiscordUpdateWebhook_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Name="PreviewDiscordWebhookBtn" Content="Preview Payload" Click="PreviewDiscordWebhook_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Name="ClearDiscordWebhooksBtn" Content="Clear Saved Webhooks" Click="ClearDiscordWebhooks_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                         <Button Name="OpenErrorLogFolderBtn" Content="Open Error Logs" Click="OpenErrorLogFolder_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
