@@ -1,5 +1,5 @@
 """
-Startup API Blueprint for HyperBoost X
+Startup API Blueprint for HyperBoostX
 Handles startup item listing and simple startup management operations.
 """
 

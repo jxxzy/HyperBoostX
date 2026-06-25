@@ -1,5 +1,5 @@
 """
-API Package for HyperBoost X
+API Package for HyperBoostX
 Contains Flask blueprints for different API domains
 """
 

@@ -10,13 +10,14 @@ using Newtonsoft.Json.Linq;
 namespace HyperBoostX.Services
 {
     /// <summary>
-    /// C# WPF client for HyperBoost X Python backend API
+    /// C# WPF client for HyperBoostX Python backend API
     /// Communicates with Flask REST API server running on localhost:5000
     /// </summary>
     public class HyperBoostBackendClient : IHyperBoostBackendClient, IDisposable
     {
         private readonly HttpClient _httpClient;
         private readonly string _baseUrl;
+        private const string SessionHeaderName = "X-HyperBoostX-Session";
         private readonly SemaphoreSlim _healthCheckLock = new(1, 1);
         private readonly SemaphoreSlim _systemStatsLock = new(1, 1);
         private readonly SemaphoreSlim _systemInfoLock = new(1, 1);
@@ -44,6 +45,9 @@ namespace HyperBoostX.Services
             _httpClient = new HttpClient();
             _httpClient.Timeout = TimeSpan.FromSeconds(10);
             _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+            var sessionToken = Environment.GetEnvironmentVariable("HYPERBOOSTX_SESSION_TOKEN");
+            if (!string.IsNullOrWhiteSpace(sessionToken))
+                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation(SessionHeaderName, sessionToken.Trim());
         }
 
         /// <summary>
@@ -444,6 +448,87 @@ namespace HyperBoostX.Services
             finally
             {
                 _processesLock.Release();
+            }
+        }
+
+        public async Task<dynamic> GetHardwareGpuAsync()
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_baseUrl}/api/hardware/gpu");
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
+                return ParseJsonToken(json);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to get GPU Center data: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<dynamic> GetHardwareVendorsAsync()
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_baseUrl}/api/hardware/vendors");
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
+                return ParseJsonToken(json);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to get vendor software data: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<dynamic> GetHardwareOverlaysAsync()
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_baseUrl}/api/hardware/overlays");
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
+                return ParseJsonToken(json);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to get overlay data: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<dynamic> GetHardwareProfileAsync()
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_baseUrl}/api/hardware/profile");
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
+                return ParseJsonToken(json);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to get hardware profile: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<dynamic> ExportReportAsync(string format = "md")
+        {
+            try
+            {
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(new { format = string.IsNullOrWhiteSpace(format) ? "md" : format }),
+                    System.Text.Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/api/reports/export", content);
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
+                return ParseJsonToken(json);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to export report: {ex.Message}", ex);
             }
         }
 

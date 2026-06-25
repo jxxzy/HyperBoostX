@@ -1,33 +1,37 @@
-﻿# HyperBoostX Install Guide
+# Install HyperBoostX
 
-## Portable Runtime
+Target release: `HyperBoostX v1.3.0 Stable`
 
-Use `release\app\HyperBoostX.exe` only for internal portable smoke testing. Normal users should download and run the single public installer asset, `HyperBoostXInstaller.exe`.
+## Normal User Install
 
-Validated in this workspace:
+1. Download `HyperBoostXInstaller.exe` from the GitHub Release.
+2. Run the installer.
+3. Launch HyperBoostX from the desktop or Start Menu shortcut.
 
-- Portable launcher started
-- WPF runtime started
-- Packaged backend started
-- Cleanup ended with 0 HyperBoostX/launcher/backend orphan processes
+Optional checksum verification:
 
-## Installer
+```powershell
+Get-FileHash .\HyperBoostXInstaller.exe -Algorithm SHA256
+```
 
-Download the single public release asset, `HyperBoostXInstaller.exe`, then run it from Explorer or an elevated Windows shell. The installer writes to `Program Files` and HKLM uninstall metadata.
+Compare the result with `SHA256SUMS.txt` if it is published.
 
-Installer validation status in this workspace:
+## Installer Behavior
 
-- NSIS build: PASS
-- Silent install: PASS
-- Installed launch: PASS
-- Silent uninstall: PASS
-- Silent reinstall and relaunch: PASS
-- Cleanup ended with 0 HyperBoostX/launcher/backend orphan processes
+- Installs the app under `C:\Program Files\HyperBoostX` by default.
+- Removes the previous installed application files before installing the new runtime.
+- Preserves legacy user config, logs, backups, and automation state under `%LocalAppData%\HyperBoost X`.
+- Writes uninstall metadata under `HKLM\Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX`.
 
-## User Data Preservation
+## Public Asset Policy
 
-The installer preserves user config, logs, backups, and automation state under `%LocalAppData%\HyperBoost X`.
+Publish for normal users:
 
-## Checksums
+- `HyperBoostXInstaller.exe`
+- `SHA256SUMS.txt` when checksum verification is included
 
-Use `SHA256SUMS.txt` generated after the final build assets for internal audit and release verification. Do not publish it as a separate user download unless a release explicitly needs public checksum files.
+Do not publish confusing internal artifacts such as raw backend executables, raw launcher executables, debug packages, temp packages, logs, cache folders, or local state.
+
+## Release Validation
+
+Installer install, installed launch, close, silent uninstall, reinstall, and reinstalled launch must be recorded in `QA_RESULTS.md` before a stable GitHub Release is published.

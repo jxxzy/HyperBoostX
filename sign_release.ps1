@@ -5,7 +5,7 @@ param(
     [string]$PfxPath = "",
     [string]$PfxPassword = "",
     [string]$TimestampUrl = "http://timestamp.digicert.com",
-    [string]$Description = "HyperBoost X by MR.4NONY - HYPERINDO CYBER TEAM",
+    [string]$Description = "HyperBoostX by MR.4NONY - HYPERINDO CYBER TEAM",
     [string]$DescriptionUrl = "https://github.com/jxxzy/HyperBoostX"
 )
 

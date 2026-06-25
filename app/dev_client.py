@@ -1,5 +1,5 @@
 """
-HyperBoost X - Premium Windows Optimization & Gaming Boost Utility
+HyperBoostX - Premium Windows Optimization & Gaming Boost Utility
 Main entry point for the application.
 """
 
@@ -20,7 +20,7 @@ from PySide6.QtCore import Qt
 
 
 def main():
-    """Initialize and run the HyperBoost X application."""
+    """Initialize and run the HyperBoostX application."""
     # Initialize configuration
     Config.initialize()
     
@@ -32,12 +32,12 @@ def main():
     if not Permissions.is_admin():
         logger.warning("Application should run with admin privileges for full functionality")
     
-    logger.info("Starting HyperBoost X...")
+    logger.info("Starting HyperBoostX...")
     
     # Create application
     app = QApplication(sys.argv)
-    app.setApplicationName("HyperBoost X")
-    app.setApplicationVersion("1.2.14")
+    app.setApplicationName("HyperBoostX")
+    app.setApplicationVersion("1.3.0")
     
     # Apply dark theme
     apply_dark_theme(app)
@@ -46,7 +46,7 @@ def main():
     main_window = MainWindow()
     main_window.show()
     
-    logger.info("HyperBoost X initialized successfully")
+    logger.info("HyperBoostX initialized successfully")
     
     # Start application
     sys.exit(app.exec())

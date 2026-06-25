@@ -1,5 +1,5 @@
 """
-Logging system for HyperBoost X.
+Logging system for HyperBoostX.
 Provides structured logging throughout the application.
 """
 

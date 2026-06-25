@@ -35,7 +35,7 @@ function Invoke-Step {
 
 Push-Location $repoRoot
 try {
-    Write-Host "HyperBoost X repo verification" -ForegroundColor Yellow
+    Write-Host "HyperBoostX repo verification" -ForegroundColor Yellow
     Write-Host "Repo root: $repoRoot"
 
     if (-not $SkipPython) {

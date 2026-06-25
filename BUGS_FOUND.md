@@ -1,77 +1,58 @@
-﻿# Bugs Found
+# Bugs Found - HyperBoostX v1.3.0 Audit
 
-## BUG-HBX-001
+## BF-130-001 Version Mismatch
 
-Category: Security / Safety
-Severity: Major
-Area: Booster profile restore metadata
-File: `app/services/optimization/booster_service.py`
-Line: Profile registry and power-plan action helpers
-Description: Booster profiles could write registry values or change power plans without profile-session restore metadata.
-Impact: Undo/restore could be incomplete after profile actions, especially gaming, streaming, productivity, and battery profiles.
-Root Cause: Profile service called `RegistryUtil.set_value` and `ShellUtil.execute_command` directly instead of routing through restore backup helpers.
-Fix: Added profile restore point context plus registry and power-plan backup helpers.
-Test: `app\venv\Scripts\python.exe -m pytest tests/test_booster_service.py tests/test_shell_util.py -q`
-Status: Fixed in source
-Notes: Restore metadata coverage is automated; full multi-machine Windows lab matrix is not claimed.
+Active source, installer metadata, backend health, README, release guide, QA docs, and gate checklists still referenced `1.2.14` while the target release is `1.3.0`.
 
-## BUG-HBX-002
+Impact: release artifacts and health checks would report the wrong stable version.
 
-Category: Function / Safety Policy
-Severity: Medium
-Area: Battery Saver profile
-File: `app/utils/shell.py`
-Line: Shell allowlist
-Description: Battery display timeout command used by the built-in profile was not allowlisted.
-Impact: Battery Saver could report a failed action even though the command is expected and constrained.
-Root Cause: Allowlist contained `powercfg /setactive` but not the safe `powercfg /change monitor-timeout-dc` command used by the profile.
-Fix: Added a strict allowlist pattern for `powercfg /change monitor-timeout-dc <number>`.
-Test: `tests/test_shell_util.py::test_shell_util_allows_battery_display_timeout_command`
-Status: Fixed in source
-Notes: Command still requires admin when called by an admin-gated profile.
+Status: fixed.
 
-## BUG-HBX-003
+## BF-130-002 Missing Universal GPU Backend Contract
 
-Category: Documentation / Owner Experience
-Severity: Low
-Area: AI branding
-File: `README.md`, `CHANGELOG.md`, `QA_CHECKLIST.md`, `STABLE_RELEASE_CHECKLIST.md`, `docs/release-notes/*`
-Line: Multiple historical AI references
-Description: Documentation still named the previous AI provider in user-facing release and QA text.
-Impact: Owner/user instructions conflicted with the NVIDIA Copilot migration.
-Root Cause: Runtime migration happened before historical docs and QA checklist text were fully cleaned.
-Fix: Reworded docs to NVIDIA Copilot / NVIDIA credentials.
-Test: repository keyword scan for the deprecated AI provider names and config variables
-Status: Fixed in source
-Notes: Legacy runtime provider is not exposed.
+The tracked backend did not expose the required v1.3.0 hardware/GPU endpoints for NVIDIA, AMD Radeon, Intel, Microsoft Basic Display, and unknown fallback profiles.
 
-## BUG-HBX-004
+Impact: GPU Center and hardware profile workflows could not be validated through API tests.
 
-Category: Documentation / Release Hygiene
-Severity: Low
-Area: README local path
-File: `README.md`
-Line: Release blueprint link
-Description: README linked to a local Windows drive path.
-Impact: Link breaks outside the owner machine and leaks local workspace shape.
-Root Cause: Absolute local path was committed into markdown.
-Fix: Changed to a relative repository link.
-Test: repository scan for local drive-path URL patterns
-Status: Fixed in source
-Notes: No remaining local drive path found in audited source/docs.
+Status: fixed.
 
-## BUG-HBX-005
+## BF-130-003 Missing Before/After Report Contract
 
-Category: UI / NVIDIA AI Settings
-Severity: Medium
-Area: Settings / NVIDIA Copilot
-File: `wpf/MainWindow.xaml`, `wpf/MainWindow.xaml.cs`, `wpf/Services/NvidiaCopilotService.cs`
-Line: NVIDIA Settings panel and provider redaction helpers
-Description: NVIDIA Copilot Settings used generic AI save/test labels, did not expose `Reset AI Provider`, did not show required connection status labels consistently, and did not expose the requested `AiSecretRedactor` abstraction by name.
-Impact: Owner QA could not verify all required NVIDIA Settings controls/statuses from the UI, and provider redaction did not match the requested abstraction surface even though redaction behavior existed.
-Root Cause: Earlier migration focused on runtime provider behavior and tests before finishing the exact Settings wording/status contract.
-Fix: Added exact NVIDIA Settings button labels, reset-provider handler with Credential Manager clear, normalized connection statuses, `Last Test Result`, and `AiSecretRedactor`.
-Test: `dotnet test dotnet-tests\HyperBoostX.Tests\HyperBoostX.Tests.csproj --filter "NvidiaCopilotServiceTests|AppConfigServiceTests"`; `dotnet test`
-Status: Fixed in source
-Notes: Real NVIDIA API gate passed from Windows Credential Manager during release validation.
+The backend did not expose `/api/reports/latest` or `/api/reports/export`.
+
+Impact: One Click Boost could not produce a stable report schema for UI/export flows.
+
+Status: fixed.
+
+## BF-130-004 Missing Job Queue Contract
+
+Long-running task endpoints were missing.
+
+Impact: cleanup, benchmark, hardware analysis, and repair flows had no progress/cancel contract.
+
+Status: fixed.
+
+## BF-130-005 Mutating Endpoint Session Protection Missing
+
+The backend allowed local POST endpoints without a launcher-provided session header.
+
+Impact: local-only API was weaker than the v1.3.0 security target.
+
+Status: fixed for packaged launcher sessions. Developer mode remains compatible when no token is configured.
+
+## BF-130-006 Unknown GPU Fallback Regression During New Tests
+
+Initial v1.3.0 GPU classifier mapped unknown adapters to `Balanced GPU Mode` instead of `Unknown Safe GPU Mode`.
+
+Impact: unknown hardware fallback was less conservative than required.
+
+Status: fixed and covered by tests.
+
+## BF-130-007 WPF Architecture Still Legacy Large Shell
+
+`MainWindow.xaml.cs` remains a large legacy shell rather than a completed full MVVM split into all requested pages.
+
+Impact: frontend architecture target is only partially satisfied in this run.
+
+Status: known limitation, not claimed complete.
 

@@ -1,5 +1,5 @@
 """
-System information service for HyperBoost X.
+System information service for HyperBoostX.
 Collects and provides system hardware and software information.
 """
 

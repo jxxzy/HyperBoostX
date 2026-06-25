@@ -1,61 +1,56 @@
-# Bugs Fixed
+# Bugs Fixed - HyperBoostX v1.3.0
 
-## Summary
+## Version And Metadata
 
-Fixed bugs in this pass: `6`
+- Backend version now comes from shared config and reports `1.3.0`.
+- WPF, launcher, installer, update user-agent, about text, and active docs were updated to `1.3.0`.
+- Installer metadata now writes `DisplayVersion` `1.3.0`.
 
-| Bug ID | Severity | Status |
-| --- | --- | --- |
-| BUG-HBX-001 | Major | Fixed in source |
-| BUG-HBX-002 | Medium | Fixed in source |
-| BUG-HBX-003 | Low | Fixed in source |
-| BUG-HBX-004 | Low | Fixed in source |
-| BUG-HBX-005 | Medium | Fixed in source |
-| BUG-HBX-006 | Low | Fixed in source |
+## Universal GPU Support
 
-## Critical Fixes
+- Added GPU vendor enum values: `Nvidia`, `Amd`, `Intel`, `MicrosoftBasic`, `Unknown`.
+- Added GPU family detection for GeForce GTX/RTX, AMD Radeon RX/Vega/integrated, Intel Arc/Iris Xe/UHD/iGPU, Microsoft Basic Display, and unknown fallback.
+- Added hybrid and multi-GPU detection metadata.
+- Added vendor badge and dynamic accent recommendation metadata.
+- Added conservative `Unknown Safe GPU Mode` fallback.
 
-No new Critical bugs were reproduced in this pass.
+## GPU Center Inputs
 
-## Major Fixes
+- Added vendor/RGB/overlay/launcher/streaming process catalog and safety classification.
+- Added API endpoints for GPU summary, vendor software, overlays, and hardware profile.
 
-- Added restore metadata for booster profile registry and power-plan mutations.
+## Safe Boost And Reports
 
-## Medium Fixes
+- Added safe boost plan/apply/undo API.
+- Apply now requires user approval and returns `409` when approval is missing.
+- Added before/after report snapshot and export contract for JSON, TXT, and Markdown.
+- Added blocked risky action metadata to reports and profiles.
 
-- Added the missing strict allowlist entry for the built-in battery display timeout action.
-- Completed NVIDIA Copilot Settings control/status contract and exposed `AiSecretRedactor`.
+## Job Queue
 
-## Low Fixes
+- Added local in-memory job queue with progress, stage, logs, cancel, and completion state.
+- Added job start/status/cancel endpoints.
 
-- Removed stale AI provider wording from docs.
-- Removed a local absolute path from README.
-- Fixed the Python test warning before HyperBoostX v1.2.14 stable release by filtering the GPUtil dependency warning only around the optional GPUtil import.
+## Local API Security
 
-## Validation
+- Added optional session-token enforcement for mutating endpoints when `HYPERBOOSTX_SESSION_TOKEN` is configured.
+- Launcher now generates a random session token and passes it to backend and WPF process environments.
+- WPF backend client sends `X-HyperBoostX-Session` when present.
+- CORS allows only localhost origins and includes `X-HyperBoostX-Session` in allowed headers.
 
-Initial targeted validation:
+## Tests Added
 
-- `app\venv\Scripts\python.exe -m pytest tests/test_booster_service.py tests/test_shell_util.py -q` -> `14 passed`
-- `dotnet test dotnet-tests\HyperBoostX.Tests\HyperBoostX.Tests.csproj --filter "NvidiaCopilotServiceTests"` -> `15 passed`
-
-Full validation is tracked in `QA_RESULTS.md`.
-
-Final automated validation snapshot:
-
-- `powershell -ExecutionPolicy Bypass -File .\scripts\verify_repo.ps1` -> PASS
-- `app\venv\Scripts\python.exe -m pytest -ra -W default` -> `26 passed, 0 warnings`
-- `dotnet restore` -> PASS
-- `dotnet build` -> PASS
-- `dotnet build -c Release` -> PASS
-- `dotnet test` -> `28 passed`
-- Build scripts and installer build -> PASS
-- Packaged backend health and portable app smoke -> PASS
-- Elevated silent installer install/uninstall/reinstall -> PASS
-- Installed app smoke -> PASS
-- Real NVIDIA API connection from Windows Credential Manager -> PASS
-- AI approval flow and Safety Guard release gate tests -> PASS
-- Current-machine automated matrix -> PASS
-- Full multi-machine Windows lab matrix -> NOT CLAIMED
-- Final statement: Zero known Critical/Major bugs after automated validation.
+- NVIDIA RTX detection.
+- AMD Radeon detection.
+- Intel Arc detection.
+- Intel iGPU/hybrid detection.
+- Microsoft Basic Display fallback.
+- Unknown GPU safe fallback.
+- Vendor software and overlay classification.
+- Hardware profile schema.
+- v1.3.0 health/version endpoints.
+- Session token rejection/approval.
+- Boost approval required.
+- Job queue lifecycle.
+- Before/after report export schema.
 

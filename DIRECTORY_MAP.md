@@ -1,6 +1,6 @@
 # Directory Map
 
-Quick reference for the current HyperBoost X repository layout.
+Quick reference for the current HyperBoostX repository layout.
 
 ## Root
 
@@ -59,7 +59,7 @@ Quick reference for the current HyperBoost X repository layout.
 
 ## Runtime notes
 
-- End-user logs are written to `%LocalAppData%\HyperBoost X\logs`
+- End-user logs are written to `%LocalAppData%\HyperBoostX\logs`
 - The installed app entrypoint is `HyperBoostX.exe`
 - The backend is an internal runtime, not a user-facing executable
 

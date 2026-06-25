@@ -1,5 +1,5 @@
 """
-Performance profiles management for HyperBoost X.
+Performance profiles management for HyperBoostX.
 Handles different optimization profiles like Gaming, Streaming, etc.
 """
 

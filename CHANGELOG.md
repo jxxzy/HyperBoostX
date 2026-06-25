@@ -2,6 +2,18 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.3.0 - 2026-06-26
+- Added universal GPU detection for NVIDIA GeForce GTX/RTX, AMD Radeon/RX/Vega, Intel Arc, Intel Iris Xe/UHD/iGPU, Microsoft Basic Display Adapter, and unknown fallback.
+- Added GPU profile recommendation, vendor badge metadata, hybrid/multi-GPU detection, and safe blocked-action metadata.
+- Added vendor software, RGB, launcher, streaming, and overlay detection with safety classifications.
+- Added hardware profile engine with PC Health, Gaming Readiness, Streaming Readiness, and Startup Cleanliness scores.
+- Added safe boost plan/apply/undo API flow that requires user approval before action.
+- Added before/after report capture and JSON/TXT/Markdown export contract.
+- Added local backend job queue for long operations with progress, stage, log tail, cancel, and final result states.
+- Added launcher-generated local session token support for mutating endpoints via `X-HyperBoostX-Session`.
+- Updated backend, WPF, launcher, installer, docs, and release metadata to `1.3.0`.
+- Added v1.3.0 Python tests covering GPU vendors, fallback modes, hardware profiles, session auth, reports, jobs, and approval flow.
+
 ## v1.2.12 - 2026-05-09
 - Adds a dedicated `Send Test Update` action for the release-update Discord webhook so update alerts can be verified separately from error/audit alerts.
 - Confirms release-update webhook credentials remain in Windows Credential Manager and are not written back into app-state.

@@ -1,5 +1,5 @@
 @echo off
-REM HyperBoost X - Build Windows Installer
+REM HyperBoostX - Build Windows Installer
 REM Requires NSIS installed and makensis available in PATH.
 
 cd /d "%~dp0"

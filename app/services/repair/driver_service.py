@@ -1,4 +1,4 @@
-"""Driver service for HyperBoost X."""
+"""Driver service for HyperBoostX."""
 
 import csv
 import platform

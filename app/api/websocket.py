@@ -1,5 +1,5 @@
 """
-WebSocket API Blueprint for HyperBoost X
+WebSocket API Blueprint for HyperBoostX
 Provides real-time updates for system monitoring
 """
 

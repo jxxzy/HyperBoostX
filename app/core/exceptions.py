@@ -1,4 +1,4 @@
-"""Core exceptions used across HyperBoost X."""
+"""Core exceptions used across HyperBoostX."""
 
 class HyperBoostError(Exception):
     """Base exception for HyperBoost errors."""

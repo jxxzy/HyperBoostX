@@ -1,5 +1,5 @@
 """
-Booster API Blueprint for HyperBoost X
+Booster API Blueprint for HyperBoostX
 Handles performance profiles and boosting
 """
 

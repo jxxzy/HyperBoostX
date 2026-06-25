@@ -1,5 +1,5 @@
 """
-Repair API Blueprint for HyperBoost X
+Repair API Blueprint for HyperBoostX
 Handles system repair, cleanup, and diagnostics.
 """
 

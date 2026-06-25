@@ -1,5 +1,5 @@
 """
-Main window UI for HyperBoost X using PySide6.
+Main window UI for HyperBoostX using PySide6.
 """
 
 from PySide6.QtWidgets import (QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, 
@@ -24,7 +24,7 @@ class MainWindow(QMainWindow):
     
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("HyperBoost X")
+        self.setWindowTitle("HyperBoostX")
         self.setGeometry(100, 100, 1400, 900)
         self.setMinimumSize(1200, 800)
         
@@ -61,7 +61,7 @@ class MainWindow(QMainWindow):
         sidebar_layout.setSpacing(0)
         
         # Title
-        title = QLabel("HyperBoost X")
+        title = QLabel("HyperBoostX")
         title.setFont(QFont("Arial", 14, QFont.Bold))
         title.setStyleSheet("color: #2196F3; padding: 15px; background-color: #2c2c2c;")
         title.setAlignment(Qt.AlignCenter)

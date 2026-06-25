@@ -1,5 +1,5 @@
 """
-Tweaks API Blueprint for HyperBoost X
+Tweaks API Blueprint for HyperBoostX
 Handles system tweaks and optimizations
 """
 

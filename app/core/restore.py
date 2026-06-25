@@ -1,5 +1,5 @@
 """
-System restore and backup management for HyperBoost X.
+System restore and backup management for HyperBoostX.
 Provides safe restoration capabilities for all changes.
 """
 

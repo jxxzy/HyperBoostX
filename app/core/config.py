@@ -1,5 +1,5 @@
 """
-Configuration management for HyperBoost X.
+Configuration management for HyperBoostX.
 Handles app settings, paths, and configuration files.
 """
 
@@ -7,6 +7,9 @@ import json
 import os
 from pathlib import Path
 from typing import Any, Dict, Optional
+
+from core.constants import APP_NAME as DEFAULT_APP_NAME
+from core.constants import APP_VERSION
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -26,8 +29,8 @@ def _env_int(name: str, default: int) -> int:
 class Config:
     """Application configuration handler."""
     
-    APP_NAME = "HyperBoost X"
-    VERSION = "1.2.14"
+    APP_NAME = DEFAULT_APP_NAME
+    VERSION = APP_VERSION
     AI_PROVIDER = os.environ.get("AI_PROVIDER", "nvidia")
     NVIDIA_BASE_URL = os.environ.get("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1")
     NVIDIA_CHAT_ENDPOINT = os.environ.get("NVIDIA_CHAT_ENDPOINT", "/chat/completions")

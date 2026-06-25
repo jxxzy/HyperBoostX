@@ -1,4 +1,4 @@
-"""Schema definitions for HyperBoost X."""
+"""Schema definitions for HyperBoostX."""
 
 from .system_schema import validate_system_info
 from .tweak_schema import validate_tweak_catalog

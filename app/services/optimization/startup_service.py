@@ -1,4 +1,4 @@
-"""Startup service for HyperBoost X."""
+"""Startup service for HyperBoostX."""
 
 import csv
 import io

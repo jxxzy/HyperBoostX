@@ -1,4 +1,4 @@
-"""Service manager for HyperBoost X."""
+"""Service manager for HyperBoostX."""
 
 from typing import List, Dict, Any
 from core.logger import Logger

@@ -1,8 +1,8 @@
-# HyperBoost X - Real-Time System Monitoring
+# HyperBoostX - Real-Time System Monitoring
 
 ## Overview
 
-The HyperBoost X application now features **real-time system monitoring** with live updates every second across all dashboards and monitoring pages.
+The HyperBoostX application now features **real-time system monitoring** with live updates every second across all dashboards and monitoring pages.
 
 ---
 

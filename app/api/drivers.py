@@ -1,5 +1,5 @@
 """
-Drivers API Blueprint for HyperBoost X
+Drivers API Blueprint for HyperBoostX
 Handles installed driver discovery and update diagnostics.
 """
 

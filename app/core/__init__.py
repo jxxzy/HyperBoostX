@@ -1,1 +1,1 @@
-"""HyperBoost X - Core module."""
+"""HyperBoostX - Core module."""

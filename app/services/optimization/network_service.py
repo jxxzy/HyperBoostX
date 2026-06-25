@@ -1,4 +1,4 @@
-"""Network service for HyperBoost X."""
+"""Network service for HyperBoostX."""
 
 import socket
 import time
@@ -24,7 +24,7 @@ class NetworkService:
             result.update({
                 "reason_code": "admin_required",
                 "requires_admin": True,
-                "warning": "Run HyperBoost X as Administrator to apply this network action.",
+                "warning": "Run HyperBoostX as Administrator to apply this network action.",
             })
         return result
     

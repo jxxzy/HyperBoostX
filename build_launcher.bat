@@ -1,5 +1,5 @@
 @echo off
-REM HyperBoost X - Build Launcher Runtime
+REM HyperBoostX - Build Launcher Runtime
 REM Publishes the internal launcher executable used by installer and portable app.
 
 cd /d "%~dp0"

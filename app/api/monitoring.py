@@ -1,5 +1,5 @@
 """
-Monitoring API Blueprint for HyperBoost X
+Monitoring API Blueprint for HyperBoostX
 Handles real-time system statistics and process list endpoints.
 """
 

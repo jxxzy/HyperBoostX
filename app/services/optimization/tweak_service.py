@@ -1,4 +1,4 @@
-"""Tweak service for HyperBoost X."""
+"""Tweak service for HyperBoostX."""
 
 import winreg
 from typing import List, Dict, Any, Optional

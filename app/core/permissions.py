@@ -1,5 +1,5 @@
 """
-Permission management for HyperBoost X.
+Permission management for HyperBoostX.
 Handles admin privilege checks and elevation.
 """
 

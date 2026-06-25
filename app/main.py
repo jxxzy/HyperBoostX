@@ -1,5 +1,5 @@
 """
-Legacy Python UI entrypoint stub for HyperBoost X.
+Legacy Python UI entrypoint stub for HyperBoostX.
 This file is kept for compatibility and redirects to app/dev_client.py.
 """
 

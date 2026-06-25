@@ -1,1 +1,1 @@
-"""Repair service package for HyperBoost X."""
+"""Repair service package for HyperBoostX."""

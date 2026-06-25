@@ -1,10 +1,10 @@
 @echo off
-REM HyperBoost X - WPF Client Launcher
+REM HyperBoostX - WPF Client Launcher
 REM This script builds and runs the C# WPF client
 
 echo.
 echo ╔════════════════════════════════════════════╗
-echo ║     HyperBoost X - WPF Client Launcher    ║
+echo ║     HyperBoostX - WPF Client Launcher    ║
 echo ╚════════════════════════════════════════════╝
 echo.
 
@@ -21,7 +21,7 @@ REM Navigate to wpf directory
 cd /d "%~dp0wpf"
 if not exist "HyperBoostX.csproj" (
     echo ERROR: HyperBoostX.csproj not found
-    echo Make sure you're running this from the HyperBoost X root directory
+    echo Make sure you're running this from the HyperBoostX root directory
     pause
     exit /b 1
 )
@@ -62,7 +62,7 @@ if errorlevel 1 (
 
 REM Run application
 echo.
-echo ✓ Launching HyperBoost X WPF Client...
+echo ✓ Launching HyperBoostX WPF Client...
 echo   Backend: http://127.0.0.1:5000
 echo.
 dotnet run --no-build

@@ -1,4 +1,4 @@
-"""Domain models for HyperBoost X."""
+"""Domain models for HyperBoostX."""
 
 from .booster_profile import BoosterProfile
 from .system_info import SystemInfo

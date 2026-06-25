@@ -1,1 +1,1 @@
-"""Services module for HyperBoost X."""
+"""Services module for HyperBoostX."""

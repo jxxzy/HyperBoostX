@@ -1,72 +1,50 @@
-# HyperBoostX Build Guide
+# Build HyperBoostX
 
-Target version: `1.2.14`
+Target version: `1.3.0`
 
-## Prerequisites
-
-- Windows 10 or Windows 11
-- .NET SDK 8
-- Python runtime used by `app\venv`
-- NSIS for installer builds
-- Git
-
-## Verify Repository
+## Verification
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_repo.ps1
 ```
 
-This runs version sync, Python backend tests, and .NET desktop tests.
+Useful flags:
 
-## Build Backend
+```powershell
+-Configuration Release
+-SkipPython
+-SkipDotnet
+-NoRestore
+```
+
+## Manual Gates
+
+```powershell
+app\venv\Scripts\python.exe -m pytest -q tests
+dotnet restore HyperBoostX.sln
+dotnet build HyperBoostX.sln
+dotnet build HyperBoostX.sln -c Release
+dotnet test dotnet-tests\HyperBoostX.Tests\HyperBoostX.Tests.csproj -c Debug
+dotnet build wpf\HyperBoostX.csproj -c Release
+dotnet build launcher\HyperBoostLauncher.csproj -c Release
+```
+
+## Release Scripts
 
 ```bat
 build_backend.bat
-```
-
-Expected output:
-
-- `release\backend\hyperboost_backend.exe`
-
-## Build WPF Client
-
-```bat
 build_release.bat
-```
-
-Expected output:
-
-- `release\wpf\HyperBoostX.exe`
-
-## Build Launcher
-
-```bat
 build_launcher.bat
-```
-
-Expected output:
-
-- `release\launcher\HyperBoostX.exe`
-
-## Package Portable Runtime
-
-```bat
 package_release.bat
-```
-
-Expected output:
-
-- `release\app\HyperBoostX.exe`
-- `release\package`
-
-## Build Installer
-
-```bat
 build_installer.bat
 ```
 
-Expected output:
+Expected public release asset:
 
 - `HyperBoostXInstaller.exe`
 
-If NSIS is missing, install NSIS and rerun only the installer step after backend, WPF, launcher, and package builds are already green.
+Optional supporting asset:
+
+- `SHA256SUMS.txt`
+
+Do not publish raw backend, raw launcher, debug, temp, cache, log, or internal CI artifacts as normal-user downloads.

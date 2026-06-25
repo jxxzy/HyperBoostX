@@ -1,6 +1,6 @@
-# HyperBoost X - WPF Client
+# HyperBoostX - WPF Client
 
-A modern C# Windows Presentation Foundation (WPF) client for HyperBoost X system optimization platform. This client communicates with the Python backend via REST API.
+A modern C# Windows Presentation Foundation (WPF) client for HyperBoostX system optimization platform. This client communicates with the Python backend via REST API.
 
 ## Architecture
 
@@ -318,7 +318,7 @@ Content-Type: application/json
 
 ## Version Information
 
-- **Client Version**: 1.0.0
+- **Client Version**: 1.3.0
 - **.NET Version**: 6.0 (NET6.0-Windows)
 - **C# Version**: 10.0+
 - **Target OS**: Windows 10/11, Windows Server 2019+
@@ -336,7 +336,7 @@ Content-Type: application/json
 
 ## License
 
-Proprietary - HyperBoost X by Mr.4NONY
+Proprietary - HyperBoostX by Mr.4NONY
 
 ## Support
 

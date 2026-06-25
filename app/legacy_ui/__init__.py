@@ -1,1 +1,1 @@
-"""UI module for HyperBoost X."""
+"""UI module for HyperBoostX."""

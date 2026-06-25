@@ -1,4 +1,4 @@
-"""Booster service for HyperBoost X."""
+"""Booster service for HyperBoostX."""
 
 import os
 import time

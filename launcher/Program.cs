@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,6 +30,7 @@ namespace HyperBoostLauncher
         private static Process? _managedBackendProcess;
         private static bool _backendStartedByLauncher;
         private static Mutex? _singleInstanceMutex;
+        private static readonly string SessionToken = GenerateSessionToken();
 
         static async Task Main(string[] args)
         {
@@ -157,6 +159,7 @@ namespace HyperBoostLauncher
                         WindowStyle = ProcessWindowStyle.Hidden
                     }
                 };
+                _managedBackendProcess.StartInfo.Environment["HYPERBOOSTX_SESSION_TOKEN"] = SessionToken;
 
                 if (!_managedBackendProcess.Start())
                 {
@@ -201,11 +204,12 @@ namespace HyperBoostLauncher
                     {
                         FileName = WpfExe,
                         WorkingDirectory = WpfDir,
-                        UseShellExecute = true,
-                        CreateNoWindow = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = false,
                         WindowStyle = ProcessWindowStyle.Normal
                     }
                 };
+                process.StartInfo.Environment["HYPERBOOSTX_SESSION_TOKEN"] = SessionToken;
 
                 if (!process.Start())
                 {
@@ -239,6 +243,15 @@ namespace HyperBoostLauncher
             {
                 return false;
             }
+        }
+
+        private static string GenerateSessionToken()
+        {
+            var bytes = RandomNumberGenerator.GetBytes(32);
+            return Convert.ToBase64String(bytes)
+                .TrimEnd('=')
+                .Replace('+', '-')
+                .Replace('/', '_');
         }
 
         private static void Log(string message)

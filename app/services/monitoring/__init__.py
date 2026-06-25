@@ -1,1 +1,1 @@
-"""Monitoring service package for HyperBoost X."""
+"""Monitoring service package for HyperBoostX."""

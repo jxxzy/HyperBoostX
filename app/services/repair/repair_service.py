@@ -1,4 +1,4 @@
-"""Repair service for HyperBoost X."""
+"""Repair service for HyperBoostX."""
 
 import os
 import shutil

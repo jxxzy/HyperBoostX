@@ -1,5 +1,5 @@
 """
-Shell utilities for HyperBoost X.
+Shell utilities for HyperBoostX.
 Provides system shell command execution.
 """
 
@@ -32,7 +32,7 @@ class ShellUtil:
         """Execute shell command."""
         try:
             if admin and not Permissions.is_admin():
-                message = "This action requires administrator privileges. Run HyperBoost X as Administrator."
+                message = "This action requires administrator privileges. Run HyperBoostX as Administrator."
                 logger.info(f"Admin command skipped without elevation: {command}")
                 return False, message
 

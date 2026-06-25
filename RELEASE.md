@@ -1,53 +1,76 @@
-# HyperBoostX v1.2.14 Release Guide
+# HyperBoostX v1.3.0 Release Guide
 
-Target release: `HyperBoostX v1.2.14 Stable`
-Tag target: `v1.2.14`
+Target release: `HyperBoostX v1.3.0 Stable`
+Tag target: `v1.3.0`
 Branch: `main`
 
-## Release Gates
+## Stable Rule
 
-Do not publish a stable release unless the current validation has zero known Critical/Major bugs and the required gates in `APP_GATE_CHECKLIST.md` and `STABLE_RELEASE_CHECKLIST.md` are reviewed.
+Do not publish a stable release unless critical gates pass. If a critical gate fails and cannot be fixed in the run, report `BLOCKED` and do not create the GitHub Release.
 
-Completed automated gates in this workspace:
+Full multi-machine Windows lab compatibility is not claimed unless the exact lab result is recorded in `QA_RESULTS.md`.
 
-- `powershell -ExecutionPolicy Bypass -File .\scripts\verify_repo.ps1`: PASS
-- Python tests via repo venv: PASS, `26 passed, 0 warnings`
-- Python warning-as-error: PASS
-- `dotnet restore`: PASS
-- `dotnet build`: PASS
-- `dotnet build -c Release`: PASS
-- `dotnet test`: PASS, `28 passed`
-- `build_backend.bat`: PASS
-- `build_release.bat`: PASS
-- `build_launcher.bat`: PASS
-- `package_release.bat`: PASS
-- `build_installer.bat`: PASS
-- Packaged backend health: PASS, version `1.2.14`
-- Portable launch smoke: PASS
-- Elevated silent installer install: PASS
-- Installed app launch: PASS
-- Silent uninstall/reinstall: PASS
-- Real NVIDIA API connection from Windows Credential Manager: PASS
-- AI approval flow: PASS
-- Safety Guard: PASS
-- Current-machine automated matrix: PASS
-- SHA256SUMS verification: PASS
+## Public Assets
 
-Full multi-machine Windows lab matrix: NOT CLAIMED
-
-## Public Release Asset
+Recommended public asset:
 
 - `HyperBoostXInstaller.exe`
 
-GitHub Release downloads should stay installer-only so users get one file, run it, and install HyperBoostX without choosing between internal executables.
-
-Internal validation still generates and verifies these local/CI artifacts, but they are not published as separate public release downloads:
+Optional public asset:
 
 - `SHA256SUMS.txt`
-- `release\app\HyperBoostX.exe`
-- `release\backend\hyperboost_backend.exe`
-- `release\launcher\HyperBoostLauncher.exe`
 
-## Final Statement
+Do not publish raw backend executables, raw launcher executables, debug packages, temp folders, logs, cache files, local state, or internal CI artifacts as normal-user downloads.
 
-Stable means zero known Critical/Major bugs after automated validation. Stable does not mean bug-free forever.
+Recommended release-page text:
+
+```text
+Download HyperBoostXInstaller.exe, run it, and follow the installer.
+```
+
+## Required Validation Gates
+
+- `scripts\verify_repo.ps1`
+- Python tests
+- Python warning-as-error when supported
+- `.NET` restore, build, Release build, and tests
+- WPF build
+- backend build
+- launcher build
+- release package
+- installer build
+- packaged backend health with version `1.3.0`
+- installer install, installed launch, close, uninstall, reinstall, launch
+- no orphan process after close
+- secret scan
+- Safety Guard validation
+- restore/undo validation
+- AI approval validation
+- NVIDIA/AMD/Intel/MicrosoftBasic/unknown GPU fallback tests
+- docs synchronized
+- checksum generation and verification for published assets
+- support docs, FAQ, troubleshooting, roadmap, and local crash report redaction tests
+
+## v1.3.0 Release Scope
+
+- Universal GPU detection and profile classification.
+- GPU Center backend contract.
+- Hardware profile engine and readiness scores.
+- Before/after report contract and export.
+- Safe boost plan/apply/undo flow with approval required.
+- Local backend job queue.
+- Launcher-generated local API session token.
+- CORS restricted to localhost origins.
+- Installer metadata updated to `1.3.0`.
+- Public release hygiene focused on installer plus optional checksum.
+- Local crash report export with redaction.
+- Support docs, FAQ, troubleshooting, and roadmap for post-release users.
+
+## Known Limitations
+
+- The WPF UI remains a large shell with legacy pages; v1.3.0 adds verified backend contracts and metadata needed for GPU Center/AI Doctor rather than a complete MVVM rewrite of every legacy view.
+- Temperature, VRAM usage, and driver details depend on Windows/driver/WMI availability.
+- Multi-machine lab validation must be run separately before claiming broad hardware certification.
+- Code signing is not available in this workspace; unsigned installers may show Unknown Publisher or SmartScreen.
+- Auto updater, public website, opt-in telemetry, and license activation are roadmap-only items.
+- GitHub release creation depends on authenticated GitHub permissions.

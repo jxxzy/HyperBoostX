@@ -1,0 +1,85 @@
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def read_text(relative_path: str) -> str:
+    return (ROOT / relative_path).read_text(encoding="utf-8")
+
+
+def test_support_docs_faq_and_roadmap_exist_with_required_sections():
+    required_files = [
+        "SUPPORT.md",
+        "BUG_REPORT_TEMPLATE.md",
+        "FEATURE_REQUEST_TEMPLATE.md",
+        "TROUBLESHOOTING.md",
+        "FAQ.md",
+        "ROADMAP.md",
+    ]
+
+    for relative_path in required_files:
+        assert (ROOT / relative_path).exists(), relative_path
+
+    support = read_text("SUPPORT.md")
+    faq = read_text("FAQ.md")
+    roadmap = read_text("ROADMAP.md")
+    troubleshooting = read_text("TROUBLESHOOTING.md")
+
+    for field in ["Version:", "Windows:", "CPU:", "RAM:", "GPU:", "Issue:", "Steps before error:", "Screenshot:", "Logs if available:"]:
+        assert field in support
+
+    assert "HyperBoostX does not guarantee FPS increase on every PC" in faq
+    assert "does not force-disable Windows Defender" in faq
+    assert "AMD Radeon" in faq
+    assert "Intel Arc" in faq
+    assert "Unknown Publisher" in faq
+    assert "Safe Mode / Recovery Mode" in roadmap
+    assert "App Integrity Check" in roadmap
+    assert "local crash report export with redaction" in roadmap
+    assert "License activation is not implemented in v1.3.0" in roadmap
+    assert "v2.0.0" in roadmap
+    assert "not uploaded automatically" in troubleshooting
+
+
+def test_api_reference_documents_v13_backend_contracts():
+    api_reference = read_text("docs/API_REFERENCE.md")
+    backend_sources = "\n".join([
+        read_text("app/api/hardware.py"),
+        read_text("app/api/boost.py"),
+        read_text("app/api/jobs.py"),
+        read_text("app/api/reports.py"),
+        read_text("app/api/system_info.py"),
+        read_text("app/api/health.py"),
+    ])
+
+    required_endpoints = [
+        "/api/health",
+        "/api/version",
+        "/api/system/stats",
+        "/api/system/info",
+        "/api/system/startup",
+        "/api/system/processes",
+        "/api/hardware/profile",
+        "/api/hardware/gpu",
+        "/api/hardware/vendors",
+        "/api/hardware/overlays",
+        "/api/boost/plan",
+        "/api/boost/apply",
+        "/api/boost/undo",
+        "/api/reports/latest",
+        "/api/reports/export",
+        "/api/reports/crash-export",
+        "/api/jobs/start",
+        "/api/jobs/{id}",
+        "/api/jobs/{id}/cancel",
+    ]
+
+    for endpoint in required_endpoints:
+        assert endpoint in api_reference, endpoint
+
+    for route_fragment in ["/gpu", "/vendors", "/overlays", "/profile", "/plan", "/apply", "/undo", "/crash-export"]:
+        assert route_fragment in backend_sources, route_fragment
+
+    assert "X-HyperBoostX-Session" in api_reference
+    assert "privacy redaction" in api_reference

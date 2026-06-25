@@ -1,34 +1,52 @@
-# HyperBoostX Security Notes
+# HyperBoostX Security
 
-## Local API
+Target release: `HyperBoostX v1.3.0 Stable`
 
-The backend is intended for local runtime use on `127.0.0.1`. Release validation checks packaged `/api/health` and confirms version `1.2.14`.
+## Local Backend
 
-## NVIDIA API Key
+The backend is intended for local runtime use on `127.0.0.1` only. CORS is limited to localhost origins.
 
-Active AI provider: NVIDIA NIM API.
+When the packaged launcher starts the backend, it generates a random in-memory session token and passes it to the backend and WPF client through `HYPERBOOSTX_SESSION_TOKEN`. Mutating endpoints require the matching header:
 
-Required runtime defaults:
-
-```env
-AI_PROVIDER=nvidia
-NVIDIA_API_KEY=
-NVIDIA_BASE_URL=https://integrate.api.nvidia.com/v1
-NVIDIA_DEFAULT_MODEL=nvidia/nemotron-3-nano-30b-a3b
-NVIDIA_FALLBACK_MODEL=nvidia/nvidia-nemotron-nano-9b-v2
-AI_MODEL_AUTO_FALLBACK=true
-AI_REQUIRE_ACTION_APPROVAL=true
-AI_ENABLE_SAFETY_GUARD=true
+```http
+X-HyperBoostX-Session: <token>
 ```
 
-`NVIDIA_API_KEY` must be saved through Windows Credential Manager. It must not be written to plaintext config, logs, app state, crash reports, or release artifacts.
+The token must not be logged, persisted, committed, packaged as plaintext, or included in reports.
+
+## Credential Storage
+
+NVIDIA API keys and Discord webhook URLs must be stored through Windows Credential Manager. They must not be written to plaintext config, logs, reports, crash dumps, release packages, installer artifacts, or repository files.
+
+Known Credential Manager targets:
+
+- `HyperBoostX:NVIDIA:ApiKey`
+- `HyperBoostX:Discord:WebhookUrl`
+- `HyperBoostX:Discord:UpdateWebhookUrl`
 
 ## Safety Guard
 
-NVIDIA Copilot cannot execute system actions directly. The required flow is plan, risk review, user approval, backend execution, and after-action report.
+Safety Guard blocks or downgrades destructive actions including:
 
-Safety Guard blocks or downgrades destructive actions including forced Defender disablement, permanent Windows Update disablement, system-file deletion, silent Microsoft Store removal, arbitrary PowerShell from AI, driver deletion, boot config changes, personal file deletion, registry edits without backup, and service edits without restore metadata.
+- forced Defender disablement
+- permanent Windows Update disablement
+- GPU driver service disablement without an explicit safe rollback path
+- BIOS/UEFI edits
+- voltage changes
+- overclocking
+- undervolting
+- deleting system files
+- deleting user data
+- irreversible registry edits without restore metadata
+- arbitrary AI-generated shell actions
 
-## Restore Policy
+AI and automation must generate a plan first, explain risk, require user approval, and preserve undo/restore metadata where applicable.
 
-Registry tweaks, service startup changes, DNS/network changes, startup changes, power-plan changes, visual effects changes, and aggressive profile actions require backup or restore metadata where applicable.
+## Secret Scan Policy
+
+Before release, scan tracked source and release assets for plaintext secrets. Do not ship if any real API key, Discord webhook, GitHub token, NVIDIA/AMD/Intel credential, bearer token, local session token, or machine-specific secret is found.
+
+## Known Security Limitations
+
+- Local token enforcement is active when the launcher supplies `HYPERBOOSTX_SESSION_TOKEN`. Developer-mode backend sessions without this environment variable remain compatible with existing local tests.
+- HyperBoostX is not a sandbox and should not be used to run untrusted scripts.

@@ -1,5 +1,5 @@
 """
-Network API Blueprint for HyperBoost X
+Network API Blueprint for HyperBoostX
 Handles network testing and optimization operations.
 """
 

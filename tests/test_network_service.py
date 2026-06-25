@@ -6,7 +6,7 @@ def test_flush_dns_reports_admin_required(monkeypatch):
         "app.services.optimization.network_service.ShellUtil.execute_command",
         lambda command, admin=False: (
             False,
-            "This action requires administrator privileges. Run HyperBoost X as Administrator.",
+            "This action requires administrator privileges. Run HyperBoostX as Administrator.",
         ),
     )
 
@@ -22,7 +22,7 @@ def test_optimize_tcp_reports_admin_required(monkeypatch):
         "app.services.optimization.network_service.ShellUtil.execute_command",
         lambda command, admin=False: (
             False,
-            "This action requires administrator privileges. Run HyperBoost X as Administrator.",
+            "This action requires administrator privileges. Run HyperBoostX as Administrator.",
         ),
     )
 

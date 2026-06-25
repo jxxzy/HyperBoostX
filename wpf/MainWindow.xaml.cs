@@ -337,7 +337,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.2.14";
+            ?? "1.3.0";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -532,6 +532,7 @@ namespace HyperBoostX
                 "SmartRecommendation" => "smart_recommendation",
                 "Cleanup" => "cleanup",
                 "Storage" => "storage",
+                "GpuCenter" => "gpu_center",
                 "Gaming" => "gaming_booster",
                 "Streaming" => "streaming_mode",
                 "Creator" => "creator_mode",
@@ -572,7 +573,7 @@ namespace HyperBoostX
 
         private void ApplyLocalizationToUi()
         {
-            Title = L("app.window_title", "HyperBoost X - WPF Client");
+            Title = L("app.window_title", "HyperBoostX - WPF Client");
 
             OneClickBoostBtn.Content = BuildLocalizedMenuLabel(1, "menu.one_click_boost", "One Click Boost");
             GamingModeBtn.Content = BuildLocalizedMenuLabel(2, "menu.gaming_mode", "Gaming Mode");
@@ -583,30 +584,31 @@ namespace HyperBoostX
             BackgroundAppsBtn.Content = BuildLocalizedMenuLabel(7, "menu.background_apps", "Background Apps");
             CleanupBtn.Content = BuildLocalizedMenuLabel(8, "menu.cleanup", "Cleanup");
             StorageBtn.Content = BuildLocalizedMenuLabel(9, "menu.storage", "Storage");
-            GamingBoosterBtn.Content = BuildLocalizedMenuLabel(10, "menu.gaming_booster", "Gaming Booster");
-            StreamingModeBtn.Content = BuildLocalizedMenuLabel(11, "menu.streaming_mode", "Streaming Mode");
-            CreatorModeBtn.Content = BuildLocalizedMenuLabel(12, "menu.creator_mode", "Creator Mode");
-            NetworkBoosterBtn.Content = BuildLocalizedMenuLabel(13, "menu.network_booster", "Network Booster");
-            DnsLatencyToolsBtn.Content = BuildLocalizedMenuLabel(14, "menu.dns_latency_tools", "DNS & Latency Tools");
-            PrivacyCenterBtn.Content = BuildLocalizedMenuLabel(15, "menu.privacy_center", "Privacy Center");
-            SecurityHealthBtn.Content = BuildLocalizedMenuLabel(16, "menu.security_health", "Security & Health");
-            AppsManagerBtn.Content = BuildLocalizedMenuLabel(17, "menu.apps_manager", "Apps Manager");
-            TweaksCenterBtn.Content = BuildLocalizedMenuLabel(18, "menu.tweaks_center", "Tweaks Center");
-            WindowsFeaturesBtn.Content = BuildLocalizedMenuLabel(19, "menu.windows_features", "Windows Features");
-            UpdateControlBtn.Content = BuildLocalizedMenuLabel(20, "menu.update_control", "Update Control");
-            RepairToolsBtn.Content = BuildLocalizedMenuLabel(21, "menu.repair_tools", "Repair Tools");
-            DriverUpdateCenterBtn.Content = BuildLocalizedMenuLabel(22, "menu.driver_update_center", "Driver & Update Center");
-            AppUninstallerBtn.Content = BuildLocalizedMenuLabel(23, "menu.app_uninstaller", "App Uninstaller");
-            AdvancedTweaksBtn.Content = BuildLocalizedMenuLabel(24, "menu.advanced_tweaks", "Advanced Tweaks");
-            WindowsServicesBtn.Content = BuildLocalizedMenuLabel(25, "menu.windows_services", "Windows Services");
-            PowerOptimizationBtn.Content = BuildLocalizedMenuLabel(26, "menu.power_optimization", "Power Optimization");
-            VisualEffectsBtn.Content = BuildLocalizedMenuLabel(27, "menu.visual_effects", "Visual Effects");
-            RestoreBackupBtn.Content = BuildLocalizedMenuLabel(28, "menu.restore_backup", "Restore & Backup");
-            RestorePointManagerBtn.Content = BuildLocalizedMenuLabel(29, "menu.restore_point_manager", "Restore Point Manager");
-            ScheduledAutomationBtn.Content = BuildLocalizedMenuLabel(30, "menu.scheduled_automation", "Scheduled Automation");
-            UtilitiesToolsBtn.Content = BuildLocalizedMenuLabel(31, "menu.utilities_tools", "Utilities Tools");
-            SettingsBtn.Content = BuildLocalizedMenuLabel(32, "menu.settings", "App Settings");
-            AboutAppBtn.Content = BuildLocalizedMenuLabel(33, "menu.about", "About App");
+            GpuCenterBtn.Content = BuildLocalizedMenuLabel(10, "menu.gpu_center", "GPU Center");
+            GamingBoosterBtn.Content = BuildLocalizedMenuLabel(11, "menu.gaming_booster", "Gaming Booster");
+            StreamingModeBtn.Content = BuildLocalizedMenuLabel(12, "menu.streaming_mode", "Streaming Mode");
+            CreatorModeBtn.Content = BuildLocalizedMenuLabel(13, "menu.creator_mode", "Creator Mode");
+            NetworkBoosterBtn.Content = BuildLocalizedMenuLabel(14, "menu.network_booster", "Network Booster");
+            DnsLatencyToolsBtn.Content = BuildLocalizedMenuLabel(15, "menu.dns_latency_tools", "DNS & Latency Tools");
+            PrivacyCenterBtn.Content = BuildLocalizedMenuLabel(16, "menu.privacy_center", "Privacy Center");
+            SecurityHealthBtn.Content = BuildLocalizedMenuLabel(17, "menu.security_health", "Security & Health");
+            AppsManagerBtn.Content = BuildLocalizedMenuLabel(18, "menu.apps_manager", "Apps Manager");
+            TweaksCenterBtn.Content = BuildLocalizedMenuLabel(19, "menu.tweaks_center", "Tweaks Center");
+            WindowsFeaturesBtn.Content = BuildLocalizedMenuLabel(20, "menu.windows_features", "Windows Features");
+            UpdateControlBtn.Content = BuildLocalizedMenuLabel(21, "menu.update_control", "Update Control");
+            RepairToolsBtn.Content = BuildLocalizedMenuLabel(22, "menu.repair_tools", "Repair Tools");
+            DriverUpdateCenterBtn.Content = BuildLocalizedMenuLabel(23, "menu.driver_update_center", "Driver & Update Center");
+            AppUninstallerBtn.Content = BuildLocalizedMenuLabel(24, "menu.app_uninstaller", "App Uninstaller");
+            AdvancedTweaksBtn.Content = BuildLocalizedMenuLabel(25, "menu.advanced_tweaks", "Advanced Tweaks");
+            WindowsServicesBtn.Content = BuildLocalizedMenuLabel(26, "menu.windows_services", "Windows Services");
+            PowerOptimizationBtn.Content = BuildLocalizedMenuLabel(27, "menu.power_optimization", "Power Optimization");
+            VisualEffectsBtn.Content = BuildLocalizedMenuLabel(28, "menu.visual_effects", "Visual Effects");
+            RestoreBackupBtn.Content = BuildLocalizedMenuLabel(29, "menu.restore_backup", "Restore & Backup");
+            RestorePointManagerBtn.Content = BuildLocalizedMenuLabel(30, "menu.restore_point_manager", "Restore Point Manager");
+            ScheduledAutomationBtn.Content = BuildLocalizedMenuLabel(31, "menu.scheduled_automation", "Scheduled Automation");
+            UtilitiesToolsBtn.Content = BuildLocalizedMenuLabel(32, "menu.utilities_tools", "Utilities Tools");
+            SettingsBtn.Content = BuildLocalizedMenuLabel(33, "menu.settings", "App Settings");
+            AboutAppBtn.Content = BuildLocalizedMenuLabel(34, "menu.about", "About App");
             ExitBtn.Content = $"0. {L("menu.exit", "Exit")}";
 
             SettingsLocalizationTitleText.Text = L("settings.language.overview_title", "Language & Localization");
@@ -1791,6 +1793,7 @@ namespace HyperBoostX
             StartupContent.Visibility = Visibility.Collapsed;
             CleanupContent.Visibility = Visibility.Collapsed;
             StorageContent.Visibility = Visibility.Collapsed;
+            GpuCenterContent.Visibility = Visibility.Collapsed;
             GamingContent.Visibility = Visibility.Collapsed;
             StreamingContent.Visibility = Visibility.Collapsed;
             CreatorContent.Visibility = Visibility.Collapsed;
@@ -1916,6 +1919,11 @@ namespace HyperBoostX
                     SetLocalizedPageHeader("Storage", "Storage", "Baca semua storage yang terhubung, scan drive, lihat breakdown, health, dan action dari satu halaman.");
                     StorageContent.Visibility = Visibility.Visible;
                     StartPageActivationRefresh(navigationVersion, pageName, RefreshStorageViewAsync, () => _storageTimer.Start());
+                    break;
+                case "GpuCenter":
+                    SetLocalizedPageHeader("GpuCenter", "GPU Center", "Vendor-aware GPU status, overlay detection, profile recommendation, and safe gaming actions.");
+                    GpuCenterContent.Visibility = Visibility.Visible;
+                    StartPageActivationRefresh(navigationVersion, pageName, RefreshGpuCenterViewAsync);
                     break;
                 case "Gaming":
                     SetLocalizedPageHeader("Gaming", "Gaming Mode", "Kelola profile, policy, auto activation, dan restore environment supaya Windows tetap fokus selama sesi gaming berjalan.");
@@ -3025,6 +3033,9 @@ namespace HyperBoostX
                 case nameof(StorageBtn):
                     await ShowPage("Storage", button);
                     break;
+                case nameof(GpuCenterBtn):
+                    await ShowPage("GpuCenter", button);
+                    break;
                 case nameof(BackgroundAppsBtn):
                     await ShowPage("BackgroundApps", button);
                     break;
@@ -3098,6 +3109,203 @@ namespace HyperBoostX
                     await ShowPage("About", button);
                     break;
             }
+        }
+
+        private async void RefreshGpuCenter_Click(object sender, RoutedEventArgs e)
+        {
+            await RefreshGpuCenterViewAsync();
+        }
+
+        private async void ExportGpuReport_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ShowActionStatus(ActionState.Info, "GPU Report", "Generating local GPU report...");
+                var report = await SafeApiCall(() => _backendClient.ExportReportAsync("md")) as JObject;
+                if (report == null)
+                {
+                    ShowActionStatus(ActionState.Warning, "GPU Report", "Report export is unavailable because the backend did not return data.");
+                    return;
+                }
+
+                var fileName = SanitizeReportFileName(report.Value<string>("file_name"));
+                if (string.IsNullOrWhiteSpace(fileName))
+                    fileName = $"HyperBoostX-GPU-Report-{DateTime.Now:yyyyMMdd-HHmmss}.md";
+
+                fileName = fileName.Replace("Performance-Report", "GPU-Report");
+                var content = report.Value<string>("content") ?? "HyperBoostX GPU Report";
+                var reportDir = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "HyperBoost X",
+                    "reports");
+
+                Directory.CreateDirectory(reportDir);
+                var outputPath = Path.Combine(reportDir, fileName);
+                File.WriteAllText(outputPath, content, new UTF8Encoding(false));
+
+                ShowActionStatus(ActionState.Success, "GPU Report", "Local GPU report exported.", outputPath);
+                AppendDashboardActivity($"GPU report exported: {outputPath}");
+            }
+            catch (Exception ex)
+            {
+                ShowActionStatus(ActionState.Error, "GPU Report", "GPU report export failed.", ex.Message);
+            }
+        }
+
+        private async Task RefreshGpuCenterViewAsync()
+        {
+            GpuCenterSummaryText.Text = "Loading GPU Center data...";
+            GpuCenterAppsText.Text = "Scanning vendor apps and overlays...";
+
+            var gpuTask = SafeApiCall(() => _backendClient.GetHardwareGpuAsync());
+            var vendorsTask = SafeApiCall(() => _backendClient.GetHardwareVendorsAsync());
+            var overlaysTask = SafeApiCall(() => _backendClient.GetHardwareOverlaysAsync());
+            var profileTask = SafeApiCall(() => _backendClient.GetHardwareProfileAsync());
+
+            await Task.WhenAll(gpuTask, vendorsTask, overlaysTask, profileTask);
+
+            var gpu = await gpuTask as JObject;
+            var vendors = await vendorsTask as JObject;
+            var overlays = await overlaysTask as JObject;
+            var profile = await profileTask as JObject;
+
+            if (gpu == null)
+            {
+                GpuCenterSummaryText.Text = "GPU Center data is unavailable. Start or restart the local backend, then refresh.";
+                GpuCenterAppsText.Text = "Overlay and vendor app detection is unavailable until the backend responds.";
+                ShowActionStatus(ActionState.Warning, "GPU Center", "Backend GPU endpoint did not return data.");
+                return;
+            }
+
+            GpuCenterSummaryText.Text = BuildGpuCenterSummary(gpu, profile);
+            GpuCenterAppsText.Text = BuildGpuCenterAppSummary(vendors?["items"] as JArray, overlays?["items"] as JArray);
+
+            var vendor = ReadStringToken(gpu, "vendor");
+            var model = ReadStringToken(gpu, "model");
+            ShowActionStatus(ActionState.Success, "GPU Center", "GPU Center refreshed.", $"{vendor} | {model}");
+        }
+
+        private static string BuildGpuCenterSummary(JObject gpu, JObject profile)
+        {
+            var badge = gpu?["badge"] as JObject;
+            var scores = profile?["scores"] as JObject;
+            var reason = FormatTokenList(profile?["reason"] as JArray, "- ");
+            var safeActions = FormatTokenList(gpu?["safe_actions"] as JArray, "- ");
+            var blocked = FormatTokenList(gpu?["blocked_risky_actions"] as JArray, "- ");
+
+            var lines = new List<string>
+            {
+                $"Vendor badge: {ReadStringToken(badge, "label")} ({ReadStringToken(badge, "accent")})",
+                $"GPU: {ReadStringToken(gpu, "model")}",
+                $"Family: {ReadStringToken(gpu, "family")}",
+                $"Active display GPU: {ReadStringToken(gpu, "active_display_gpu")}",
+                $"Driver: {ReadStringToken(gpu, "driver_version")}",
+                $"VRAM: {FormatGpuMb(ReadNumericToken(gpu, "vram_used_mb"))} / {FormatGpuMb(ReadNumericToken(gpu, "vram_total_mb"))} ({FormatGpuPercent(ReadNumericToken(gpu, "vram_usage_percent"))})",
+                $"GPU usage: {FormatGpuPercent(ReadNumericToken(gpu, "gpu_usage_percent"))}",
+                $"Temperature: {FormatGpuTemperature(gpu?["temperature_c"])}",
+                $"Dedicated GPU: {FormatBoolean(gpu?["dedicated_gpu"])} | Integrated GPU: {FormatBoolean(gpu?["integrated_gpu"])} | Hybrid: {FormatBoolean(gpu?["hybrid_gpu_system"])} | Multi-GPU: {FormatBoolean(gpu?["multi_gpu_system"])}",
+                $"Recommended GPU profile: {ReadStringToken(gpu, "profile_recommendation")}",
+                $"Hardware profile: {ReadStringToken(profile, "recommended_profile")} | Confidence: {FormatGpuPercent(ReadNumericToken(profile, "confidence") * 100)}",
+                $"Scores: PC Health {ReadNumericToken(scores, "pc_health"):0}/100 | Gaming {ReadNumericToken(scores, "gaming_readiness"):0}/100 | Streaming {ReadNumericToken(scores, "streaming_readiness"):0}/100 | Startup {ReadNumericToken(scores, "startup_cleanliness"):0}/100",
+                "",
+                "Why:",
+                string.IsNullOrWhiteSpace(reason) ? "- No profile reason returned." : reason,
+                "",
+                "Safe actions:",
+                string.IsNullOrWhiteSpace(safeActions) ? "- Review recommendations before applying changes." : safeActions,
+                "",
+                "Blocked risky actions:",
+                string.IsNullOrWhiteSpace(blocked) ? "- Unsafe driver, BIOS, voltage, overclock, undervolt, and irreversible actions remain blocked." : blocked,
+                "",
+                $"Recommendation: {ReadStringToken(gpu, "recommendation")}"
+            };
+
+            return string.Join(Environment.NewLine, lines);
+        }
+
+        private static string BuildGpuCenterAppSummary(JArray vendors, JArray overlays)
+        {
+            var vendorItems = vendors?.OfType<JObject>().ToList() ?? new List<JObject>();
+            var overlayItems = overlays?.OfType<JObject>().ToList() ?? new List<JObject>();
+            var detectedVendors = vendorItems.Where(item => item.Value<bool?>("detected") == true).ToList();
+            var detectedOverlays = overlayItems.Where(item => item.Value<bool?>("detected") == true).ToList();
+
+            var lines = new List<string>
+            {
+                $"Vendor/RGB/background catalog: {vendorItems.Count} known items | detected: {detectedVendors.Count}",
+                $"Overlay catalog: {overlayItems.Count} known items | detected: {detectedOverlays.Count}",
+                "",
+                "Detected vendor/RGB/background apps:",
+                detectedVendors.Count == 0 ? "- None detected in the current process snapshot." : string.Join(Environment.NewLine, detectedVendors.Take(16).Select(DescribeGpuCenterApp)),
+                "",
+                "Detected overlays:",
+                detectedOverlays.Count == 0 ? "- None detected in the current process snapshot." : string.Join(Environment.NewLine, detectedOverlays.Take(16).Select(DescribeGpuCenterApp)),
+                "",
+                "Safety rule: HyperBoostX does not kill or disable vendor software, overlays, launchers, RGB apps, OBS, Discord, or GPU services without explicit user approval."
+            };
+
+            return string.Join(Environment.NewLine, lines);
+        }
+
+        private static string DescribeGpuCenterApp(JObject item)
+        {
+            var name = ReadStringToken(item, "name");
+            var category = ReadStringToken(item, "category");
+            var classification = ReadStringToken(item, "classification");
+            var action = ReadStringToken(item, "safe_action");
+            return $"- {name} | {category} | {classification} | {action}";
+        }
+
+        private static string FormatTokenList(JArray items, string prefix)
+        {
+            if (items == null || items.Count == 0)
+                return "";
+
+            return string.Join(Environment.NewLine, items.Select(item => $"{prefix}{item}"));
+        }
+
+        private static string FormatGpuMb(double mb)
+        {
+            if (mb <= 0)
+                return "Unknown";
+
+            return mb >= 1024
+                ? $"{mb / 1024d:0.0} GB"
+                : $"{mb:0} MB";
+        }
+
+        private static string FormatGpuPercent(double value)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value))
+                return "Unknown";
+
+            return $"{Math.Max(0, value):0.#}%";
+        }
+
+        private static string FormatGpuTemperature(JToken token)
+        {
+            var value = ReadNumericTokenValue(token);
+            return value.HasValue ? $"{value.Value:0.#} C" : "Unavailable";
+        }
+
+        private static string FormatBoolean(JToken token)
+        {
+            return token?.Type == JTokenType.Boolean && token.Value<bool>() ? "Yes" : "No";
+        }
+
+        private static string SanitizeReportFileName(string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+                return "";
+
+            var invalid = Path.GetInvalidFileNameChars();
+            var builder = new StringBuilder(fileName.Length);
+            foreach (var ch in fileName)
+            {
+                builder.Append(invalid.Contains(ch) ? '-' : ch);
+            }
+
+            return builder.ToString().Trim();
         }
 
         private void ExitBtn_Click(object sender, RoutedEventArgs e)
@@ -6983,7 +7191,7 @@ if (-not $result) { 'Unavailable'; return }
 
             if (BoostCreateRestoreChk.IsChecked == true)
             {
-                var (restoreSuccess, restoreOutput) = await ExecutePowerShellScriptAsync("Checkpoint-Computer -Description 'HyperBoost X One Click Boost' -RestorePointType 'MODIFY_SETTINGS'");
+                var (restoreSuccess, restoreOutput) = await ExecutePowerShellScriptAsync("Checkpoint-Computer -Description 'HyperBoostX One Click Boost' -RestorePointType 'MODIFY_SETTINGS'");
                 notes.Add(restoreSuccess ? "Restore point created" : $"Restore point skipped: {restoreOutput}");
             }
 
@@ -14424,7 +14632,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
         private async void CreateRestore_Click(object sender, RoutedEventArgs e)
         {
             await RunPowerShellActionAsync(
-                "Checkpoint-Computer -Description 'HyperBoost X Manual Restore Point' -RestorePointType 'MODIFY_SETTINGS'",
+                "Checkpoint-Computer -Description 'HyperBoostX Manual Restore Point' -RestorePointType 'MODIFY_SETTINGS'",
                 "Create Restore Point",
                 "Windows restore point created successfully.");
             AppendRestoreBackupHistory("Manual restore point requested.");
@@ -14881,7 +15089,7 @@ $wear = if ($design -gt 0) { [math]::Round((1 - ($full / $design)) * 100, 1) } e
             RestorePointHistoryText.Text =
                 "Hybrid Restore System:" + Environment.NewLine +
                 "- Try System Restore first" + Environment.NewLine +
-                "- If restore is not enough, fallback to backup snapshots in HyperBoost X" + Environment.NewLine +
+                "- If restore is not enough, fallback to backup snapshots in HyperBoostX" + Environment.NewLine +
                 "- Restore Point = fast rollback, Backup = broader config recovery";
             AppendRestorePointHistory("Hybrid restore fallback reviewed.");
             ShowActionStatus(ActionState.Info, "Hybrid Restore System", "Hybrid restore fallback summary ditampilkan.", RestorePointHistoryText.Text);

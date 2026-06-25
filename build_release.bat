@@ -1,5 +1,5 @@
 @echo off
-REM HyperBoost X - Build Release Executable
+REM HyperBoostX - Build Release Executable
 REM Publishes the WPF frontend as a self-contained Windows runtime folder.
 
 cd /d "%~dp0"

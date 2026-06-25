@@ -1,4 +1,4 @@
-"""Benchmark service for HyperBoost X."""
+"""Benchmark service for HyperBoostX."""
 
 from core.logger import Logger
 

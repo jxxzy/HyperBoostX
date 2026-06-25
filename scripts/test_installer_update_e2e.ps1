@@ -59,7 +59,7 @@ function Get-UninstallInfo {
 function Invoke-ExistingUninstall {
     $info = Get-UninstallInfo
     if ($null -eq $info) {
-        Write-Report "No previous HyperBoost X installation found."
+        Write-Report "No previous HyperBoostX installation found."
         return
     }
 
@@ -94,7 +94,7 @@ function Invoke-Installer {
 }
 
 function Assert-InstallLayout {
-    $installDir = Join-Path $env:ProgramFiles "HyperBoost X"
+    $installDir = Join-Path $env:ProgramFiles "HyperBoostX"
     $launcherPath = Join-Path $installDir "HyperBoostX.exe"
     $uiPath = Join-Path $installDir "runtime\wpf\HyperBoostX.exe"
     $backendPath = Join-Path $installDir "runtime\backend\hyperboost_backend.exe"
@@ -121,7 +121,7 @@ function Invoke-LaunchSmoke {
     Write-Report "Launcher smoke test passed."
 }
 
-Write-Report "HyperBoost X installer/update E2E harness started."
+Write-Report "HyperBoostX installer/update E2E harness started."
 Write-Report "Installer path: $InstallerPath"
 if (-not [string]::IsNullOrWhiteSpace($UpgradeInstallerPath)) {
     Write-Report "Upgrade installer path: $UpgradeInstallerPath"

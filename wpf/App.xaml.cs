@@ -76,7 +76,7 @@ namespace HyperBoostX
             TryReportCriticalError("DispatcherUnhandledException", e.Exception.ToString());
             MessageBox.Show(
                 "Terjadi error tak terduga. Detail sudah disimpan ke hyperboost-wpf.log.",
-                "HyperBoost X",
+                "HyperBoostX",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
             e.Handled = true;

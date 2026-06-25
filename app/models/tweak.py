@@ -1,4 +1,4 @@
-"""Tweak domain model for HyperBoost X."""
+"""Tweak domain model for HyperBoostX."""
 
 from dataclasses import dataclass
 from typing import Dict, Any

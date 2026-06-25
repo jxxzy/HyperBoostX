@@ -1,14 +1,43 @@
 """
-Middleware for HyperBoost X API
+Middleware for HyperBoostX API
 Provides request validation, error handling, and security features
 """
 
+import hmac
 import json
+import os
 from functools import wraps
 from flask import request, jsonify
 from core.logger import Logger
 
 logger = Logger.get_logger(__name__)
+
+SESSION_HEADER = "X-HyperBoostX-Session"
+MUTATING_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
+
+
+def get_session_token() -> str:
+    """Return the memory/session token supplied by the launcher, if any."""
+    return os.environ.get("HYPERBOOSTX_SESSION_TOKEN", "").strip()
+
+
+def is_session_authorized() -> bool:
+    expected = get_session_token()
+    if not expected:
+        return True
+
+    provided = request.headers.get(SESSION_HEADER, "").strip()
+    return bool(provided) and hmac.compare_digest(provided, expected)
+
+
+def require_session_token(f):
+    """Decorator for mutating endpoints that need the local session token."""
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if not is_session_authorized():
+            return jsonify({"error": "Unauthorized local session"}), 401
+        return f(*args, **kwargs)
+    return wrapper
 
 
 def validate_json(required_fields=None):
@@ -70,6 +99,9 @@ class APIMiddleware:
         def log_request_info():
             """Log incoming requests."""
             logger.debug(f"Request: {request.method} {request.url}")
+
+            if request.method in MUTATING_METHODS and not is_session_authorized():
+                return jsonify({"error": "Unauthorized local session"}), 401
 
         @app.after_request
         def add_security_headers(response):

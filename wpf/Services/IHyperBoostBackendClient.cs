@@ -20,6 +20,11 @@ namespace HyperBoostX.Services
         Task<dynamic> RunDismAsync();
         Task<dynamic> GetStartupItemsAsync();
         Task<dynamic> GetProcessesAsync();
+        Task<dynamic> GetHardwareGpuAsync();
+        Task<dynamic> GetHardwareVendorsAsync();
+        Task<dynamic> GetHardwareOverlaysAsync();
+        Task<dynamic> GetHardwareProfileAsync();
+        Task<dynamic> ExportReportAsync(string format = "md");
         Task<dynamic> TestDnsAsync();
         Task<dynamic> FlushDnsAsync();
         Task<dynamic> OptimizeTcpAsync();

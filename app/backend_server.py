@@ -1,5 +1,5 @@
 """
-Hybrid Backend Service for HyperBoost X
+Hybrid Backend Service for HyperBoostX
 Acts as a bridge between C# WPF frontend and Python services via REST API
 Refactored with Flask blueprints for better organization and maintainability
 """
@@ -18,8 +18,12 @@ from api.system_info import system_bp
 from api.monitoring import monitoring_bp
 from api.tweaks import tweaks_bp
 from api.booster import booster_bp
+from api.boost import boost_bp
 from api.drivers import drivers_bp
+from api.hardware import hardware_bp
+from api.jobs import jobs_bp
 from api.repair import repair_bp
+from api.reports import reports_bp
 from api.network import network_bp
 from api.startup import startup_bp
 from api.websocket import ws_bp
@@ -33,11 +37,11 @@ ALLOWED_CORS_HOSTS = {"127.0.0.1", "localhost"}
 
 
 class HyperBoostBackendServer:
-    """Backend API server for HyperBoost X with blueprint architecture."""
+    """Backend API server for HyperBoostX with blueprint architecture."""
     
     def __init__(self, host: str = "127.0.0.1", port: int = 5000):
         self.app = Flask(__name__)
-        self.host = host
+        self.host = "127.0.0.1" if host not in {"127.0.0.1", "localhost"} else host
         self.port = port
         self.running = False
         
@@ -68,7 +72,7 @@ class HyperBoostBackendServer:
                 response.headers['Access-Control-Allow-Origin'] = origin
                 response.headers['Vary'] = 'Origin'
                 response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-                response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+                response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-HyperBoostX-Session'
             return response
 
     @staticmethod
@@ -86,8 +90,12 @@ class HyperBoostBackendServer:
         self.app.register_blueprint(monitoring_bp)
         self.app.register_blueprint(tweaks_bp)
         self.app.register_blueprint(booster_bp)
+        self.app.register_blueprint(boost_bp)
         self.app.register_blueprint(drivers_bp)
+        self.app.register_blueprint(hardware_bp)
+        self.app.register_blueprint(jobs_bp)
         self.app.register_blueprint(repair_bp)
+        self.app.register_blueprint(reports_bp)
         self.app.register_blueprint(network_bp)
         self.app.register_blueprint(startup_bp)
         self.app.register_blueprint(ws_bp)

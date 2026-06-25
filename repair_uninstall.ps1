@@ -1,13 +1,13 @@
 $ErrorActionPreference = "Stop"
 
-$installDir = Join-Path ${env:ProgramFiles} "HyperBoost X"
-$startMenuDir = Join-Path ${env:ProgramData} "Microsoft\Windows\Start Menu\Programs\HyperBoost X"
-$desktopShortcut = Join-Path ${env:Public} "Desktop\HyperBoost X.lnk"
+$installDir = Join-Path ${env:ProgramFiles} "HyperBoostX"
+$startMenuDir = Join-Path ${env:ProgramData} "Microsoft\Windows\Start Menu\Programs\HyperBoostX"
+$desktopShortcut = Join-Path ${env:Public} "Desktop\HyperBoostX.lnk"
 $uninstallKey = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX"
 $processes = @("HyperBoostLauncher", "HyperBoostX", "hyperboost_backend")
 
 function Stop-HyperBoostProcesses {
-    Write-Host "Stopping HyperBoost X processes..."
+    Write-Host "Stopping HyperBoostX processes..."
 
     foreach ($name in $processes) {
         Get-Process -Name $name -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
@@ -78,4 +78,4 @@ if (Test-Path $uninstallKey) {
 Remove-InstallDirectory
 
 Write-Host ""
-Write-Host "HyperBoost X cleanup selesai."
+Write-Host "HyperBoostX cleanup selesai."

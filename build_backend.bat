@@ -1,5 +1,5 @@
 @echo off
-REM HyperBoost X - Build Python Backend Executable
+REM HyperBoostX - Build Python Backend Executable
 REM Uses PyInstaller to bundle the Python backend into a single .exe.
 
 pushd "%~dp0app"

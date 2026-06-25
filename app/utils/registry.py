@@ -1,5 +1,5 @@
 """
-Registry utilities for HyperBoost X.
+Registry utilities for HyperBoostX.
 Provides Windows registry manipulation functions.
 """
 

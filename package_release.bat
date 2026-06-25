@@ -1,5 +1,5 @@
 @echo off
-REM HyperBoost X - Package Final Release Folder
+REM HyperBoostX - Package Final Release Folder
 REM Builds launcher, backend, and WPF UI, then assembles installer and portable layouts.
 
 cd /d "%~dp0"

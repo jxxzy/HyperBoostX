@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$SourceRuntimeRoot = "",
-    [string]$InstallRoot = "C:\Program Files\HyperBoost X",
+    [string]$InstallRoot = "C:\Program Files\HyperBoostX",
     [switch]$SkipBuild
 )
 
@@ -35,7 +35,7 @@ if (-not (Test-Path $SourceRuntimeRoot)) {
     throw "Portable runtime root was not found: $SourceRuntimeRoot"
 }
 
-Write-Host "Stopping running HyperBoost X processes if present..."
+Write-Host "Stopping running HyperBoostX processes if present..."
 Stop-IfRunning -ProcessName "HyperBoostX"
 Stop-IfRunning -ProcessName "HyperBoostUI"
 Stop-IfRunning -ProcessName "HyperBoostLauncher"

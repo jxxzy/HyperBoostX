@@ -1,5 +1,5 @@
 """
-Validators for HyperBoost X.
+Validators for HyperBoostX.
 Provides data validation utilities.
 """
 

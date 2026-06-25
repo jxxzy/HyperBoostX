@@ -1,10 +1,10 @@
 @echo off
-REM HyperBoost X - Quick Start Script
+REM HyperBoostX - Quick Start Script
 REM This script starts the Python backend server
 
 echo.
 echo ╔════════════════════════════════════════════╗
-echo ║        HyperBoost X Backend Server         ║
+echo ║        HyperBoostX Backend Server         ║
 echo ║     Starting Flask REST API on :5000       ║
 echo ╚════════════════════════════════════════════╝
 echo.
@@ -22,7 +22,7 @@ REM Navigate to app directory
 cd /d "%~dp0"
 if not exist "app" (
     echo ERROR: app directory not found
-    echo Make sure you're running this script from the HyperBoost X root directory
+    echo Make sure you're running this script from the HyperBoostX root directory
     pause
     exit /b 1
 )
@@ -60,7 +60,7 @@ if errorlevel 1 (
 
 REM Start backend server
 echo.
-echo ✓ Starting HyperBoost X Backend Server
+echo ✓ Starting HyperBoostX Backend Server
 echo   URL: http://127.0.0.1:5000
 echo   Press CTRL+C to stop
 echo.

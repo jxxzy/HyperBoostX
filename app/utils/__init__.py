@@ -1,1 +1,1 @@
-"""Utils module for HyperBoost X."""
+"""Utils module for HyperBoostX."""

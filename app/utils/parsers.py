@@ -1,5 +1,5 @@
 """
-Parsers for HyperBoost X.
+Parsers for HyperBoostX.
 Provides data parsing utilities.
 """
 
