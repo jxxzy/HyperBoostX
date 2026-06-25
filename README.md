@@ -210,8 +210,9 @@ Useful flags:
 
 ## Release outputs
 
-- Portable app: `release\app\HyperBoostX.exe`
-- Installer: `HyperBoostXInstaller.exe`
+- Public GitHub release download: `HyperBoostXInstaller.exe`
+- Internal QA portable runtime: `release\app\HyperBoostX.exe`
+- Internal QA/backend artifacts stay local or in CI artifacts, not as separate public release downloads
 - GitHub release target: `v1.2.13`
 
 ## Documentation
@@ -229,4 +230,4 @@ Useful flags:
 
 ## Release status
 
-`v1.2.13` is a validated stable release gate line. Current-machine automated validation, restore metadata, secret handling, backend health, installer install/uninstall/reinstall, and real NVIDIA API gates passed. Full multi-machine Windows lab matrix is not claimed.
+`v1.2.13` is a validated stable release gate line. Current-machine automated validation, restore metadata, secret handling, backend health, installer install/uninstall/reinstall, and real NVIDIA API gates passed. Public releases use one installer download. Full multi-machine Windows lab matrix is not claimed.

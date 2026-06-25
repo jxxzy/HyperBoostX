@@ -71,13 +71,9 @@ jobs:
         shell: powershell
         run: .\scripts\build_release_ci.ps1
 
-      - name: Upload release artifacts
+      - name: Upload installer artifact
         uses: actions/upload-artifact@v4
         with:
-          name: hyperboostx-release-artifacts
+          name: hyperboostx-installer-artifact
           path: |
             HyperBoostXInstaller.exe
-            SHA256SUMS.txt
-            release/backend/hyperboost_backend.exe
-            release/launcher/HyperBoostLauncher.exe
-            release/wpf/HyperBoostX.exe

@@ -100,11 +100,12 @@ Branch: `main`
 
 ## Release Asset Gate
 
+- [x] Public GitHub Release exposes one installer download: `HyperBoostXInstaller.exe`
 - [x] Installer asset generated
-- [x] Portable asset generated
-- [x] Backend asset generated
-- [x] Launcher asset generated
-- [x] SHA256SUMS.txt generated
+- [x] Internal QA portable asset generated
+- [x] Internal QA backend asset generated
+- [x] Internal QA launcher asset generated
+- [x] SHA256SUMS.txt generated for local verification
 - [x] Checksums verified against local final assets
 
 ## Matrix Scope

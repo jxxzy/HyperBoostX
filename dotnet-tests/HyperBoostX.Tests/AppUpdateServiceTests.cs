@@ -32,6 +32,37 @@ public class AppUpdateServiceTests
     }
 
     [Fact]
+    public async Task VerifyInstallerAsync_AllowsManualInstallWhenChecksumAssetIsNotPublished()
+    {
+        var service = new AppUpdateService();
+        var installerPath = Path.Combine(Path.GetTempPath(), $"HyperBoostXInstaller-{Guid.NewGuid():N}.exe");
+
+        try
+        {
+            await File.WriteAllBytesAsync(installerPath, new byte[(1024 * 1024) + 1]);
+
+            var result = await service.VerifyInstallerAsync(
+                installerPath,
+                "https://github.com/jxxzy/HyperBoostX/releases/download/v1.2.13/HyperBoostXInstaller.exe",
+                "HyperBoostXInstaller.exe",
+                "");
+
+            Assert.True(result.SourceTrusted);
+            Assert.True(result.FilePresent);
+            Assert.True(result.AssetNameValid);
+            Assert.True(result.FileSizeValid);
+            Assert.False(result.ChecksumPublished);
+            Assert.True(result.AllowManualInstall);
+            Assert.False(result.AllowAutomaticInstall);
+        }
+        finally
+        {
+            if (File.Exists(installerPath))
+                File.Delete(installerPath);
+        }
+    }
+
+    [Fact]
     public void ExtractReleaseTagFromUrl_ReturnsTagSegment()
     {
         var tag = AppUpdateService.ExtractReleaseTagFromUrl("https://github.com/jxxzy/HyperBoostX/releases/tag/v1.2.4");

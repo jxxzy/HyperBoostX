@@ -2,7 +2,7 @@
 
 ## Portable Runtime
 
-Use `release\app\HyperBoostX.exe` for portable smoke testing. The launcher starts the WPF client and packaged backend from `release\app\runtime`.
+Use `release\app\HyperBoostX.exe` only for internal portable smoke testing. Normal users should download and run the single public installer asset, `HyperBoostXInstaller.exe`.
 
 Validated in this workspace:
 
@@ -13,7 +13,7 @@ Validated in this workspace:
 
 ## Installer
 
-Run `HyperBoostXInstaller.exe` from an elevated Windows shell or Explorer prompt. The installer writes to `Program Files` and HKLM uninstall metadata.
+Download the single public release asset, `HyperBoostXInstaller.exe`, then run it from Explorer or an elevated Windows shell. The installer writes to `Program Files` and HKLM uninstall metadata.
 
 Installer validation status in this workspace:
 
@@ -30,4 +30,4 @@ The installer preserves user config, logs, backups, and automation state under `
 
 ## Checksums
 
-Use `SHA256SUMS.txt` generated after the final build assets. Do not reuse old checksums.
+Use `SHA256SUMS.txt` generated after the final build assets for internal audit and release verification. Do not publish it as a separate user download unless a release explicitly needs public checksum files.

@@ -60,16 +60,12 @@ jobs:
         shell: powershell
         run: .\scripts\build_release_ci.ps1
 
-      - name: Upload gate artifacts
+      - name: Upload installer gate artifact
         uses: actions/upload-artifact@v4
         with:
-          name: hyperboostx-gate-artifacts
+          name: hyperboostx-installer-gate-artifact
           path: |
             HyperBoostXInstaller.exe
-            SHA256SUMS.txt
-            release/backend/hyperboost_backend.exe
-            release/launcher/HyperBoostLauncher.exe
-            release/wpf/HyperBoostX.exe
 
   e2e-lab-gate:
     needs: build-release
@@ -85,7 +81,7 @@ jobs:
       - name: Download gate artifacts
         uses: actions/download-artifact@v4
         with:
-          name: hyperboostx-gate-artifacts
+          name: hyperboostx-installer-gate-artifact
           path: build_tmp/gate-artifacts
 
       - name: Run installer gate

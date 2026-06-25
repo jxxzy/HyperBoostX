@@ -35,9 +35,14 @@ Completed automated gates in this workspace:
 
 Full multi-machine Windows lab matrix: NOT CLAIMED
 
-## Release Assets
+## Public Release Asset
 
 - `HyperBoostXInstaller.exe`
+
+GitHub Release downloads should stay installer-only so users get one file, run it, and install HyperBoostX without choosing between internal executables.
+
+Internal validation still generates and verifies these local/CI artifacts, but they are not published as separate public release downloads:
+
 - `SHA256SUMS.txt`
 - `release\app\HyperBoostX.exe`
 - `release\backend\hyperboost_backend.exe`

@@ -190,8 +190,8 @@ namespace HyperBoostX.Services
                 result.ReleaseChannel = latestVersion.Contains("-", StringComparison.OrdinalIgnoreCase) ? "Prerelease" : "Stable";
                 result.InstallerAssetName = InstallerAssetFileName;
                 result.InstallerDownloadUrl = $"{ExpectedRepoDownloadPrefix}{Uri.EscapeDataString(tagName)}/{InstallerAssetFileName}";
-                result.ChecksumsAssetName = ChecksumsAssetFileName;
-                result.ChecksumsDownloadUrl = $"{ExpectedRepoDownloadPrefix}{Uri.EscapeDataString(tagName)}/{ChecksumsAssetFileName}";
+                result.ChecksumsAssetName = "";
+                result.ChecksumsDownloadUrl = "";
                 result.IsUpdateAvailable = CompareVersions(latestVersion, normalizedCurrent) > 0;
                 result.Summary = result.IsUpdateAvailable
                     ? $"New version available: {latestVersion} ({result.ReleaseChannel})."
