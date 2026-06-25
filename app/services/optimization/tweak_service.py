@@ -3,6 +3,7 @@
 import winreg
 from typing import List, Dict, Any, Optional
 from core.logger import Logger
+from core.permissions import Permissions
 from utils.registry import RegistryUtil
 from utils.shell import ShellUtil
 from core.restore import RestoreManager, RestorePoint
@@ -18,60 +19,95 @@ class TweakService:
         {
             "id": "disable_defender",
             "name": "Disable Windows Defender",
-            "description": "Disables Windows Defender real-time protection",
-            "risk": "High",
+            "description": "Blocked by HyperBoostX Safety Guard; Windows Security must stay enabled.",
+            "risk": "Blocked",
+            "risk_level": "blocked",
             "category": "Security",
-            "requires_admin": True
+            "requires_admin": True,
+            "can_auto_apply": False,
+            "reversible": False
         },
         {
             "id": "optimize_visual",
             "name": "Optimize Visual Effects",
             "description": "Disables unnecessary visual effects for better performance",
             "risk": "Low",
+            "risk_level": "low",
             "category": "Performance",
-            "requires_admin": False
+            "requires_admin": False,
+            "can_auto_apply": True,
+            "reversible": True
+        },
+        {
+            "id": "enable_game_mode",
+            "name": "Enable Windows Game Mode",
+            "description": "Enables Windows Game Mode for gaming sessions",
+            "risk": "Low",
+            "risk_level": "low",
+            "category": "Gaming",
+            "requires_admin": False,
+            "can_auto_apply": True,
+            "reversible": True
         },
         {
             "id": "disable_telemetry",
             "name": "Disable Telemetry",
             "description": "Disables Windows telemetry and data collection",
             "risk": "Medium",
+            "risk_level": "medium",
             "category": "Privacy",
-            "requires_admin": True
+            "requires_admin": True,
+            "can_auto_apply": True,
+            "reversible": True
         },
         {
             "id": "disable_xbox",
             "name": "Disable Xbox Game Bar",
             "description": "Disables Xbox Game Bar and related overlays",
             "risk": "Low",
+            "risk_level": "low",
             "category": "Gaming",
-            "requires_admin": False
+            "requires_admin": False,
+            "can_auto_apply": True,
+            "reversible": True
         },
         {
             "id": "disable_updates",
             "name": "Disable Auto Updates",
-            "description": "Disables automatic Windows updates",
-            "risk": "High",
+            "description": "Blocked by HyperBoostX Safety Guard; permanent Windows Update disable is not allowed.",
+            "risk": "Blocked",
+            "risk_level": "blocked",
             "category": "Maintenance",
-            "requires_admin": True
+            "requires_admin": True,
+            "can_auto_apply": False,
+            "reversible": False
         },
         {
             "id": "disable_superfetch",
             "name": "Disable Superfetch/SysMain",
             "description": "Disables Superfetch service to reduce disk activity",
             "risk": "Medium",
+            "risk_level": "medium",
             "category": "Performance",
-            "requires_admin": True
+            "requires_admin": True,
+            "can_auto_apply": True,
+            "reversible": True
         },
         {
             "id": "optimize_power",
             "name": "Optimize Power Settings",
             "description": "Sets power plan to high performance",
             "risk": "Low",
+            "risk_level": "low",
             "category": "Performance",
-            "requires_admin": True
+            "requires_admin": True,
+            "can_auto_apply": True,
+            "reversible": True
         }
     ]
+
+    HIGH_RISK_TWEAKS = {"disable_defender", "disable_updates"}
+    BLOCKED_TWEAKS = {"disable_defender", "disable_updates"}
     
     # Registry paths for tweaks
     REG_PATHS = {
@@ -100,11 +136,47 @@ class TweakService:
         return None
     
     @staticmethod
-    def apply_tweak(tweak_id: str) -> Dict[str, Any]:
+    def apply_tweak(tweak_id: str, expert_mode: bool = False, confirmed: bool = False) -> Dict[str, Any]:
         """Apply a tweak with backup and error handling."""
         logger.info(f"Applying tweak: {tweak_id}")
         
         try:
+            tweak = TweakService.get_tweak_info(tweak_id)
+            if not tweak:
+                return {"success": False, "error": f"Unknown tweak: {tweak_id}"}
+
+            if tweak_id in TweakService.BLOCKED_TWEAKS:
+                logger.warning("Safety Guard blocked tweak: %s", tweak_id)
+                return {
+                    "success": False,
+                    "error": f"Tweak {tweak_id} is blocked by HyperBoostX Safety Guard.",
+                    "safety_status": "blocked",
+                    "risk_level": "blocked",
+                    "requires_expert_mode": True,
+                    "can_auto_apply": False,
+                    "reversible": False,
+                }
+
+            if tweak_id in TweakService.HIGH_RISK_TWEAKS:
+                if not expert_mode:
+                    return {
+                        "success": False,
+                        "error": f"Tweak {tweak_id} is high risk and requires Expert Mode.",
+                        "requires_expert_mode": True,
+                    }
+                if not confirmed:
+                    return {
+                        "success": False,
+                        "error": f"Tweak {tweak_id} requires explicit double confirmation.",
+                        "requires_confirmation": True,
+                    }
+                if not Permissions.is_admin():
+                    return {
+                        "success": False,
+                        "error": f"Tweak {tweak_id} requires Administrator privileges.",
+                        "requires_admin": True,
+                    }
+
             # Create restore point
             restore_point = RestoreManager.create_restore_point(
                 f"tweak_{tweak_id}", 
@@ -117,6 +189,8 @@ class TweakService:
                 success = TweakService._apply_disable_defender(restore_point)
             elif tweak_id == "optimize_visual":
                 success = TweakService._apply_optimize_visual(restore_point)
+            elif tweak_id == "enable_game_mode":
+                success = TweakService._apply_enable_game_mode(restore_point)
             elif tweak_id == "disable_telemetry":
                 success = TweakService._apply_disable_telemetry(restore_point)
             elif tweak_id == "disable_xbox":
@@ -131,8 +205,16 @@ class TweakService:
                 return {"success": False, "error": f"Unknown tweak: {tweak_id}"}
             
             if success:
+                RestoreManager.save_restore_point(restore_point)
                 logger.info(f"Successfully applied tweak: {tweak_id}")
-                return {"success": True, "message": f"Tweak {tweak_id} applied successfully"}
+                return {
+                    "success": True,
+                    "message": f"Tweak {tweak_id} applied successfully",
+                    "restore_point": restore_point.name,
+                    "restore_timestamp": restore_point.timestamp,
+                    "registry_backups": len(restore_point.registry),
+                    "settings_backups": len(restore_point.settings),
+                }
             else:
                 # Attempt to restore if application failed
                 RestoreManager.restore(restore_point)
@@ -148,43 +230,78 @@ class TweakService:
         logger.info(f"Reverting tweak: {tweak_id}")
         
         try:
-            # Find the latest restore point for this tweak
-            # For now, we'll need to implement restore point management
-            # This is a simplified version
-            return {"success": True, "message": f"Tweak {tweak_id} reverted successfully"}
+            if not TweakService.get_tweak_info(tweak_id):
+                return {"success": False, "error": f"Unknown tweak: {tweak_id}"}
+
+            restore_point = RestoreManager.find_latest_restore_point(f"tweak_{tweak_id}")
+            if not restore_point:
+                return {
+                    "success": False,
+                    "error": f"No restore backup found for tweak: {tweak_id}",
+                }
+
+            if not restore_point.registry and not restore_point.files and not restore_point.settings:
+                return {
+                    "success": False,
+                    "error": f"Restore backup for {tweak_id} has no restorable entries.",
+                }
+
+            restored = RestoreManager.restore(restore_point)
+            if not restored:
+                return {
+                    "success": False,
+                    "error": f"Failed to revert tweak: {tweak_id}",
+                    "restore_timestamp": restore_point.timestamp,
+                }
+
+            return {
+                "success": True,
+                "message": f"Tweak {tweak_id} reverted successfully",
+                "restore_timestamp": restore_point.timestamp,
+                "registry_restored": len(restore_point.registry),
+                "settings_restored": len(restore_point.settings),
+            }
         except Exception as e:
             logger.error(f"Error reverting tweak {tweak_id}: {e}")
             return {"success": False, "error": str(e)}
+
+    @staticmethod
+    def _set_registry_with_backup(
+        restore_point: RestorePoint,
+        path: str,
+        key: str,
+        value: Any,
+        value_type=winreg.REG_SZ,
+        hkey=winreg.HKEY_LOCAL_MACHINE,
+    ) -> bool:
+        backup_ok = RestoreManager.backup_registry(
+            restore_point,
+            hkey,
+            path,
+            key,
+            value,
+            value_type,
+        )
+        if not backup_ok:
+            return False
+
+        return RegistryUtil.set_value(path, key, value, value_type, hkey=hkey)
     
     @staticmethod
     def _apply_disable_defender(restore_point: RestorePoint) -> bool:
         """Disable Windows Defender real-time protection."""
         try:
-            # Backup current settings
-            current_value = RegistryUtil.get_value(
-                TweakService.REG_PATHS["defender_realtime"], 
-                "DisableRealtimeMonitoring"
-            )
-            if current_value is not None:
-                restore_point.files[f"reg:{TweakService.REG_PATHS['defender_realtime']}\\DisableRealtimeMonitoring"] = str(current_value)
-            
             # Disable real-time monitoring
-            success1 = RegistryUtil.set_value(
+            success1 = TweakService._set_registry_with_backup(
+                restore_point,
                 TweakService.REG_PATHS["defender_realtime"],
                 "DisableRealtimeMonitoring",
                 1,
                 winreg.REG_DWORD
             )
             
-            # Disable reporting
-            current_reporting = RegistryUtil.get_value(
-                TweakService.REG_PATHS["defender_reporting"],
-                "UILockdown"
-            )
-            if current_reporting is not None:
-                restore_point.files[f"reg:{TweakService.REG_PATHS['defender_reporting']}\\UILockdown"] = str(current_reporting)
-            
-            success2 = RegistryUtil.set_value(
+            success2 = TweakService._set_registry_with_backup(
+                restore_point,
                 TweakService.REG_PATHS["defender_reporting"],
                 "UILockdown",
                 1,
@@ -200,53 +317,49 @@ class TweakService:
     def _apply_optimize_visual(restore_point: RestorePoint) -> bool:
         """Optimize visual effects for performance."""
         try:
-            # Backup current visual effects setting
-            current_value = RegistryUtil.get_value(
-                TweakService.REG_PATHS["visual_effects"],
-                "VisualFXSetting"
-            )
-            if current_value is not None:
-                restore_point.files[f"reg:{TweakService.REG_PATHS['visual_effects']}\\VisualFXSetting"] = str(current_value)
-            
             # Set to "Adjust for best performance" (value = 2)
-            return RegistryUtil.set_value(
+            return TweakService._set_registry_with_backup(
+                restore_point,
                 TweakService.REG_PATHS["visual_effects"],
                 "VisualFXSetting",
                 2,
-                winreg.REG_DWORD
+                winreg.REG_DWORD,
+                hkey=winreg.HKEY_CURRENT_USER
             )
         except Exception as e:
             logger.error(f"Failed to optimize visual effects: {e}")
+            return False
+
+    @staticmethod
+    def _apply_enable_game_mode(restore_point: RestorePoint) -> bool:
+        """Enable Windows Game Mode for the current user."""
+        try:
+            return TweakService._set_registry_with_backup(
+                restore_point,
+                r"Software\Microsoft\GameBar",
+                "AutoGameModeEnabled",
+                1,
+                winreg.REG_DWORD,
+                hkey=winreg.HKEY_CURRENT_USER
+            )
+        except Exception as e:
+            logger.error(f"Failed to enable Game Mode: {e}")
             return False
     
     @staticmethod
     def _apply_disable_telemetry(restore_point: RestorePoint) -> bool:
         """Disable Windows telemetry."""
         try:
-            # Disable telemetry via policy
-            current_policy = RegistryUtil.get_value(
-                TweakService.REG_PATHS["telemetry_policy"],
-                "AllowTelemetry"
-            )
-            if current_policy is not None:
-                restore_point.files[f"reg:{TweakService.REG_PATHS['telemetry_policy']}\\AllowTelemetry"] = str(current_policy)
-            
-            success1 = RegistryUtil.set_value(
+            success1 = TweakService._set_registry_with_backup(
+                restore_point,
                 TweakService.REG_PATHS["telemetry_policy"],
                 "AllowTelemetry",
                 0,
                 winreg.REG_DWORD
             )
             
-            # Disable DiagTrack service consent
-            current_consent = RegistryUtil.get_value(
-                TweakService.REG_PATHS["telemetry_consent"],
-                "ShowedToastAtLevel"
-            )
-            if current_consent is not None:
-                restore_point.files[f"reg:{TweakService.REG_PATHS['telemetry_consent']}\\ShowedToastAtLevel"] = str(current_consent)
-            
-            success2 = RegistryUtil.set_value(
+            success2 = TweakService._set_registry_with_backup(
+                restore_point,
                 TweakService.REG_PATHS["telemetry_consent"],
                 "ShowedToastAtLevel",
                 0,
@@ -262,17 +375,8 @@ class TweakService:
     def _apply_disable_xbox(restore_point: RestorePoint) -> bool:
         """Disable Xbox Game Bar overlay."""
         try:
-            current_value = RegistryUtil.get_value(
-                TweakService.REG_PATHS["xbox_overlay"],
-                "AppCaptureEnabled",
-                hkey=winreg.HKEY_CURRENT_USER
-            )
-            if current_value is not None:
-                restore_point.files[
-                    f"reg:{TweakService.REG_PATHS['xbox_overlay']}\\AppCaptureEnabled"
-                ] = str(current_value)
-
-            return RegistryUtil.set_value(
+            return TweakService._set_registry_with_backup(
+                restore_point,
                 TweakService.REG_PATHS["xbox_overlay"],
                 "AppCaptureEnabled",
                 0,
@@ -287,16 +391,9 @@ class TweakService:
     def _apply_disable_updates(restore_point: RestorePoint) -> bool:
         """Disable automatic Windows updates."""
         try:
-            # Backup current AU options
-            current_au = RegistryUtil.get_value(
-                TweakService.REG_PATHS["updates_policy"],
-                "AUOptions"
-            )
-            if current_au is not None:
-                restore_point.files[f"reg:{TweakService.REG_PATHS['updates_policy']}\\AUOptions"] = str(current_au)
-            
             # Set AUOptions to "Never check for updates" (value = 1)
-            return RegistryUtil.set_value(
+            return TweakService._set_registry_with_backup(
+                restore_point,
                 TweakService.REG_PATHS["updates_policy"],
                 "AUOptions",
                 1,
@@ -310,16 +407,9 @@ class TweakService:
     def _apply_disable_superfetch(restore_point: RestorePoint) -> bool:
         """Disable Superfetch/SysMain service."""
         try:
-            # Backup current start value
-            current_start = RegistryUtil.get_value(
-                TweakService.REG_PATHS["superfetch"],
-                "Start"
-            )
-            if current_start is not None:
-                restore_point.files[f"reg:{TweakService.REG_PATHS['superfetch']}\\Start"] = str(current_start)
-            
             # Set service to disabled (value = 4)
-            success = RegistryUtil.set_value(
+            success = TweakService._set_registry_with_backup(
+                restore_point,
                 TweakService.REG_PATHS["superfetch"],
                 "Start",
                 4,
@@ -340,8 +430,12 @@ class TweakService:
         """Set power plan to high performance."""
         try:
             # Use powercfg to set high performance plan
+            scheme_guid = "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c"
+            if not RestoreManager.backup_power_plan(restore_point, scheme_guid):
+                return False
+
             success, output = ShellUtil.execute_command(
-                "powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c",
+                f"powercfg /setactive {scheme_guid}",
                 admin=True
             )
             return success

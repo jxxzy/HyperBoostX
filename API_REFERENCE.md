@@ -11,7 +11,31 @@ Complete API documentation for all backend endpoints and services.
 | **Data Format** | JSON |
 | **Default Port** | 5000 |
 | **CORS** | Enabled for localhost |
-| **Authentication** | None (local use only) |
+| **Authentication** | `X-HyperBoostX-Token` local backend token |
+
+---
+
+## HyperBoostX Triple AI Engine
+
+Core flow:
+
+`Scan PC -> AI Analyzer -> AI Safety Guard -> AI Assistant -> User Approval -> Safe Tweak Engine -> Backup/Revert -> Performance Report`
+
+All endpoints require `X-HyperBoostX-Token`.
+
+| Endpoint | Purpose |
+|----------|---------|
+| `POST /scan` | Run local PC scanner. |
+| `POST /ai/analyze` | Analyze a scan result and return structured issues/recommendations. |
+| `POST /ai/safety-check` | Approve, warn, or block recommendations before apply. |
+| `POST /api/triple-ai/full-flow` | Run scan, analyze, safety, assistant, and report without applying tweaks. |
+| `POST /tweaks/apply` | Apply only Safety Guard approved tweaks after `user_approved: true`. |
+| `POST /tweaks/revert` | Revert previously applied tweak IDs or backup context. |
+| `POST /game/optimize` | Return safe manual game/NVIDIA setting recommendations. |
+
+Aliases are also exposed under `/api/triple-ai/*` and `/api/hyperboostx/*`.
+
+Safety policy: HyperBoostX blocks overclock, undervolt, voltage/BIOS/UEFI changes, disabling Windows Security, permanent Windows Update disable, irreversible registry edits, and guaranteed FPS claims.
 
 ---
 

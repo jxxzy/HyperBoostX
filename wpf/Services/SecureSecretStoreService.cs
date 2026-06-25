@@ -1,10 +1,7 @@
 using System;
-using System.IO;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace HyperBoostX.Services
 {
@@ -12,59 +9,36 @@ namespace HyperBoostX.Services
     {
         public string DiscordWebhookUrl { get; set; } = "";
         public string DiscordUpdateWebhookUrl { get; set; } = "";
-        public string OpenAiApiKey { get; set; } = "";
+        public string NvidiaApiKey { get; set; } = "";
     }
 
     public sealed class SecureSecretStoreService
     {
-        private const string OpenAiTarget = "HyperBoostX:OpenAI:ApiKey";
+        private const string NvidiaTarget = "HyperBoostX:NVIDIA:ApiKey";
         private const string DiscordTarget = "HyperBoostX:Discord:WebhookUrl";
         private const string DiscordUpdateTarget = "HyperBoostX:Discord:UpdateWebhookUrl";
         private const int CredTypeGeneric = 1;
         private const int CredPersistLocalMachine = 2;
-        private static readonly byte[] AdditionalEntropy = Encoding.UTF8.GetBytes("HyperBoostX.SecretStore.v1");
-        private readonly string _configDirectory;
-        private readonly string _legacySecretPath;
 
         public SecureSecretStoreService()
         {
-            _configDirectory = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "HyperBoost X",
-                "config");
-            _legacySecretPath = Path.Combine(_configDirectory, "secrets.dat");
         }
 
-        public async Task<PersistedSecureSecrets> LoadAsync()
+        public Task<PersistedSecureSecrets> LoadAsync()
         {
             var secrets = new PersistedSecureSecrets
             {
-                OpenAiApiKey = ReadCredential(OpenAiTarget),
+                NvidiaApiKey = ReadCredential(NvidiaTarget),
                 DiscordWebhookUrl = ReadCredential(DiscordTarget),
                 DiscordUpdateWebhookUrl = ReadCredential(DiscordUpdateTarget)
             };
 
-            if (!string.IsNullOrWhiteSpace(secrets.OpenAiApiKey) ||
-                !string.IsNullOrWhiteSpace(secrets.DiscordWebhookUrl) ||
-                !string.IsNullOrWhiteSpace(secrets.DiscordUpdateWebhookUrl))
-                return secrets;
-
-            var legacy = await LoadLegacySecretsAsync();
-            if (!string.IsNullOrWhiteSpace(legacy.OpenAiApiKey) ||
-                !string.IsNullOrWhiteSpace(legacy.DiscordWebhookUrl) ||
-                !string.IsNullOrWhiteSpace(legacy.DiscordUpdateWebhookUrl))
-            {
-                await SaveAsync(legacy);
-                TryDeleteLegacySecretFile();
-                return legacy;
-            }
-
-            return secrets;
+            return Task.FromResult(secrets);
         }
 
         public Task SaveAsync(PersistedSecureSecrets secrets)
         {
-            WriteCredential(OpenAiTarget, secrets.OpenAiApiKey);
+            WriteCredential(NvidiaTarget, secrets.NvidiaApiKey);
             WriteCredential(DiscordTarget, secrets.DiscordWebhookUrl);
             WriteCredential(DiscordUpdateTarget, secrets.DiscordUpdateWebhookUrl);
             return Task.CompletedTask;
@@ -80,40 +54,6 @@ namespace HyperBoostX.Services
         public string GetSecretPath()
         {
             return "Windows Credential Manager";
-        }
-
-        private async Task<PersistedSecureSecrets> LoadLegacySecretsAsync()
-        {
-            try
-            {
-                if (!File.Exists(_legacySecretPath))
-                    return new PersistedSecureSecrets();
-
-                var protectedBytes = await File.ReadAllBytesAsync(_legacySecretPath);
-                if (protectedBytes.Length == 0)
-                    return new PersistedSecureSecrets();
-
-                var rawBytes = ProtectedData.Unprotect(protectedBytes, AdditionalEntropy, DataProtectionScope.CurrentUser);
-                var json = Encoding.UTF8.GetString(rawBytes);
-                return JsonConvert.DeserializeObject<PersistedSecureSecrets>(json) ?? new PersistedSecureSecrets();
-            }
-            catch
-            {
-                return new PersistedSecureSecrets();
-            }
-        }
-
-        private void TryDeleteLegacySecretFile()
-        {
-            try
-            {
-                if (File.Exists(_legacySecretPath))
-                    File.Delete(_legacySecretPath);
-            }
-            catch
-            {
-                // Ignore cleanup failures.
-            }
         }
 
         private static void WriteCredential(string target, string secret)

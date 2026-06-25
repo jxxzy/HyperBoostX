@@ -107,7 +107,7 @@ All notable changes to HyperBoostX are documented here.
 
 ### Changed
 - Fixed Feature Audit incident handling so current audit runs no longer fail because of stale incidents from previous sessions.
-- Improved OpenAI Copilot error diagnostics with clearer 429/401/403 guidance, endpoint labels, and request-id support when available.
+- Improved NVIDIA Copilot error diagnostics with clearer 429/401/403 guidance, endpoint labels, and request-id support when available.
 - Fixed app update version normalization so builds that already match the latest release no longer show a false "new version available" notification.
 - Updated runtime/app metadata from `1.1.2` to `1.1.3`.
 
@@ -116,7 +116,7 @@ All notable changes to HyperBoostX are documented here.
 - `dotnet build wpf\\HyperBoostX.csproj -c Release`
 
 ### Notes
-- This hotfix focuses on more trustworthy audit results, clearer OpenAI failure diagnostics, and accurate in-app update detection.
+- This hotfix focuses on more trustworthy audit results, clearer NVIDIA failure diagnostics, and accurate in-app update detection.
 
 ## v1.1.4 - 2026-04-08
 
@@ -134,7 +134,7 @@ All notable changes to HyperBoostX are documented here.
 ## v1.1.2 - 2026-04-08
 
 ### Changed
-- Hardened HyperBoostX Copilot OpenAI connectivity with a safer request fallback path and improved response parsing.
+- Hardened HyperBoostX Copilot NVIDIA Copilot connectivity with a safer request fallback path and improved response parsing.
 - Added a visible `Last Test` result to the AI settings panel and persisted the latest connection-test status across restart.
 - Improved Feature Audit runtime incident tracking so real feature errors are detected while stale or warning-only states do not keep modules failing incorrectly.
 - Updated runtime/app metadata from `1.1.1` to `1.1.2`.
@@ -232,12 +232,12 @@ All notable changes to HyperBoostX are documented here.
 ## v1.1.0-beta - 2026-04-07
 
 ### Added
-- HyperBoostX Copilot foundation with OpenAI integration, safe action approval, session memory, reasoning summary, and automation creation flow.
+- HyperBoostX Copilot foundation with NVIDIA Copilot integration, safe action approval, session memory, reasoning summary, and automation creation flow.
 - Discord webhook reporting for important errors and crash events.
 - Modular localization foundation with `en-US` and `id-ID` language packs.
 - Persistent app configuration shared across settings, automation, AI, and recovery-related modules.
 - In-app release checker for detecting newer author builds from GitHub.
-- Secure OpenAI API key and Discord webhook persistence via Windows Credential Manager.
+- Secure NVIDIA API key and Discord webhook persistence via Windows Credential Manager.
 - Sociabuzz donation shortcut in About App.
 - `release-notes-v1.1.0-beta.txt` for beta release documentation.
 

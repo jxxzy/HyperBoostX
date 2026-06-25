@@ -5,10 +5,13 @@ Refactored with Flask blueprints for better organization and maintainability
 """
 
 import json
+import hmac
+import os
+import secrets
 import threading
 from typing import Dict, Any
 from urllib.parse import urlparse
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from core.config import Config
 from core.logger import Logger
 
@@ -23,6 +26,7 @@ from api.repair import repair_bp
 from api.network import network_bp
 from api.startup import startup_bp
 from api.websocket import ws_bp
+from api.triple_ai import triple_ai_bp
 from api.middleware import APIMiddleware
 
 Config.initialize()
@@ -35,11 +39,12 @@ ALLOWED_CORS_HOSTS = {"127.0.0.1", "localhost"}
 class HyperBoostBackendServer:
     """Backend API server for HyperBoost X with blueprint architecture."""
     
-    def __init__(self, host: str = "127.0.0.1", port: int = 5000):
+    def __init__(self, host: str = "127.0.0.1", port: int = 5000, auth_token: str | None = None):
         self.app = Flask(__name__)
         self.host = host
         self.port = port
         self.running = False
+        self.auth_token = auth_token or os.environ.get("HYPERBOOSTX_BACKEND_TOKEN", "").strip() or secrets.token_urlsafe(32)
         
         # Initialize logger
         self.logger = Logger.get_logger(__name__)
@@ -59,6 +64,18 @@ class HyperBoostBackendServer:
         
         # Initialize middleware
         APIMiddleware.init_app(self.app)
+
+        @self.app.before_request
+        def require_backend_token():
+            if request.method == "OPTIONS":
+                return None
+
+            supplied_token = request.headers.get("X-HyperBoostX-Token", "")
+            if not supplied_token or not hmac.compare_digest(supplied_token, self.auth_token):
+                logger.warning("Rejected local API request without a valid HyperBoostX token: %s %s", request.method, request.path)
+                return jsonify({"error": "Unauthorized"}), 401
+
+            return None
         
         # Add CORS headers for cross-origin requests (useful for web clients)
         @self.app.after_request
@@ -68,7 +85,7 @@ class HyperBoostBackendServer:
                 response.headers['Access-Control-Allow-Origin'] = origin
                 response.headers['Vary'] = 'Origin'
                 response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-                response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+                response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-HyperBoostX-Token'
             return response
 
     @staticmethod
@@ -90,6 +107,7 @@ class HyperBoostBackendServer:
         self.app.register_blueprint(repair_bp)
         self.app.register_blueprint(network_bp)
         self.app.register_blueprint(startup_bp)
+        self.app.register_blueprint(triple_ai_bp)
         self.app.register_blueprint(ws_bp)
         
         self.logger.info("API blueprints registered successfully")

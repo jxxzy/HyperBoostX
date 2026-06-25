@@ -78,7 +78,7 @@ class RegistryUtil:
                     "error": str(e),
                 }
             )
-            logger.error(
+            logger.info(
                 "Failed to get registry value %s at %s: access denied (%s)",
                 key,
                 RegistryUtil._format_location(path, hkey),
@@ -131,7 +131,7 @@ class RegistryUtil:
                     "error": str(e),
                 }
             )
-            logger.warning(
+            logger.info(
                 "Failed to set registry value %s at %s: access denied. "
                 "This tweak likely requires Administrator privileges. (%s)",
                 key,
@@ -151,7 +151,7 @@ class RegistryUtil:
                     "error": str(e),
                 }
             )
-            logger.warning(
+            logger.info(
                 "Failed to set registry value %s at %s: registry path is unavailable on this Windows setup. (%s)",
                 key,
                 RegistryUtil._format_location(path, hkey),

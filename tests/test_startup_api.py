@@ -12,7 +12,10 @@ def test_startup_list_returns_legacy_and_new_keys(monkeypatch):
         lambda: sample_items,
     )
 
-    response = client.get("/api/startup/list")
+    response = client.get(
+        "/api/startup/list",
+        headers={"X-HyperBoostX-Token": server.auth_token},
+    )
 
     assert response.status_code == 200
     payload = response.get_json()
@@ -38,7 +41,10 @@ def test_startup_list_returns_cached_payload_when_collector_is_slow(monkeypatch)
     monkeypatch.setattr("services.optimization.startup_service.StartupService._read_scheduled_tasks", staticmethod(fail_if_called))
     monkeypatch.setattr("services.optimization.startup_service.StartupService._read_startup_services", staticmethod(fail_if_called))
 
-    response = client.get("/api/startup/list")
+    response = client.get(
+        "/api/startup/list",
+        headers={"X-HyperBoostX-Token": server.auth_token},
+    )
 
     assert response.status_code == 200
     payload = response.get_json()

@@ -154,7 +154,7 @@ namespace HyperBoostX
             public string Meta { get; set; } = "";
         }
 
-        private HyperBoostBackendClient _backendClient;
+        private IHyperBoostBackendClient _backendClient;
         private string _currentBackendUrl = "http://127.0.0.1:5000";
         private Button _selectedNavButton;
         private DispatcherTimer _dashboardTimer;
@@ -301,7 +301,7 @@ namespace HyperBoostX
         private readonly SecureSecretStoreService _secureSecretStoreService = new();
         private readonly AppUpdateService _appUpdateService = new();
         private readonly DiscordWebhookService _discordWebhookService = new();
-        private readonly OpenAiCopilotService _openAiCopilotService = new();
+        private readonly NvidiaCopilotService _nvidiaCopilotService = new();
         private PersistedAppConfig _appConfig = new();
         private DispatcherTimer _automationRuntimeTimer;
         private bool _discordWebhookEnabled;
@@ -310,12 +310,16 @@ namespace HyperBoostX
         private string _discordWebhookMinimumLevel = "Error";
         private int _discordWebhookCooldownSeconds = 120;
         private readonly Dictionary<string, DateTime> _discordWebhookLastSent = new();
-        private bool _openAiEnabled;
-        private string _openAiApiKey = "";
-        private string _openAiModel = "gpt-4.1-mini";
-        private string _openAiMode = "Assistant";
-        private string _openAiPermissionLevel = "Ask";
-        private string _lastOpenAiConnectionTestStatus = "No AI connection test run yet.";
+        private bool _nvidiaEnabled;
+        private string _nvidiaApiKey = "";
+        private string _nvidiaModel = "nvidia/nemotron-3-nano-30b-a3b";
+        private string _nvidiaFallbackModel = "nvidia/nvidia-nemotron-nano-9b-v2";
+        private string _nvidiaMode = "Assistant";
+        private string _nvidiaPermissionLevel = "Ask";
+        private bool _nvidiaAutoFallback = true;
+        private bool _nvidiaSafetyGuardEnabled = true;
+        private bool _nvidiaRequireActionApproval = true;
+        private string _lastNvidiaConnectionTestStatus = "No AI connection test run yet.";
         private const string SociabuzzDonateUrl = "https://sociabuzz.com/jxxzyshn69";
         private readonly string _currentAppVersion = System.Reflection.Assembly.GetExecutingAssembly()
             .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
@@ -340,7 +344,10 @@ namespace HyperBoostX
         private bool _isAppUpdateAvailable;
         private bool _appUpdateCheckInProgress;
         private bool _appUpdateInstallInProgress;
-        private OpenAiCopilotResponse _lastAiCopilotResponse;
+        private NvidiaCopilotResponse _lastAiCopilotResponse;
+        private JArray _lastTripleAiApprovedTweaks = new();
+        private JArray _lastTripleAiBlockedTweaks = new();
+        private string _lastTripleAiBackupId = "";
         private bool _aiRequestInProgress;
         private DateTime _lastAiContextBuiltUtc = DateTime.MinValue;
         private string _cachedAiSystemContext = "";
@@ -365,9 +372,20 @@ namespace HyperBoostX
         private readonly DateTime _appStartedUtc = DateTime.UtcNow;
 
         public MainWindow()
+            : this(new HyperBoostBackendClient("http://127.0.0.1:5000"), "http://127.0.0.1:5000")
+        {
+        }
+
+        public MainWindow(IHyperBoostBackendClient backendClient)
+            : this(backendClient, "http://127.0.0.1:5000")
+        {
+        }
+
+        private MainWindow(IHyperBoostBackendClient backendClient, string backendUrl)
         {
             InitializeComponent();
-            _backendClient = new HyperBoostBackendClient(_currentBackendUrl);
+            _currentBackendUrl = backendUrl;
+            _backendClient = backendClient ?? throw new ArgumentNullException(nameof(backendClient));
             _dashboardTimer = new DispatcherTimer();
             _dashboardTimer.Interval = TimeSpan.FromSeconds(1);
             _dashboardTimer.Tick += DashboardTimer_Tick;
@@ -444,8 +462,14 @@ namespace HyperBoostX
             _automationRuntimeTimer.Stop();
             _realtimePageTimer.Stop();
             StopVoiceMeterCapture();
-            _backendClient?.Dispose();
+            DisposeBackendClient();
             base.OnClosed(e);
+        }
+
+        private void DisposeBackendClient()
+        {
+            if (_backendClient is IDisposable disposable)
+                disposable.Dispose();
         }
 
         private string L(string key, string fallback, IDictionary<string, object> variables = null)
@@ -606,13 +630,17 @@ namespace HyperBoostX
             _discordWebhookEnabled = settings.DiscordWebhookEnabled;
             _discordWebhookMinimumLevel = string.IsNullOrWhiteSpace(settings.DiscordWebhookMinimumLevel) ? "Error" : settings.DiscordWebhookMinimumLevel;
             _discordWebhookCooldownSeconds = Math.Max(15, settings.DiscordWebhookCooldownSeconds);
-            _openAiEnabled = settings.OpenAiEnabled;
-            _openAiModel = string.IsNullOrWhiteSpace(settings.OpenAiModel) ? "gpt-4.1-mini" : settings.OpenAiModel;
-            _openAiMode = string.IsNullOrWhiteSpace(settings.OpenAiMode) ? "Assistant" : settings.OpenAiMode;
-            _openAiPermissionLevel = string.IsNullOrWhiteSpace(settings.OpenAiPermissionLevel) ? "Ask" : settings.OpenAiPermissionLevel;
-            _lastOpenAiConnectionTestStatus = string.IsNullOrWhiteSpace(settings.LastOpenAiConnectionTestStatus)
+            _nvidiaEnabled = settings.NvidiaEnabled;
+            _nvidiaModel = string.IsNullOrWhiteSpace(settings.NvidiaModel) ? "nvidia/nemotron-3-nano-30b-a3b" : settings.NvidiaModel;
+            _nvidiaFallbackModel = string.IsNullOrWhiteSpace(settings.NvidiaFallbackModel) ? "nvidia/nvidia-nemotron-nano-9b-v2" : settings.NvidiaFallbackModel;
+            _nvidiaMode = string.IsNullOrWhiteSpace(settings.NvidiaMode) ? "Assistant" : settings.NvidiaMode;
+            _nvidiaPermissionLevel = string.IsNullOrWhiteSpace(settings.NvidiaPermissionLevel) ? "Ask" : settings.NvidiaPermissionLevel;
+            _nvidiaAutoFallback = settings.NvidiaAutoFallback;
+            _nvidiaSafetyGuardEnabled = settings.NvidiaSafetyGuardEnabled;
+            _nvidiaRequireActionApproval = settings.NvidiaRequireActionApproval;
+            _lastNvidiaConnectionTestStatus = string.IsNullOrWhiteSpace(settings.LastNvidiaConnectionTestStatus)
                 ? "No AI connection test run yet."
-                : settings.LastOpenAiConnectionTestStatus;
+                : settings.LastNvidiaConnectionTestStatus;
             _autoCheckAppUpdates = settings.AutoCheckAppUpdates;
             _autoInstallAppUpdates = settings.AutoInstallAppUpdates;
             _latestKnownAppVersion = settings.LastKnownLatestVersion ?? "";
@@ -662,7 +690,7 @@ namespace HyperBoostX
 
             if (!string.IsNullOrWhiteSpace(ai.LastReply) || !string.IsNullOrWhiteSpace(ai.LastIntent))
             {
-                _lastAiCopilotResponse = new OpenAiCopilotResponse
+                _lastAiCopilotResponse = new NvidiaCopilotResponse
                 {
                     Intent = string.IsNullOrWhiteSpace(ai.LastIntent) ? "general_help" : ai.LastIntent,
                     Confidence = ai.LastConfidence,
@@ -692,12 +720,18 @@ namespace HyperBoostX
             SelectComboItemByContent(DiscordWebhookLevelCombo, _discordWebhookMinimumLevel);
             if (DiscordWebhookCooldownInput != null)
                 DiscordWebhookCooldownInput.Text = _discordWebhookCooldownSeconds.ToString(CultureInfo.InvariantCulture);
-            if (OpenAiApiKeyInput != null)
-                OpenAiApiKeyInput.Text = _openAiApiKey;
-            if (OpenAiModelInput != null)
-                OpenAiModelInput.Text = _openAiModel;
-            SelectComboItemByContent(OpenAiModeCombo, _openAiMode);
-            SelectComboItemByContent(OpenAiPermissionCombo, _openAiPermissionLevel);
+            if (NvidiaApiKeyInput != null)
+                NvidiaApiKeyInput.Password = _nvidiaApiKey;
+            SelectComboItemByContent(NvidiaModelCombo, _nvidiaModel);
+            SelectComboItemByContent(NvidiaFallbackModelCombo, _nvidiaFallbackModel);
+            SelectComboItemByContent(NvidiaModeCombo, _nvidiaMode);
+            SelectComboItemByContent(NvidiaPermissionCombo, _nvidiaPermissionLevel);
+            if (NvidiaAutoFallbackToggle != null)
+                NvidiaAutoFallbackToggle.IsChecked = _nvidiaAutoFallback;
+            if (NvidiaSafetyGuardToggle != null)
+                NvidiaSafetyGuardToggle.IsChecked = _nvidiaSafetyGuardEnabled;
+            if (NvidiaRequireApprovalToggle != null)
+                NvidiaRequireApprovalToggle.IsChecked = _nvidiaRequireActionApproval;
             if (ToggleAutoAppUpdateBtn != null)
                 ToggleAutoAppUpdateBtn.Content = _autoCheckAppUpdates ? "Auto Check Updates: ON" : "Auto Check Updates: OFF";
 
@@ -707,66 +741,20 @@ namespace HyperBoostX
 
         private async Task LoadSensitiveConfigurationAsync()
         {
-            var settings = _appConfig.Settings ?? new PersistedSettingsState();
             var secrets = await _secureSecretStoreService.LoadAsync();
 
-            var envOpenAi = Environment.GetEnvironmentVariable("HYPERBOOSTX_OPENAI_API_KEY")?.Trim() ?? "";
-            var envDiscord = Environment.GetEnvironmentVariable("HYPERBOOSTX_DISCORD_WEBHOOK_URL")?.Trim() ?? "";
-            var envDiscordUpdate = Environment.GetEnvironmentVariable("HYPERBOOSTX_DISCORD_UPDATE_WEBHOOK_URL")?.Trim() ?? "";
+            _nvidiaApiKey = secrets.NvidiaApiKey?.Trim() ?? "";
 
-            var legacyOpenAi = settings.OpenAiApiKey?.Trim() ?? "";
-            var legacyDiscord = settings.DiscordWebhookUrl?.Trim() ?? "";
-            var legacyDiscordUpdate = settings.DiscordUpdateWebhookUrl?.Trim() ?? "";
+            if (!string.IsNullOrWhiteSpace(_nvidiaApiKey))
+                _nvidiaEnabled = true;
 
-            _openAiApiKey = !string.IsNullOrWhiteSpace(envOpenAi)
-                ? envOpenAi
-                : !string.IsNullOrWhiteSpace(secrets.OpenAiApiKey)
-                    ? secrets.OpenAiApiKey
-                    : legacyOpenAi;
+            _discordWebhookUrl = secrets.DiscordWebhookUrl?.Trim() ?? "";
+            _discordUpdateWebhookUrl = secrets.DiscordUpdateWebhookUrl?.Trim() ?? "";
 
-            if (!string.IsNullOrWhiteSpace(_openAiApiKey))
-                _openAiEnabled = true;
-
-            _discordWebhookUrl = !string.IsNullOrWhiteSpace(envDiscord)
-                ? envDiscord
-                : !string.IsNullOrWhiteSpace(secrets.DiscordWebhookUrl)
-                    ? secrets.DiscordWebhookUrl
-                    : legacyDiscord;
-
-            _discordUpdateWebhookUrl = !string.IsNullOrWhiteSpace(envDiscordUpdate)
-                ? envDiscordUpdate
-                : !string.IsNullOrWhiteSpace(secrets.DiscordUpdateWebhookUrl)
-                    ? secrets.DiscordUpdateWebhookUrl
-                    : legacyDiscordUpdate;
-
-            if (OpenAiApiKeyInput != null)
-                OpenAiApiKeyInput.Text = _openAiApiKey;
+            if (NvidiaApiKeyInput != null)
+                NvidiaApiKeyInput.Password = _nvidiaApiKey;
 
             RefreshDiscordWebhookInputHints();
-
-            var shouldMigrateLegacySecrets =
-                string.IsNullOrWhiteSpace(envOpenAi) &&
-                string.IsNullOrWhiteSpace(envDiscord) &&
-                string.IsNullOrWhiteSpace(envDiscordUpdate) &&
-                ((!string.IsNullOrWhiteSpace(legacyOpenAi) && string.IsNullOrWhiteSpace(secrets.OpenAiApiKey)) ||
-                 (!string.IsNullOrWhiteSpace(legacyDiscord) && string.IsNullOrWhiteSpace(secrets.DiscordWebhookUrl)) ||
-                 (!string.IsNullOrWhiteSpace(legacyDiscordUpdate) && string.IsNullOrWhiteSpace(secrets.DiscordUpdateWebhookUrl)));
-
-            if (shouldMigrateLegacySecrets)
-            {
-                await _secureSecretStoreService.SaveAsync(new PersistedSecureSecrets
-                {
-                    OpenAiApiKey = legacyOpenAi,
-                    DiscordWebhookUrl = legacyDiscord,
-                    DiscordUpdateWebhookUrl = legacyDiscordUpdate
-                });
-
-                settings.OpenAiApiKey = "";
-                settings.DiscordWebhookUrl = "";
-                settings.DiscordUpdateWebhookUrl = "";
-                _appConfig.Settings = settings;
-                await _appConfigService.SaveAsync(_appConfig);
-            }
         }
 
         private void SelectComboItemByContent(ComboBox comboBox, string value)
@@ -782,6 +770,14 @@ namespace HyperBoostX
                     return;
                 }
             }
+        }
+
+        private static string GetComboItemContent(ComboBox comboBox, string fallback)
+        {
+            if (comboBox?.SelectedItem is ComboBoxItem selected && !string.IsNullOrWhiteSpace(selected.Content?.ToString()))
+                return selected.Content.ToString();
+
+            return string.IsNullOrWhiteSpace(comboBox?.Text) ? fallback : comboBox.Text.Trim();
         }
 
         private void SelectComboItemByTag(ComboBox comboBox, string value)
@@ -851,12 +847,16 @@ namespace HyperBoostX
             settings.DiscordUpdateWebhookUrl = "";
             settings.DiscordWebhookMinimumLevel = _discordWebhookMinimumLevel;
             settings.DiscordWebhookCooldownSeconds = _discordWebhookCooldownSeconds;
-            settings.OpenAiEnabled = _openAiEnabled;
-            settings.OpenAiApiKey = "";
-            settings.OpenAiModel = _openAiModel;
-            settings.OpenAiMode = _openAiMode;
-            settings.OpenAiPermissionLevel = _openAiPermissionLevel;
-            settings.LastOpenAiConnectionTestStatus = _lastOpenAiConnectionTestStatus;
+            settings.NvidiaEnabled = _nvidiaEnabled;
+            settings.NvidiaApiKey = "";
+            settings.NvidiaModel = _nvidiaModel;
+            settings.NvidiaFallbackModel = _nvidiaFallbackModel;
+            settings.NvidiaMode = _nvidiaMode;
+            settings.NvidiaPermissionLevel = _nvidiaPermissionLevel;
+            settings.NvidiaAutoFallback = _nvidiaAutoFallback;
+            settings.NvidiaSafetyGuardEnabled = _nvidiaSafetyGuardEnabled;
+            settings.NvidiaRequireActionApproval = _nvidiaRequireActionApproval;
+            settings.LastNvidiaConnectionTestStatus = _lastNvidiaConnectionTestStatus;
             settings.AutoCheckAppUpdates = _autoCheckAppUpdates;
             settings.AutoInstallAppUpdates = _autoInstallAppUpdates;
             settings.LastKnownLatestVersion = _latestKnownAppVersion;
@@ -921,7 +921,7 @@ namespace HyperBoostX
             {
                 DiscordWebhookUrl = _discordWebhookUrl,
                 DiscordUpdateWebhookUrl = _discordUpdateWebhookUrl,
-                OpenAiApiKey = _openAiApiKey
+                NvidiaApiKey = _nvidiaApiKey
             });
         }
 
@@ -1722,9 +1722,10 @@ namespace HyperBoostX
                 _selectedNavButton.Background = System.Windows.Media.Brushes.Transparent;
             }
             _selectedNavButton = button;
-            _selectedNavButton.BorderBrush = System.Windows.Media.Brushes.DeepSkyBlue;
+            _selectedNavButton.BorderBrush = new System.Windows.Media.SolidColorBrush(
+                System.Windows.Media.Color.FromRgb(56, 189, 248));
             _selectedNavButton.Background = new System.Windows.Media.SolidColorBrush(
-                System.Windows.Media.Color.FromRgb(48, 48, 48));
+                System.Windows.Media.Color.FromRgb(20, 42, 70));
         }
 
         private void HideAllPages()
@@ -2343,10 +2344,10 @@ namespace HyperBoostX
             counters[key] = current + 1;
         }
 
-        private void RecordAiPlanProfile(OpenAiCopilotResponse result)
+        private void RecordAiPlanProfile(NvidiaCopilotResponse result)
         {
             _aiTotalRequests++;
-            _aiPreferredRiskStyle = _openAiPermissionLevel;
+            _aiPreferredRiskStyle = _nvidiaPermissionLevel;
 
             var scenario = ResolveAiScenarioLabel($"{_lastAiPrompt} {result?.Intent}");
             IncrementAiCounter(_aiIntentCounters, result?.Intent ?? "general_help");
@@ -2505,7 +2506,7 @@ namespace HyperBoostX
                 blocked.Add("network resets are kept conservative because streaming stability matters");
             if (snapshot.Temperature >= 85)
                 blocked.Add("aggressive performance actions are blocked because temperature is high");
-            if (_settingsRiskMode.Contains("Safe", StringComparison.OrdinalIgnoreCase) || _openAiPermissionLevel.Contains("Ask", StringComparison.OrdinalIgnoreCase))
+            if (_settingsRiskMode.Contains("Safe", StringComparison.OrdinalIgnoreCase) || _nvidiaPermissionLevel.Contains("Ask", StringComparison.OrdinalIgnoreCase))
                 blocked.Add("moderate or risky actions are waiting for approval due to current safety policy");
             if (_automationPaused)
                 blocked.Add("autonomous follow-up is paused by user");
@@ -2573,7 +2574,7 @@ namespace HyperBoostX
                 $"state={snapshot.State}, CPU={snapshot.Cpu:0}%, RAM={snapshot.Ram:0}%, Disk={snapshot.Disk:0}%, Temp={snapshot.Temperature:0}C";
         }
 
-        private List<string> GetAiSafeActionsOrFallback(OpenAiCopilotResponse result)
+        private List<string> GetAiSafeActionsOrFallback(NvidiaCopilotResponse result)
         {
             var actions = result?.SafeActions?
                 .Where(action => !string.IsNullOrWhiteSpace(action))
@@ -2593,7 +2594,7 @@ namespace HyperBoostX
             return new List<string> { "scan_only" };
         }
 
-        private AiNaturalAutomationPlan BuildAiNaturalAutomationPlan(string prompt, OpenAiCopilotResponse result)
+        private AiNaturalAutomationPlan BuildAiNaturalAutomationPlan(string prompt, NvidiaCopilotResponse result)
         {
             var plan = new AiNaturalAutomationPlan();
             var text = $"{prompt} {result?.Intent}".Trim();
@@ -2725,10 +2726,10 @@ namespace HyperBoostX
                 return;
             }
 
-            if (!_openAiEnabled || string.IsNullOrWhiteSpace(_openAiApiKey))
+            if (!_nvidiaEnabled || string.IsNullOrWhiteSpace(_nvidiaApiKey))
             {
-                AiCopilotReplyText.Text = "AI Copilot belum aktif. Isi API key OpenAI di Settings lalu simpan.";
-                ShowActionStatus(ActionState.Warning, "AI Copilot", "OpenAI API key belum dikonfigurasi.");
+                AiCopilotReplyText.Text = "AI Copilot belum aktif. Isi API key NVIDIA di Settings lalu simpan.";
+                ShowActionStatus(ActionState.Warning, "AI Copilot", "NVIDIA API key belum dikonfigurasi.");
                 return;
             }
 
@@ -2746,14 +2747,18 @@ namespace HyperBoostX
                 _lastAiPrompt = prompt.Trim();
                 var context = await BuildAiSystemContextAsync();
                 _lastAiSystemContext = context;
-                var result = await _openAiCopilotService.AskAsync(new OpenAiCopilotRequest
+                var result = await _nvidiaCopilotService.AskAsync(new NvidiaCopilotRequest
                 {
-                    ApiKey = _openAiApiKey,
-                    Model = _openAiModel,
+                    ApiKey = _nvidiaApiKey,
+                    Model = _nvidiaModel,
+                    FallbackModel = _nvidiaFallbackModel,
                     UserPrompt = prompt,
                     SystemContext = context,
-                    AppMode = _openAiMode,
-                    PermissionLevel = _openAiPermissionLevel
+                    AppMode = _nvidiaMode,
+                    PermissionLevel = _nvidiaPermissionLevel,
+                    AutoFallback = _nvidiaAutoFallback,
+                    SafetyGuardEnabled = _nvidiaSafetyGuardEnabled,
+                    RequireActionApproval = _nvidiaRequireActionApproval
                 });
 
                 _lastAiCopilotResponse = result;
@@ -2765,11 +2770,11 @@ namespace HyperBoostX
                     $"Prompt: {_lastAiPrompt}{Environment.NewLine}" +
                     $"Intent: {result.Intent}{Environment.NewLine}" +
                     $"Confidence: {result.Confidence:0.00}{Environment.NewLine}" +
-                    $"Mode / Permission: {_openAiMode} / {_openAiPermissionLevel}{Environment.NewLine}" +
+                    $"Mode / Permission: {_nvidiaMode} / {_nvidiaPermissionLevel}{Environment.NewLine}" +
                     $"Safe actions: {(result.SafeActions.Count == 0 ? "none" : string.Join(", ", result.SafeActions))}{Environment.NewLine}" +
                     $"Mapped automation actions: {(result.SafeActions.Count == 0 ? "scan_only" : string.Join(", ", result.SafeActions.Select(MapAiActionToAutomationActionLabel).Distinct(StringComparer.OrdinalIgnoreCase)))}";
                 _lastAiAutomationSummary = _lastAiNaturalAutomationPlan.Summary;
-                _lastAiOutcomeSummary = "AI analysis completed; awaiting user approval or auto-safe execution.";
+                _lastAiOutcomeSummary = "AI analysis completed; awaiting user approval before any system action.";
 
                 AiCopilotReplyText.Text =
                     $"Intent: {result.Intent}{Environment.NewLine}" +
@@ -2778,21 +2783,19 @@ namespace HyperBoostX
                 AiCopilotActionPlanText.Text =
                     result.SafeActions.Count == 0
                         ? "AI action plan: no safe automatic action suggested."
-                        : "AI action plan: " + string.Join(", ", result.SafeActions);
+                        : "AI action plan: " + string.Join(", ", result.SafeActions) + Environment.NewLine +
+                          $"Risk: {result.RiskLevel} | Requires admin: {result.RequiresAdmin} | Restore available: {result.RestoreAvailable}{Environment.NewLine}" +
+                          $"Expected result: {(string.IsNullOrWhiteSpace(result.ExpectedResult) ? "Estimated improvement only; measure before/after." : result.ExpectedResult)}{Environment.NewLine}" +
+                          $"Skipped unsafe actions: {(result.SkippedUnsafeActions.Count == 0 ? "none" : string.Join(", ", result.SkippedUnsafeActions))}";
                 if (AiCopilotApprovalText != null)
                 {
                     AiCopilotApprovalText.Text =
                         $"Pending intent: {result.Intent}{Environment.NewLine}" +
                         $"Confidence: {result.Confidence:0.00}{Environment.NewLine}" +
-                        $"Safe actions: {(result.SafeActions.Count == 0 ? "none" : string.Join(", ", result.SafeActions))}";
+                        $"Safe actions: {(result.SafeActions.Count == 0 ? "none" : string.Join(", ", result.SafeActions))}{Environment.NewLine}" +
+                        $"Approval required: {result.RequiresApproval}";
                 }
                 RefreshAiApprovalPanel();
-
-                if (_openAiPermissionLevel.Equals("Auto Safe", StringComparison.OrdinalIgnoreCase) ||
-                    _openAiMode.Equals("Autonomous", StringComparison.OrdinalIgnoreCase))
-                {
-                    await ExecuteAiSafeActionsAsync(result.SafeActions);
-                }
 
                 await RefreshAiCopilotDiagnosticsAsync(refreshContext: false);
                 await SavePersistedConfigurationAsync();
@@ -2807,7 +2810,7 @@ namespace HyperBoostX
                     $"Status: failed{Environment.NewLine}" +
                     $"Reason: {ex.Message}";
                 await RefreshAiCopilotDiagnosticsAsync(refreshContext: false);
-                ShowActionStatus(ActionState.Error, "AI Copilot", "Gagal menghubungi OpenAI atau memproses response.", ex.Message);
+                ShowActionStatus(ActionState.Error, "AI Copilot", "Gagal menghubungi NVIDIA atau memproses response.", ex.Message);
             }
             finally
             {
@@ -5006,23 +5009,29 @@ Set-Service -Name BITS -StartupType Manual -ErrorAction SilentlyContinue;
                     "Feature Audit uses the error/audit webhook. App Update uses the release update webhook.";
             }
             RefreshDiscordPreview(_discordWebhookMinimumLevel.ToLowerInvariant(), "HyperBoostX preview report", "This preview shows how Discord reporting will look.");
-            if (OpenAiSettingsStatusText != null)
+            if (NvidiaSettingsStatusText != null)
             {
-                OpenAiSettingsStatusText.Text =
-                    $"AI Copilot: {(_openAiEnabled ? "ON" : "OFF")}{Environment.NewLine}" +
-                    $"Model: {_openAiModel}{Environment.NewLine}" +
-                    $"Mode: {_openAiMode}{Environment.NewLine}" +
-                    $"Permission: {_openAiPermissionLevel}{Environment.NewLine}" +
-                    $"API Key: {(string.IsNullOrWhiteSpace(_openAiApiKey) ? "Not configured" : "Configured")}{Environment.NewLine}" +
-                    $"Last Test: {_lastOpenAiConnectionTestStatus}";
+                NvidiaSettingsStatusText.Text =
+                    $"AI Copilot: {(_nvidiaEnabled ? "ON" : "OFF")}{Environment.NewLine}" +
+                    $"Model: {_nvidiaModel}{Environment.NewLine}" +
+                    $"Fallback: {_nvidiaFallbackModel}{Environment.NewLine}" +
+                    $"Mode: {_nvidiaMode}{Environment.NewLine}" +
+                    $"Permission: {_nvidiaPermissionLevel}{Environment.NewLine}" +
+                    $"Auto fallback: {(_nvidiaAutoFallback ? "ON" : "OFF")}{Environment.NewLine}" +
+                    $"Safety Guard: {(_nvidiaSafetyGuardEnabled ? "ON" : "OFF")}{Environment.NewLine}" +
+                    $"Require Approval: {(_nvidiaRequireActionApproval ? "ON" : "OFF")}{Environment.NewLine}" +
+                    $"API Key: {(string.IsNullOrWhiteSpace(_nvidiaApiKey) ? "Not configured" : "Configured")}{Environment.NewLine}" +
+                    $"Last Test: {_lastNvidiaConnectionTestStatus}";
             }
             if (AiCopilotStatusText != null)
             {
                 AiCopilotStatusText.Text =
-                    $"AI Status: {(_openAiEnabled && !string.IsNullOrWhiteSpace(_openAiApiKey) ? "Online-ready" : "Offline")}{Environment.NewLine}" +
-                    $"Model: {_openAiModel}{Environment.NewLine}" +
-                    $"Mode: {_openAiMode}{Environment.NewLine}" +
-                    $"Permission: {_openAiPermissionLevel}";
+                    $"AI Status: {(_nvidiaEnabled && !string.IsNullOrWhiteSpace(_nvidiaApiKey) ? "Online-ready" : "Offline")}{Environment.NewLine}" +
+                    $"Model: {_nvidiaModel}{Environment.NewLine}" +
+                    $"Fallback: {_nvidiaFallbackModel}{Environment.NewLine}" +
+                    $"Mode: {_nvidiaMode}{Environment.NewLine}" +
+                    $"Permission: {_nvidiaPermissionLevel}{Environment.NewLine}" +
+                    $"Safety Guard: {(_nvidiaSafetyGuardEnabled ? "ON" : "OFF")} | Approval: {(_nvidiaRequireActionApproval ? "Required" : "Manual setting off")}";
             }
             if (AiCopilotApprovalText != null)
             {
@@ -6021,7 +6030,7 @@ if (-not $result) { 'Unavailable'; return }
             try
             {
                 _currentBackendUrl = BackendUrlInput.Text.Trim();
-                _backendClient.Dispose();
+                DisposeBackendClient();
                 _backendClient = new HyperBoostBackendClient(_currentBackendUrl);
                 ShowActionStatus(ActionState.Success, "Backend URL updated", "The frontend is now pointing to the new backend endpoint.", _currentBackendUrl);
                 AppendSettingsHistory($"Backend URL updated to {_currentBackendUrl}.");
@@ -6347,55 +6356,54 @@ if (-not $result) { 'Unavailable'; return }
             ShowActionStatus(ActionState.Info, "Discord Error Reporting", "Folder log error dibuka.", logRoot);
         }
 
-        private async void SaveOpenAiSettings_Click(object sender, RoutedEventArgs e)
+        private async void SaveNvidiaSettings_Click(object sender, RoutedEventArgs e)
         {
-            _openAiApiKey = OpenAiApiKeyInput?.Text?.Trim() ?? "";
-            _openAiModel = string.IsNullOrWhiteSpace(OpenAiModelInput?.Text) ? "gpt-4.1-mini" : OpenAiModelInput.Text.Trim();
-            _openAiMode = (OpenAiModeCombo?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Assistant";
-            _openAiPermissionLevel = (OpenAiPermissionCombo?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Ask";
-            _openAiEnabled = !string.IsNullOrWhiteSpace(_openAiApiKey);
-            AppendSettingsHistory($"OpenAI Copilot settings saved. Model: {_openAiModel}, Mode: {_openAiMode}.");
+            _nvidiaApiKey = NvidiaApiKeyInput?.Password?.Trim() ?? "";
+            _nvidiaModel = GetComboItemContent(NvidiaModelCombo, "nvidia/nemotron-3-nano-30b-a3b");
+            _nvidiaFallbackModel = GetComboItemContent(NvidiaFallbackModelCombo, "nvidia/nvidia-nemotron-nano-9b-v2");
+            _nvidiaMode = GetComboItemContent(NvidiaModeCombo, "Assistant");
+            _nvidiaPermissionLevel = GetComboItemContent(NvidiaPermissionCombo, "Ask");
+            _nvidiaAutoFallback = NvidiaAutoFallbackToggle?.IsChecked == true;
+            _nvidiaSafetyGuardEnabled = NvidiaSafetyGuardToggle?.IsChecked == true;
+            _nvidiaRequireActionApproval = NvidiaRequireApprovalToggle?.IsChecked == true;
+            _nvidiaEnabled = !string.IsNullOrWhiteSpace(_nvidiaApiKey);
+            AppendSettingsHistory($"NVIDIA Copilot settings saved. Model: {_nvidiaModel}, Mode: {_nvidiaMode}.");
             await PersistAndRefreshSettingsAsync();
-            ShowActionStatus(ActionState.Success, "OpenAI Copilot", "AI settings berhasil disimpan.");
+            ShowActionStatus(ActionState.Success, "NVIDIA Copilot", "AI settings berhasil disimpan.");
         }
 
-        private async void TestOpenAiConnection_Click(object sender, RoutedEventArgs e)
+        private async void TestNvidiaConnection_Click(object sender, RoutedEventArgs e)
         {
-            _openAiApiKey = OpenAiApiKeyInput?.Text?.Trim() ?? "";
-            _openAiModel = string.IsNullOrWhiteSpace(OpenAiModelInput?.Text) ? "gpt-4.1-mini" : OpenAiModelInput.Text.Trim();
-            _openAiMode = (OpenAiModeCombo?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Assistant";
-            _openAiPermissionLevel = (OpenAiPermissionCombo?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Ask";
+            _nvidiaApiKey = NvidiaApiKeyInput?.Password?.Trim() ?? "";
+            _nvidiaModel = GetComboItemContent(NvidiaModelCombo, "nvidia/nemotron-3-nano-30b-a3b");
+            _nvidiaFallbackModel = GetComboItemContent(NvidiaFallbackModelCombo, "nvidia/nvidia-nemotron-nano-9b-v2");
+            _nvidiaMode = GetComboItemContent(NvidiaModeCombo, "Assistant");
+            _nvidiaPermissionLevel = GetComboItemContent(NvidiaPermissionCombo, "Ask");
+            _nvidiaAutoFallback = NvidiaAutoFallbackToggle?.IsChecked == true;
+            _nvidiaSafetyGuardEnabled = NvidiaSafetyGuardToggle?.IsChecked == true;
+            _nvidiaRequireActionApproval = NvidiaRequireApprovalToggle?.IsChecked == true;
 
-            if (string.IsNullOrWhiteSpace(_openAiApiKey))
+            if (string.IsNullOrWhiteSpace(_nvidiaApiKey))
             {
-                _lastOpenAiConnectionTestStatus = $"FAIL {DateTime.Now:HH:mm:ss} - API key belum diisi.";
+                _lastNvidiaConnectionTestStatus = $"FAIL {DateTime.Now:HH:mm:ss} - API key belum diisi.";
                 await PersistAndRefreshSettingsAsync();
-                ShowActionStatus(ActionState.Warning, "OpenAI Copilot", "Masukkan OpenAI API key dulu.");
+                ShowActionStatus(ActionState.Warning, "NVIDIA Copilot", "Masukkan NVIDIA API key dulu.");
                 return;
             }
 
             try
             {
-                var context = await BuildAiSystemContextAsync();
-                var response = await _openAiCopilotService.AskAsync(new OpenAiCopilotRequest
-                {
-                    ApiKey = _openAiApiKey,
-                    Model = _openAiModel,
-                    UserPrompt = "Say hello and confirm that HyperBoostX Copilot is connected.",
-                    SystemContext = context,
-                    AppMode = _openAiMode,
-                    PermissionLevel = _openAiPermissionLevel
-                });
-                _openAiEnabled = true;
-                _lastOpenAiConnectionTestStatus = $"OK {DateTime.Now:HH:mm:ss} - {TrimFeatureAuditText(response.Reply, 120)}";
+                var response = await _nvidiaCopilotService.TestConnectionAsync(_nvidiaApiKey, _nvidiaModel);
+                _nvidiaEnabled = true;
+                _lastNvidiaConnectionTestStatus = $"OK {DateTime.Now:HH:mm:ss} - {TrimFeatureAuditText(response.Reply, 120)}";
                 await PersistAndRefreshSettingsAsync();
-                ShowActionStatus(ActionState.Success, "OpenAI Copilot", "Koneksi ke OpenAI berhasil.", response.Reply);
+                ShowActionStatus(ActionState.Success, "NVIDIA Copilot", "Koneksi ke NVIDIA berhasil.", response.Reply);
             }
             catch (Exception ex)
             {
-                _lastOpenAiConnectionTestStatus = $"FAIL {DateTime.Now:HH:mm:ss} - {TrimFeatureAuditText(ex.Message, 120)}";
+                _lastNvidiaConnectionTestStatus = $"FAIL {DateTime.Now:HH:mm:ss} - {TrimFeatureAuditText(ex.Message, 120)}";
                 await PersistAndRefreshSettingsAsync();
-                ShowActionStatus(ActionState.Error, "OpenAI Copilot", "Gagal menghubungi OpenAI.", ex.Message);
+                ShowActionStatus(ActionState.Error, "NVIDIA Copilot", "Gagal menghubungi NVIDIA.", ex.Message);
             }
         }
 
@@ -6441,6 +6449,12 @@ if (-not $result) { 'Unavailable'; return }
         {
             if (_lastAiCopilotResponse == null || _lastAiCopilotResponse.SafeActions.Count == 0)
             {
+                if (_lastTripleAiApprovedTweaks.Count > 0)
+                {
+                    await ApplyTripleAiApprovedTweaksAsync();
+                    return;
+                }
+
                 ShowActionStatus(ActionState.Info, "AI Copilot", "Tidak ada safe action dari AI yang menunggu approval.");
                 return;
             }
@@ -6454,6 +6468,89 @@ if (-not $result) { 'Unavailable'; return }
             await RefreshAiCopilotDiagnosticsAsync(refreshContext: false);
             await SavePersistedConfigurationAsync();
             ShowActionStatus(ActionState.Success, "AI Copilot", "Safe actions dari AI berhasil dijalankan.", string.Join(", ", _lastAiCopilotResponse.SafeActions));
+        }
+
+        private async Task ApplyTripleAiApprovedTweaksAsync()
+        {
+            var confirm = MessageBox.Show(
+                "Apply Safety Guard approved tweaks sekarang? HyperBoostX akan membuat backup/revert point sebelum perubahan yang didukung.",
+                "Apply Safe Boost",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+            if (confirm != MessageBoxResult.Yes)
+            {
+                ShowActionStatus(ActionState.Info, "Triple AI Engine", "Apply Safe Boost dibatalkan user.");
+                return;
+            }
+
+            try
+            {
+                var result = await _backendClient.ApplyTripleAiTweaksAsync(_lastTripleAiApprovedTweaks, userApproved: true);
+                var json = result as JObject;
+                _lastTripleAiBackupId = json?.Value<string>("backup_id") ?? "";
+                var applied = json?["applied"] as JArray ?? new JArray();
+                var failed = json?["failed"] as JArray ?? new JArray();
+                AiCopilotApprovalText.Text =
+                    $"Triple AI Safe Boost applied: {applied.Count} | failed: {failed.Count}" +
+                    (string.IsNullOrWhiteSpace(_lastTripleAiBackupId) ? "" : $"{Environment.NewLine}Backup ID: {_lastTripleAiBackupId}");
+                _lastAiOutcomeSummary = AiCopilotApprovalText.Text;
+                ShowActionStatus(
+                    failed.Count == 0 && applied.Count > 0 ? ActionState.Success : ActionState.Warning,
+                    "Triple AI Safe Boost",
+                    applied.Count > 0 ? "Safe Boost selesai. Tombol Revert tersedia melalui Reject Plan saat backup masih aktif." : "Tidak ada tweak yang berhasil diterapkan.",
+                    HyperBoostBackendClient.FormatJson(result));
+            }
+            catch (Exception ex)
+            {
+                ShowActionStatus(ActionState.Error, "Triple AI Safe Boost", "Gagal menerapkan approved tweaks.", ex.Message);
+            }
+        }
+
+        private async void RevertTripleAiSafeBoost_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(_lastTripleAiBackupId) && _lastTripleAiApprovedTweaks.Count == 0)
+            {
+                ShowActionStatus(ActionState.Info, "Triple AI Revert", "Belum ada Safe Boost dari Triple AI yang bisa di-revert.");
+                return;
+            }
+
+            var tweakIds = _lastTripleAiApprovedTweaks
+                .OfType<JObject>()
+                .Select(item => item.Value<string>("tweak_id"))
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+            if (tweakIds.Length == 0)
+            {
+                ShowActionStatus(ActionState.Warning, "Triple AI Revert", "Daftar tweak untuk revert kosong.");
+                return;
+            }
+
+            var confirm = MessageBox.Show(
+                "Revert perubahan Safe Boost terakhir sekarang?",
+                "Revert Changes",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+            if (confirm != MessageBoxResult.Yes)
+                return;
+
+            try
+            {
+                var result = await _backendClient.RevertTripleAiTweaksAsync(_lastTripleAiBackupId, tweakIds);
+                var json = result as JObject;
+                var reverted = json?["reverted"] as JArray ?? new JArray();
+                var failed = json?["failed"] as JArray ?? new JArray();
+                AiCopilotApprovalText.Text = $"Triple AI revert: {reverted.Count} reverted | {failed.Count} failed";
+                ShowActionStatus(
+                    failed.Count == 0 && reverted.Count > 0 ? ActionState.Success : ActionState.Warning,
+                    "Triple AI Revert",
+                    "Revert request completed.",
+                    HyperBoostBackendClient.FormatJson(result));
+            }
+            catch (Exception ex)
+            {
+                ShowActionStatus(ActionState.Error, "Triple AI Revert", "Gagal menjalankan revert.", ex.Message);
+            }
         }
 
         private async void ApproveNextAiAction_Click(object sender, RoutedEventArgs e)
@@ -6894,11 +6991,7 @@ if (-not $result) { 'Unavailable'; return }
 
             if (BoostPauseUpdateChk.IsChecked == true || BoostStopBackgroundDownloadChk.IsChecked == true || extreme)
             {
-                var updateResult = await SafeApiCall(() => _backendClient.ApplyTweakAsync("disable_updates"));
-                if (updateResult != null)
-                {
-                    notes.Add("Windows Update temporarily reduced");
-                }
+                notes.Add("Windows Update tweak skipped: high-risk tweaks are Expert Mode only and not part of One Click Boost.");
             }
 
             if (BoostSkipCriticalChk.IsChecked == true)
@@ -6944,7 +7037,6 @@ if (-not $result) { 'Unavailable'; return }
         {
             InitializeOneClickBoostDefaults();
             BoostResetNetworkChk.IsChecked = true;
-            BoostPauseUpdateChk.IsChecked = true;
             await RunOneClickBoostAsync("Balanced Boost", extreme: false, balanced: true);
         }
 
@@ -6953,8 +7045,6 @@ if (-not $result) { 'Unavailable'; return }
             InitializeOneClickBoostDefaults();
             BoostRecycleBinChk.IsChecked = true;
             BoostResetNetworkChk.IsChecked = true;
-            BoostPauseUpdateChk.IsChecked = true;
-            BoostStopBackgroundDownloadChk.IsChecked = true;
             BoostCreateRestoreChk.IsChecked = true;
             ShowActionStatus(ActionState.Warning, "Extreme Boost", "Mode agresif akan menutup lebih banyak app dan menerapkan tweak lebih berat.");
             await RunOneClickBoostAsync("Extreme Boost", extreme: true, balanced: true);
@@ -6968,7 +7058,6 @@ if (-not $result) { 'Unavailable'; return }
         private async void BoostBeforeGaming_Click(object sender, RoutedEventArgs e)
         {
             InitializeOneClickBoostDefaults();
-            BoostPauseUpdateChk.IsChecked = true;
             await RunOneClickBoostAsync("Boost Before Gaming", extreme: false, balanced: true, boostBeforeGaming: true);
         }
 
@@ -9187,10 +9276,27 @@ if (-not $result) { 'Unavailable'; return }
 
         private async Task<string> ApplyProcessTargetsAsync(IEnumerable<string> processNames, string actionName)
         {
-            var targets = processNames.ToList();
+            var targets = processNames
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Where(x => !IsWhitelistedProcess(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
             if (targets.Count == 0)
             {
                 return "No process target selected.";
+            }
+
+            var preview = string.Join(", ", targets);
+            var confirmation = MessageBox.Show(
+                $"Preview proses yang akan ditutup:{Environment.NewLine}{preview}{Environment.NewLine}{Environment.NewLine}Lanjutkan menutup proses ini?",
+                $"{actionName} - Process Preview",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+            if (confirmation != MessageBoxResult.Yes)
+            {
+                var cancelled = $"Process control cancelled. Previewed targets: {preview}";
+                ShowActionStatus(ActionState.Info, actionName, "Process control preview cancelled.", cancelled);
+                return cancelled;
             }
 
             var (success, output) = await ExecutePowerShellScriptAsync(BuildStopProcessScript(targets));
@@ -10011,11 +10117,7 @@ if (-not $result) { 'Unavailable'; return }
         private async void ApplyGameUpdateControl_Click(object sender, RoutedEventArgs e)
         {
             var notes = new List<string>();
-            var updateResult = await SafeApiCall(() => _backendClient.ApplyTweakAsync("disable_updates"));
-            if (updateResult != null)
-            {
-                notes.Add("Windows Update pause tweak requested");
-            }
+            notes.Add("Windows Update pause tweak skipped here: high-risk update tweaks require Expert Mode and explicit confirmation.");
 
             var processOutput = await ApplyProcessTargetsAsync(
                 new[] { "OneDrive", "Microsoft.Photos", "WinStore.App", "GamingServices" }.Where(x => !IsWhitelistedProcess(x)),
@@ -16302,7 +16404,7 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
             if (string.IsNullOrWhiteSpace(title))
                 return "";
 
-            if (title.Contains("OpenAI Copilot", StringComparison.OrdinalIgnoreCase) ||
+            if (title.Contains("NVIDIA Copilot", StringComparison.OrdinalIgnoreCase) ||
                 title.Contains("AI Copilot", StringComparison.OrdinalIgnoreCase) ||
                 title.Contains("Smart Recommendation", StringComparison.OrdinalIgnoreCase))
                 return "AI Copilot";
@@ -16453,10 +16555,10 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
         {
             await RefreshSettingsViewAsync();
             RequireTestCondition(!string.IsNullOrWhiteSpace(SettingsAppUpdateStatusText?.Text), "Settings app update status empty.");
-            RequireTestCondition(!string.IsNullOrWhiteSpace(OpenAiSettingsStatusText?.Text), "OpenAI settings status empty.");
+            RequireTestCondition(!string.IsNullOrWhiteSpace(NvidiaSettingsStatusText?.Text), "NVIDIA settings status empty.");
             RequireTestCondition(!string.IsNullOrWhiteSpace(DiscordWebhookStatusText?.Text), "Discord webhook status empty.");
             return TrimFeatureAuditText(
-                $"{SettingsAppUpdateStatusText?.Text} | {OpenAiSettingsStatusText?.Text} | {DiscordWebhookStatusText?.Text}",
+                $"{SettingsAppUpdateStatusText?.Text} | {NvidiaSettingsStatusText?.Text} | {DiscordWebhookStatusText?.Text}",
                 280);
         }
 
@@ -16764,7 +16866,7 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
                     {
                         CreateTestingProbeTarget("Security / Secret Storage", () =>
                         {
-                            RequireTestCondition(string.IsNullOrWhiteSpace(_appConfig?.Settings?.OpenAiApiKey), "Plain OpenAI key should not be stored in app-state.");
+                            RequireTestCondition(string.IsNullOrWhiteSpace(_appConfig?.Settings?.NvidiaApiKey), "Plain NVIDIA key should not be stored in app-state.");
                             RequireTestCondition(string.IsNullOrWhiteSpace(_appConfig?.Settings?.DiscordWebhookUrl), "Plain Discord webhook should not be stored in app-state.");
                             RequireTestCondition(string.IsNullOrWhiteSpace(_appConfig?.Settings?.DiscordUpdateWebhookUrl), "Plain Discord update webhook should not be stored in app-state.");
                             return Task.FromResult("Config file keeps sensitive values blank; secure store path is active.");
@@ -16920,7 +17022,7 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
                 {
                     Name = "AI Copilot",
                     ExecuteAsync = async () => await RefreshAiCopilotDiagnosticsAsync(refreshContext: true),
-                    Snapshot = () => AiCopilotStatusText?.Text ?? AiCopilotReplyText?.Text ?? OpenAiSettingsStatusText?.Text
+                    Snapshot = () => AiCopilotStatusText?.Text ?? AiCopilotReplyText?.Text ?? NvidiaSettingsStatusText?.Text
                 },
                 new()
                 {
@@ -17151,7 +17253,7 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
                 {
                     Name = "Integration Status",
                     ExecuteAsync = RefreshSettingsViewAsync,
-                    Snapshot = () => OpenAiSettingsStatusText?.Text ?? DiscordWebhookStatusText?.Text
+                    Snapshot = () => NvidiaSettingsStatusText?.Text ?? DiscordWebhookStatusText?.Text
                 },
                 new FeatureAuditTarget
                 {
@@ -18014,10 +18116,106 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
             Task startupTask = _startupEntries.Count == 0 ? RefreshStartupItems() : Task.CompletedTask;
 
             await Task.WhenAll(statsTask, processesTask, dnsTask, systemInfoTask, startupTask);
-            SmartScanProgressBar.Value = 100;
-            SmartScanStatusText.Text = "Scan complete. Recommendations are ready.";
+            SmartScanProgressBar.Value = 85;
+            SmartScanStatusText.Text = "Local scan complete. Running Triple AI safety flow...";
 
             PopulateSmartRecommendationUi(await statsTask, await processesTask, await dnsTask, await systemInfoTask);
+
+            var tripleAi = await SafeApiCall(() => _backendClient.RunTripleAiFlowAsync("gaming")) as JObject;
+            if (tripleAi != null)
+                PopulateTripleAiEngineUi(tripleAi);
+
+            SmartScanProgressBar.Value = 100;
+            SmartScanStatusText.Text = tripleAi != null
+                ? "Triple AI Engine scan complete. Recommendations are ready."
+                : "Scan complete. Basic recommendations are ready.";
+        }
+
+        private void PopulateTripleAiEngineUi(JObject payload)
+        {
+            var assistant = payload["assistant"] as JObject;
+            var analysis = payload["analysis"] as JObject;
+            var safety = payload["safety"] as JObject;
+            var report = payload["report"] as JObject;
+            var scan = payload["scan"] as JObject;
+            var scores = scan?["scores"] as JObject;
+            var recommendations = analysis?["recommendations"] as JArray ?? new JArray();
+            var issues = analysis?["issues"] as JArray ?? new JArray();
+            var approved = safety?["approved"] as JArray ?? new JArray();
+            var warnings = safety?["warnings"] as JArray ?? new JArray();
+            var blocked = safety?["blocked"] as JArray ?? new JArray();
+            _lastTripleAiApprovedTweaks = (JArray)approved.DeepClone();
+            _lastTripleAiBlockedTweaks = (JArray)blocked.DeepClone();
+
+            var pcHealth = report?.Value<int?>("pc_health_score") ?? scores?.Value<int?>("pc_health_score") ?? 0;
+            var gamingReadiness = report?.Value<int?>("gaming_readiness_score") ?? scores?.Value<int?>("gaming_readiness_score") ?? 0;
+            var assistantMessage = assistant?.Value<string>("message") ?? "Triple AI Engine completed with local fallback analysis.";
+
+            AiCopilotStatusText.Text =
+                "AI Status: Triple AI Engine ready" + Environment.NewLine +
+                "Assistant: nvidia/llama-3.1-nemotron-nano-8b-v1" + Environment.NewLine +
+                "Analyzer: nvidia/llama-nemotron-rerank-1b-v2" + Environment.NewLine +
+                "Safety Guard: nvidia/nemotron-content-safety-reasoning-4b" + Environment.NewLine +
+                "RAG: local HyperBoostX knowledge base";
+            AiCopilotReplyText.Text = assistantMessage;
+            AiCopilotActionPlanText.Text =
+                "Scan -> Analyze -> Safety Check -> User Approval -> Safe Tweak Engine -> Backup/Revert -> Performance Report" +
+                Environment.NewLine +
+                FormatTripleAiRecommendations(recommendations);
+            AiCopilotRiskText.Text =
+                $"Approved low-risk: {approved.Count}{Environment.NewLine}" +
+                $"Manual review: {warnings.Count}{Environment.NewLine}" +
+                $"Blocked: {blocked.Count}{Environment.NewLine}" +
+                "Safety Guard blocks overclock, undervolt, voltage, BIOS/UEFI, Windows Security disable, and irreversible tweaks.";
+            AiCopilotApprovalText.Text = approved.Count > 0
+                ? $"{approved.Count} Safety Guard approved tweak(s) ready. Klik Approve Safe Actions untuk apply dengan backup."
+                : "No pending Triple AI safe tweak approval.";
+
+            DashboardAnalyzerText.Text =
+                $"Triple AI Engine active | PC Health {pcHealth}/100 | Gaming Readiness {gamingReadiness}/100{Environment.NewLine}" +
+                FormatTripleAiIssues(issues);
+            DashboardRecommendationPreviewText.Text = FormatTripleAiRecommendations(recommendations);
+            SmartSystemAnalysisText.Text += Environment.NewLine + Environment.NewLine +
+                $"Triple AI Engine: PC Health {pcHealth}/100 | Gaming Readiness {gamingReadiness}/100";
+            SmartSuggestionsText.Text = FormatTripleAiRecommendations(recommendations);
+            SmartSafetyText.Text =
+                "Triple AI Safety Guard" + Environment.NewLine +
+                $"- Approved: {approved.Count}" + Environment.NewLine +
+                $"- Manual review: {warnings.Count}" + Environment.NewLine +
+                $"- Blocked: {blocked.Count}" + Environment.NewLine +
+                "Auto apply is available only after user approval for reversible low-risk tweaks.";
+            SmartOverallScoreText.Text = $"PC Health {pcHealth}/100 | Gaming Readiness {gamingReadiness}/100";
+            SmartScoreBreakdownText.Text =
+                "Brand: AI PC Performance Doctor for Gaming PCs" + Environment.NewLine +
+                "NVIDIA language: Optimized for NVIDIA RTX GPUs, without partner/certified claims." + Environment.NewLine +
+                "No guaranteed FPS claims; focus is stability, frame pacing, latency, and revertability.";
+        }
+
+        private static string FormatTripleAiIssues(JArray issues)
+        {
+            if (issues == null || issues.Count == 0)
+                return "No major bottleneck detected by Triple AI Analyzer.";
+
+            return string.Join(Environment.NewLine, issues.Take(5).Select(item =>
+            {
+                var obj = item as JObject;
+                return $"- {obj?.Value<string>("issue_type") ?? "issue"} | {obj?.Value<string>("severity") ?? "low"} | {obj?.Value<string>("reason") ?? obj?.Value<string>("description") ?? ""}";
+            }));
+        }
+
+        private static string FormatTripleAiRecommendations(JArray recommendations)
+        {
+            if (recommendations == null || recommendations.Count == 0)
+                return "No safe recommendation available yet.";
+
+            return string.Join(Environment.NewLine, recommendations.Take(6).Select(item =>
+            {
+                var obj = item as JObject;
+                var risk = obj?.Value<string>("risk_level") ?? "low";
+                var impact = obj?.Value<string>("expected_impact") ?? "low";
+                var title = obj?.Value<string>("title") ?? obj?.Value<string>("tweak_id") ?? "Recommendation";
+                return $"- [{risk.ToUpperInvariant()}] {title} | impact {impact} | reversible: {obj?.Value<bool?>("reversible") == true}";
+            }));
         }
 
         private void PopulateSmartRecommendationUi(dynamic stats, dynamic processes, dynamic dns, dynamic systemInfo = null)
@@ -18232,13 +18430,69 @@ $consent = if ($privacy -and $privacy.Value) { $privacy.Value } else { 'Unknown'
             try
             {
                 ShowActionStatus(ActionState.Info, actionName, "Processing request...");
-                var result = await _backendClient.ApplyTweakAsync(tweakId);
-                ShowActionStatus(ActionState.Success, actionName, "Tweak applied successfully.", HyperBoostBackendClient.FormatJson(result));
+                var isHighRisk = IsHighRiskTweak(tweakId);
+                if (isHighRisk && !await ConfirmHighRiskTweakAsync(tweakId, actionName))
+                {
+                    ShowActionStatus(ActionState.Warning, actionName, "High-risk tweak cancelled.");
+                    return;
+                }
+
+                var result = await _backendClient.ApplyTweakAsync(
+                    tweakId,
+                    expertMode: isHighRisk && IsExpertUserMode(),
+                    confirmed: isHighRisk);
+                var resultJson = result as JObject;
+                var success = resultJson?.Value<bool?>("success") ?? true;
+                ShowActionStatus(
+                    success ? ActionState.Success : ActionState.Warning,
+                    actionName,
+                    success ? "Tweak applied successfully." : "Tweak was not applied.",
+                    HyperBoostBackendClient.FormatJson(result));
             }
             catch (Exception ex)
             {
                 ShowActionStatus(ActionState.Error, actionName, $"Unable to run {actionName}.", ex.Message);
             }
+        }
+
+        private static bool IsHighRiskTweak(string tweakId)
+        {
+            return string.Equals(tweakId, "disable_defender", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(tweakId, "disable_updates", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool IsExpertUserMode()
+        {
+            return string.Equals(_settingsUserMode, "Expert", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private Task<bool> ConfirmHighRiskTweakAsync(string tweakId, string actionName)
+        {
+            if (!IsExpertUserMode())
+            {
+                ShowActionStatus(
+                    ActionState.Warning,
+                    actionName,
+                    "Tweak berisiko tinggi hanya tersedia di Expert Mode.",
+                    "Ubah User Mode ke Expert jika benar-benar paham risikonya.");
+                return Task.FromResult(false);
+            }
+
+            var first = MessageBox.Show(
+                $"{actionName} adalah tweak berisiko tinggi dan membutuhkan Administrator privileges serta backup restore registry. Lanjutkan?",
+                "High-risk tweak",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+            if (first != MessageBoxResult.Yes)
+                return Task.FromResult(false);
+
+            var second = MessageBox.Show(
+                $"Konfirmasi terakhir: terapkan {tweakId} sekarang?",
+                "Confirm high-risk tweak",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            return Task.FromResult(second == MessageBoxResult.Yes);
         }
 
         private async Task RunPowerShellActionAsync(string script, string actionName, string successMessage, TimeSpan? timeout = null)

@@ -40,7 +40,7 @@ Updated areas include:
 - app config persistence behavior
 - installer verification logic
 - Discord webhook payload generation
-- OpenAI copilot response parsing
+- NVIDIA Copilot response parsing
 - launcher runtime layout resolution
 
 These changes improve maintainability and reduce reliance on manual-only validation.
@@ -69,9 +69,9 @@ The optimization flow now uses a dedicated process filtering path for non-essent
 
 Discord reporting logic now exposes a reusable payload builder so webhook formatting can be tested directly without relying only on live POST calls.
 
-#### OpenAI response parsing test hook
+#### NVIDIA response parsing test hook
 
-OpenAI copilot response parsing is now accessible through a test-friendly entry point so response extraction logic can be validated in isolation.
+NVIDIA Copilot response parsing is now accessible through a test-friendly entry point so response extraction logic can be validated in isolation.
 
 #### Launcher runtime layout extraction
 
@@ -92,7 +92,7 @@ Covered areas include:
 - installer validation contract behavior
 - Discord webhook payload structure
 - launcher runtime layout resolution
-- OpenAI copilot response parsing
+- NVIDIA Copilot response parsing
 
 ### Python regression tests
 

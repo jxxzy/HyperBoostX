@@ -18,6 +18,12 @@ namespace HyperBoostX
     public partial class App : Application
     {
         private static readonly Regex StructuredLogSeverityRegex = new Regex(@"\s-\s(?<level>DEBUG|INFO|WARNING|ERROR|CRITICAL)\s-\s", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex StructuredLogMessageRegex = new Regex(
+            @"^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2},\d{3}\s+-\s+(?<logger>.+?)\s+-\s+(?<level>DEBUG|INFO|WARNING|ERROR|CRITICAL)\s+-\s+(?<message>.*)$",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex BracketedLogTimestampRegex = new Regex(
+            @"^\[\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\]\s*(?<message>.*)$",
+            RegexOptions.Compiled);
         private static readonly string LogDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "HyperBoost X",
@@ -203,7 +209,7 @@ namespace HyperBoostX
                     if (severity == null || !ShouldSendForSeverity(severity, settings.MinimumLevel))
                         continue;
 
-                    var signature = $"{Path.GetFileName(logPath)}|{severity}|{entry.Trim()}";
+                    var signature = BuildLogAlertSignature(Path.GetFileName(logPath), severity, entry);
                     if (IsWithinDiscordCooldown(signature, settings.CooldownSeconds))
                         continue;
 
@@ -288,6 +294,33 @@ namespace HyperBoostX
             return null;
         }
 
+        private static string BuildLogAlertSignature(string sourceLogName, string severity, string entry)
+        {
+            return $"{sourceLogName}|{severity}|{NormalizeLogAlertEntry(entry)}";
+        }
+
+        private static string NormalizeLogAlertEntry(string entry)
+        {
+            var text = entry?.Trim() ?? "";
+            if (string.IsNullOrWhiteSpace(text))
+                return "";
+
+            var structured = StructuredLogMessageRegex.Match(text);
+            if (structured.Success)
+            {
+                var loggerName = structured.Groups["logger"].Value.Trim();
+                var level = structured.Groups["level"].Value.Trim().ToUpperInvariant();
+                var message = structured.Groups["message"].Value.Trim();
+                return $"{loggerName}|{level}|{message}";
+            }
+
+            var bracketed = BracketedLogTimestampRegex.Match(text);
+            if (bracketed.Success)
+                return bracketed.Groups["message"].Value.Trim();
+
+            return text;
+        }
+
         private async Task<(bool Enabled, string WebhookUrl, string MinimumLevel, int CooldownSeconds)> LoadDiscordReportingSettingsAsync()
         {
             try
@@ -295,13 +328,7 @@ namespace HyperBoostX
                 var configService = new AppConfigService();
                 var config = await configService.LoadAsync();
                 var secrets = await _secureSecretStoreService.LoadAsync();
-                var envWebhook = Environment.GetEnvironmentVariable("HYPERBOOSTX_DISCORD_WEBHOOK_URL")?.Trim() ?? "";
-
-                var webhookUrl = !string.IsNullOrWhiteSpace(envWebhook)
-                    ? envWebhook
-                    : !string.IsNullOrWhiteSpace(secrets.DiscordWebhookUrl)
-                        ? secrets.DiscordWebhookUrl
-                        : config?.Settings?.DiscordWebhookUrl ?? "";
+                var webhookUrl = secrets.DiscordWebhookUrl ?? "";
 
                 return (
                     config?.Settings?.DiscordWebhookEnabled == true,
