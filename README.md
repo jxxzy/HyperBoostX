@@ -26,16 +26,55 @@ HyperBoostX is a Windows performance and optimization app built around safety, e
 
 HyperBoostX is not an overclocking tool, does not claim guaranteed FPS gains, and does not claim official NVIDIA, AMD, Intel, Microsoft, or hardware-vendor partnership.
 
+## Quick Links
+
+| Need | Open This |
+|---|---|
+| Install the app | [Download `HyperBoostXInstaller.exe`](https://github.com/jxxzy/HyperBoostX/releases/download/v1.3.0/HyperBoostXInstaller.exe) |
+| Learn how to use it | [Beginner User Guide](USER_GUIDE.md) |
+| See what changed | [Release Notes v1.3.0](RELEASE_NOTES_v1.3.0.md) |
+| Fix common issues | [Troubleshooting](TROUBLESHOOTING.md) |
+| Read safety policy | [Security](SECURITY.md) |
+| Report a bug | [Bug Report Template](BUG_REPORT_TEMPLATE.md) |
+| Check release validation | [QA Results](QA_RESULTS.md) |
+
+## Contents
+
+- [Recommended Download](#recommended-download)
+- [Beginner Quick Start](#beginner-quick-start)
+- [What HyperBoostX Does](#what-hyperboostx-does)
+- [GPU Support](#gpu-support)
+- [Safety Guard](#safety-guard)
+- [Common Workflows](#common-workflows)
+- [Validation Snapshot](#validation-snapshot)
+- [Architecture](#architecture)
+- [Backend API](#backend-api)
+- [Build And Test](#build-and-test)
+- [Documentation](#documentation)
+- [Known Limitations](#known-limitations)
+
 ## Recommended Download
 
 For normal users, download only the installer from the GitHub Release page:
 
-- Recommended: `HyperBoostXInstaller.exe`
+- Recommended: [`HyperBoostXInstaller.exe`](https://github.com/jxxzy/HyperBoostX/releases/download/v1.3.0/HyperBoostXInstaller.exe)
 - Optional checksum: `SHA256SUMS.txt`
 
 Do not download raw backend executables, debug folders, cache files, logs, or internal release artifacts unless you are developing or testing the project.
 
 If Windows shows `Unknown Publisher` or SmartScreen, it means the installer may be unsigned. Only continue if the file came from the official HyperBoostX GitHub Release.
+
+Optional checksum verification:
+
+```powershell
+Get-FileHash .\HyperBoostXInstaller.exe -Algorithm SHA256
+```
+
+Expected SHA256 for v1.3.0:
+
+```text
+16024ADF082ACEBA47387A6A32B9C574BBF2FBB722EC3610286494AC95D764A8  HyperBoostXInstaller.exe
+```
 
 ## Beginner Quick Start
 
@@ -61,6 +100,8 @@ Step-by-step:
 
 Full beginner manual: [USER_GUIDE.md](USER_GUIDE.md)
 
+Normal users do not need to start the backend manually. Launch HyperBoostX from the installed shortcut so the launcher can start the local backend, generate the local session token, open the WPF app, and clean up the runtime when the app closes.
+
 ## What HyperBoostX Does
 
 | Area | What It Helps With |
@@ -78,6 +119,8 @@ Full beginner manual: [USER_GUIDE.md](USER_GUIDE.md)
 | Restore & Backup | Restore metadata, undo path, restore point guidance, and recovery workflow |
 | AI Doctor / Copilot | Plan-first AI analysis with Safety Guard and required approval |
 | Reports | Before/after performance report and local crash report export with redaction |
+
+HyperBoostX is built for guided use: scan first, explain the plan, ask for approval, apply safe actions, show what happened, and keep recovery visible.
 
 ## v1.3.0 Highlights
 
@@ -135,6 +178,13 @@ For regular users:
 - Do not use `Advanced Tweaks` or `Windows Services` unless you understand the risk.
 - Do not disable Defender, Windows Update, GPU drivers, audio drivers, network services, or antivirus services.
 - Do not expect guaranteed FPS gains; results depend on hardware, Windows state, drivers, background apps, games, and network conditions.
+
+Recommended first-week flow for beginners:
+
+```text
+Day 1: Dashboard -> GPU Center -> Smart Recommendation -> One Click Boost safe -> Read report
+Day 2+: Dashboard -> Startup Manager if boot is slow -> Cleanup safe if disk is full -> Gaming Mode before playing -> Restore & Backup if needed
+```
 
 ## Feature Map
 
@@ -242,9 +292,9 @@ flowchart LR
 
 | Component | Path | Purpose |
 |---|---|---|
-| Desktop UI | `wpf` | Native WPF interface, settings, update checks, audit flows, feature pages |
+| Desktop UI | `wpf` | Native WPF interface, settings, update checks, audit flows, and feature pages |
 | Backend | `app` | Flask API, monitoring, GPU detection, reports, optimization services |
-| Launcher | `launcher` | Starts backend, injects local session token, launches WPF, cleans lifecycle |
+| Launcher | `launcher` | Starts backend, injects local session token, launches WPF, and cleans up lifecycle |
 | Tests | `tests`, `dotnet-tests` | Python and .NET validation suites |
 | Installer | `HyperBoostXInstaller.nsi` | NSIS installer and uninstall metadata |
 
@@ -253,6 +303,8 @@ Legacy user data is preserved under `%LocalAppData%\HyperBoost X` for compatibil
 ## Backend API
 
 Base URL: `http://127.0.0.1:5000`
+
+The backend is local-only for the desktop app. It is not a public cloud API and should not be exposed to the network.
 
 Important v1.3.0 endpoints:
 
@@ -298,9 +350,11 @@ Release scripts:
 - `package_release.bat`
 - `build_installer.bat`
 
+Normal users should not run these commands. They are for maintainers, contributors, and release validation.
+
 ## Documentation
 
-Start here:
+For users:
 
 - [USER_GUIDE.md](USER_GUIDE.md) - beginner-friendly complete user guide
 - [FAQ.md](FAQ.md) - common user questions
