@@ -1,94 +1,196 @@
-# HyperBoostX
+<div align="center">
 
-**HyperBoostX** is a Windows optimization suite built for gaming PCs, creators, streamers, and power users who want safer performance tuning with backup, restore, real-time monitoring, and AI-assisted recommendations.
+<img src="https://capsule-render.vercel.app/api?type=waving&height=230&color=0:020617,35:0891b2,70:16a34a,100:0f172a&text=HyperBoostX&fontSize=58&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=AI%20PC%20Performance%20Doctor%20%7C%20Scan.%20Analyze.%20Boost.%20Revert.&descSize=17&descAlignY=58" />
 
-> **AI PC Performance Doctor**  
-> `Scan. Analyze. Boost. Revert.`
+[![Release](https://img.shields.io/badge/Stable-v1.2.13-16a34a?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jxxzy/HyperBoostX/releases/tag/v1.2.13)
+[![Windows](https://img.shields.io/badge/Windows-Desktop-0078D4?style=for-the-badge&logo=windows&logoColor=white)](#)
+[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](#)
+[![Python](https://img.shields.io/badge/Python-Backend-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
+[![NVIDIA](https://img.shields.io/badge/NVIDIA-AI%20Ready-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](#)
+
+[![Download Installer](https://img.shields.io/badge/Download-HyperBoostXInstaller.exe-22c55e?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jxxzy/HyperBoostX/releases/download/v1.2.13/HyperBoostXInstaller.exe)
+[![Latest Release](https://img.shields.io/badge/Latest%20Release-v1.2.13-0ea5e9?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jxxzy/HyperBoostX/releases/tag/v1.2.13)
+[![Release Notes](https://img.shields.io/badge/Release%20Notes-Open-111827?style=for-the-badge&logo=readme&logoColor=white)](RELEASE.md)
+
+**Windows optimization suite for gaming PCs, creators, streamers, and power users.**
+
+`Scan PC -> AI Analyzer -> AI Safety Guard -> User Approval -> Safe Tweak Engine -> Backup / Revert -> Performance Report`
+
+</div>
 
 ---
 
-## Current Stable Version
+# Welcome to HyperBoostX
 
-**Version:** `1.2.13`  
-**Release target:** `v1.2.13`  
-**Author:** `MR.4NONY - HYPERINDO CYBER TEAM`
+**HyperBoostX** is a Windows performance and optimization application built around one idea: make PC tuning safer, clearer, and easier to reverse.
 
-`v1.2.13` is the current validated stable release line after release-gate checks, backend validation, installer QA, secret handling checks, and real NVIDIA API gate validation passed on the current test machine.
+It combines a native WPF desktop app, a Python backend, a .NET launcher, real-time monitoring, release-gated installer packaging, and AI-assisted recommendations through a guarded NVIDIA-ready Copilot flow.
 
-Public release output uses one installer download:
+> **Goal:** help users understand what is happening on their PC, apply safe optimizations, and keep a path back through backup and restore.
+
+---
+
+# Quick Download
+
+For normal users, the public release is intentionally simple:
 
 ```text
-HyperBoostXInstaller.exe
+Download one file: HyperBoostXInstaller.exe
+Run it.
+Install HyperBoostX.
 ```
+
+Public release page:
+
+```text
+https://github.com/jxxzy/HyperBoostX/releases/tag/v1.2.13
+```
+
+Direct installer:
+
+```text
+https://github.com/jxxzy/HyperBoostX/releases/download/v1.2.13/HyperBoostXInstaller.exe
+```
+
+Internal launcher, backend, and portable runtime executables are validation artifacts. They are not separate user downloads.
 
 ---
 
-## Product Direction
+# Current Stable
+
+| Item | Status |
+|---|---|
+| Version | `1.2.13` |
+| Tag | `v1.2.13` |
+| Channel | Stable |
+| Public installer | `HyperBoostXInstaller.exe` |
+| Branch | `main` |
+| Author | `MR.4NONY - HYPERINDO CYBER TEAM` |
+
+`v1.2.13` is the current validated stable release line after repository verification, backend validation, installer QA, secret handling checks, current-machine matrix checks, and real NVIDIA API gate validation.
+
+Full multi-machine Windows lab matrix is **not claimed**.
+
+---
+
+# Feature Universe
+
+| Area | What It Does |
+|---|---|
+| Dashboard | Real-time monitoring, quick actions, status cards, health overview |
+| One Click Boost | Safe default optimization flow for common performance cleanup |
+| Gaming Booster | Gaming-focused tuning, session preparation, and performance workflow |
+| Streaming Mode | Stream-friendly optimization and background load awareness |
+| Creator Mode | Creator/workstation-oriented performance workflow |
+| Startup Manager | Startup process review and safe startup optimization |
+| Cleanup & Storage | Cleanup tools, storage review, and safe scoped cleanup paths |
+| Network Optimization | Network review, diagnostics, and guarded tuning paths |
+| Power Optimization | Power profile handling with backup/restore metadata |
+| Tweaks Center | Windows tweaks with safety checks and restore requirements |
+| Repair Tools | Repair workflows for Windows, services, drivers, and health checks |
+| Privacy & Security | Privacy Center, Security & Health, and guarded system actions |
+| Automation | Scheduled Automation, persistent rules, and safe action routing |
+| AI Copilot | NVIDIA-ready Copilot, model fallback, and approval-based suggestions |
+| Webhooks | Discord error/update reporting with secret redaction |
+
+---
+
+# Triple AI Engine
 
 HyperBoostX is designed as an **AI PC Performance Doctor**, not an unsafe extreme tweak tool.
 
-The main optimization flow is:
+| Role | Responsibility |
+|---|---|
+| AI Assistant | Explains bottlenecks, FPS-drop causes, NVIDIA/game settings, and safe actions |
+| AI Analyzer | Ranks findings from scan data, Windows state, performance rules, and tweak policy |
+| AI Safety Guard | Blocks unsafe or irreversible changes and requires approval/restore paths |
+
+The AI flow is intentionally guarded:
 
 ```text
 Scan PC
-   ↓
-AI Analyzer
-   ↓
-AI Safety Guard
-   ↓
-AI Assistant
-   ↓
-User Approval
-   ↓
-Safe Tweak Engine
-   ↓
-Backup / Revert
-   ↓
-Performance Report
+  -> AI Analyzer
+  -> AI Safety Guard
+  -> AI Assistant
+  -> User Approval
+  -> Safe Tweak Engine
+  -> Backup / Revert
+  -> Performance Report
 ```
 
-### Branding Guardrail
-
-HyperBoostX may use NVIDIA-aware tuning language only where supported, such as RTX, DLSS, Reflex, Frame Generation, or NVIDIA settings guidance.
-
-Do **not** claim:
-
-- `Powered by NVIDIA`
-- `Official NVIDIA Partner`
-- `NVIDIA Certified`
-
-unless a formal partnership exists.
+Cloud AI is optional. Basic scan, local rules, Safety Guard validation, reports, backup, and revert flows continue to work without an AI API key.
 
 ---
 
-## Architecture
+# Safety First
 
-HyperBoostX is built from three main components:
+HyperBoostX must prefer safety over aggressive tweaking.
 
-| Component | Description |
-|---|---|
-| `wpf` | Native WPF desktop UI and core client logic |
-| `app` | Python Flask backend and optimization services |
-| `launcher` | .NET launcher that starts the backend, waits for health readiness, opens the UI, and shuts the backend down when the UI exits |
+The app should always prioritize:
+
+- Scan before action
+- Explanation before execution
+- User approval before system tweaks
+- Backup before risky changes
+- Restore/revert metadata where applicable
+- Clear report after action
+- Secret redaction in logs, state, reports, and crash paths
+
+HyperBoostX must not claim or perform:
+
+- Guaranteed FPS improvement
+- Official NVIDIA partnership
+- Forced overclocking
+- Undervolting
+- BIOS/UEFI modification
+- Voltage tuning
+- Forced Windows Security disable
+- Irreversible registry edits without restore metadata
+
+NVIDIA-aware language is allowed only for supported guidance such as RTX, DLSS, Reflex, Frame Generation, NVIDIA settings, and NVIDIA API model usage. This project is not an official NVIDIA product or partnership claim.
 
 ---
 
-## Runtime Layout
+# Architecture
 
-### Installed App
+```mermaid
+flowchart LR
+    User[User] --> Launcher[.NET Launcher]
+    Launcher --> Backend[Python Backend]
+    Launcher --> WPF[WPF Desktop App]
+    WPF <--> Backend
+    WPF --> Config[Local Config]
+    WPF --> Creds[Windows Credential Manager]
+    WPF --> Backups[Backups / Restore Metadata]
+```
+
+| Component | Path | Purpose |
+|---|---|---|
+| Desktop UI | `wpf` | Native WPF interface, orchestration, settings, update flow |
+| Backend | `app` | Python Flask API, optimization services, monitoring, repair logic |
+| Launcher | `launcher` | Starts backend, waits for health readiness, opens UI, cleans up process lifecycle |
+| Tests | `tests`, `dotnet-tests` | Python and .NET validation suites |
+| Scripts | `scripts` | CI/local build, validation, installer/e2e helpers |
+| Docs | `docs` | API docs, release notes, release gates, historical docs |
+
+---
+
+# Runtime Layout
+
+Installed app entrypoint:
 
 ```text
 HyperBoostX.exe
 ```
 
-### Internal Runtime
+Internal runtime layout:
 
 ```text
 runtime\wpf\HyperBoostX.exe
 runtime\backend\hyperboost_backend.exe
 ```
 
-### User Data
+User data locations:
 
 ```text
 %LocalAppData%\HyperBoost X\logs
@@ -96,164 +198,27 @@ runtime\backend\hyperboost_backend.exe
 %LocalAppData%\HyperBoost X\backups
 ```
 
----
-
-## Main Features
-
-### Core Dashboard
-
-- Real-time system monitoring
-- Quick performance actions
-- Device-aware status cards
-- Smart recommendations
-- Activity and health overview
-
-### Optimization Modules
-
-- One Click Boost
-- Performance Boost
-- Gaming Booster
-- Streaming Mode
-- Creator Mode
-- Startup Manager
-- Cleanup
-- Storage Optimization
-- Network Optimization
-- Power Optimization
-- Visual Effects
-- Windows Services
-- Windows Features
-- Tweaks Center
-- Advanced Tweaks
-
-### System Repair & Safety
-
-- Repair Tools
-- Security & Health
-- Privacy Center
-- Restore & Backup
-- Restore Point Manager
-- Backup and revert flow before risky changes
-
-### Automation
-
-- Scheduled Automation
-- Persistent runtime rules
-- Task queue
-- Safe action routing
-- Automation creation through AI approval flow
-
-### AI Features
-
-- HyperBoostX Copilot
-- AI Assistant
-- AI Analyzer
-- AI Safety Guard
-- Local RAG-style knowledge base
-- NVIDIA Copilot integration where configured
-- Safe recommendation flow with user approval
-
-### Integration
-
-- Discord webhook reporting for important errors and crash events
-- In-app release checker from GitHub
-- Multi-language foundation with modular localization packs
-- About App donation shortcut via Sociabuzz
+Secrets such as NVIDIA API keys and Discord webhook URLs are stored through Windows Credential Manager, not plaintext app-state.
 
 ---
 
-## HyperBoostX Triple AI Engine
+# Tech Stack
 
-The **Triple AI Engine** is the intelligence layer behind HyperBoostX.
+<div align="center">
 
-It consists of three main roles:
+![C#](https://img.shields.io/badge/C%23-WPF-68217A?style=for-the-badge&logo=csharp&logoColor=white)
+![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
+![Python](https://img.shields.io/badge/Python-Flask-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Windows](https://img.shields.io/badge/Windows-Optimization-0078D4?style=for-the-badge&logo=windows&logoColor=white)
+![NSIS](https://img.shields.io/badge/NSIS-Installer-111827?style=for-the-badge&logo=windows-terminal&logoColor=white)
+![NVIDIA](https://img.shields.io/badge/NVIDIA-Copilot%20Ready-76B900?style=for-the-badge&logo=nvidia&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
 
-### 1. AI Assistant
-
-Explains scan results, bottlenecks, FPS-drop causes, NVIDIA settings, game settings, and safe optimization actions in user-friendly language.
-
-### 2. AI Analyzer
-
-Ranks structured findings from:
-
-- PC scan data
-- Windows state
-- Game-related settings
-- NVIDIA-related settings
-- Tweak database
-- Performance rules
-
-### 3. AI Safety Guard
-
-Blocks unsafe or irreversible actions.
-
-The Safety Guard prevents:
-
-- Forced overclocking
-- Undervolting
-- BIOS or UEFI modification
-- Voltage tuning
-- Disabling Windows Security
-- Irreversible registry edits
-- Unsafe service removal
-- Guaranteed FPS claims
-
-### Local Knowledge Base
-
-HyperBoostX also includes a local grounding layer for:
-
-- Tweak policy
-- Game settings
-- NVIDIA settings
-- Windows errors
-- Benchmark notes
-- Safe optimization guidance
-
-This knowledge base supports the AI flow, but it is not presented as a fourth AI role.
-
-### Offline Safety
-
-Cloud AI is optional.
-
-The following features continue to work without an AI API key:
-
-- Basic scan
-- Local rules
-- Safety Guard validation
-- Reports
-- Backup and revert flow
+</div>
 
 ---
 
-## Main Folders
-
-```text
-app         Backend API, services, and Python runtime code
-wpf         WPF UI, services, localization, and app orchestration
-launcher    Launcher / entrypoint application
-release     Packaged runtime outputs
-tests       Tests and support assets
-docs        Documentation, release notes, and release gates
-scripts     Build, deploy, validation, and QA scripts
-```
-
----
-
-## Build Scripts
-
-| Script | Purpose |
-|---|---|
-| `build_backend.bat` | Builds `release\backend\hyperboost_backend.exe` |
-| `build_release.bat` | Publishes the WPF UI into `release\wpf` |
-| `build_launcher.bat` | Publishes the launcher into `release\launcher` |
-| `package_release.bat` | Assembles `release\package` and `release\app` |
-| `build_installer.bat` | Builds `HyperBoostXInstaller.exe` |
-| `scripts\build_release_local.ps1` | Builds isolated local-deploy artifacts without touching locked release folders |
-| `scripts\deploy_local_runtime.ps1` | Copies the latest runtime into an installed HyperBoostX directory for local QA |
-
----
-
-## Development Scripts
+# Build & Run
 
 Run backend only:
 
@@ -261,11 +226,21 @@ Run backend only:
 start_backend.bat
 ```
 
-Run WPF client only against a running backend:
+Run WPF client against a running backend:
 
 ```bat
 start_wpf_client.bat
 ```
+
+Build main artifacts:
+
+| Script | Output |
+|---|---|
+| `build_backend.bat` | `release\backend\hyperboost_backend.exe` |
+| `build_release.bat` | `release\wpf` |
+| `build_launcher.bat` | `release\launcher` |
+| `package_release.bat` | `release\package`, `release\app` |
+| `build_installer.bat` | `HyperBoostXInstaller.exe` |
 
 Run unified repository verification:
 
@@ -284,164 +259,32 @@ Useful flags:
 
 ---
 
-## Automated Testing
+# Release Gate
 
-### In-App Testing
+Latest stable gate: `v1.2.13`
 
-HyperBoostX includes an in-app **Feature Audit / Testing** area with:
+Passed in the final validation line:
 
-- Mock Mode
-- Safe Read-Only
-- Live Read-Only
-- Unit Tests
-- Integration Tests
-- UI Flow Tests
-- End-to-End Tests
-- Regression Tests
-- Performance Tests
-- Stress Tests
-- Stability Tests
-- Security Tests
-- Compatibility Tests
-- Full QA Matrix
-
-### GitHub Actions CI
-
-```text
-.github/workflows/windows-ci.yml
-```
-
-Validates:
-
-- Backend tests
-- WPF build
-- Launcher build
-
-### Installer / Update Lab Harness
-
-```text
-.github/workflows/windows-e2e-lab.yml
-scripts/test_installer_update_e2e.ps1
-```
-
-This is intended for a self-hosted Windows lab runner, not a normal user machine.
-
----
-
-## Release Outputs
-
-### Public Release
-
-```text
-HyperBoostXInstaller.exe
-```
-
-### Internal QA Runtime
-
-```text
-release\app\HyperBoostX.exe
-```
-
-### Internal Build Artifacts
-
-Backend and QA artifacts stay local or in CI artifacts. They are not published as separate public release downloads.
-
----
-
-## Documentation
-
-| File | Description |
-|---|---|
-| `docs/API_REFERENCE.md` | API overview |
-| `DIRECTORY_MAP.md` | Current repository map |
-| `BUILD.md` | Build commands and expected outputs |
-| `INSTALL.md` | Portable, installer, uninstall, and config-preservation notes |
-| `SECURITY.md` | Local API, credential, redaction, AI safety, and restore policy |
-| `USER_GUIDE.md` | Dashboard, boost, restore, and NVIDIA Copilot usage |
-| `RELEASE.md` | Release gates, checksum, installer, and GitHub release process |
-| `AUDIT_REPORT.md` | Current audit summary |
-| `BUGS_FOUND.md` | Known bugs and findings |
-| `BUGS_FIXED.md` | Fixed bugs and completed repairs |
-| `QA_RESULTS.md` | QA validation results |
-| `RELEASE_NOTES_NEXT.md` | Next release notes |
-| `docs/release-notes/` | Archived historical release notes |
-| `docs/release-gates/` | Archived historical release gates |
-
----
-
-## Latest Stable Changes
-
-### Version `1.2.13`
-
-- Stable release gate line validated.
-- Current-machine automated validation passed.
-- Restore metadata validation passed.
-- Backend health validation passed.
-- Secure NVIDIA and Discord credential handling verified.
-- Installer install, uninstall, and reinstall flow passed.
-- Real NVIDIA API gate validation passed.
-- Public release simplified to one installer download.
-
-### Version `1.2.0`
-
-- Added adaptive optimization foundation.
-- Added system-drive classification.
-- Added device profile detection.
-- Added bottleneck hints.
-- Improved dashboard and Smart Recommendation messaging.
-- Clarified updater readiness states.
-- Cleared validated `v1.2.0` release candidate gates.
-
-### Version `1.1.x`
-
-- Improved NVIDIA Copilot diagnostics.
-- Improved app update detection.
-- Added stable tags and version badges.
-- Reduced dashboard refresh latency.
-- Reduced UI freeze risk.
-- Improved audit reliability.
-- Added Discord release notifications.
-- Added localization foundation.
-- Added installer upgrade flow.
-- Added secure secret loading through Windows Credential Manager.
-
-Older changelogs are archived in:
-
-```text
-docs/release-notes/
-docs/release-gates/
-```
-
----
-
-## Release Status
-
-```text
-Version: v1.2.13
-Status: Stable
-Installer: HyperBoostXInstaller.exe
-Validation: Current-machine release gate passed
-Public download: Single installer release
-```
-
-### Validation Summary
-
-Passed:
-
-- Backend health check
-- Restore metadata validation
-- Secret handling validation
-- Installer silent install
-- App launch after install
-- Backend health after install
-- App close and orphan-process check
-- Silent uninstall
-- Reinstall validation
-- Real NVIDIA API automated gate
-- SHA256 checksum verification
 - Repository verification
 - Python tests
 - .NET tests
+- Debug and Release build checks
+- Backend package
+- WPF package
+- Launcher package
+- NSIS installer build
+- Packaged backend health
+- Portable launch smoke
+- Installed app launch
+- Silent installer install
+- Silent uninstall
+- Silent reinstall
+- Restore/undo metadata validation
+- Secret handling validation
+- NVIDIA API real connection gate from secure storage
+- AI approval flow
+- Safety Guard
+- SHA256 verification
 
 Not claimed:
 
@@ -451,37 +294,79 @@ Not claimed:
 
 ---
 
-## Safety Policy
+# Testing Matrix
 
-HyperBoostX focuses on safe, reversible optimization.
+HyperBoostX includes an in-app **Feature Audit / Testing** area:
 
-The app should always prefer:
+| Mode | Purpose |
+|---|---|
+| Mock Mode | Safe simulated checks |
+| Safe Read-Only | Non-mutating machine inspection |
+| Live Read-Only | Real local status collection without risky writes |
+| Unit / Integration | Code and service contract validation |
+| UI Flow | User workflow coverage |
+| End-to-End | Runtime path validation |
+| Regression | Prevents known issues from returning |
+| Security | Secret, updater, and safety checks |
+| Compatibility | Windows/runtime readiness checks |
 
-- Scan before action
-- Explanation before execution
-- User approval before tweak
-- Backup before risky change
-- Revert path after optimization
-- Clear report after action
+GitHub Actions workflows:
 
-HyperBoostX must not promise guaranteed FPS increases or perform unsafe system changes without protection.
+```text
+.github/workflows/windows-ci.yml
+.github/workflows/release-gate.yml
+.github/workflows/windows-e2e-lab.yml
+```
+
+The self-hosted Windows e2e lab workflow is intended for a controlled lab runner, not a normal user machine.
 
 ---
 
-## License
+# Documentation Map
 
-License information should be added here if the project is public.
+| Document | Description |
+|---|---|
+| [BUILD.md](BUILD.md) | Build commands and expected outputs |
+| [INSTALL.md](INSTALL.md) | Installer, uninstall, portable QA, and data preservation notes |
+| [SECURITY.md](SECURITY.md) | Local API, credential, redaction, AI safety, and restore policy |
+| [USER_GUIDE.md](USER_GUIDE.md) | Dashboard, boost, restore, and NVIDIA Copilot usage |
+| [RELEASE.md](RELEASE.md) | Release gates, installer-only public asset policy, and validation notes |
+| [QA_RESULTS.md](QA_RESULTS.md) | Latest QA validation results |
+| [AUDIT_REPORT.md](AUDIT_REPORT.md) | Current audit summary |
+| [BUGS_FOUND.md](BUGS_FOUND.md) | Findings and known issues |
+| [BUGS_FIXED.md](BUGS_FIXED.md) | Fixed bugs and completed repairs |
+| [DIRECTORY_MAP.md](DIRECTORY_MAP.md) | Repository structure map |
+| [docs/API_REFERENCE.md](docs/API_REFERENCE.md) | Backend API overview |
+| [docs/release-notes/](docs/release-notes/) | Historical release notes |
+| [docs/release-gates/](docs/release-gates/) | Historical release gate docs |
+
+---
+
+# Project Principles
 
 ```text
-TODO: Add license information.
+Build for speed.
+Guard for safety.
+Explain before action.
+Backup before mutation.
+Revert when needed.
+Ship with evidence.
 ```
 
 ---
 
-## Credits
+# Credits
 
 Created by:
 
 ```text
 MR.4NONY - HYPERINDO CYBER TEAM
 ```
+
+Maintained as part of the MR.4NONY Windows optimization, automation, and AI tooling lab.
+
+<div align="center">
+
+<img src="https://capsule-render.vercel.app/api?type=waving&height=120&color=0:020617,50:0891b2,100:16a34a&section=footer" />
+
+</div>
