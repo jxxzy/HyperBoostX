@@ -2,13 +2,13 @@
 
 Date: 2026-06-26
 Branch: `main`
-Target version: `1.2.13`
+Target version: `1.2.14`
 
 ## Overall Status
 
 Status: `PASS`
 
-Current conclusion: Zero known Critical/Major bugs after automated validation. HyperBoostX v1.2.13 passed the current-machine automated stable release gate. Full multi-machine Windows lab matrix is not claimed.
+Current conclusion: Zero known Critical/Major bugs after automated validation. HyperBoostX v1.2.14 passed the current-machine automated stable release gate. Full multi-machine Windows lab matrix is not claimed.
 
 ## Checkpoint Coverage
 
@@ -24,21 +24,21 @@ Total checkpoints recorded: `5900`
 | NVIDIA AI Copilot | 500 | Provider, 10 models, default/fallback real API calls, redaction, safety guard, and approval flow PASS |
 | Security / Safety | 500 | Credential Manager storage, secret redaction, allowlisted shell, blocked risky actions, and restore metadata PASS |
 | Release / Installer / Update | 400 | Version sync, build scripts, package, installer, checksum, silent install/uninstall/reinstall, and installed launch PASS |
-| Documentation / Owner Experience | 300 | Active release docs synchronized to v1.2.13 and NVIDIA Copilot |
+| Documentation / Owner Experience | 300 | Active release docs synchronized to v1.2.14 and NVIDIA Copilot |
 | Performance / Stability | 500 | Current-machine launch/health/exit cleanup PASS with 0 orphan processes |
 
 ## Evidence
 
-- `powershell -ExecutionPolicy Bypass -File .\scripts\verify_repo.ps1` PASS: version sync, Python `24 passed`, .NET `27 passed`.
-- `app\venv\Scripts\python.exe -m pytest -ra -W default` PASS: `24 passed, 0 warnings`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\verify_repo.ps1` PASS: version sync, Python `26 passed`, .NET `28 passed`.
+- `app\venv\Scripts\python.exe -m pytest -ra -W default` PASS: `26 passed, 0 warnings`.
 - `app\venv\Scripts\python.exe -m pytest -ra -W error` PASS.
-- `dotnet restore`, `dotnet build`, `dotnet build -c Release`, and `dotnet test` PASS; full .NET test count is `27 passed`.
+- `dotnet restore`, `dotnet build`, `dotnet build -c Release`, and `dotnet test` PASS; full .NET test count is `28 passed`.
 - `build_backend.bat`, `build_release.bat`, `build_launcher.bat`, `package_release.bat`, and `build_installer.bat` PASS.
 - `SHA256SUMS.txt` verified against final local installer/app/backend/launcher artifacts.
-- Packaged backend health PASS: `/api/health` returned status `ok`, version `1.2.13`.
-- Portable launch smoke PASS: launcher/WPF/backend started, health returned `1.2.13`, and cleanup ended with 0 orphan processes.
-- Elevated silent installer install PASS: installer exit code `0`, install path exists, installed exe exists, HKLM uninstall metadata version is `1.2.13`.
-- Installed app launch PASS: installed WPF/backend launched, backend health returned `1.2.13`, close/cleanup ended with 0 orphan processes.
+- Packaged backend health PASS: `/api/health` returned status `ok`, version `1.2.14`.
+- Portable launch smoke PASS: launcher/WPF/backend started, health returned `1.2.14`, and cleanup ended with 0 orphan processes.
+- Elevated silent installer install PASS: installer exit code `0`, install path exists, installed exe exists, HKLM uninstall metadata version is `1.2.14`.
+- Installed app launch PASS: installed WPF/backend launched, backend health returned `1.2.14`, close/cleanup ended with 0 orphan processes.
 - Silent uninstall PASS: uninstaller exit code `0`, install directory and uninstall registry entries removed.
 - Silent reinstall PASS: reinstall exit code `0`, installed relaunch PASS, cleanup ended with 0 orphan processes.
 - NVIDIA Credential Manager target `HyperBoostX:NVIDIA:ApiKey` present; real key loaded masked from Windows Credential Manager.

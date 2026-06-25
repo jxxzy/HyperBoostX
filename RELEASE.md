@@ -1,7 +1,7 @@
-# HyperBoostX v1.2.13 Release Guide
+# HyperBoostX v1.2.14 Release Guide
 
-Target release: `HyperBoostX v1.2.13 Stable`
-Tag target: `v1.2.13`
+Target release: `HyperBoostX v1.2.14 Stable`
+Tag target: `v1.2.14`
 Branch: `main`
 
 ## Release Gates
@@ -11,18 +11,18 @@ Do not publish a stable release unless the current validation has zero known Cri
 Completed automated gates in this workspace:
 
 - `powershell -ExecutionPolicy Bypass -File .\scripts\verify_repo.ps1`: PASS
-- Python tests via repo venv: PASS, `24 passed, 0 warnings`
+- Python tests via repo venv: PASS, `26 passed, 0 warnings`
 - Python warning-as-error: PASS
 - `dotnet restore`: PASS
 - `dotnet build`: PASS
 - `dotnet build -c Release`: PASS
-- `dotnet test`: PASS, `27 passed`
+- `dotnet test`: PASS, `28 passed`
 - `build_backend.bat`: PASS
 - `build_release.bat`: PASS
 - `build_launcher.bat`: PASS
 - `package_release.bat`: PASS
 - `build_installer.bat`: PASS
-- Packaged backend health: PASS, version `1.2.13`
+- Packaged backend health: PASS, version `1.2.14`
 - Portable launch smoke: PASS
 - Elevated silent installer install: PASS
 - Installed app launch: PASS

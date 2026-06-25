@@ -2,14 +2,14 @@
 
 <img src="https://capsule-render.vercel.app/api?type=waving&height=230&color=0:020617,35:0891b2,70:16a34a,100:0f172a&text=HyperBoostX&fontSize=58&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=AI%20PC%20Performance%20Doctor%20%7C%20Scan.%20Analyze.%20Boost.%20Revert.&descSize=17&descAlignY=58" />
 
-[![Release](https://img.shields.io/badge/Stable-v1.2.13-16a34a?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jxxzy/HyperBoostX/releases/tag/v1.2.13)
+[![Release](https://img.shields.io/badge/Stable-v1.2.14-16a34a?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jxxzy/HyperBoostX/releases/tag/v1.2.14)
 [![Windows](https://img.shields.io/badge/Windows-Desktop-0078D4?style=for-the-badge&logo=windows&logoColor=white)](#)
 [![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](#)
 [![Python](https://img.shields.io/badge/Python-Backend-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
 [![NVIDIA](https://img.shields.io/badge/NVIDIA-AI%20Ready-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](#)
 
-[![Download Installer](https://img.shields.io/badge/Download-HyperBoostXInstaller.exe-22c55e?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jxxzy/HyperBoostX/releases/download/v1.2.13/HyperBoostXInstaller.exe)
-[![Latest Release](https://img.shields.io/badge/Latest%20Release-v1.2.13-0ea5e9?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jxxzy/HyperBoostX/releases/tag/v1.2.13)
+[![Download Installer](https://img.shields.io/badge/Download-HyperBoostXInstaller.exe-22c55e?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jxxzy/HyperBoostX/releases/download/v1.2.14/HyperBoostXInstaller.exe)
+[![Latest Release](https://img.shields.io/badge/Latest%20Release-v1.2.14-0ea5e9?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jxxzy/HyperBoostX/releases/tag/v1.2.14)
 [![Release Notes](https://img.shields.io/badge/Release%20Notes-Open-111827?style=for-the-badge&logo=readme&logoColor=white)](RELEASE.md)
 
 **Windows optimization suite for gaming PCs, creators, streamers, and power users.**
@@ -43,13 +43,13 @@ Install HyperBoostX.
 Public release page:
 
 ```text
-https://github.com/jxxzy/HyperBoostX/releases/tag/v1.2.13
+https://github.com/jxxzy/HyperBoostX/releases/tag/v1.2.14
 ```
 
 Direct installer:
 
 ```text
-https://github.com/jxxzy/HyperBoostX/releases/download/v1.2.13/HyperBoostXInstaller.exe
+https://github.com/jxxzy/HyperBoostX/releases/download/v1.2.14/HyperBoostXInstaller.exe
 ```
 
 Internal launcher, backend, and portable runtime executables are validation artifacts. They are not separate user downloads.
@@ -60,14 +60,14 @@ Internal launcher, backend, and portable runtime executables are validation arti
 
 | Item | Status |
 |---|---|
-| Version | `1.2.13` |
-| Tag | `v1.2.13` |
+| Version | `1.2.14` |
+| Tag | `v1.2.14` |
 | Channel | Stable |
 | Public installer | `HyperBoostXInstaller.exe` |
 | Branch | `main` |
 | Author | `MR.4NONY - HYPERINDO CYBER TEAM` |
 
-`v1.2.13` is the current validated stable release line after repository verification, backend validation, installer QA, secret handling checks, current-machine matrix checks, and real NVIDIA API gate validation.
+`v1.2.14` is the current validated stable release line after repository verification, backend validation, installer QA, secret handling checks, current-machine matrix checks, and real NVIDIA API gate validation.
 
 Full multi-machine Windows lab matrix is **not claimed**.
 
@@ -261,7 +261,7 @@ Useful flags:
 
 # Release Gate
 
-Latest stable gate: `v1.2.13`
+Latest stable gate: `v1.2.14`
 
 Passed in the final validation line:
 

@@ -33,7 +33,7 @@ class ShellUtil:
         try:
             if admin and not Permissions.is_admin():
                 message = "This action requires administrator privileges. Run HyperBoost X as Administrator."
-                logger.warning(f"Admin command blocked without elevation: {command}")
+                logger.info(f"Admin command skipped without elevation: {command}")
                 return False, message
 
             process = subprocess.Popen(

@@ -1,8 +1,8 @@
-﻿# HyperBoostX Security Notes
+# HyperBoostX Security Notes
 
 ## Local API
 
-The backend is intended for local runtime use on `127.0.0.1`. Release validation checks packaged `/api/health` and confirms version `1.2.13`.
+The backend is intended for local runtime use on `127.0.0.1`. Release validation checks packaged `/api/health` and confirms version `1.2.14`.
 
 ## NVIDIA API Key
 

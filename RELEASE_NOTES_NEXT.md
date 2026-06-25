@@ -1,7 +1,7 @@
-﻿# HyperBoostX v1.2.13 Stable
+# HyperBoostX v1.2.14 Stable
 
 ## Status
-Stable release validation target for HyperBoostX v1.2.13.
+Stable release validation target for HyperBoostX v1.2.14.
 
 ## Highlights
 - Migrated active AI Copilot flow to NVIDIA Copilot.
@@ -13,8 +13,11 @@ Stable release validation target for HyperBoostX v1.2.13.
 - Added/validated AI approval flow before optimization actions.
 - Added/validated Safety Guard for risky actions.
 - Hardened optimizer safety and restore/undo behavior.
+- Reduced expected non-elevated admin actions from warning log alerts to structured admin-required results.
+- Added network action `admin_required` response metadata for Flush DNS and TCP Optimize.
+- Added Ultimate Performance fallback handling when a Windows power configuration does not support the Ultimate plan.
 - Cleaned stale legacy AI provider wording from active runtime/docs/UI where applicable.
-- Synced release metadata to v1.2.13.
+- Synced release metadata to v1.2.14.
 - Added APP_GATE_CHECKLIST.md for final stable gate tracking.
 - Updated audit, bug, QA, and release documentation.
 
@@ -40,9 +43,9 @@ Stable release validation target for HyperBoostX v1.2.13.
 ## Validation
 - Automated validation passed.
 - `scripts\verify_repo.ps1`: PASS.
-- Python tests: PASS - 24 passed, 0 warnings.
+- Python tests: PASS - 26 passed, 0 warnings.
 - Python warning-as-error: PASS.
-- .NET tests: PASS - 27 passed.
+- .NET tests: PASS - 28 passed.
 - `dotnet restore`: PASS.
 - `dotnet build`: PASS, 0 warnings, 0 errors.
 - `dotnet build -c Release`: PASS, 0 warnings, 0 errors.
@@ -51,7 +54,7 @@ Stable release validation target for HyperBoostX v1.2.13.
 - Backend package: PASS.
 - Portable package: PASS.
 - Installer build: PASS.
-- Packaged backend health: PASS - version 1.2.13.
+- Packaged backend health: PASS - version 1.2.14.
 - Portable launch smoke: PASS.
 - Installed app launch: PASS.
 - Installer uninstall/reinstall: PASS.

@@ -1,17 +1,17 @@
-# APP GATE CHECKLIST - HyperBoostX v1.2.13 Stable
+# APP GATE CHECKLIST - HyperBoostX v1.2.14 Stable
 
 Date: 2026-06-26
 Branch: `main`
 
 ## Release Identity
 
-- [x] VERSION synced to `1.2.13`
-- [x] Tag target is `v1.2.13`
-- [x] Release name is `HyperBoostX v1.2.13 Stable`
-- [x] README current stable points to `v1.2.13`
-- [x] About/app metadata points to `1.2.13`
-- [x] Installer version points to `1.2.13`
-- [x] Portable/runtime version points to `1.2.13`
+- [x] VERSION synced to `1.2.14`
+- [x] Tag target is `v1.2.14`
+- [x] Release name is `HyperBoostX v1.2.14 Stable`
+- [x] README current stable points to `v1.2.14`
+- [x] About/app metadata points to `1.2.14`
+- [x] Installer version points to `1.2.14`
+- [x] Portable/runtime version points to `1.2.14`
 
 ## Critical Gate
 
@@ -53,9 +53,9 @@ Branch: `main`
 
 ## Build Gate
 
-- [x] Python tests PASS - `24 passed, 0 warnings`
+- [x] Python tests PASS - `26 passed, 0 warnings`
 - [x] Python warning-as-error PASS
-- [x] .NET tests PASS - `27 passed`
+- [x] .NET tests PASS - `28 passed`
 - [x] WPF Debug build PASS
 - [x] WPF/launcher Release build PASS
 - [x] Launcher build PASS
@@ -77,7 +77,7 @@ Branch: `main`
 - [x] Elevated automation shell available
 - [x] Silent installer install PASS
 - [x] Install path and installed exe verified
-- [x] HKLM uninstall metadata verified with version `1.2.13`
+- [x] HKLM uninstall metadata verified with version `1.2.14`
 - [x] Silent uninstall PASS
 - [x] Install directory and uninstall registry cleanup verified
 - [x] Silent reinstall PASS

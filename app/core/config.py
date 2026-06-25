@@ -27,7 +27,7 @@ class Config:
     """Application configuration handler."""
     
     APP_NAME = "HyperBoost X"
-    VERSION = "1.2.13"
+    VERSION = "1.2.14"
     AI_PROVIDER = os.environ.get("AI_PROVIDER", "nvidia")
     NVIDIA_BASE_URL = os.environ.get("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1")
     NVIDIA_CHAT_ENDPOINT = os.environ.get("NVIDIA_CHAT_ENDPOINT", "/chat/completions")

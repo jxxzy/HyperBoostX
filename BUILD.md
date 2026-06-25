@@ -1,6 +1,6 @@
 # HyperBoostX Build Guide
 
-Target version: `1.2.13`
+Target version: `1.2.14`
 
 ## Prerequisites
 

@@ -2,19 +2,19 @@
 
 Date: 2026-06-26
 Branch: `main`
-Target release: `HyperBoostX v1.2.13 Stable`
+Target release: `HyperBoostX v1.2.14 Stable`
 
 ## Automated Test Gates
 
 | Check | Status | Evidence |
 | --- | --- | --- |
-| `scripts\verify_repo.ps1` | PASS | Version sync PASS, Python `24 passed`, .NET `27 passed` |
-| Python tests via repo venv | PASS | `app\venv\Scripts\python.exe -m pytest -ra -W default` -> `24 passed, 0 warnings` |
-| Python warning-as-error | PASS | `app\venv\Scripts\python.exe -m pytest -ra -W error` -> `24 passed` |
+| `scripts\verify_repo.ps1` | PASS | Version sync PASS, Python `26 passed`, .NET `28 passed` |
+| Python tests via repo venv | PASS | `app\venv\Scripts\python.exe -m pytest -ra -W default` -> `26 passed, 0 warnings` |
+| Python warning-as-error | PASS | `app\venv\Scripts\python.exe -m pytest -ra -W error` -> `26 passed` |
 | `dotnet restore` | PASS | All projects restored/up-to-date |
 | `dotnet build` | PASS | Debug build, `0 Warning(s)`, `0 Error(s)` |
 | `dotnet build -c Release` | PASS | Release build, `0 Warning(s)`, `0 Error(s)` |
-| `dotnet test` | PASS | `27 passed` |
+| `dotnet test` | PASS | `28 passed` |
 | Targeted NVIDIA Copilot tests | PASS | `NvidiaCopilotServiceTests` -> `15 passed` |
 
 ## Build And Asset Gates
@@ -32,11 +32,11 @@ Target release: `HyperBoostX v1.2.13 Stable`
 
 | Check | Status | Evidence |
 | --- | --- | --- |
-| Packaged backend health | PASS | `/api/health` returned status `ok`, version `1.2.13` |
-| Portable app launch smoke | PASS | Portable launcher/WPF/backend started, health returned `1.2.13`, cleanup ended with 0 orphan processes |
+| Packaged backend health | PASS | `/api/health` returned status `ok`, version `1.2.14` |
+| Portable app launch smoke | PASS | Portable launcher/WPF/backend started, health returned `1.2.14`, cleanup ended with 0 orphan processes |
 | Elevated automation shell | PASS | Admin token detected for installer gate |
-| Silent installer install | PASS | `HyperBoostXInstaller.exe /S` exit code `0`; install path and HKLM uninstall metadata version `1.2.13` verified |
-| Installed app launch | PASS | Installed WPF/backend launched; backend health returned `1.2.13`; close ended with 0 orphan processes |
+| Silent installer install | PASS | `HyperBoostXInstaller.exe /S` exit code `0`; install path and HKLM uninstall metadata version `1.2.14` verified |
+| Installed app launch | PASS | Installed WPF/backend launched; backend health returned `1.2.14`; close ended with 0 orphan processes |
 | Silent uninstall | PASS | `Uninstall.exe /S` exit code `0`; install directory and uninstall registry entries removed |
 | Silent reinstall | PASS | Reinstall exit code `0`; installed app relaunch and backend health PASS; cleanup ended with 0 orphan processes |
 
@@ -59,7 +59,7 @@ Target release: `HyperBoostX v1.2.13 Stable`
 | Windows/build detection | PASS | Windows 11 Pro build `26200`, version `10.0.26200` |
 | Hardware detection | PASS | Desktop/workstation, admin `True`, Intel i9-11900F, 31.88 GB RAM, NVIDIA GeForce RTX 3090 Ti, SSD/NVMe/HDD inventory detected |
 | Dashboard/window smoke | PASS | Installed `HyperBoostX` process exposed a main window handle |
-| Backend health | PASS | Installed backend returned version `1.2.13` |
+| Backend health | PASS | Installed backend returned version `1.2.14` |
 | Safe boost safe-mode/profile load | PASS | Booster profiles endpoint returned 4 profiles without applying a profile |
 | Cleanup safe test | PASS | `temp_files` cleanup scope completed successfully using a matrix temp marker |
 | Network safe test | PASS | DNS test returned `Good` |
@@ -72,7 +72,7 @@ Current-machine automated matrix: PASS
 ## Final Statement
 
 Automated validation passed.
-Python tests: 24 passed, 0 warnings.
+Python tests: 26 passed, 0 warnings.
 Installed app launch: PASS.
 Installer uninstall/reinstall: PASS.
 Real NVIDIA API connection: PASS.

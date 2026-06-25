@@ -43,7 +43,7 @@ public class AppUpdateServiceTests
 
             var result = await service.VerifyInstallerAsync(
                 installerPath,
-                "https://github.com/jxxzy/HyperBoostX/releases/download/v1.2.13/HyperBoostXInstaller.exe",
+                "https://github.com/jxxzy/HyperBoostX/releases/download/v1.2.14/HyperBoostXInstaller.exe",
                 "HyperBoostXInstaller.exe",
                 "");
 

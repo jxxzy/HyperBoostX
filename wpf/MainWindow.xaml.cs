@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -337,7 +337,7 @@ namespace HyperBoostX
             .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
             .FirstOrDefault()?.InformationalVersion
             ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? "1.2.13";
+            ?? "1.2.14";
         private bool _autoCheckAppUpdates = true;
         private bool _autoInstallAppUpdates;
         private string _latestKnownAppVersion = "";
@@ -7239,7 +7239,7 @@ if (-not $result) { 'Unavailable'; return }
                     await RunPowerShellActionAsync("powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c", "CPU Boost", "High Performance power plan diaktifkan.");
                     break;
                 case "cpu_ultimate":
-                    await RunPowerShellActionAsync("powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61; powercfg /setactive e9a42b02-d5df-448d-aa00-03f14749eb61", "Ultimate Performance", "Ultimate Performance berhasil diaktifkan bila didukung sistem.");
+                    await ApplyUltimatePerformancePlanAsync();
                     break;
                 case "cpu_foreground":
                 case "cpu_priority":
@@ -9338,6 +9338,72 @@ if (-not $result) { 'Unavailable'; return }
             catch (Exception ex)
             {
                 return (false, $"PowerShell execution failed: {ex.Message}");
+            }
+        }
+
+        private async Task ApplyUltimatePerformancePlanAsync()
+        {
+            const string fallbackMarker = "HYPERBOOST_FALLBACK_HIGH_PERFORMANCE";
+            const string script = @"
+$ultimateBase = 'e9a42b02-d5df-448d-aa00-03f14749eb61'
+$highPerformance = '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c'
+$fallbackMarker = 'HYPERBOOST_FALLBACK_HIGH_PERFORMANCE'
+$notes = New-Object System.Collections.Generic.List[string]
+
+$duplicateOutput = powercfg -duplicatescheme $ultimateBase 2>&1 | Out-String
+if (-not [string]::IsNullOrWhiteSpace($duplicateOutput)) { $notes.Add($duplicateOutput.Trim()) }
+
+$ultimateGuid = $ultimateBase
+if ($duplicateOutput -match '([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})') {
+    $ultimateGuid = $Matches[1]
+}
+
+$activateUltimateOutput = powercfg /setactive $ultimateGuid 2>&1 | Out-String
+if ($LASTEXITCODE -eq 0) {
+    'Ultimate Performance power plan activated.'
+    if (-not [string]::IsNullOrWhiteSpace($activateUltimateOutput)) { $activateUltimateOutput.Trim() }
+    exit 0
+}
+
+if (-not [string]::IsNullOrWhiteSpace($activateUltimateOutput)) {
+    $notes.Add('Ultimate Performance unavailable: ' + $activateUltimateOutput.Trim())
+}
+
+$activateHighOutput = powercfg /setactive $highPerformance 2>&1 | Out-String
+if ($LASTEXITCODE -eq 0) {
+    $fallbackMarker
+    'Ultimate Performance is not supported by this Windows power configuration. High Performance was activated instead.'
+    $notes
+    exit 0
+}
+
+$notes
+if (-not [string]::IsNullOrWhiteSpace($activateHighOutput)) { $activateHighOutput.Trim() }
+exit 1
+";
+
+            try
+            {
+                ShowActionStatus(ActionState.Info, "Ultimate Performance", "Processing request...");
+                var (success, output) = await ExecutePowerShellScriptAsync(script);
+                if (!success)
+                {
+                    ShowActionStatus(ActionState.Error, "Ultimate Performance", "Ultimate Performance failed.", output);
+                    return;
+                }
+
+                if (output.Contains(fallbackMarker, StringComparison.OrdinalIgnoreCase))
+                {
+                    var details = output.Replace(fallbackMarker, string.Empty, StringComparison.OrdinalIgnoreCase).Trim();
+                    ShowActionStatus(ActionState.Warning, "Ultimate Performance", "Ultimate Performance tidak didukung sistem ini. High Performance diaktifkan sebagai fallback.", details);
+                    return;
+                }
+
+                ShowActionStatus(ActionState.Success, "Ultimate Performance", "Ultimate Performance berhasil diaktifkan.", output);
+            }
+            catch (Exception ex)
+            {
+                ShowActionStatus(ActionState.Error, "Ultimate Performance", "Ultimate Performance failed.", ex.Message);
             }
         }
 

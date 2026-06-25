@@ -1,4 +1,4 @@
-﻿# Bugs Fixed
+# Bugs Fixed
 
 ## Summary
 
@@ -30,7 +30,7 @@ No new Critical bugs were reproduced in this pass.
 
 - Removed stale AI provider wording from docs.
 - Removed a local absolute path from README.
-- Fixed the Python test warning before HyperBoostX v1.2.13 stable release by filtering the GPUtil dependency warning only around the optional GPUtil import.
+- Fixed the Python test warning before HyperBoostX v1.2.14 stable release by filtering the GPUtil dependency warning only around the optional GPUtil import.
 
 ## Validation
 
@@ -44,11 +44,11 @@ Full validation is tracked in `QA_RESULTS.md`.
 Final automated validation snapshot:
 
 - `powershell -ExecutionPolicy Bypass -File .\scripts\verify_repo.ps1` -> PASS
-- `app\venv\Scripts\python.exe -m pytest -ra -W default` -> `24 passed, 0 warnings`
+- `app\venv\Scripts\python.exe -m pytest -ra -W default` -> `26 passed, 0 warnings`
 - `dotnet restore` -> PASS
 - `dotnet build` -> PASS
 - `dotnet build -c Release` -> PASS
-- `dotnet test` -> `27 passed`
+- `dotnet test` -> `28 passed`
 - Build scripts and installer build -> PASS
 - Packaged backend health and portable app smoke -> PASS
 - Elevated silent installer install/uninstall/reinstall -> PASS

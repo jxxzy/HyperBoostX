@@ -11,6 +11,22 @@ logger = Logger.get_logger(__name__)
 
 class NetworkService:
     """Service for network optimization."""
+
+    @staticmethod
+    def _command_result(success: bool, output: str) -> dict:
+        """Normalize shell results for API clients and automation."""
+        clean_output = output.strip() if output else ""
+        result = {
+            "success": success,
+            "output": clean_output,
+        }
+        if not success and "administrator privileges" in clean_output.lower():
+            result.update({
+                "reason_code": "admin_required",
+                "requires_admin": True,
+                "warning": "Run HyperBoost X as Administrator to apply this network action.",
+            })
+        return result
     
     @staticmethod
     def test_dns() -> dict:
@@ -28,10 +44,7 @@ class NetworkService:
         logger.info("Flushing DNS")
         try:
             success, output = ShellUtil.execute_command("ipconfig /flushdns", admin=True)
-            return {
-                "success": success,
-                "output": output.strip() if output else "",
-            }
+            return NetworkService._command_result(success, output)
         except Exception as e:
             logger.error(f"Failed to flush DNS: {e}")
             return {"success": False, "output": str(e)}
@@ -45,10 +58,7 @@ class NetworkService:
                 "netsh int tcp set global autotuninglevel=normal",
                 admin=True
             )
-            return {
-                "success": success,
-                "output": output.strip() if output else "",
-            }
+            return NetworkService._command_result(success, output)
         except Exception as e:
             logger.error(f"Failed to optimize TCP: {e}")
             return {"success": False, "output": str(e)}
