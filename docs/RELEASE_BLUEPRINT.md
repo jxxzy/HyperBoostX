@@ -264,4 +264,4 @@ The app should gradually classify features as:
 - optimization profiles adapt to bottleneck type
 - result messaging explains realistic gains
 - users on HDD no longer feel the app is underperforming simply because hardware limits are not explained
-- release must satisfy the explicit gate in `RELEASE_GATE_v1.2.0.md`
+- release must satisfy the explicit gate in `release-gates/RELEASE_GATE_v1.2.0.md`

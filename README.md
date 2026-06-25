@@ -14,7 +14,7 @@ Current version:
 
 Planning:
 
-- See [RELEASE_BLUEPRINT.md](RELEASE_BLUEPRINT.md) for the consolidated release plan.
+- See [docs/RELEASE_BLUEPRINT.md](docs/RELEASE_BLUEPRINT.md) for the consolidated release plan.
 
 Author:
 
@@ -216,7 +216,7 @@ Useful flags:
 
 ## Documentation
 
-- `API_REFERENCE.md` - API overview
+- `docs/API_REFERENCE.md` - API overview
 - `DIRECTORY_MAP.md` - current repo map
 - `BUILD.md` - build commands and expected outputs
 - `INSTALL.md` - portable, installer, uninstall, and config-preservation notes
@@ -224,6 +224,8 @@ Useful flags:
 - `USER_GUIDE.md` - dashboard, boost, restore, and NVIDIA Copilot usage
 - `RELEASE.md` - release gates, checksum, installer, and GitHub release process
 - `AUDIT_REPORT.md`, `BUGS_FOUND.md`, `BUGS_FIXED.md`, `QA_RESULTS.md`, `RELEASE_NOTES_NEXT.md` - current audit and release evidence
+- `docs/release-notes/` - archived historical release notes
+- `docs/release-gates/` - archived historical release gates
 
 ## Release status
 

@@ -211,7 +211,7 @@ All notable changes to HyperBoostX are documented here.
 ### Added
 - `tests\test_startup_api.py` to lock the backend startup payload contract for both `items` and `startup_items`.
 - `dotnet-tests\HyperBoostX.Tests\FeatureAuditRegressionTests.cs` to cover the critical audit-path suites from the desktop side.
-- `release-notes-v1.1.0-beta.3.txt` for the new prerelease asset notes.
+- `docs/release-notes/release-notes-v1.1.0-beta.3.txt` for the new prerelease asset notes.
 
 ### Changed
 - Updated runtime/app metadata from `1.1.0-beta.2` to `1.1.0-beta.3`.
@@ -239,7 +239,7 @@ All notable changes to HyperBoostX are documented here.
 - In-app release checker for detecting newer author builds from GitHub.
 - Secure OpenAI API key and Discord webhook persistence via Windows Credential Manager.
 - Sociabuzz donation shortcut in About App.
-- `release-notes-v1.1.0-beta.txt` for beta release documentation.
+- `docs/release-notes/release-notes-v1.1.0-beta.txt` for beta release documentation.
 
 ### Changed
 - Reworked major menu modules into native in-app panels instead of mostly external shortcuts.

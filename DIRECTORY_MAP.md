@@ -14,8 +14,15 @@ Quick reference for the current HyperBoost X repository layout.
 - `HyperBoostXInstaller.nsi` - NSIS installer script
 - `HyperBoostXInstaller.exe` - latest built installer
 - `README.md` - project overview
-- `API_REFERENCE.md` - backend API notes
 - `DIRECTORY_MAP.md` - this file
+
+## Documentation folders
+
+- `docs\API_REFERENCE.md` - backend API notes
+- `docs\REALTIME_MONITORING.md` - monitoring architecture notes
+- `docs\RELEASE_BLUEPRINT.md` - consolidated release and product plan
+- `docs\release-notes` - archived historical release notes
+- `docs\release-gates` - archived historical release gate documents
 
 ## Source folders
 

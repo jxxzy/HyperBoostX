@@ -35,7 +35,7 @@ Notes: Command still requires admin when called by an admin-gated profile.
 Category: Documentation / Owner Experience
 Severity: Low
 Area: AI branding
-File: `README.md`, `CHANGELOG.md`, `QA_CHECKLIST.md`, `STABLE_RELEASE_CHECKLIST.md`, `release-notes-*`
+File: `README.md`, `CHANGELOG.md`, `QA_CHECKLIST.md`, `STABLE_RELEASE_CHECKLIST.md`, `docs/release-notes/*`
 Line: Multiple historical AI references
 Description: Documentation still named the previous AI provider in user-facing release and QA text.
 Impact: Owner/user instructions conflicted with the NVIDIA Copilot migration.
