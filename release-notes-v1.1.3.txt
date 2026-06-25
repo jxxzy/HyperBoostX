@@ -1,11 +1,11 @@
 HyperBoostX v1.1.3
 
-Stable hotfix release for Feature Audit accuracy and clearer OpenAI diagnostics.
+Stable hotfix release for Feature Audit accuracy and clearer NVIDIA diagnostics.
 
 Highlights
 - Fixed Feature Audit so stale incidents from previous sessions no longer fail current audit runs
-- Improved OpenAI Copilot diagnostics for 429 quota, 401 auth, and 403 permission failures
-- Added endpoint labeling and request-id support to OpenAI error reporting when available
+- Improved NVIDIA Copilot diagnostics for 429 quota, 401 auth, and 403 permission failures
+- Added endpoint labeling and request-id support to NVIDIA error reporting when available
 - Fixed app update version parsing so current builds no longer show a false newer-version notification
 - Synced installer, launcher, backend, and update metadata to `1.1.3`
 

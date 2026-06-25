@@ -69,7 +69,11 @@ def test_cleanup_api_accepts_scope(monkeypatch):
 
     monkeypatch.setattr("api.repair.repair_service.cleanup_temp_files", fake_cleanup)
 
-    response = client.post("/api/repair/cleanup", json={"scope": "browser_cache"})
+    response = client.post(
+        "/api/repair/cleanup",
+        json={"scope": "browser_cache"},
+        headers={"X-HyperBoostX-Token": server.auth_token},
+    )
 
     assert response.status_code == 200
     payload = response.get_json()

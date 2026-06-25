@@ -2,12 +2,13 @@
 
 import os
 import time
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 import psutil
 import winreg
 from core.logger import Logger
 from core.profiles import ProfileManager
+from core.restore import RestoreManager, RestorePoint
 from utils.shell import ShellUtil
 from utils.registry import RegistryUtil
 
@@ -21,6 +22,7 @@ class BoosterService:
     _last_profile_id = ""
     _last_profile_started_at = 0.0
     _profile_cooldown_seconds = 5.0
+    _current_restore_point: Optional[RestorePoint] = None
     
     # Non-essential processes to potentially close
     NON_ESSENTIAL_PROCESSES = [
@@ -149,7 +151,7 @@ class BoosterService:
                 and BoosterService._last_profile_id == normalized_profile
                 and now - BoosterService._last_profile_started_at < BoosterService._profile_cooldown_seconds
             ):
-                logger.warning(
+                logger.info(
                     "Skipped duplicate booster apply for profile '%s' inside cooldown window.",
                     normalized_profile
                 )
@@ -168,11 +170,23 @@ class BoosterService:
                 return {"success": False, "error": f"Profile not found: {profile_id}"}
             
             results = []
-            
-            # Apply each setting in the profile
-            for setting, enabled in profile.settings.items():
-                if enabled:
-                    results.append(BoosterService._apply_setting(setting))
+            restore_point = RestoreManager.create_restore_point(
+                f"profile_{normalized_profile}",
+                f"Backup before applying booster profile {normalized_profile}"
+            )
+            previous_restore_point = BoosterService._current_restore_point
+            BoosterService._current_restore_point = restore_point
+
+            try:
+                # Apply each setting in the profile
+                for setting, enabled in profile.settings.items():
+                    if enabled:
+                        results.append(BoosterService._apply_setting(setting))
+            finally:
+                BoosterService._current_restore_point = previous_restore_point
+
+            if restore_point.registry or restore_point.settings or restore_point.files:
+                RestoreManager.save_restore_point(restore_point)
             
             success_count = sum(1 for r in results if r["success"])
             total_count = len(results)
@@ -187,6 +201,10 @@ class BoosterService:
                     "message": f"Profile '{profile.name}' applied successfully",
                     "applied_settings": success_count,
                     "total_settings": total_count,
+                    "restore_point": restore_point.name,
+                    "restore_timestamp": restore_point.timestamp,
+                    "registry_backups": len(restore_point.registry),
+                    "settings_backups": len(restore_point.settings),
                     "results": results
                 }
 
@@ -195,7 +213,16 @@ class BoosterService:
                     f"Profile '{profile.name}' applied with limited access. "
                     f"{success_count}/{total_count} settings succeeded."
                 )
-                logger.warning(f"{warning} Restricted settings: {failed_settings}")
+                expected_restriction_codes = {"admin_required", "feature_unavailable"}
+                expected_restrictions = all(
+                    r.get("reason_code") in expected_restriction_codes
+                    for r in results
+                    if not r["success"]
+                )
+                if expected_restrictions:
+                    logger.info("%s Restricted settings: %s", warning, failed_settings)
+                else:
+                    logger.warning("%s Restricted settings: %s", warning, failed_settings)
                 return {
                     "success": True,
                     "partial_success": True,
@@ -203,15 +230,24 @@ class BoosterService:
                     "warning": "Some tweaks need Administrator privileges or are unavailable on this Windows setup.",
                     "applied_settings": success_count,
                     "total_settings": total_count,
+                    "restore_point": restore_point.name,
+                    "restore_timestamp": restore_point.timestamp,
+                    "registry_backups": len(restore_point.registry),
+                    "settings_backups": len(restore_point.settings),
                     "restricted_settings": failed_settings,
                     "failed_settings": failed_settings,
                     "results": results
                 }
 
+            if restore_point.registry or restore_point.settings or restore_point.files:
+                RestoreManager.restore(restore_point)
+
             return {
                 "success": False,
                 "partial_success": False,
                 "error": f"Profile could not be applied: 0/{total_count} settings successful",
+                "restore_point": restore_point.name,
+                "restore_timestamp": restore_point.timestamp,
                 "failed_settings": failed_settings,
                 "results": results
             }
@@ -352,11 +388,46 @@ class BoosterService:
             reason_code="apply_failed",
             message=f"{display_name} could not be applied on this machine."
         )
+
+    @staticmethod
+    def _set_registry_with_profile_backup(
+        path: str,
+        key: str,
+        value: Any,
+        value_type=winreg.REG_SZ,
+        hkey=winreg.HKEY_LOCAL_MACHINE,
+    ) -> bool:
+        restore_point = BoosterService._current_restore_point
+        if restore_point is not None:
+            backup_ok = RestoreManager.backup_registry(
+                restore_point,
+                hkey,
+                path,
+                key,
+                value,
+                value_type,
+            )
+            if not backup_ok:
+                return False
+
+        return RegistryUtil.set_value(path, key, value, value_type, hkey=hkey)
+
+    @staticmethod
+    def _set_power_plan_with_profile_backup(scheme_guid: str) -> bool:
+        restore_point = BoosterService._current_restore_point
+        if restore_point is not None and not RestoreManager.backup_power_plan(restore_point, scheme_guid):
+            return False
+
+        success, _ = ShellUtil.execute_command(
+            f"powercfg /setactive {scheme_guid}",
+            admin=True
+        )
+        return success
     
     @staticmethod
     def _disable_background_apps() -> bool:
-        """Close non-essential background applications."""
-        closed_count = 0
+        """Preview non-essential background applications instead of closing them implicitly."""
+        preview_targets = []
 
         for proc in psutil.process_iter(['pid', 'name']):
             try:
@@ -364,12 +435,17 @@ class BoosterService:
                 if not BoosterService.should_close_process(process_name):
                     continue
 
-                proc.kill()
-                closed_count += 1
-                logger.info(f"Closed process: {proc.info['name']}")
+                preview_targets.append(proc.info.get('name') or process_name)
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 pass
-        logger.info(f"Closed {closed_count} background applications")
+
+        if preview_targets:
+            logger.info(
+                "Background app close preview only. Matching targets: %s",
+                sorted(set(preview_targets), key=str.lower)
+            )
+        else:
+            logger.info("Background app close preview found no matching targets.")
         return True
 
     @staticmethod
@@ -401,7 +477,7 @@ class BoosterService:
     @staticmethod
     def _disable_visual_effects() -> bool:
         """Disable visual effects for performance."""
-        return RegistryUtil.set_value(
+        return BoosterService._set_registry_with_profile_backup(
             r"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects",
             "VisualFXSetting",
             2,  # Adjust for best performance
@@ -413,7 +489,7 @@ class BoosterService:
     def _increase_timer_resolution() -> bool:
         """Increase timer resolution for better responsiveness."""
         # This requires calling timeBeginPeriod(1) - we'll use a registry approach
-        return RegistryUtil.set_value(
+        return BoosterService._set_registry_with_profile_backup(
             BoosterService.REG_PATHS["timer_resolution"],
             "GlobalTimerResolutionRequests",
             1,
@@ -423,7 +499,7 @@ class BoosterService:
     @staticmethod
     def _disable_xbox_overlay() -> bool:
         """Disable Xbox Game Bar overlay."""
-        return RegistryUtil.set_value(
+        return BoosterService._set_registry_with_profile_backup(
             BoosterService.REG_PATHS["xbox_overlay"],
             "AppCaptureEnabled",
             0,
@@ -435,20 +511,19 @@ class BoosterService:
     def _optimize_gpu_performance() -> bool:
         """Optimize GPU for performance."""
         # Set power scheme to high performance for GPU
-        success, _ = ShellUtil.execute_command("powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c", admin=True)
-        return success
+        return BoosterService._set_power_plan_with_profile_backup("8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c")
     
     @staticmethod
     def _optimize_frame_times() -> bool:
         """Optimize for stable frame times."""
         # Disable dynamic tick and other timing optimizations
-        success1 = RegistryUtil.set_value(
+        success1 = BoosterService._set_registry_with_profile_backup(
             r"SYSTEM\CurrentControlSet\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\0cc5b647-c1df-4637-891a-dec35c318583",
             "ValueMax",
             0,
             winreg.REG_DWORD
         )
-        success2 = RegistryUtil.set_value(
+        success2 = BoosterService._set_registry_with_profile_backup(
             r"SYSTEM\CurrentControlSet\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\0cc5b647-c1df-4637-891a-dec35c318583",
             "ValueMin",
             0,
@@ -469,7 +544,7 @@ class BoosterService:
     @staticmethod
     def _enable_background_recording() -> bool:
         """Enable background recording for streaming."""
-        return RegistryUtil.set_value(
+        return BoosterService._set_registry_with_profile_backup(
             BoosterService.REG_PATHS["xbox_overlay"],
             "HistoricalCaptureEnabled",
             1,
@@ -480,14 +555,14 @@ class BoosterService:
     @staticmethod
     def _disable_background_recording() -> bool:
         """Disable Xbox/Game Bar background recording to protect streaming encoder stability."""
-        success_capture = RegistryUtil.set_value(
+        success_capture = BoosterService._set_registry_with_profile_backup(
             BoosterService.REG_PATHS["xbox_overlay"],
             "AppCaptureEnabled",
             0,
             winreg.REG_DWORD,
             hkey=winreg.HKEY_CURRENT_USER
         )
-        success_history = RegistryUtil.set_value(
+        success_history = BoosterService._set_registry_with_profile_backup(
             BoosterService.REG_PATHS["xbox_overlay"],
             "HistoricalCaptureEnabled",
             0,
@@ -499,13 +574,12 @@ class BoosterService:
     @staticmethod
     def _set_balanced_performance() -> bool:
         """Set balanced performance power plan."""
-        success, _ = ShellUtil.execute_command("powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e", admin=True)
-        return success
+        return BoosterService._set_power_plan_with_profile_backup("381b4222-f694-41f0-9685-ff5bb260df2e")
     
     @staticmethod
     def _enable_indexing() -> bool:
         """Enable Windows Search indexing."""
-        return RegistryUtil.set_value(
+        return BoosterService._set_registry_with_profile_backup(
             BoosterService.REG_PATHS["indexing"],
             "Start",
             2,  # Automatic
@@ -515,7 +589,7 @@ class BoosterService:
     @staticmethod
     def _enable_visual_effects() -> bool:
         """Enable normal visual effects."""
-        return RegistryUtil.set_value(
+        return BoosterService._set_registry_with_profile_backup(
             r"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects",
             "VisualFXSetting",
             1,  # Let Windows choose
@@ -535,8 +609,7 @@ class BoosterService:
     @staticmethod
     def _reduce_cpu_frequency() -> bool:
         """Reduce CPU frequency for battery saving."""
-        success, _ = ShellUtil.execute_command("powercfg /setactive a1841308-3541-4fab-bc81-f71556f20b4a", admin=True)
-        return success
+        return BoosterService._set_power_plan_with_profile_backup("a1841308-3541-4fab-bc81-f71556f20b4a")
     
     @staticmethod
     def _dim_display() -> bool:
@@ -550,7 +623,7 @@ class BoosterService:
     @staticmethod
     def _disable_background_sync() -> bool:
         """Disable background sync and delivery optimization."""
-        return RegistryUtil.set_value(
+        return BoosterService._set_registry_with_profile_backup(
             BoosterService.REG_PATHS["background_sync"],
             "DODownloadMode",
             0,  # Disabled
@@ -560,5 +633,4 @@ class BoosterService:
     @staticmethod
     def _set_low_power_mode() -> bool:
         """Set power saver mode."""
-        success, _ = ShellUtil.execute_command("powercfg /setactive a1841308-3541-4fab-bc81-f71556f20b4a", admin=True)
-        return success
+        return BoosterService._set_power_plan_with_profile_backup("a1841308-3541-4fab-bc81-f71556f20b4a")

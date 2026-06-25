@@ -1,69 +1,56 @@
 # Stable Release Checklist
 
 Target release:
-- `HyperBoostX v1.1.0`
+- `HyperBoostX v1.2.12`
 
-Current source line:
-- `v1.1.0-beta`
+Current release status:
+- `Internal beta / RC`
+- Public stable claim is blocked until every required gate below has dated evidence.
 
-Use this checklist after beta QA is complete and before flipping the project to stable metadata.
+## Required Evidence
 
-## 1. Beta Exit Criteria
+- [x] Python tests: `app\venv\Scripts\python.exe -m pytest`, 2026-06-25, Windows 10 10.0.26200 x64, `40 passed, 1 warning`.
+- [x] WPF and launcher Release build: `dotnet build -c Release`, 2026-06-25, Windows 10 10.0.26200 x64, passed, `0 warnings, 0 errors`.
+- [x] .NET tests: `dotnet test`, 2026-06-25, Windows 10 10.0.26200 x64, `20 passed`.
+- [x] Repo verification: `scripts\verify_repo.ps1`, 2026-06-25, Windows 10 10.0.26200 x64, passed version sync, Python tests, and .NET desktop tests.
+- [x] Backend build: `build_backend.bat`, 2026-06-25, passed, artifact `release\backend\hyperboost_backend.exe`.
+- [x] Release/package build: `build_release.bat`, `build_launcher.bat`, `package_release.bat`, 2026-06-25, passed, artifact `release\app\HyperBoostX.exe`.
+- [x] Installer build: `build_installer.bat`, 2026-06-25, passed, artifact `HyperBoostXInstaller.exe`.
+- [ ] Installer E2E Windows lab: not executed in a separate Windows lab yet.
+- [x] Installer hash: SHA256 `c7b30d36c49f206ad6181130d7bcc8adee84624e5f09b5253775681a47800525`, size `145236961` bytes, timestamp `2026-06-25 23:13:56`.
+- [x] Packaged backend health: `release\backend\hyperboost_backend.exe`, 2026-06-25, `/api/health` returned HTTP 200 with local backend token.
+- [x] Portable runtime launch: `release\app\HyperBoostX.exe`, 2026-06-25, launched WPF window and closed without backend/UI/launcher orphan.
+- [x] Installed runtime launch: `C:\Program Files\HyperBoost X\HyperBoostX.exe`, 2026-06-25, launched WPF window and closed without backend/UI/launcher orphan.
+- [x] No plaintext secret test: app-state serialization tests pass; local repo scan found no real NVIDIA API key.
+- [x] Registry/power-plan revert metadata test: automated unit coverage added for booster profile registry and power-plan backups; full real-machine apply/revert matrix for every tweak is still pending.
 
-- [ ] `QA_CHECKLIST.md` has been executed on at least one clean Windows machine.
-- [ ] No high-severity installer, startup, or crash-loop issue remains open.
-- [ ] No high-severity automation, AI, restore, or admin-required flow issue remains open.
-- [ ] Discord reporting and logs show no repeating failure pattern.
-- [ ] No blocking localization or layout issue remains in core navigation and settings.
+## Safety Gates
 
-## 2. Version Flip
+- [x] High-risk tweaks require Expert Mode.
+- [x] High-risk tweaks require Administrator privileges.
+- [x] High-risk tweaks require double confirmation.
+- [x] High-risk tweaks create a real registry restore backup before mutation.
+- [x] One Click Boost does not apply `disable_defender` or `disable_updates`.
+- [x] Process-kill flows show a preview before closing apps.
+- [x] Backend local API rejects requests without `X-HyperBoostX-Token`.
+- [x] Shell command execution is allowlisted and timeout-protected.
+- [x] NVIDIA and Discord secrets are stored only in Windows Credential Manager.
+- [x] Triple AI Engine runs Scan -> Analyzer -> Safety Guard -> Assistant -> Performance Report with local fallback when AI cloud is unavailable.
+- [x] Triple AI Safety Guard blocks overclock, undervolt, Windows Security disable, permanent Windows Update disable, BIOS/UEFI, voltage, irreversible registry edits, and guaranteed FPS claims.
+- [x] Triple AI Game Optimizer exposes safe manual NVIDIA/game setting recommendations without official NVIDIA partner/certified branding claims.
 
-- [ ] Update `wpf/HyperBoostX.csproj` from `1.1.0-beta` to `1.1.0`.
-- [ ] Update `launcher/HyperBoostLauncher.csproj` from `1.1.0-beta` to `1.1.0`.
-- [ ] Update backend version strings from `1.1.0-beta` to `1.1.0` in:
-  - `app/__init__.py`
-  - `app/core/config.py`
-  - `app/api/health.py`
-  - `app/dev_client.py`
-- [ ] Update installer `DisplayVersion` from `1.1.0-beta` to `1.1.0`.
-- [ ] Update About App text from `1.1.0 Beta` to `1.1.0`.
-- [ ] Update release-checker metadata in `wpf/MainWindow.xaml.cs` and `wpf/Services/AppUpdateService.cs`.
-- [ ] Optional: run `prepare_stable_release_final.ps1 -WhatIfOnly` first, then `prepare_stable_release_final.ps1` after QA sign-off.
+## Compatibility Matrix
 
-## 3. Documentation
-
-- [ ] Move stable highlights into `CHANGELOG.md`.
-- [ ] Finalize `release-notes-v1.1.0.txt`.
-- [ ] Update `README.md` from beta wording to stable wording.
-- [ ] Remove or revise beta-only caution text that is no longer valid.
-
-## 4. Build And Packaging
-
-- [ ] Run clean WPF release build.
-- [ ] Run launcher publish.
-- [ ] Run backend PyInstaller build.
-- [ ] Rebuild `release/package` and `release/app`.
-- [ ] Rebuild `HyperBoostXInstaller.exe`.
-- [ ] Recreate stable portable and package zip assets.
-
-## 5. Stable Verification
-
-- [ ] Install stable build on a clean machine.
-- [ ] Upgrade from `v1.1.0-beta` to stable and verify runtime replacement.
-- [ ] Verify launch, exit, uninstall, and reinstall behavior.
-- [ ] Verify config migration from beta to stable.
-- [ ] Verify no beta label remains in app UI, metadata, or installer info.
-
-## 6. GitHub Publish
-
-- [ ] Commit final stable metadata.
-- [ ] Push `main`.
-- [ ] Create tag `v1.1.0`.
-- [ ] Publish GitHub Release `v1.1.0`.
-- [ ] Upload installer, portable zip, and package zip.
-- [ ] Verify release body and assets are correct.
+- [ ] Windows 10, admin.
+- [ ] Windows 10, non-admin.
+- [ ] Windows 11, admin.
+- [ ] Windows 11, non-admin.
+- [ ] Laptop.
+- [ ] Desktop.
+- [ ] SSD system drive.
+- [ ] HDD system drive.
 
 ## Result
 
-- [ ] Ready to publish stable
-- [ ] Hold stable release and continue beta fixes
+- [ ] Ready to publish stable.
+- [x] Hold stable release and continue beta / RC fixes.

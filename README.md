@@ -1,12 +1,17 @@
 # HyperBoost X
 
-HyperBoost X is a Windows optimization suite with a native WPF desktop client, a Python backend, and a .NET launcher. The current stable release turns the app into a single control center for performance, cleanup, automation, repair, AI-assisted actions, and recovery.
+HyperBoost X is a Windows optimization suite with a native WPF desktop client, a Python backend, and a .NET launcher. The current line is treated as an internal beta / release candidate until the safety, restore, API-token, and release-gate checks are complete.
 
-Current stable version:
+Product direction:
+- HyperBoostX Triple AI Engine: `Scan. Analyze. Boost. Revert.`
+- Positioning: AI PC Performance Doctor for Gaming PCs, with NVIDIA RTX-aware tuning language only where supported.
+- Branding guardrail: do not claim `Powered by NVIDIA`, `Official NVIDIA Partner`, or `NVIDIA Certified` unless a formal partnership exists.
+
+Current version:
 - `1.2.12`
 
 Planning:
-- See [RELEASE_BLUEPRINT.md](/f:/BOOSTER%20BY%20MR.4NONY/RELEASE_BLUEPRINT.md) for the consolidated release plan for `v1.1.10` and `v1.2.0`.
+- See [RELEASE_BLUEPRINT.md](RELEASE_BLUEPRINT.md) for the consolidated release plan.
 
 Author:
 - `MR.4NONY - HYPERINDO CYBER TEAM`
@@ -37,13 +42,29 @@ HyperBoost X is built from three main parts:
 - Tweaks Center, Advanced Tweaks, Windows Features, Windows Services, Power Optimization, and Visual Effects
 - Restore & Backup plus Restore Point Manager
 - Scheduled Automation with persistent runtime rules and task queue
-- AI Assistant (HyperBoostX Copilot) with OpenAI integration, approval flow, safe action routing, and automation creation
+- AI Assistant (HyperBoostX Copilot) with NVIDIA Copilot integration, approval flow, safe action routing, and automation creation
+- HyperBoostX Triple AI Engine: AI Assistant, AI Analyzer, AI Safety Guard, and a local RAG-style knowledge base for safe PC performance recommendations
 - Discord webhook reporting for important errors and crash events
 - Multi-language foundation with modular localization packs
 - In-app release checker that can detect the latest author build from GitHub
 - Installer upgrade flow that removes the old app version while preserving user config/state
-- Secure secret persistence for OpenAI and Discord via Windows Credential Manager
+- Secure secret persistence for NVIDIA and Discord via Windows Credential Manager
 - About App donation shortcut via Sociabuzz
+
+## HyperBoostX Triple AI Engine
+
+The Triple AI Engine treats HyperBoost X as an AI PC Performance Doctor, not an extreme tweak tool. The required flow is:
+
+`Scan PC -> AI Analyzer -> AI Safety Guard -> AI Assistant -> User Approval -> Safe Tweak Engine -> Backup/Revert -> Performance Report`
+
+Core roles:
+
+- AI Assistant: explains scan results, bottlenecks, FPS-drop causes, DLSS/Reflex/V-Sync/Frame Generation guidance, and safe actions in user-friendly language.
+- AI Analyzer: ranks structured findings from scan data, game/NVIDIA knowledge, Windows state, and the tweak database.
+- AI Safety Guard: blocks unsafe tweaks, requires backup/restore paths, and prevents overclock, undervolt, Windows Security disable, BIOS/UEFI, voltage, irreversible registry edits, and guaranteed FPS claims.
+- RAG/Knowledge Base: local grounding layer for tweak policy, game settings, NVIDIA settings, Windows errors, and benchmark notes. It is not presented as a fourth AI role.
+
+Cloud AI is optional. Basic scan, local rules, Safety Guard validation, and reports continue to work without an AI API key.
 
 ## What changed in `1.2.0`
 - Added the first adaptive optimization foundation: system-drive classification, device profile detection, bottleneck hints, and more device-aware dashboard and Smart Recommendation messaging.
@@ -78,13 +99,13 @@ HyperBoost X is built from three main parts:
 ## What changed in `1.1.3`
 
 - Fixed Feature Audit so only incidents from the current audit run affect current results, reducing stale false failures
-- Improved OpenAI Copilot diagnostics with clearer quota/auth messages, endpoint labeling, and request-id support when available
+- Improved NVIDIA Copilot diagnostics with clearer quota/auth messages, endpoint labeling, and request-id support when available
 - Fixed app update notifications so already-updated builds no longer report a false newer version because of version label formatting
 - Synced installer, launcher, backend, and update metadata to `1.1.3`
 
 ## What changed in `1.1.2`
 
-- Fixed HyperBoostX Copilot connectivity by making the OpenAI request path more resilient and improving response parsing/fallback behavior
+- Fixed HyperBoostX Copilot connectivity by making the NVIDIA chat-completions request path more resilient and improving response parsing/fallback behavior
 - Added visible `Last Test` status for `Test AI Connection`, including persisted result across restart
 - Extended `Feature Audit` so real runtime feature errors are tracked more accurately without stale false failures sticking after recovery
 - Synced installer, launcher, backend, and update metadata to `1.1.2`
@@ -116,11 +137,11 @@ HyperBoost X is built from three main parts:
 - Added persistent settings and shared app state across modules
 - Separated automation mode from policy profile
 - Upgraded Scheduled Automation from summary UI into real task and rule storage
-- Added OpenAI-powered Copilot foundation with context-aware suggestions and safe action approval
+- Added NVIDIA Copilot foundation with context-aware suggestions and safe action approval
 - Added Discord webhook error reporting with filtering and cooldown
 - Added modular localization foundation with `en-US` and `id-ID` packs
 - Added in-app app-update checking against the latest GitHub release
-- Added automatic secret loading for OpenAI and Discord credentials with reinstall-safe Windows Credential Manager storage
+- Added automatic secret loading for NVIDIA and Discord credentials with reinstall-safe Windows Credential Manager storage
 - Updated installer behavior so upgrades remove the previous app version first while preserving `%LocalAppData%\HyperBoost X\...`
 - Added About App donation shortcut for Sociabuzz support
 - Improved runtime safety around PowerShell execution, API failures, and activity logging
@@ -183,15 +204,21 @@ Useful flags:
 
 - Portable app: `release\app\HyperBoostX.exe`
 - Installer: `HyperBoostXInstaller.exe`
-- GitHub release: `v1.1.9`
+- GitHub release target: `v1.2.12`
 
 ## Documentation
 
 - `API_REFERENCE.md` - API overview
 - `DIRECTORY_MAP.md` - current repo map
+- `BUILD.md` - build commands and expected outputs
+- `INSTALL.md` - portable, installer, uninstall, and config-preservation notes
+- `SECURITY.md` - local API, credential, redaction, AI safety, and restore policy
+- `USER_GUIDE.md` - dashboard, boost, restore, and NVIDIA Copilot usage
+- `RELEASE.md` - release gates, checksum, installer, and GitHub release process
+- `AUDIT_REPORT.md`, `BUGS_FOUND.md`, `BUGS_FIXED.md`, `QA_RESULTS.md`, `RELEASE_NOTES_NEXT.md` - current audit and release evidence
 
 ## Release status
 
-`v1.1.9` is the current stable release. Ongoing work after this milestone remains focused on deeper cross-machine validation, admin-required flows, installer/update polish, and long-run UI/runtime hardening.
+`v1.2.12` is an internal beta / RC line. Do not claim final public stable until the release checklist records passing restore, secret, backend-token, installer, and Windows lab evidence.
 
 

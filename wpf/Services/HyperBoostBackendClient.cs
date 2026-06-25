@@ -44,6 +44,9 @@ namespace HyperBoostX.Services
             _httpClient = new HttpClient();
             _httpClient.Timeout = TimeSpan.FromSeconds(10);
             _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+            var backendToken = Environment.GetEnvironmentVariable("HYPERBOOSTX_BACKEND_TOKEN")?.Trim();
+            if (!string.IsNullOrWhiteSpace(backendToken))
+                _httpClient.DefaultRequestHeaders.Add("X-HyperBoostX-Token", backendToken);
         }
 
         /// <summary>
@@ -214,12 +217,12 @@ namespace HyperBoostX.Services
         /// <summary>
         /// Apply a specific tweak by ID
         /// </summary>
-        public async Task<dynamic> ApplyTweakAsync(string tweakId)
+        public async Task<dynamic> ApplyTweakAsync(string tweakId, bool expertMode = false, bool confirmed = false)
         {
             try
             {
                 var content = new StringContent(
-                    JsonConvert.SerializeObject(new { tweak_id = tweakId }),
+                    JsonConvert.SerializeObject(new { tweak_id = tweakId, expert_mode = expertMode, confirmed }),
                     System.Text.Encoding.UTF8,
                     "application/json"
                 );
@@ -334,7 +337,7 @@ namespace HyperBoostX.Services
         /// <summary>
         /// Cleanup temporary files
         /// </summary>
-        public async Task<dynamic> CleanupAsync(string scope = null)
+        public async Task<dynamic> CleanupAsync(string scope = "")
         {
             try
             {
@@ -516,6 +519,69 @@ namespace HyperBoostX.Services
             catch (Exception ex)
             {
                 throw new InvalidOperationException($"Failed to reset network: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<dynamic> RunTripleAiFlowAsync(string userGoal = "gaming", string game = "")
+        {
+            try
+            {
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(new { user_goal = userGoal, game }),
+                    System.Text.Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/api/triple-ai/full-flow", content);
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
+                return ParseJsonToken(json);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to run Triple AI Engine: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<dynamic> ApplyTripleAiTweaksAsync(dynamic approvedTweaks, bool userApproved)
+        {
+            try
+            {
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(new { approved_tweaks = approvedTweaks, user_approved = userApproved }),
+                    System.Text.Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/api/triple-ai/tweaks/apply", content);
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
+                return ParseJsonToken(json);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to apply Triple AI tweaks: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<dynamic> RevertTripleAiTweaksAsync(string backupId, object tweakIds)
+        {
+            try
+            {
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(new { backup_id = backupId, tweak_ids = tweakIds }),
+                    System.Text.Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/api/triple-ai/tweaks/revert", content);
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
+                return ParseJsonToken(json);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to revert Triple AI tweaks: {ex.Message}", ex);
             }
         }
 

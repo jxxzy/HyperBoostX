@@ -38,6 +38,13 @@ try {
     Write-Host "HyperBoost X repo verification" -ForegroundColor Yellow
     Write-Host "Repo root: $repoRoot"
 
+    Invoke-Step "Version sync" {
+        & (Join-Path $repoRoot "scripts\verify_version_sync.ps1")
+        if (-not $?) {
+            throw "Version sync check failed."
+        }
+    }
+
     if (-not $SkipPython) {
         if (-not (Test-Path $pythonExe)) {
             throw "Python virtual environment not found at '$pythonExe'."

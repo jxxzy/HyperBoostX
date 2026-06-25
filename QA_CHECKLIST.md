@@ -49,7 +49,7 @@ Use this checklist before promoting a beta build to a wider release.
 
 ## 5. AI Copilot
 
-- [ ] Test OpenAI connection from Settings.
+- [ ] Test NVIDIA connection from Settings.
 - [ ] Send a normal prompt in AI Copilot.
 - [ ] Verify context-aware response appears.
 - [ ] Verify safe actions are queued for review.
