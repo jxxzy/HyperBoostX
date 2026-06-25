@@ -1,85 +1,199 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&height=230&color=0:020617,35:0891b2,70:16a34a,100:0f172a&text=HyperBoostX&fontSize=58&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=Universal%20Windows%20Gaming%20Optimizer%20%7C%20Scan.%20Plan.%20Approve.%20Boost.%20Undo.&descSize=17&descAlignY=58" />
+<img src="https://capsule-render.vercel.app/api?type=waving&height=250&color=0:020617,30:0891b2,65:16a34a,100:0f172a&text=HyperBoostX&fontSize=62&fontColor=ffffff&animation=fadeIn&fontAlignY=36&desc=Universal%20Windows%20Gaming%20Optimizer%20%7C%20Scan.%20Plan.%20Approve.%20Boost.%20Undo.&descSize=17&descAlignY=58" alt="HyperBoostX Banner" />
+
+<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=22&duration=2200&pause=900&color=38BDF8&center=true&vCenter=true&width=900&lines=Safety-first+Windows+Optimizer;Beginner-friendly+One+Click+Boost;NVIDIA+%7C+AMD+%7C+Intel+GPU+Detection;Before%2FAfter+Reports+%2B+Undo+Support;Built+for+Gaming%2C+Streaming%2C+Creator+%26+Daily+Use" alt="HyperBoostX animated typing" />
+
+<br />
 
 [![Stable Release](https://img.shields.io/badge/Stable-v1.3.0-16a34a?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jxxzy/HyperBoostX/releases/tag/v1.3.0)
-[![Windows](https://img.shields.io/badge/Windows-Desktop-0078D4?style=for-the-badge&logo=windows&logoColor=white)](#)
+[![Windows](https://img.shields.io/badge/Windows-10%20%2F%2011-0078D4?style=for-the-badge&logo=windows&logoColor=white)](#)
 [![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](#)
 [![Python](https://img.shields.io/badge/Python-Flask-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
-[![Safety](https://img.shields.io/badge/Safety-Plan%20First%20%2B%20Undo-22c55e?style=for-the-badge&logo=shield&logoColor=white)](#safety-guard)
+[![Safety](https://img.shields.io/badge/Safety-Plan%20First%20%2B%20Undo-22c55e?style=for-the-badge&logo=shield&logoColor=white)](#-safety-guard)
+
+<br />
 
 [![Download Installer](https://img.shields.io/badge/Download-HyperBoostXInstaller.exe-22c55e?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jxxzy/HyperBoostX/releases/download/v1.3.0/HyperBoostXInstaller.exe)
 [![Beginner Guide](https://img.shields.io/badge/Beginner%20Guide-USER_GUIDE.md-38bdf8?style=for-the-badge&logo=readme&logoColor=white)](USER_GUIDE.md)
 [![Release Notes](https://img.shields.io/badge/Release%20Notes-v1.3.0-111827?style=for-the-badge&logo=readme&logoColor=white)](RELEASE_NOTES_v1.3.0.md)
+[![Report Bug](https://img.shields.io/badge/Report-Bug-ef4444?style=for-the-badge&logo=githubissues&logoColor=white)](https://github.com/jxxzy/HyperBoostX/issues)
 
-**Premium Universal Windows Gaming Optimizer for NVIDIA GeForce GTX/RTX, AMD Radeon/RX/Vega, Intel Arc/iGPU, Microsoft Basic Display Adapter, and unknown GPU fallback systems.**
+<br />
 
-`Scan PC -> Hardware Profile -> Safe Plan -> User Approval -> Guarded Boost -> Before/After Report -> Undo`
+<h3>Premium Universal Windows Gaming Optimizer</h3>
+
+<p>
+For <b>NVIDIA GeForce GTX/RTX</b>, <b>AMD Radeon/RX/Vega</b>, <b>Intel Arc/iGPU</b>, <b>Microsoft Basic Display Adapter</b>, and unknown GPU fallback systems.
+</p>
+
+```text
+Scan PC -> Hardware Profile -> Safe Plan -> User Approval -> Guarded Boost -> Before/After Report -> Undo
+```
 
 </div>
 
 ---
 
-# HyperBoostX
+# 🚀 HyperBoostX
 
-HyperBoostX is a Windows performance and optimization app built around safety, explainability, and reversible changes. It combines a WPF desktop client, Python local backend, .NET launcher, NSIS installer, hardware-aware recommendations, AI-assisted planning, restore/undo metadata, GPU Center, before/after reports, and release-gated validation.
+**HyperBoostX** is a modern Windows performance and optimization app built around **safety, explainability, and reversible changes**.
 
-HyperBoostX is not an overclocking tool, does not claim guaranteed FPS gains, and does not claim official NVIDIA, AMD, Intel, Microsoft, or hardware-vendor partnership.
+It combines a native **WPF desktop client**, **Python Flask local backend**, **.NET launcher**, **NSIS installer**, hardware-aware recommendations, AI-assisted planning, GPU Center, restore/undo metadata, before/after reports, and release-gated validation.
 
-## Recommended Download
+> HyperBoostX is not an overclocking tool, does not claim guaranteed FPS gains, and does not claim official partnership with NVIDIA, AMD, Intel, Microsoft, or any hardware vendor.
 
-For normal users, download only the installer from the GitHub Release page:
+---
 
-- Recommended: `HyperBoostXInstaller.exe`
-- Optional checksum: `SHA256SUMS.txt`
+## ✨ Why HyperBoostX?
 
-Do not download raw backend executables, debug folders, cache files, logs, or internal release artifacts unless you are developing or testing the project.
+Most Windows optimizer tools are either too risky, too technical, or too aggressive.
 
-If Windows shows `Unknown Publisher` or SmartScreen, it means the installer may be unsigned. Only continue if the file came from the official HyperBoostX GitHub Release.
+HyperBoostX is different.
 
-## Beginner Quick Start
+| Traditional Tweaker | HyperBoostX |
+|---|---|
+| Random one-click registry changes | Plan-first optimization |
+| Hard to understand | Beginner-friendly explanations |
+| Risky service disabling | Safety Guard blocks dangerous actions |
+| No recovery path | Restore / undo metadata |
+| FPS claims without proof | Before/after reports |
+| NVIDIA-only mindset | NVIDIA, AMD, Intel, Microsoft Basic, and fallback GPU support |
+| Advanced-user only | Built for beginners and power users |
 
-This is the safest path for people who are not familiar with Windows tweaking:
+---
+
+## 🧭 Table of Contents
+
+- [Recommended Download](#-recommended-download)
+- [Beginner Quick Start](#-beginner-quick-start)
+- [For People Who Do Not Know Tweaks](#-for-people-who-do-not-know-tweaks)
+- [Core Features](#-core-features)
+- [v1.3.0 Highlights](#-v130-highlights)
+- [GPU Support](#-gpu-support)
+- [Safety Guard](#-safety-guard)
+- [Feature Map](#-feature-map)
+- [Common Workflows](#-common-workflows)
+- [Architecture](#-architecture)
+- [Backend API](#-backend-api)
+- [Build And Test](#-build-and-test)
+- [Documentation](#-documentation)
+- [Known Limitations](#-known-limitations)
+- [Credits](#-credits)
+
+---
+
+## 📥 Recommended Download
+
+For normal users, download only the installer from the GitHub Release page.
+
+| File | Recommended For |
+|---|---|
+| `HyperBoostXInstaller.exe` | Normal users |
+| `SHA256SUMS.txt` | Optional checksum verification |
+| Source code zip | Developers only |
+
+✅ Recommended:
 
 ```text
-Install -> Open HyperBoostX -> Dashboard -> Restore & Backup -> GPU Center -> Smart Recommendation -> One Click Boost -> Review Plan -> Approve -> Read Report -> Undo if needed
+HyperBoostXInstaller.exe
 ```
 
-Step-by-step:
+❌ Do not download or run raw backend executables, debug folders, cache files, logs, or internal release artifacts unless you are developing or testing the project.
 
-1. Install with `HyperBoostXInstaller.exe`.
-2. Open HyperBoostX from Desktop or Start Menu.
-3. Wait until backend/system status is connected.
-4. Open `Dashboard` and read CPU, RAM, disk, network, and health scores.
-5. Open `Restore & Backup` so you know where undo/recovery lives.
-6. Open `GPU Center`, click refresh, and check GPU/overlay/vendor app detection.
-7. Open `Smart Recommendation` and read the safe suggestions.
-8. Use `One Click Boost` in safe or balanced mode.
+> If Windows shows `Unknown Publisher` or SmartScreen, it means the installer may be unsigned. Only continue if the file came from the official HyperBoostX GitHub Release.
+
+---
+
+## ⚡ Beginner Quick Start
+
+This is the safest path for users who do not understand Windows tweaking or optimization.
+
+```text
+Install -> Open HyperBoostX -> Dashboard -> Scan PC -> Smart Recommendation -> One Click Boost -> Review Plan -> Approve -> Read Report -> Undo if needed
+```
+
+### Step-by-step
+
+1. Download `HyperBoostXInstaller.exe`.
+2. Install HyperBoostX.
+3. Open HyperBoostX from Desktop or Start Menu.
+4. Wait until backend/system status is connected.
+5. Open `Dashboard`.
+6. Click `Scan PC`.
+7. Open `Smart Recommendation`.
+8. Choose `Safe Boost` or `One Click Boost`.
 9. Review the plan before approving anything.
-10. Read the before/after report.
-11. If something feels wrong, use `Restore & Backup` before applying more tweaks.
+10. Click `Apply` only when the plan looks safe.
+11. Read the before/after report.
+12. If something feels wrong, open `Restore & Backup` and undo the last session.
 
 Full beginner manual: [USER_GUIDE.md](USER_GUIDE.md)
 
-## What HyperBoostX Does
+---
+
+## 🧑‍💻 For People Who Do Not Know Tweaks
+
+HyperBoostX is designed for people who do not understand terms like registry, services, DNS cache, standby memory, startup impact, or power plan.
+
+The beginner flow is simple:
+
+```text
+Scan PC
+-> Read simple recommendation
+-> Choose Safe Boost
+-> Approve
+-> Done
+```
+
+### Beginner meaning of each button
+
+| Button / Menu | Simple Meaning |
+|---|---|
+| `Dashboard` | See your PC condition |
+| `Scan PC` | Let HyperBoostX check what is slowing your PC |
+| `Smart Recommendation` | Get safe suggestions in simple language |
+| `Safe Boost` | Apply only safer optimizations |
+| `One Click Boost` | Scan, plan, boost, and report in one guided flow |
+| `Gaming Mode` | Prepare your PC before playing games |
+| `Cleanup` | Remove safe temporary files |
+| `Startup Manager` | Reduce apps that start with Windows |
+| `Restore & Backup` | Undo changes if something feels wrong |
+| `Advanced Tweaks` | Power-user area, not recommended for beginners |
+
+### Beginner rules
+
+- Start with `Safe Boost`.
+- Do not enable every tweak manually.
+- Do not disable Windows Security.
+- Do not disable Windows Update permanently.
+- Do not disable GPU, audio, network, or antivirus services.
+- Always read the plan before clicking approve.
+- Use `Restore & Backup` if anything feels different after optimization.
+
+---
+
+## 🧩 Core Features
 
 | Area | What It Helps With |
 |---|---|
-| Dashboard | CPU, RAM, disk, network, health score, readiness score, activity, recommendation preview |
-| One Click Boost | Safe plan-first optimization, user approval, report, undo path |
-| GPU Center | NVIDIA/AMD/Intel/Microsoft Basic/unknown GPU detection, vendor badge, overlays, VRAM, driver, profile |
-| Smart Recommendation | Context-aware suggestions for cleanup, startup, overlays, network, and gaming readiness |
-| Gaming Mode | Safer pre-game preparation without driver hacks or forced service disablement |
-| Streaming Mode | OBS/Discord/network-aware preparation without breaking live tools |
-| Creator Mode | Editing/rendering-focused recommendations for creator workflows |
-| Cleanup | Safe temp/cache cleanup and cleanup report support |
-| Startup Manager | Startup cleanliness review and safer startup decisions |
-| Network Tools | DNS test, DNS refresh, latency diagnostics, and network recommendations |
-| Restore & Backup | Restore metadata, undo path, restore point guidance, and recovery workflow |
-| AI Doctor / Copilot | Plan-first AI analysis with Safety Guard and required approval |
-| Reports | Before/after performance report and local crash report export with redaction |
+| `Dashboard` | CPU, RAM, disk, network, health score, readiness score, activity, recommendation preview |
+| `One Click Boost` | Safe plan-first optimization, user approval, report, and undo path |
+| `GPU Center` | NVIDIA/AMD/Intel/Microsoft Basic/unknown GPU detection, vendor badge, overlays, VRAM, driver, profile |
+| `Smart Recommendation` | Context-aware suggestions for cleanup, startup, overlays, network, and gaming readiness |
+| `Gaming Mode` | Safer pre-game preparation without driver hacks or forced service disablement |
+| `Streaming Mode` | OBS/Discord/network-aware preparation without breaking live tools |
+| `Creator Mode` | Editing/rendering-focused recommendations for creator workflows |
+| `Cleanup` | Safe temp/cache cleanup and cleanup report support |
+| `Startup Manager` | Startup cleanliness review and safer startup decisions |
+| `Network Tools` | DNS test, DNS refresh, latency diagnostics, and network recommendations |
+| `Restore & Backup` | Restore metadata, undo path, restore point guidance, and recovery workflow |
+| `AI Doctor / Copilot` | Plan-first AI analysis with Safety Guard and required approval |
+| `Reports` | Before/after performance report and local crash report export with redaction |
 
-## v1.3.0 Highlights
+---
+
+## 🆕 v1.3.0 Highlights
 
 - Universal GPU detection for NVIDIA, AMD Radeon, Intel Arc/iGPU, Microsoft Basic Display Adapter, and unknown fallback.
 - GPU Center backend contract with vendor badge, model/family, VRAM, usage, temperature when available, driver version, overlays, vendor software, safe actions, skipped actions, and blocked risky actions.
@@ -90,7 +204,9 @@ Full beginner manual: [USER_GUIDE.md](USER_GUIDE.md)
 - Local crash report export with redaction for API keys, AI keys, tokens, GitHub tokens, usernames, sensitive paths, and future license keys.
 - Support docs, FAQ, troubleshooting, roadmap, bug report template, feature request template, and beginner guide.
 
-## GPU Support
+---
+
+## 🎮 GPU Support
 
 HyperBoostX v1.3.0 includes safe detection paths for:
 
@@ -105,25 +221,29 @@ HyperBoostX v1.3.0 includes safe detection paths for:
 - Microsoft Basic Display Adapter
 - Unknown GPU fallback
 
-GPU telemetry depends on Windows, drivers, WMI, and hardware counters. If temperature, VRAM usage, driver details, or active display data are unavailable, HyperBoostX should fall back safely instead of crashing.
+> GPU telemetry depends on Windows, drivers, WMI, and hardware counters. If temperature, VRAM usage, driver details, or active display data are unavailable, HyperBoostX should fall back safely instead of crashing.
 
-## Safety Guard
+---
+
+## 🛡️ Safety Guard
 
 HyperBoostX blocks or refuses unsafe behavior including:
 
-- forced Defender disable
-- permanent Windows Update disable
+- Forced Defender disable
+- Permanent Windows Update disable
 - GPU driver service disablement without a clear safe approval path
 - BIOS/UEFI edits
-- overclock, undervolt, or voltage changes
-- system-file deletion
-- user-data deletion
-- irreversible registry edits without restore metadata
+- Overclock, undervolt, or voltage changes
+- System-file deletion
+- User-data deletion
+- Irreversible registry edits without restore metadata
 - AI-generated system actions without user approval
 
 AI and automation must generate a plan first, explain risk, require user approval, respect Safety Guard, and preserve undo/restore metadata where applicable.
 
-## Safe Beginner Rules
+---
+
+## ✅ Safe Beginner Rules
 
 For regular users:
 
@@ -136,7 +256,9 @@ For regular users:
 - Do not disable Defender, Windows Update, GPU drivers, audio drivers, network services, or antivirus services.
 - Do not expect guaranteed FPS gains; results depend on hardware, Windows state, drivers, background apps, games, and network conditions.
 
-## Feature Map
+---
+
+## 🗺️ Feature Map
 
 | Menu | Beginner Use | Risk Note |
 |---|---|---|
@@ -157,12 +279,14 @@ For regular users:
 | `Advanced Tweaks` | Power-user controls | Not recommended for beginners |
 | `Windows Services` | Service review | Do not disable services blindly |
 
-## Common Workflows
+---
+
+## 🧪 Common Workflows
 
 ### Before Gaming
 
 ```text
-Dashboard -> GPU Center -> Smart Recommendation -> One Click Boost safe/balanced -> Gaming Mode -> Launch game
+Dashboard -> Scan PC -> GPU Center -> Smart Recommendation -> One Click Boost safe/balanced -> Gaming Mode -> Launch game
 ```
 
 ### After Gaming
@@ -195,7 +319,15 @@ Dashboard -> Network Booster -> DNS & Latency Tools -> Flush DNS if recommended 
 Storage -> Cleanup safe -> Review Recycle Bin -> Delete only personal files you recognize
 ```
 
-## Current Stable Target
+### Windows Feels Broken
+
+```text
+Repair Tools -> SFC Scan -> DISM Repair if needed -> Restart -> Dashboard -> Report
+```
+
+---
+
+## 📊 Current Stable Target
 
 | Item | Value |
 |---|---|
@@ -208,7 +340,9 @@ Storage -> Cleanup safe -> Review Recycle Bin -> Delete only personal files you 
 
 Full multi-machine Windows lab compatibility is not claimed unless recorded in `QA_RESULTS.md`.
 
-## Validation Snapshot
+---
+
+## ✅ Validation Snapshot
 
 The v1.3.0 stable release was validated with:
 
@@ -227,7 +361,9 @@ The v1.3.0 stable release was validated with:
 
 See [QA_RESULTS.md](QA_RESULTS.md) for details and limitations.
 
-## Architecture
+---
+
+## 🏗️ Architecture
 
 ```mermaid
 flowchart LR
@@ -238,6 +374,8 @@ flowchart LR
     WPF --> Config[Local Config]
     WPF --> Creds[Windows Credential Manager]
     WPF --> Restore[Backups / Restore Metadata]
+    Backend --> Reports[Before/After Reports]
+    Backend --> Guard[Safety Guard]
 ```
 
 | Component | Path | Purpose |
@@ -250,35 +388,45 @@ flowchart LR
 
 Legacy user data is preserved under `%LocalAppData%\HyperBoost X` for compatibility with previous stable installs.
 
-## Backend API
+---
 
-Base URL: `http://127.0.0.1:5000`
+## 🔌 Backend API
+
+Base URL:
+
+```text
+http://127.0.0.1:5000
+```
 
 Important v1.3.0 endpoints:
 
-- `GET /api/health`
-- `GET /api/version`
-- `GET /api/system/stats`
-- `GET /api/system/info`
-- `GET /api/system/startup`
-- `GET /api/system/processes`
-- `GET /api/hardware/profile`
-- `GET /api/hardware/gpu`
-- `GET /api/hardware/vendors`
-- `GET /api/hardware/overlays`
-- `POST /api/boost/plan`
-- `POST /api/boost/apply`
-- `POST /api/boost/undo`
-- `GET /api/reports/latest`
-- `POST /api/reports/export`
-- `POST /api/reports/crash-export`
-- `POST /api/jobs/start`
-- `GET /api/jobs/{id}`
-- `POST /api/jobs/{id}/cancel`
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/api/health` | Backend health check |
+| `GET` | `/api/version` | App/backend version |
+| `GET` | `/api/system/stats` | Live system stats |
+| `GET` | `/api/system/info` | Windows and device info |
+| `GET` | `/api/system/startup` | Startup app data |
+| `GET` | `/api/system/processes` | Running process data |
+| `GET` | `/api/hardware/profile` | Hardware profile and scores |
+| `GET` | `/api/hardware/gpu` | GPU detection and telemetry |
+| `GET` | `/api/hardware/vendors` | Hardware vendor info |
+| `GET` | `/api/hardware/overlays` | Overlay/vendor app detection |
+| `POST` | `/api/boost/plan` | Generate safe boost plan |
+| `POST` | `/api/boost/apply` | Apply approved boost plan |
+| `POST` | `/api/boost/undo` | Undo supported actions |
+| `GET` | `/api/reports/latest` | Latest before/after report |
+| `POST` | `/api/reports/export` | Export report |
+| `POST` | `/api/reports/crash-export` | Export redacted crash report |
+| `POST` | `/api/jobs/start` | Start long-running job |
+| `GET` | `/api/jobs/{id}` | Read job progress |
+| `POST` | `/api/jobs/{id}/cancel` | Cancel running job |
 
 Mutating endpoints require `X-HyperBoostX-Session` when the packaged launcher supplies a session token.
 
-## Build And Test
+---
+
+## 🧰 Build And Test
 
 For developers:
 
@@ -292,13 +440,17 @@ dotnet build launcher\HyperBoostLauncher.csproj -c Release
 
 Release scripts:
 
-- `build_backend.bat`
-- `build_release.bat`
-- `build_launcher.bat`
-- `package_release.bat`
-- `build_installer.bat`
+| Script | Purpose |
+|---|---|
+| `build_backend.bat` | Build/package backend |
+| `build_release.bat` | Build release artifacts |
+| `build_launcher.bat` | Build launcher |
+| `package_release.bat` | Package release files |
+| `build_installer.bat` | Build NSIS installer |
 
-## Documentation
+---
+
+## 📚 Documentation
 
 Start here:
 
@@ -319,7 +471,9 @@ Release and engineering docs:
 - [ROADMAP.md](ROADMAP.md)
 - [docs/API_REFERENCE.md](docs/API_REFERENCE.md)
 
-## Known Limitations
+---
+
+## ⚠️ Known Limitations
 
 - Automated validation in this workspace does not equal full multi-machine Windows lab certification.
 - GPU temperature, VRAM usage, and driver metadata depend on Windows/WMI/driver support and may fall back to `Unknown`.
@@ -328,6 +482,36 @@ Release and engineering docs:
 - Auto updater, website, opt-in telemetry, and license activation are roadmap-only items.
 - No v1.3.0 feature is locked behind a license.
 
-## Credits
+---
 
-Created by `MR.4NONY - HYPERINDO CYBER TEAM`.
+## 🧾 Important Disclaimer
+
+HyperBoostX is designed to help users understand, prepare, clean, and safely optimize their Windows system.
+
+It does **not** guarantee:
+
+- Fixed FPS increase
+- Fixed ping decrease
+- Hardware temperature decrease on every system
+- Driver-level performance improvement on every GPU
+- Compatibility with every Windows build, OEM laptop profile, or custom driver configuration
+
+Results depend on hardware, Windows condition, background apps, installed drivers, power settings, game engine, network quality, and user configuration.
+
+---
+
+## 💚 Credits
+
+Created by:
+
+```text
+MR.4NONY - HYPERINDO CYBER TEAM
+```
+
+<div align="center">
+
+<img src="https://capsule-render.vercel.app/api?type=waving&height=120&section=footer&color=0:0f172a,50:0891b2,100:16a34a" alt="Footer" />
+
+**HyperBoostX — Scan. Plan. Approve. Boost. Undo.**
+
+</div>
