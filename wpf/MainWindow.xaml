@@ -4,7 +4,7 @@
         Title="HyperBoost X - WPF Client"
         Height="900"
         Width="1400"
-        Background="#1e1e1e"
+        Background="#0B1020"
         Foreground="#ffffff"
         ResizeMode="CanResize"
         WindowStartupLocation="CenterScreen"
@@ -12,29 +12,54 @@
         Closed="Window_Closed">
 
     <Window.Resources>
-        <SolidColorBrush x:Key="PanelBrush" Color="#242c3a"/>
-        <SolidColorBrush x:Key="PanelBorderBrush" Color="#334155"/>
+        <SolidColorBrush x:Key="PanelBrush" Color="#141E31"/>
+        <SolidColorBrush x:Key="PanelBorderBrush" Color="#263A5B"/>
         <SolidColorBrush x:Key="AccentBrush" Color="#38bdf8"/>
         <SolidColorBrush x:Key="MutedBrush" Color="#94a3b8"/>
         <SolidColorBrush x:Key="SuccessBrush" Color="#22c55e"/>
         <SolidColorBrush x:Key="WarningBrush" Color="#f59e0b"/>
         <SolidColorBrush x:Key="ErrorBrush" Color="#ef4444"/>
+        <SolidColorBrush x:Key="AppBackgroundBrush" Color="#0B1020"/>
+        <SolidColorBrush x:Key="SidebarBrush" Color="#0E1626"/>
+        <SolidColorBrush x:Key="SurfaceStrongBrush" Color="#1A2940"/>
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F8FAFC"/>
 
         <Style x:Key="NavButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#cccccc"/>
-            <Setter Property="BorderThickness" Value="3,0,0,0"/>
+            <Setter Property="Foreground" Value="#A9B8CF"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="Padding" Value="15,12"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="Margin" Value="8,1"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="12.5"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="NavSurface"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="NavSurface" Property="Background" Value="#182943"/>
+                                <Setter Property="Foreground" Value="#F8FAFC"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="NavSurface" Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
             <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#3c3c3c"/>
-                    <Setter Property="Foreground" Value="#ffffff"/>
-                </Trigger>
                 <Trigger Property="IsEnabled" Value="False">
                     <Setter Property="Opacity" Value="0.55"/>
                     <Setter Property="Cursor" Value="Arrow"/>
@@ -43,17 +68,18 @@
         </Style>
 
         <Style x:Key="ActionButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#2196F3"/>
-            <Setter Property="Foreground" Value="#ffffff"/>
+            <Setter Property="Background" Value="#0EA5E9"/>
+            <Setter Property="Foreground" Value="#F8FAFC"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="Padding" Value="14,9"/>
             <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}"
-                                CornerRadius="3"
+                                CornerRadius="9"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
@@ -62,7 +88,8 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#1e88e5"/>
+                    <Setter Property="Background" Value="#38BDF8"/>
+                    <Setter Property="Foreground" Value="#082F49"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -71,26 +98,31 @@
             <Setter Property="Background" Value="{StaticResource PanelBrush}"/>
             <Setter Property="BorderBrush" Value="{StaticResource PanelBorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="16"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Padding" Value="18"/>
             <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="18" ShadowDepth="6" Opacity="0.22" Color="#020617"/>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style TargetType="ComboBox">
-            <Setter Property="Background" Value="#0f172a"/>
-            <Setter Property="Foreground" Value="#f8fafc"/>
-            <Setter Property="BorderBrush" Value="#334155"/>
-            <Setter Property="Padding" Value="8"/>
-            <Setter Property="MinHeight" Value="34"/>
+            <Setter Property="Background" Value="#0F1A2D"/>
+            <Setter Property="Foreground" Value="#F8FAFC"/>
+            <Setter Property="BorderBrush" Value="#2E4569"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="MinHeight" Value="38"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
                         <Grid>
                             <Border x:Name="ComboBoxBorder"
-                                    Background="#0f172a"
+                                     Background="#0F1A2D"
                                     BorderBrush="{TemplateBinding BorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="3"/>
+                                     CornerRadius="9"/>
                             <ContentPresenter x:Name="ContentSite"
                                               Content="{TemplateBinding SelectionBoxItem}"
                                               ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
@@ -100,7 +132,7 @@
                                               VerticalAlignment="Center"
                                               IsHitTestVisible="False"
                                               TextElement.Foreground="#f8fafc"/>
-                            <TextBlock Text="?"
+                            <TextBlock Text="&#x25BE;"
                                        Foreground="#cbd5e1"
                                        FontSize="10"
                                        HorizontalAlignment="Right"
@@ -144,20 +176,20 @@
         </Style>
 
         <Style TargetType="ComboBoxItem">
-            <Setter Property="Background" Value="#0f172a"/>
-            <Setter Property="Foreground" Value="#f8fafc"/>
-            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="Background" Value="#0F1A2D"/>
+            <Setter Property="Foreground" Value="#F8FAFC"/>
+            <Setter Property="Padding" Value="10,7"/>
             <Style.Triggers>
                 <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Background" Value="#0f172a"/>
+                    <Setter Property="Background" Value="#0F1A2D"/>
                     <Setter Property="Foreground" Value="#64748b"/>
                 </Trigger>
                 <Trigger Property="IsHighlighted" Value="True">
-                    <Setter Property="Background" Value="#1d4ed8"/>
+                    <Setter Property="Background" Value="#1B3A5C"/>
                     <Setter Property="Foreground" Value="#ffffff"/>
                 </Trigger>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#1e40af"/>
+                    <Setter Property="Background" Value="#164E76"/>
                     <Setter Property="Foreground" Value="#ffffff"/>
                 </Trigger>
             </Style.Triggers>
@@ -166,39 +198,45 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="240"/>
+            <ColumnDefinition Width="272"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="0" Background="#2c2c2c" BorderThickness="0,0,1,0" BorderBrush="#3c3c3c">
+        <Border Grid.Column="0" Background="{StaticResource SidebarBrush}" BorderThickness="0,0,1,0" BorderBrush="#263A5B">
             <DockPanel LastChildFill="True">
-                <Border DockPanel.Dock="Top" BorderThickness="0,0,0,1" BorderBrush="#3c3c3c" Padding="15,20">
-                    <TextBlock Text="HyperBoost X"
-                               FontSize="18"
-                               FontWeight="Bold"
-                               Foreground="#2196F3"
-                               TextAlignment="Center"/>
+                <Border DockPanel.Dock="Top" BorderThickness="0,0,0,1" BorderBrush="#263A5B" Padding="20,22,20,18">
+                    <StackPanel>
+                        <TextBlock Text="HYPERBOOST X"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource AccentBrush}"/>
+                        <TextBlock Text="PERFORMANCE COMMAND CENTER"
+                                   FontSize="9"
+                                   FontWeight="SemiBold"
+                                   Foreground="#6F86A8"
+                                   Margin="0,6,0,0"/>
+                    </StackPanel>
                 </Border>
 
                 <StackPanel DockPanel.Dock="Bottom">
-                    <Separator Background="#3c3c3c" Margin="0,10"/>
-                    <Border Padding="15,10,15,5">
-                        <TextBlock Text="Backend Status" FontSize="11" Foreground="#99ffffff"/>
+                    <Separator Background="#263A5B" Margin="14,10"/>
+                    <Border Padding="20,6,20,5">
+                        <TextBlock Text="SYSTEM LINK" FontSize="10" FontWeight="SemiBold" Foreground="#7890B3"/>
                     </Border>
-                    <Border Background="#2196F3" CornerRadius="3" Margin="15,5,15,10" Padding="8" Name="BackendHealthIndicator">
-                        <TextBlock Text="Connecting..." Foreground="#ffffff" FontSize="11"/>
+                    <Border Background="#143B42" BorderBrush="#1D6B73" BorderThickness="1" CornerRadius="10" Margin="16,5,16,10" Padding="10" Name="BackendHealthIndicator">
+                        <TextBlock Text="Connecting..." Foreground="#B7F5DB" FontSize="11" FontWeight="SemiBold"/>
                     </Border>
-                    <Button Name="ExitBtn" Content="Exit" Click="ExitBtn_Click" Style="{StaticResource NavButtonStyle}" Margin="0,0,0,10"/>
+                    <Button Name="ExitBtn" Content="Exit" Click="ExitBtn_Click" Style="{StaticResource NavButtonStyle}" Margin="8,0,8,12"/>
                 </StackPanel>
 
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="0,10,0,0">
-                        <Border Padding="15,8,15,4"><TextBlock Text="?? QUICK ACCESS" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                    <StackPanel Margin="0,12,0,12">
+                        <Border Padding="15,8,15,4"><TextBlock Text="&#x26A1; QUICK ACCESS" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
                         <Button Name="OneClickBoostBtn" Content="One Click Boost" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
                         <Button Name="GamingModeBtn" Content="Gaming Mode" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
                         <Button Name="SmartRecommendationBtn" Content="Smart Recommendation" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
-                        <Border Padding="15,12,15,4"><TextBlock Text="?? CORE SYSTEM" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Border Padding="15,12,15,4"><TextBlock Text="&#x25A6; CORE SYSTEM" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
                         <Button Name="DashboardBtn" Content="Dashboard" Click="DashboardBtn_Click" Style="{StaticResource NavButtonStyle}"/>
                         <Button Name="PerformanceBtn" Content="Performance" Click="PerformanceBtn_Click" Style="{StaticResource NavButtonStyle}"/>
                         <Button Name="StartupBtn" Content="Startup" Click="StartupBtn_Click" Style="{StaticResource NavButtonStyle}"/>
@@ -206,66 +244,66 @@
                         <Button Name="CleanupBtn" Content="Cleanup" Click="CleanupBtn_Click" Style="{StaticResource NavButtonStyle}"/>
                         <Button Name="StorageBtn" Content="Storage" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
-                        <Border Padding="15,12,15,4"><TextBlock Text="?? GAMING &amp; CREATOR" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Border Padding="15,12,15,4"><TextBlock Text="&#x2726; GAMING &amp; CREATOR" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
                         <Button Name="GamingBoosterBtn" Content="Gaming Booster" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
                         <Button Name="StreamingModeBtn" Content="Streaming Mode" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
                         <Button Name="CreatorModeBtn" Content="Creator Mode" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
-                        <Border Padding="15,12,15,4"><TextBlock Text="?? NETWORK" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Border Padding="15,12,15,4"><TextBlock Text="&#x223F; NETWORK" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
                         <Button Name="NetworkBoosterBtn" Content="Network Booster" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
                         <Button Name="DnsLatencyToolsBtn" Content="DNS &amp; Latency Tools" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
-                        <Border Padding="15,12,15,4"><TextBlock Text="?? PRIVACY &amp; SECURITY" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Border Padding="15,12,15,4"><TextBlock Text="&#x25C8; PRIVACY &amp; SECURITY" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
                         <Button Name="PrivacyCenterBtn" Content="Privacy Center" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
                         <Button Name="SecurityHealthBtn" Content="Security &amp; Health" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
-                        <Border Padding="15,12,15,4"><TextBlock Text="?? APP MANAGEMENT (WINUTIL)" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Border Padding="15,12,15,4"><TextBlock Text="&#x25A3; APP MANAGEMENT (WINUTIL)" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
                         <Button Name="AppsManagerBtn" Content="Apps Manager" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
-                        <Border Padding="15,12,15,4"><TextBlock Text="?? SYSTEM CONFIG (WINUTIL)" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Border Padding="15,12,15,4"><TextBlock Text="&#x2261; SYSTEM CONFIG (WINUTIL)" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
                         <Button Name="TweaksCenterBtn" Content="Tweaks Center" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
                         <Button Name="WindowsFeaturesBtn" Content="Windows Features" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
                         <Button Name="UpdateControlBtn" Content="Update Control" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
-                        <Border Padding="15,12,15,4"><TextBlock Text="??? SYSTEM TOOLS" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Border Padding="15,12,15,4"><TextBlock Text="&#x25C6; SYSTEM TOOLS" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
                         <Button Name="RepairToolsBtn" Content="Repair Tools" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
                         <Button Name="DriverUpdateCenterBtn" Content="Driver &amp; Update Center" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
                         <Button Name="AppUninstallerBtn" Content="App Uninstaller" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
-                        <Border Padding="15,12,15,4"><TextBlock Text="?? ADVANCED SYSTEM" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Border Padding="15,12,15,4"><TextBlock Text="&#x2318; ADVANCED SYSTEM" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
                         <Button Name="AdvancedTweaksBtn" Content="Advanced Tweaks" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
                         <Button Name="WindowsServicesBtn" Content="Windows Services" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
                         <Button Name="PowerOptimizationBtn" Content="Power Optimization" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
                         <Button Name="VisualEffectsBtn" Content="Visual Effects" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
-                        <Border Padding="15,12,15,4"><TextBlock Text="?? BACKUP &amp; RESTORE" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Border Padding="15,12,15,4"><TextBlock Text="&#x21B6; BACKUP &amp; RESTORE" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
                         <Button Name="RestoreBackupBtn" Content="Restore &amp; Backup" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
                         <Button Name="RestorePointManagerBtn" Content="Restore Point Manager" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
-                        <Border Padding="15,12,15,4"><TextBlock Text="?? AUTOMATION" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Border Padding="15,12,15,4"><TextBlock Text="&#x21BB; AUTOMATION" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
                         <Button Name="ScheduledAutomationBtn" Content="Scheduled Automation" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
-                        <Border Padding="15,12,15,4"><TextBlock Text="?? EXTRA TOOLS" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Border Padding="15,12,15,4"><TextBlock Text="&#x271A; EXTRA TOOLS" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
                         <Button Name="UtilitiesToolsBtn" Content="Utilities Tools" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
                         <Button Name="FeatureAuditBtn" Content="Feature Audit" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}"/>
 
-                        <Border Padding="15,12,15,4"><TextBlock Text="?? SETTINGS" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Border Padding="15,12,15,4"><TextBlock Text="&#x2699; SETTINGS" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
                         <Button Name="SettingsBtn" Content="App Settings" Click="SettingsBtn_Click" Style="{StaticResource NavButtonStyle}"/>
 
-                        <Border Padding="15,12,15,4"><TextBlock Text="?? ABOUT" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
+                        <Border Padding="15,12,15,4"><TextBlock Text="&#x24D8; ABOUT" FontSize="11" FontWeight="Bold" Foreground="#99ffffff"/></Border>
                         <Button Name="AboutAppBtn" Content="About App" Click="MenuButton_Click" Style="{StaticResource NavButtonStyle}" Margin="0,0,0,12"/>
                     </StackPanel>
                 </ScrollViewer>
             </DockPanel>
         </Border>
 
-        <Grid Grid.Column="1" Background="#1e1e1e">
+        <Grid Grid.Column="1" Background="{StaticResource AppBackgroundBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Background="#18212f" BorderThickness="0,0,0,1" BorderBrush="#263244" Padding="20">
+            <Border Grid.Row="0" Background="#0E1728" BorderThickness="0,0,0,1" BorderBrush="#263A5B" Padding="28,22">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -273,10 +311,11 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel>
-                        <TextBlock Name="PageTitle" Text="Dashboard" FontSize="24" FontWeight="Bold" Foreground="{StaticResource AccentBrush}"/>
+                        <TextBlock Text="SYSTEM OPERATIONS" FontSize="10" FontWeight="SemiBold" Foreground="#7890B3"/>
+                        <TextBlock Name="PageTitle" Text="Dashboard" FontSize="28" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,5,0,0"/>
                         <TextBlock Name="PageSubtitle"
                                    Text="Monitor health, launch optimizations, and keep backend actions in one clear workspace."
-                                   Margin="0,8,0,0"
+                                    Margin="0,6,0,0"
                                    FontSize="12"
                                    Foreground="{StaticResource MutedBrush}"
                                    TextWrapping="Wrap"/>
@@ -284,22 +323,24 @@
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
                         <Button Name="ThemeToggleBtn"
-                                Content="Theme: Auto"
+                                 Content="Appearance"
                                 Click="ThemeToggle_Click"
                                 Style="{StaticResource ActionButtonStyle}"
-                                Padding="12,6"
+                                 Padding="14,8"
                                 Margin="0,0,10,0"/>
                         <Border Name="HeaderBackendBadge"
-                                Background="#1d4ed8"
-                                CornerRadius="14"
-                                Padding="12,6">
-                            <TextBlock Name="HeaderBackendText" Text="Backend checking..." Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+                                 Background="#143B42"
+                                 BorderBrush="#1D6B73"
+                                 BorderThickness="1"
+                                 CornerRadius="12"
+                                 Padding="12,8">
+                            <TextBlock Name="HeaderBackendText" Text="Backend checking..." Foreground="#B7F5DB" FontSize="11" FontWeight="SemiBold"/>
                         </Border>
                     </StackPanel>
                 </Grid>
             </Border>
 
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20">
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="28">
                 <StackPanel Name="ContentPanel">
                     <Border Name="ActionStatusCard"
                             Style="{StaticResource InfoCardStyle}"
@@ -333,8 +374,34 @@
                     </Border>
 
                     <StackPanel Name="DashboardContent" Visibility="Visible">
-                        <TextBlock Text="CORE SYSTEM DASHBOARD" FontSize="18" Foreground="#38bdf8" FontWeight="Bold" Margin="0,0,0,8"/>
-                        <TextBlock Text="Dashboard adalah pusat monitor real-time, trigger boost, recommendation preview, mode control, alert, dan activity log untuk semua optimasi sistem." Foreground="#cbd5e1" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,18"/>
+                        <TextBlock Text="SYSTEM OVERVIEW" FontSize="11" Foreground="#7DD3FC" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                        <TextBlock Text="Everything you need to keep your PC responsive." FontSize="20" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="Bold" Margin="0,0,0,6"/>
+                        <TextBlock Text="Live telemetry, recommended actions, and a safe boost workflow in one command center." Foreground="#9FB2CD" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,18"/>
+
+                        <Border Background="#102B45" BorderBrush="#1C5C81" BorderThickness="1" CornerRadius="20" Padding="24" Margin="0,0,0,18">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="220"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="READY FOR A CLEAN PERFORMANCE PASS" FontSize="10" FontWeight="SemiBold" Foreground="#7DD3FC" Margin="0,0,0,10"/>
+                                    <TextBlock Text="Optimize with confidence." FontSize="26" FontWeight="Bold" Foreground="#F8FAFC"/>
+                                    <TextBlock Text="Run safe, reversible actions for memory, startup, and background load without leaving the dashboard." Foreground="#BDD1E8" FontSize="12" TextWrapping="Wrap" Margin="0,8,0,18" MaxWidth="560"/>
+                                    <WrapPanel>
+                                        <Button Content="RUN SAFE BOOST" Click="DashboardBoostNow_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,10,0"/>
+                                        <Button Content="VIEW RECOMMENDATIONS" Click="DashboardOpenSmartRecommendation_Click" Style="{StaticResource ActionButtonStyle}" Background="#1C3C59" Foreground="#D6EEFF"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                                <Border Grid.Column="1" Background="#0B2034" CornerRadius="14" Padding="18" VerticalAlignment="Center" Margin="20,0,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="LIVE STATUS" FontSize="10" FontWeight="SemiBold" Foreground="#7DD3FC"/>
+                                        <TextBlock Text="System monitored" FontSize="16" FontWeight="SemiBold" Foreground="#F8FAFC" Margin="0,8,0,4"/>
+                                        <TextBlock Text="Telemetry refreshes automatically while the dashboard is open." FontSize="11" Foreground="#9FB2CD" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Border>
 
                         <Grid Margin="0,0,0,16">
                             <Grid.ColumnDefinitions>
@@ -346,37 +413,37 @@
 
                             <Border Grid.Column="0" Style="{StaticResource InfoCardStyle}" Margin="0,0,12,0">
                                 <StackPanel>
-                                    <TextBlock Text="CPU Usage &amp; Clock" Foreground="#94a3b8" FontSize="12" Margin="0,0,0,8"/>
-                                    <TextBlock Name="CpuText" Text="-- %" FontSize="28" Foreground="#22c55e" FontWeight="Bold"/>
-                                    <TextBlock Name="DashboardClockText" Text="Clock -- GHz" Foreground="#cbd5e1" FontSize="11" Margin="0,6,0,0"/>
-                                    <ProgressBar Name="CpuBar" Height="6" Background="#0f172a" Foreground="#22c55e" Margin="0,12,0,0"/>
+                                    <TextBlock Text="CPU LOAD" Foreground="#91A6C5" FontSize="10" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                    <TextBlock Name="CpuText" Text="-- %" FontSize="30" Foreground="#38BDF8" FontWeight="Bold"/>
+                                    <TextBlock Name="DashboardClockText" Text="Clock -- GHz" Foreground="#A9B8CF" FontSize="11" Margin="0,6,0,0"/>
+                                    <ProgressBar Name="CpuBar" Height="6" Background="#0B1322" Foreground="#38BDF8" Margin="0,14,0,0"/>
                                 </StackPanel>
                             </Border>
 
                             <Border Grid.Column="1" Style="{StaticResource InfoCardStyle}" Margin="0,0,12,0">
                                 <StackPanel>
-                                    <TextBlock Text="RAM &amp; Standby Memory" Foreground="#94a3b8" FontSize="12" Margin="0,0,0,8"/>
-                                    <TextBlock Name="MemoryText" Text="-- %" FontSize="28" Foreground="#22c55e" FontWeight="Bold"/>
-                                    <TextBlock Name="DashboardStandbyText" Text="Standby cleanup status belum dihitung." Foreground="#cbd5e1" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap"/>
-                                    <ProgressBar Name="MemoryBar" Height="6" Background="#0f172a" Foreground="#22c55e" Margin="0,12,0,0"/>
+                                    <TextBlock Text="MEMORY" Foreground="#91A6C5" FontSize="10" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                    <TextBlock Name="MemoryText" Text="-- %" FontSize="30" Foreground="#52E3A0" FontWeight="Bold"/>
+                                    <TextBlock Name="DashboardStandbyText" Text="Standby cleanup status belum dihitung." Foreground="#A9B8CF" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                                    <ProgressBar Name="MemoryBar" Height="6" Background="#0B1322" Foreground="#52E3A0" Margin="0,14,0,0"/>
                                 </StackPanel>
                             </Border>
 
                             <Border Grid.Column="2" Style="{StaticResource InfoCardStyle}" Margin="0,0,12,0">
                                 <StackPanel>
-                                    <TextBlock Text="Disk Activity &amp; Health" Foreground="#94a3b8" FontSize="12" Margin="0,0,0,8"/>
-                                    <TextBlock Name="DiskText" Text="-- %" FontSize="28" Foreground="#22c55e" FontWeight="Bold"/>
-                                    <TextBlock Name="DashboardDiskDetailText" Text="Disk analyzer belum menghitung detail." Foreground="#cbd5e1" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap"/>
-                                    <ProgressBar Name="DiskBar" Height="6" Background="#0f172a" Foreground="#22c55e" Margin="0,12,0,0"/>
+                                    <TextBlock Text="DISK ACTIVITY" Foreground="#91A6C5" FontSize="10" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                    <TextBlock Name="DiskText" Text="-- %" FontSize="30" Foreground="#F8C765" FontWeight="Bold"/>
+                                    <TextBlock Name="DashboardDiskDetailText" Text="Disk analyzer belum menghitung detail." Foreground="#A9B8CF" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                                    <ProgressBar Name="DiskBar" Height="6" Background="#0B1322" Foreground="#F8C765" Margin="0,14,0,0"/>
                                 </StackPanel>
                             </Border>
 
                             <Border Grid.Column="3" Style="{StaticResource InfoCardStyle}" Margin="0">
                                 <StackPanel>
-                                    <TextBlock Text="GPU &amp; Temperature" Foreground="#94a3b8" FontSize="12" Margin="0,0,0,8"/>
-                                    <TextBlock Name="DashboardGpuText" Text="GPU -- %" FontSize="28" Foreground="#22c55e" FontWeight="Bold"/>
-                                    <TextBlock Name="DashboardTempText" Text="Temperature -- �C" Foreground="#cbd5e1" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap"/>
-                                    <ProgressBar Name="DashboardGpuBar" Height="6" Background="#0f172a" Foreground="#22c55e" Margin="0,12,0,0"/>
+                                    <TextBlock Text="GPU &amp; THERMALS" Foreground="#91A6C5" FontSize="10" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                    <TextBlock Name="DashboardGpuText" Text="GPU -- %" FontSize="30" Foreground="#A78BFA" FontWeight="Bold"/>
+                                    <TextBlock Name="DashboardTempText" Text="Temperature -- &#x00B0;C" Foreground="#A9B8CF" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                                    <ProgressBar Name="DashboardGpuBar" Height="6" Background="#0B1322" Foreground="#A78BFA" Margin="0,14,0,0"/>
                                 </StackPanel>
                             </Border>
                         </Grid>
@@ -545,8 +612,8 @@
                     </StackPanel>
 
                     <StackPanel Name="SmartRecommendationContent" Visibility="Collapsed">
-                        <TextBlock Text="SMART RECOMMENDATION (AI Optimization Engine)" FontSize="18" Foreground="#38bdf8" FontWeight="Bold" Margin="0,0,0,8"/>
-                        <TextBlock Text="Auto scan sistem, tampilkan rekomendasi cerdas, dan biarkan user apply satu per satu atau fix semuanya sekaligus." Foreground="#cbd5e1" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,18"/>
+                        <TextBlock Text="HyperBoostX Triple AI Engine" FontSize="18" Foreground="#38bdf8" FontWeight="Bold" Margin="0,0,0,8"/>
+                        <TextBlock Text="Scan. Analyze. Boost. Revert. AI PC Performance Doctor untuk rekomendasi gaming yang aman, jelas, dan bisa di-revert." Foreground="#cbd5e1" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,18"/>
 
                         <Border Style="{StaticResource InfoCardStyle}">
                             <StackPanel>
@@ -568,6 +635,7 @@
                                 <TextBlock Name="AiCopilotRiskText" Text="No per-action risk review available." Foreground="#fcd34d" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,12"/>
                                 <WrapPanel Margin="0,0,0,12">
                                     <Button Content="Approve Safe Actions" Click="ApproveAiActions_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <Button Content="Revert Last Safe Boost" Click="RevertTripleAiSafeBoost_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                     <Button Content="Approve Next Action" Click="ApproveNextAiAction_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                     <Button Content="Skip Next Action" Click="SkipNextAiAction_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
                                     <Button Content="Reject Plan" Click="RejectAiActions_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
@@ -2517,17 +2585,44 @@
                                     </WrapPanel>
                                     <TextBlock Name="SettingsAppUpdateStatusText" Text="App update status will appear here." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,12"/>
                                     <Separator Margin="0,4,0,12" Background="#1e293b"/>
-                                    <TextBlock Text="OpenAI / ChatGPT Copilot" Foreground="#f8fafc" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
-                                    <TextBlock Text="OpenAI API Key:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/>
-                                    <TextBox Name="OpenAiApiKeyInput" Text="" Background="#0f172a" Foreground="#ffffff" Padding="10" Margin="0,0,0,12" BorderThickness="1" BorderBrush="#0ea5e9"/>
+                                    <TextBlock Text="NVIDIA Copilot" Foreground="#f8fafc" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
+                                    <TextBlock Text="AI Provider: NVIDIA" Foreground="#38bdf8" FontSize="11" Margin="0,0,0,8"/>
+                                    <TextBlock Text="NVIDIA API Key:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/>
+                                    <PasswordBox Name="NvidiaApiKeyInput" Background="#0f172a" Foreground="#ffffff" Padding="10" Margin="0,0,0,12" BorderThickness="1" BorderBrush="#0ea5e9"/>
                                     <WrapPanel Margin="0,0,0,12">
                                         <StackPanel Margin="0,0,12,0">
-                                            <TextBlock Text="Model:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/>
-                                            <TextBox Name="OpenAiModelInput" Text="gpt-4.1-mini" Width="160" Background="#0f172a" Foreground="#ffffff" Padding="8" BorderThickness="1" BorderBrush="#334155"/>
+                                            <TextBlock Text="Default Model:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/>
+                                            <ComboBox Name="NvidiaModelCombo" Width="330" Background="#0f172a" Foreground="#ffffff" Padding="8" BorderThickness="1" BorderBrush="#334155">
+                                                <ComboBoxItem Content="nvidia/nemotron-3-nano-30b-a3b" IsSelected="True"/>
+                                                <ComboBoxItem Content="nvidia/llama-3.3-nemotron-super-49b-v1.5"/>
+                                                <ComboBoxItem Content="nvidia/nemotron-3-super-120b-a12b"/>
+                                                <ComboBoxItem Content="nvidia/nemotron-3-ultra-550b-a55b"/>
+                                                <ComboBoxItem Content="nvidia/llama-3.1-nemotron-ultra-253b-v1"/>
+                                                <ComboBoxItem Content="nvidia/nvidia-nemotron-nano-9b-v2"/>
+                                                <ComboBoxItem Content="nvidia/nemotron-mini-4b-instruct"/>
+                                                <ComboBoxItem Content="nvidia/nemotron-content-safety-reasoning-4b"/>
+                                                <ComboBoxItem Content="nvidia/llama-3.1-nemoguard-8b-content-safety"/>
+                                                <ComboBoxItem Content="nvidia/llama-3.1-nemoguard-8b-topic-control"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,12,0">
+                                            <TextBlock Text="Fallback Model:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/>
+                                            <ComboBox Name="NvidiaFallbackModelCombo" Width="330" Background="#0f172a" Foreground="#ffffff" Padding="8" BorderThickness="1" BorderBrush="#334155">
+                                                <ComboBoxItem Content="nvidia/nemotron-3-nano-30b-a3b"/>
+                                                <ComboBoxItem Content="nvidia/llama-3.3-nemotron-super-49b-v1.5"/>
+                                                <ComboBoxItem Content="nvidia/nemotron-3-super-120b-a12b"/>
+                                                <ComboBoxItem Content="nvidia/nemotron-3-ultra-550b-a55b"/>
+                                                <ComboBoxItem Content="nvidia/llama-3.1-nemotron-ultra-253b-v1"/>
+                                                <ComboBoxItem Content="nvidia/nvidia-nemotron-nano-9b-v2" IsSelected="True"/>
+                                                <ComboBoxItem Content="nvidia/nemotron-mini-4b-instruct"/>
+                                                <ComboBoxItem Content="nvidia/nemotron-content-safety-reasoning-4b"/>
+                                                <ComboBoxItem Content="nvidia/llama-3.1-nemoguard-8b-content-safety"/>
+                                                <ComboBoxItem Content="nvidia/llama-3.1-nemoguard-8b-topic-control"/>
+                                            </ComboBox>
                                         </StackPanel>
                                         <StackPanel Margin="0,0,12,0">
                                             <TextBlock Text="AI Mode:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/>
-                                            <ComboBox Name="OpenAiModeCombo" Width="140">
+                                            <ComboBox Name="NvidiaModeCombo" Width="140">
                                                 <ComboBoxItem Content="Chat"/>
                                                 <ComboBoxItem Content="Assistant" IsSelected="True"/>
                                                 <ComboBoxItem Content="Action"/>
@@ -2536,7 +2631,7 @@
                                         </StackPanel>
                                         <StackPanel>
                                             <TextBlock Text="Permission:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/>
-                                            <ComboBox Name="OpenAiPermissionCombo" Width="140">
+                                            <ComboBox Name="NvidiaPermissionCombo" Width="140">
                                                 <ComboBoxItem Content="Suggest"/>
                                                 <ComboBoxItem Content="Ask" IsSelected="True"/>
                                                 <ComboBoxItem Content="Auto Safe"/>
@@ -2544,11 +2639,17 @@
                                             </ComboBox>
                                         </StackPanel>
                                     </WrapPanel>
-                                    <WrapPanel>
-                                        <Button Name="SaveOpenAiSettingsBtn" Content="Save AI Settings" Click="SaveOpenAiSettings_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
-                                        <Button Name="TestOpenAiConnectionBtn" Content="Test AI Connection" Click="TestOpenAiConnection_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    <WrapPanel Margin="0,0,0,12">
+                                        <CheckBox Name="NvidiaAutoFallbackToggle" Content="Auto fallback" IsChecked="True" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                        <CheckBox Name="NvidiaSafetyGuardToggle" Content="Safety Guard" IsChecked="True" Foreground="#e2e8f0" Margin="0,0,18,8"/>
+                                        <CheckBox Name="NvidiaRequireApprovalToggle" Content="Require Approval" IsChecked="True" Foreground="#e2e8f0" Margin="0,0,18,8"/>
                                     </WrapPanel>
-                                    <TextBlock Name="OpenAiSettingsStatusText" Text="AI Copilot is offline. Configure API key to enable OpenAI integration." Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                    <WrapPanel>
+                                        <Button Name="SaveNvidiaSettingsBtn" Content="Save NVIDIA API Key" Click="SaveNvidiaSettings_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Name="TestNvidiaConnectionBtn" Content="Test NVIDIA Connection" Click="TestNvidiaConnection_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                        <Button Name="ResetAiProviderBtn" Content="Reset AI Provider" Click="ResetAiProvider_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,12,12"/>
+                                    </WrapPanel>
+                                    <TextBlock Name="NvidiaSettingsStatusText" Text="AI Provider: NVIDIA&#x0a;Connection Status: Not Configured&#x0a;Last Test Result: Not Configured" Foreground="#cbd5e1" FontSize="11" FontFamily="Consolas" LineHeight="16" TextWrapping="Wrap" Margin="0,0,0,12"/>
                                     <Separator Margin="0,4,0,12" Background="#1e293b"/>
                                     <TextBlock Text="Discord Error Reporting" Foreground="#f8fafc" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
                                     <TextBlock Text="Error / Audit Webhook URL:" Foreground="#99ffffff" FontSize="11" Margin="0,0,0,5"/>
@@ -6103,7 +6204,7 @@
                                 <TextBlock Text="Power Optimization &amp; Visual Effects Control" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
                                 <TextBlock Text="Backup &amp; Restore + Restore Point Manager" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
                                 <TextBlock Text="Scheduled Automation (task &amp; rule system)" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
-                                <TextBlock Text="AI Assistant (HyperBoostX Copilot - OpenAI integration)" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
+                                <TextBlock Text="AI Assistant (HyperBoostX Copilot - NVIDIA integration)" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
                                 <TextBlock Text="Discord Webhook Error Reporting &amp; Release Update Notification" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
                                 <TextBlock Text="Master Test Engine &amp; Feature Audit Matrix" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,4"/>
                                 <TextBlock Text="Multi-language Support (Localization System)" Foreground="#cbd5e1" FontSize="12" Margin="0,0,0,16"/>
@@ -6124,13 +6225,13 @@
                                 <TextBlock Text="MR.4NONY - HYPERINDO CYBER TEAM" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,16"/>
 
                                 <TextBlock Text="VERSION" Foreground="#38bdf8" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
-                                <TextBlock Name="AboutVersionText" Text="1.2.12 - Stable - 2026" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,8"/>
+                                <TextBlock Name="AboutVersionText" Text="1.2.13 - Stable - 2026" Foreground="#e2e8f0" FontSize="12" Margin="0,0,0,8"/>
                                 <WrapPanel Margin="0,0,0,12">
                                     <Border Background="#14532d" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
                                         <TextBlock Text="STABLE RELEASE" Foreground="#dcfce7" FontSize="11" FontWeight="Bold"/>
                                     </Border>
                                     <Border Background="#0f172a" BorderBrush="#38bdf8" BorderThickness="1" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
-                                        <TextBlock Text="v1.2.12" Foreground="#bae6fd" FontSize="11" FontWeight="Bold"/>
+                                        <TextBlock Text="v1.2.13" Foreground="#bae6fd" FontSize="11" FontWeight="Bold"/>
                                     </Border>
                                     <Border Background="#3f3f46" CornerRadius="999" Padding="10,4" Margin="0,0,8,8">
                                         <TextBlock Name="AboutQaBadgeText" Text="QA NOT RUN" Foreground="#f8fafc" FontSize="11" FontWeight="Bold"/>

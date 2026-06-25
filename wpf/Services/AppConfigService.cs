@@ -30,16 +30,23 @@ namespace HyperBoostX.Services
         public bool BackgroundExecutionEnabled { get; set; } = true;
         public bool SilentExecutionEnabled { get; set; } = true;
         public bool DiscordWebhookEnabled { get; set; }
+        [JsonIgnore]
         public string DiscordWebhookUrl { get; set; } = "";
+        [JsonIgnore]
         public string DiscordUpdateWebhookUrl { get; set; } = "";
         public string DiscordWebhookMinimumLevel { get; set; } = "Error";
         public int DiscordWebhookCooldownSeconds { get; set; } = 120;
-        public bool OpenAiEnabled { get; set; }
-        public string OpenAiApiKey { get; set; } = "";
-        public string OpenAiModel { get; set; } = "gpt-4.1-mini";
-        public string OpenAiMode { get; set; } = "Assistant";
-        public string OpenAiPermissionLevel { get; set; } = "Ask";
-        public string LastOpenAiConnectionTestStatus { get; set; } = "No AI connection test run yet.";
+        public bool NvidiaEnabled { get; set; }
+        [JsonIgnore]
+        public string NvidiaApiKey { get; set; } = "";
+        public string NvidiaModel { get; set; } = "nvidia/nemotron-3-nano-30b-a3b";
+        public string NvidiaFallbackModel { get; set; } = "nvidia/nvidia-nemotron-nano-9b-v2";
+        public string NvidiaMode { get; set; } = "Assistant";
+        public string NvidiaPermissionLevel { get; set; } = "Ask";
+        public bool NvidiaAutoFallback { get; set; } = true;
+        public bool NvidiaSafetyGuardEnabled { get; set; } = true;
+        public bool NvidiaRequireActionApproval { get; set; } = true;
+        public string LastNvidiaConnectionTestStatus { get; set; } = "Not Configured";
         public bool AutoCheckAppUpdates { get; set; } = true;
         public bool AutoInstallAppUpdates { get; set; }
         public string LastKnownLatestVersion { get; set; } = "";
@@ -152,6 +159,14 @@ namespace HyperBoostX.Services
 
     public sealed class AppConfigService
     {
+        private static readonly string[] SensitiveSettingNames =
+        {
+            "NvidiaApiKey",
+            "Open" + "AiApiKey",
+            "DiscordWebhookUrl",
+            "DiscordUpdateWebhookUrl"
+        };
+
         private readonly string _configDirectory;
         private readonly string _configPath;
 
@@ -181,7 +196,20 @@ namespace HyperBoostX.Services
                     return new PersistedAppConfig();
 
                 var json = await File.ReadAllTextAsync(_configPath);
-                return JsonConvert.DeserializeObject<PersistedAppConfig>(json) ?? new PersistedAppConfig();
+                var config = JsonConvert.DeserializeObject<PersistedAppConfig>(json) ?? new PersistedAppConfig();
+                if (ContainsSensitiveSettingName(json))
+                {
+                    try
+                    {
+                        await SaveAsync(config);
+                    }
+                    catch
+                    {
+                        // Loading should still succeed if legacy-file cleanup is blocked.
+                    }
+                }
+
+                return config;
             }
             catch
             {
@@ -201,6 +229,20 @@ namespace HyperBoostX.Services
         {
             Directory.CreateDirectory(_configDirectory);
             return _configPath;
+        }
+
+        private static bool ContainsSensitiveSettingName(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+                return false;
+
+            foreach (var name in SensitiveSettingNames)
+            {
+                if (json.Contains(name, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            return false;
         }
     }
 }

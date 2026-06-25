@@ -2,12 +2,19 @@
 
 import os
 import time
+import warnings
 from typing import Dict, List
 import psutil
 from core.logger import Logger
 
 try:
-    import GPUtil
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            'ignore',
+            message='The distutils package is deprecated and slated for removal in Python 3.12.*',
+            category=DeprecationWarning,
+        )
+        import GPUtil
 except ImportError:
     GPUtil = None
 

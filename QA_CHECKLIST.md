@@ -1,4 +1,4 @@
-# QA Checklist
+﻿# QA Checklist
 
 Release target:
 - `HyperBoostX v1.1.0-beta`
@@ -49,7 +49,7 @@ Use this checklist before promoting a beta build to a wider release.
 
 ## 5. AI Copilot
 
-- [ ] Test OpenAI connection from Settings.
+- [ ] Test NVIDIA connection from Settings.
 - [ ] Send a normal prompt in AI Copilot.
 - [ ] Verify context-aware response appears.
 - [ ] Verify safe actions are queued for review.
@@ -127,3 +127,4 @@ Use this checklist before promoting a beta build to a wider release.
 - [ ] Beta ready for wider testing
 - [ ] Needs fixes before wider testing
 - [ ] Ready for public stable release
+

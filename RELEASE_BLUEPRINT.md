@@ -76,7 +76,7 @@ Recommended split:
   - `Blocked`
 - keep checksum validation mandatory for trusted manual install
 - stop presenting unsigned-but-valid installers as generic hard failure when manual install is still safe
-- keep automatic install blocked until signing is available or policy changes intentionally
+- keep automatic install disabled by default unless signing is available or policy changes intentionally
 
 #### 4. Audit reporting polish
 

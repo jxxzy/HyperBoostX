@@ -1,4 +1,6 @@
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace HyperBoostX.Services
 {
@@ -8,7 +10,7 @@ namespace HyperBoostX.Services
         Task<dynamic> GetSystemInfoAsync();
         Task<dynamic> GetSystemStatsAsync();
         Task<dynamic> GetTweaksAsync();
-        Task<dynamic> ApplyTweakAsync(string tweakId);
+        Task<dynamic> ApplyTweakAsync(string tweakId, bool expertMode = false, bool confirmed = false);
         Task<dynamic> GetBoosterProfilesAsync();
         Task<dynamic> ApplyBoosterAsync(string profile);
         Task<dynamic> GetDriversAsync();
@@ -22,5 +24,9 @@ namespace HyperBoostX.Services
         Task<dynamic> FlushDnsAsync();
         Task<dynamic> OptimizeTcpAsync();
         Task<dynamic> ResetNetworkAsync();
+        Task<dynamic> RunTripleAiFlowAsync(string userGoal = "gaming", string game = "");
+        Task<dynamic> ApplyTripleAiTweaksAsync(JArray approvedTweaks, bool userApproved = false);
+        Task<dynamic> RevertTripleAiTweaksAsync(string backupId = "", IReadOnlyList<string> tweakIds = null);
     }
 }
+

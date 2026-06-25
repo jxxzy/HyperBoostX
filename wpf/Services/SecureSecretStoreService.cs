@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -12,12 +12,12 @@ namespace HyperBoostX.Services
     {
         public string DiscordWebhookUrl { get; set; } = "";
         public string DiscordUpdateWebhookUrl { get; set; } = "";
-        public string OpenAiApiKey { get; set; } = "";
+        public string NvidiaApiKey { get; set; } = "";
     }
 
     public sealed class SecureSecretStoreService
     {
-        private const string OpenAiTarget = "HyperBoostX:OpenAI:ApiKey";
+        private const string NvidiaTarget = "HyperBoostX:NVIDIA:ApiKey";
         private const string DiscordTarget = "HyperBoostX:Discord:WebhookUrl";
         private const string DiscordUpdateTarget = "HyperBoostX:Discord:UpdateWebhookUrl";
         private const int CredTypeGeneric = 1;
@@ -39,18 +39,18 @@ namespace HyperBoostX.Services
         {
             var secrets = new PersistedSecureSecrets
             {
-                OpenAiApiKey = ReadCredential(OpenAiTarget),
+                NvidiaApiKey = ReadCredential(NvidiaTarget),
                 DiscordWebhookUrl = ReadCredential(DiscordTarget),
                 DiscordUpdateWebhookUrl = ReadCredential(DiscordUpdateTarget)
             };
 
-            if (!string.IsNullOrWhiteSpace(secrets.OpenAiApiKey) ||
+            if (!string.IsNullOrWhiteSpace(secrets.NvidiaApiKey) ||
                 !string.IsNullOrWhiteSpace(secrets.DiscordWebhookUrl) ||
                 !string.IsNullOrWhiteSpace(secrets.DiscordUpdateWebhookUrl))
                 return secrets;
 
             var legacy = await LoadLegacySecretsAsync();
-            if (!string.IsNullOrWhiteSpace(legacy.OpenAiApiKey) ||
+            if (!string.IsNullOrWhiteSpace(legacy.NvidiaApiKey) ||
                 !string.IsNullOrWhiteSpace(legacy.DiscordWebhookUrl) ||
                 !string.IsNullOrWhiteSpace(legacy.DiscordUpdateWebhookUrl))
             {
@@ -64,7 +64,7 @@ namespace HyperBoostX.Services
 
         public Task SaveAsync(PersistedSecureSecrets secrets)
         {
-            WriteCredential(OpenAiTarget, secrets.OpenAiApiKey);
+            WriteCredential(NvidiaTarget, secrets.NvidiaApiKey);
             WriteCredential(DiscordTarget, secrets.DiscordWebhookUrl);
             WriteCredential(DiscordUpdateTarget, secrets.DiscordUpdateWebhookUrl);
             return Task.CompletedTask;
@@ -74,6 +74,12 @@ namespace HyperBoostX.Services
         {
             DeleteCredential(DiscordTarget);
             DeleteCredential(DiscordUpdateTarget);
+            return Task.CompletedTask;
+        }
+
+        public Task ClearNvidiaAsync()
+        {
+            DeleteCredential(NvidiaTarget);
             return Task.CompletedTask;
         }
 
@@ -95,7 +101,8 @@ namespace HyperBoostX.Services
 
                 var rawBytes = ProtectedData.Unprotect(protectedBytes, AdditionalEntropy, DataProtectionScope.CurrentUser);
                 var json = Encoding.UTF8.GetString(rawBytes);
-                return JsonConvert.DeserializeObject<PersistedSecureSecrets>(json) ?? new PersistedSecureSecrets();
+                var legacy = JsonConvert.DeserializeObject<PersistedSecureSecrets>(json) ?? new PersistedSecureSecrets();
+                return legacy;
             }
             catch
             {
@@ -142,9 +149,7 @@ namespace HyperBoostX.Services
                 credential.CredentialBlob = blobPtr;
 
                 if (!CredWrite(ref credential, 0))
-                {
                     throw new InvalidOperationException($"Credential Manager write failed for {target}. Error: {Marshal.GetLastWin32Error()}");
-                }
             }
             finally
             {

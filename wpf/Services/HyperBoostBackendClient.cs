@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
@@ -214,12 +214,12 @@ namespace HyperBoostX.Services
         /// <summary>
         /// Apply a specific tweak by ID
         /// </summary>
-        public async Task<dynamic> ApplyTweakAsync(string tweakId)
+        public async Task<dynamic> ApplyTweakAsync(string tweakId, bool expertMode = false, bool confirmed = false)
         {
             try
             {
                 var content = new StringContent(
-                    JsonConvert.SerializeObject(new { tweak_id = tweakId }),
+                    JsonConvert.SerializeObject(new { tweak_id = tweakId, expert_mode = expertMode, confirmed = confirmed }),
                     System.Text.Encoding.UTF8,
                     "application/json"
                 );
@@ -518,6 +518,68 @@ namespace HyperBoostX.Services
                 throw new InvalidOperationException($"Failed to reset network: {ex.Message}", ex);
             }
         }
+        public async Task<dynamic> RunTripleAiFlowAsync(string userGoal = "gaming", string game = "")
+        {
+            try
+            {
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(new { user_goal = userGoal, game = game }),
+                    System.Text.Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/api/triple-ai/full-flow", content);
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
+                return ParseJsonToken(json);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to run Triple AI flow: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<dynamic> ApplyTripleAiTweaksAsync(JArray approvedTweaks, bool userApproved = false)
+        {
+            try
+            {
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(new { approved_tweaks = approvedTweaks ?? new JArray(), user_approved = userApproved }),
+                    System.Text.Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/api/triple-ai/tweaks/apply", content);
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
+                return ParseJsonToken(json);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to apply Triple AI tweaks: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<dynamic> RevertTripleAiTweaksAsync(string backupId = "", IReadOnlyList<string> tweakIds = null)
+        {
+            try
+            {
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(new { backup_id = backupId ?? "", tweak_ids = tweakIds ?? Array.Empty<string>() }),
+                    System.Text.Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/api/triple-ai/tweaks/revert", content);
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
+                return ParseJsonToken(json);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to revert Triple AI tweaks: {ex.Message}", ex);
+            }
+        }
 
         /// <summary>
         /// Format complex objects to readable strings
@@ -545,3 +607,5 @@ namespace HyperBoostX.Services
         }
     }
 }
+
+
