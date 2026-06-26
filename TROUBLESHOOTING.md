@@ -25,4 +25,4 @@ Crash reports are local and redacted. They are not uploaded automatically. Revie
 
 ## Restore
 
-Use Restore & Backup or restore-session endpoints to inspect metadata. Safe Mode / Recovery Mode is roadmap; v1.4.0 keeps restore metadata and undo visibility as the supported recovery path.
+Use Restore & Backup or restore-session endpoints to inspect metadata. Safe Mode / Recovery Mode is roadmap; v2.0.0 keeps restore metadata and undo visibility as the supported recovery path.

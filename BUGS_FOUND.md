@@ -1,8 +1,8 @@
-# Bugs Found - HyperBoostX v1.4.0 Audit
+# Bugs Found - HyperBoostX v2.0.0 Audit
 
 ## Active Version Drift
 
-Active source and docs still reported `1.3.0` while the requested target was `1.4.0`.
+Active source and docs still reported `1.3.0` while the requested target was `2.0.0`.
 
 ## Missing v1.4 API Surface
 

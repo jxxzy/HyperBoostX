@@ -1,6 +1,6 @@
 # RGB Integration Roadmap
 
-HyperBoostX v1.4.0 detects RGB-related software where safe, but it does not control RGB devices or modify RGB services.
+HyperBoostX v2.0.0 detects RGB-related software where safe, but it does not control RGB devices or modify RGB services.
 
 ## Safe Detection Targets
 
@@ -19,4 +19,4 @@ HyperBoostX v1.4.0 detects RGB-related software where safe, but it does not cont
 
 ## Current Status
 
-Detection/roadmap only. RGB control is not a v1.4.0 feature.
+Detection/roadmap only. RGB control is not a v2.0.0 feature.

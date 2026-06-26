@@ -1,6 +1,6 @@
 # HyperBoostX
 
-[![Stable Release](https://img.shields.io/badge/Stable-v1.4.0-16a34a?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jxxzy/HyperBoostX/releases/tag/v1.4.0)
+[![Stable Release](https://img.shields.io/badge/Stable-v2.0.0-16a34a?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jxxzy/HyperBoostX/releases/tag/v2.0.0)
 [![Windows](https://img.shields.io/badge/Windows-10%20%2F%2011-2563eb?style=for-the-badge&logo=windows&logoColor=white)](#requirements)
 [![Safety Guard](https://img.shields.io/badge/Safety%20Guard-Always%20On-22c55e?style=for-the-badge)](#safety-guard)
 
@@ -12,9 +12,9 @@ HyperBoostX does not guarantee FPS increase on every PC. It is not an overclocki
 
 | Item | Link |
 | --- | --- |
-| Installer | [HyperBoostXInstaller.exe](https://github.com/jxxzy/HyperBoostX/releases/download/v1.4.0/HyperBoostXInstaller.exe) |
-| Checksums | [SHA256SUMS.txt](https://github.com/jxxzy/HyperBoostX/releases/download/v1.4.0/SHA256SUMS.txt) |
-| Release notes | [RELEASE_NOTES_v1.4.0.md](RELEASE_NOTES_v1.4.0.md) |
+| Installer | [HyperBoostXInstaller.exe](https://github.com/jxxzy/HyperBoostX/releases/download/v2.0.0/HyperBoostXInstaller.exe) |
+| Checksums | [SHA256SUMS.txt](https://github.com/jxxzy/HyperBoostX/releases/download/v2.0.0/SHA256SUMS.txt) |
+| Release notes | [RELEASE_NOTES_v2.0.0.md](RELEASE_NOTES_v2.0.0.md) |
 
 If the installer is unsigned, Windows may show Unknown Publisher or SmartScreen. Use the official GitHub Release and verify SHA256 before installing.
 
@@ -25,7 +25,7 @@ If the installer is unsigned, Windows may show Unknown Publisher or SmartScreen.
 - Local Python Flask backend is packaged for release builds.
 - Backend binds to `127.0.0.1` only.
 
-## v1.4.0 Highlights
+## v2.0.0 Highlights
 
 - Real cyber WPF shell is active in the running app: `wpf/MainWindow.xaml` is now a shell, global theme/style dictionaries are merged in `wpf/App.xaml`, and pages load from `wpf/Views/*`.
 - Cyber dashboard includes HyperBoostX hero, PC Health, Gaming, Streaming, Startup, Network, Safety, CPU/RAM/GPU/VRAM/Storage/Network/Power/Restore/backend cards, scanner line, hover cards, score rings, and action buttons.
@@ -42,11 +42,11 @@ If the installer is unsigned, Windows may show Unknown Publisher or SmartScreen.
 - Local JSON storage under `%LocalAppData%\HyperBoost X` with corrupt-file backup and portable-mode support through `HYPERBOOSTX_PORTABLE_HOME`.
 - Session token enforcement for mutating endpoints when `HYPERBOOSTX_SESSION_TOKEN` is enabled.
 - Local action log with redaction for tokens, usernames, and sensitive paths.
-- Tests expanded to cover v1.4 API contracts, advisor diagnosis, knowledge base, protection blocking, history, settings, corrupted JSON recovery, and roadmap-only feature boundaries.
+- Tests expanded to cover product API contracts, advisor diagnosis, knowledge base, protection blocking, history, settings, corrupted JSON recovery, WPF feature audit, and roadmap-only feature boundaries.
 
 ## Cyber UI Screenshots
 
-Release screenshots should be captured from the installed app after smoke validation:
+Release screenshots were captured from the real WPF app after smoke validation:
 
 - `docs/screenshots/wpf-cyber-dashboard.png` - dashboard hero, score rings, system cards, backend pulse.
 - `docs/screenshots/wpf-cyber-settings.png` - motion/accent/mode settings.
@@ -106,13 +106,13 @@ HyperBoostX detects and guides:
 
 HyperBoostX is not official NVIDIA, AMD, Intel, MSI, Microsoft, or any vendor software.
 
-## Roadmap-Only In v1.4.0
+## Roadmap-Only In v2.0.0
 
 These are intentionally not claimed as complete release features:
 
 - Global similar-hardware benchmark comparison, until a verified dataset exists.
 - Third-party plugin SDK and marketplace.
-- RGB device control. v1.4 detects RGB software only.
+- RGB device control. v2.0.0 detects RGB software only.
 - Performance monitor overlay.
 - HyperBoostX Cloud sync.
 - Paid license lock or activation server.
@@ -140,4 +140,4 @@ dotnet test dotnet-tests\HyperBoostX.Tests\HyperBoostX.Tests.csproj -c Debug
 
 ## License Roadmap
 
-No v1.4.0 feature is locked behind a license. Any professional license, activation, or cloud feature remains roadmap-only.
+No v2.0.0 feature is locked behind a license. Any professional license, activation, or cloud feature remains roadmap-only.

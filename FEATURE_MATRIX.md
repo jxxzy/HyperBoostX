@@ -1,7 +1,7 @@
 # HyperBoostX Feature Matrix
 
 Status date: `2026-06-26`
-Active version: `1.4.0`
+Active version: `2.0.0`
 
 | Feature | Backend | WPF UI | Tests | Status |
 | --- | --- | --- | --- | --- |

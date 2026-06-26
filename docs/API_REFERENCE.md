@@ -1,4 +1,4 @@
-# HyperBoostX v1.4.0 API Reference
+# HyperBoostX v2.0.0 API Reference
 
 Base URL: `http://127.0.0.1:5000`
 
@@ -9,13 +9,13 @@ The backend is local-only. Mutating endpoints require `X-HyperBoostX-Session` wh
 `GET /api/health`
 
 ```json
-{"status":"ok","version":"1.4.0","local_only":true,"session_token_required":false}
+{"status":"ok","version":"2.0.0","local_only":true,"session_token_required":false}
 ```
 
 `GET /api/version`
 
 ```json
-{"name":"HyperBoostX","version":"1.4.0","release":"HyperBoostX v1.4.0 Stable"}
+{"name":"HyperBoostX","version":"2.0.0","release":"HyperBoostX v2.0.0 Stable"}
 ```
 
 ## Existing Core APIs

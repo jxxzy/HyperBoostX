@@ -1,6 +1,6 @@
 # Security Policy
 
-Target release: `HyperBoostX v1.4.0 Feature Expansion Stable`
+Target release: `HyperBoostX v2.0.0 Ultimate Winner Edition`
 
 ## Local Backend
 

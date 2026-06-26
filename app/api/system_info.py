@@ -44,7 +44,7 @@ def get_system_info():
 
 @system_bp.route('/startup', methods=['GET'])
 def get_system_startup():
-    """Return startup item data from the v1.4.0 system namespace."""
+    """Return startup item data from the v2.0.0 system namespace."""
     try:
         items = startup_service.get_startup_items()
         return jsonify({

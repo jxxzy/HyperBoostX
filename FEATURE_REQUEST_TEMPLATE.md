@@ -18,6 +18,6 @@ Why it belongs in HyperBoostX:
 
 Please mention whether the request is for NVIDIA, AMD Radeon, Intel Arc/iGPU, laptop hybrid graphics, Microsoft Basic Display Adapter, or unknown GPU fallback systems.
 
-## Out Of Scope For v1.4.0
+## Out Of Scope For v2.0.0
 
 License activation, payment, feature locking, and license servers are roadmap-only for v2.0.0 or later.

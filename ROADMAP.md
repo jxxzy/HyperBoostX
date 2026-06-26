@@ -1,6 +1,6 @@
 # HyperBoostX Roadmap
 
-## v1.4.0 Feature Expansion Stable
+## v2.0.0 Ultimate Winner Edition
 
 Completed in this branch:
 
@@ -43,10 +43,10 @@ Completed in this branch:
 - HyperBoostX Cloud for optional profiles, reports, and settings sync.
 - Optional professional license server, activation, lifetime plan, and admin dashboard.
 
-## Roadmap-Only In v1.4.0
+## Roadmap-Only In v2.0.0
 
 - RGB control is not implemented. v1.4 detects RGB apps only.
 - Global benchmark comparison is not implemented without a verified dataset.
 - Plugin SDK/marketplace is not active. v1.4 exposes a local registry foundation only.
 - Cloud sync is not implemented.
-- License activation is not implemented in v1.4.0. No v1.4.0 feature is locked behind a license.
+- License activation is not implemented in v2.0.0. No v2.0.0 feature is locked behind a license.

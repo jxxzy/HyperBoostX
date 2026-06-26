@@ -2,6 +2,8 @@
 
 Goal: present HyperBoostX as a trustworthy Safe AI Windows Gaming Optimizer without unsafe or exaggerated claims.
 
+Implementation: the static website starter is in `website/` with `index.html`, `styles.css`, `app.js`, and screenshot assets under `website/assets/`.
+
 ## Pages Or Sections
 
 - Hero: HyperBoostX, Safe AI Windows Gaming Optimizer.

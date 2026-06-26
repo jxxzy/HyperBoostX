@@ -1,4 +1,4 @@
-"""Hardware profile and readiness scoring for HyperBoostX v1.4.0."""
+"""Hardware profile and readiness scoring for HyperBoostX v2.0.0."""
 
 from __future__ import annotations
 

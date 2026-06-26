@@ -1,6 +1,6 @@
 # Commercial Roadmap
 
-HyperBoostX v1.4.0 does not enforce paid licensing and does not require online accounts for core safe features.
+HyperBoostX v2.0.0 does not enforce paid licensing and does not require online accounts for core safe features.
 
 ## Principles
 
@@ -18,4 +18,4 @@ HyperBoostX v1.4.0 does not enforce paid licensing and does not require online a
 
 ## Current Status
 
-Roadmap only. No v1.4.0 feature is license-locked.
+Roadmap only. No v2.0.0 feature is license-locked.

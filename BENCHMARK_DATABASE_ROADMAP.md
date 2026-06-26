@@ -1,6 +1,6 @@
 # Benchmark Database Roadmap
 
-HyperBoostX v1.4.0 supports local manual benchmark input, CSV import, latest result, history, and export. It does not yet provide a verified global similar-hardware benchmark database.
+HyperBoostX v2.0.0 supports local manual benchmark input, CSV import, latest result, history, and export. It does not yet provide a verified global similar-hardware benchmark database.
 
 ## Required Before Public Comparison Claims
 

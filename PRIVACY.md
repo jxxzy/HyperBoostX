@@ -1,6 +1,6 @@
 # Privacy
 
-HyperBoostX v1.4.0 is local-first.
+HyperBoostX v2.0.0 is local-first.
 
 - Backend runs on `127.0.0.1`.
 - Reports, settings, profiles, sessions, backups, logs, and diagnostics are stored locally under `%LocalAppData%\HyperBoost X` by default.

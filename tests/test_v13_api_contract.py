@@ -5,7 +5,7 @@ from services.monitoring.crash_report_service import CrashReportService
 from services.monitoring.report_service import ReportService
 
 
-def test_health_and_version_are_v140():
+def test_health_and_version_are_v200():
     server = HyperBoostBackendServer()
     client = server.app.test_client()
 
@@ -13,8 +13,8 @@ def test_health_and_version_are_v140():
     version = client.get("/api/version")
 
     assert health.status_code == 200
-    assert health.get_json()["version"] == "1.4.0"
-    assert version.get_json()["release"] == "HyperBoostX v1.4.0 Stable"
+    assert health.get_json()["version"] == "2.0.0"
+    assert version.get_json()["release"] == "HyperBoostX v2.0.0 Stable"
 
 
 def test_required_v13_read_endpoints_exist(monkeypatch):

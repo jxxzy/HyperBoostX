@@ -2,6 +2,15 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v2.0.0 - 2026-06-26
+- Promoted active release metadata to `2.0.0` across backend, WPF, launcher, installer, About page, docs, and tests.
+- Kept the real cyber WPF shell as the default running UI, with `MainWindow` shell-only and routed pages under `wpf/Views/*`.
+- Added static website starter assets under `website/` for GitHub Release/download guidance, feature overview, Safety Guard, screenshots, FAQ, and SHA256 verification.
+- Added real WPF screenshot evidence under `docs/screenshots/` and `website/assets/`.
+- Finalized `RELEASE_NOTES_v2.0.0.md` as active release notes with honest shipped/partial/roadmap boundaries.
+- Preserved Safety Guard restrictions and no-guaranteed-FPS/no-vendor-partnership claims boundary.
+- v2.0.0 still requires owner signing credentials for a signed installer; unsigned release artifacts keep SmartScreen/Unknown Publisher guidance.
+
 ## v1.4.0 - 2026-06-26
 - Added local AI Performance Advisor for CPU, GPU, VRAM, RAM, storage, startup, and bottleneck diagnosis.
 - Added HyperBoostX Knowledge Base terms for DLSS, FSR, XeSS, Resizable BAR, Game Mode, HAGS, VRR, V-Sync, G-Sync, FreeSync, Frame Generation, Reflex, AFMF, and HYPR-RX.

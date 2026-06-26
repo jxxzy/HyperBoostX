@@ -1,6 +1,6 @@
 # Plugin System Roadmap
 
-v1.4.0 includes an internal registry foundation only. HyperBoostX does not load third-party plugin code in this release.
+v2.0.0 includes an internal registry foundation only. HyperBoostX does not load third-party plugin code in this release.
 
 ## Future Categories
 

@@ -1,8 +1,8 @@
-# Stable Release Checklist - HyperBoostX v1.4.0
+# Stable Release Checklist - HyperBoostX v2.0.0
 
-Stable release target: `HyperBoostX v1.4.0 Feature Expansion Stable`
+Stable release target: `HyperBoostX v2.0.0 Ultimate Winner Edition`
 
-- [x] Source version synchronized to `1.4.0`.
+- [x] Source version synchronized to `2.0.0`.
 - [x] Backend v1.4 API contract added.
 - [x] Safety docs updated.
 - [x] Active docs updated.
@@ -18,7 +18,7 @@ Stable release target: `HyperBoostX v1.4.0 Feature Expansion Stable`
 - [x] Installed app smoke pass.
 - [x] Uninstall/reinstall smoke pass.
 - [x] Code signing blocker documented: no certificate/PFX provided.
-- [ ] Tag `v1.4.0` pushed.
+- [ ] Tag `v2.0.0` pushed.
 - [ ] GitHub Release created and artifacts attached.
 
 Do not mark DONE until incomplete items are either passed or clearly documented as blocked.

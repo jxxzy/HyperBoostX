@@ -1,65 +1,71 @@
-# Audit Report - HyperBoostX v1.4.0
+# Audit Report - HyperBoostX v2.0.0
 
-Target version: `1.4.0`
-Branch: `feature/v1.4.0-ultra-complete-update`
+Target version: `2.0.0`
+Branch: `feature/hyperboostx-v2-release`
 Audit date: `2026-06-26`
 
-## What Exists
+## Scope Audited
 
-- WPF desktop client with active cyber shell, global theme/style dictionaries, and page views under `wpf/Views/*`.
-- Python Flask backend bound to `127.0.0.1`.
-- .NET launcher with local backend lifecycle/session-token support.
-- NSIS installer script.
-- v1.3 safe boost, hardware/GPU, reports, jobs, startup, network, and crash-report redaction contracts.
-- v1.4 product feature APIs for advisor, knowledge base, score engine, games, overlays, protection, processes, benchmark, GPU, driver recommendation, cleanup, network, essentials, restore, settings, plugins, RGB detection, action log, and roadmap.
+- WPF entry points: `wpf/App.xaml`, `wpf/App.xaml.cs`, `wpf/MainWindow.xaml`, `wpf/MainWindow.xaml.cs`, `wpf/HyperBoostX.csproj`, `wpf/Services/*`, and `wpf/ViewModels/*`.
+- WPF cyber UI resources: `wpf/Themes/*`, `wpf/Styles/*`, `wpf/Views/*`, and page view models.
+- Backend version/API metadata, launcher metadata, installer metadata, About page metadata, docs, tests, release scripts, package scripts, installer script, website starter, screenshots, and checksums.
 
-## What Was Stale
+## Completed Work
 
-- Active release metadata referenced `1.3.0` before this v1.4 branch work.
-- README, release guide, QA docs, security docs, WPF metadata, launcher metadata, installer metadata, About page, and backend constants required v1.4 sync.
+- Promoted active release metadata to `2.0.0` across backend, WPF, launcher, installer, About page, docs, tests, and release notes.
+- Kept the real WPF cyber redesign as the running UI. `MainWindow.xaml` is a shell only and no longer hosts all feature UI in one window.
+- Loaded real page views through `NavigationService` from `wpf/Views/*`.
+- Added/kept global cyber theme/style dictionaries: `CyberTheme`, `AccentColors`, `Animations`, Buttons, Cards, Sidebar, Badges, ProgressRings, Toasts, and Modals.
+- Added an automation-safe `HYPERBOOSTX_START_PAGE` startup hook for smoke tests and screenshot capture. Invalid or missing values fall back to Dashboard.
+- Regenerated real WPF screenshots for Dashboard, Settings, and Feature Audit under `docs/screenshots/` and copied them to `website/assets/`.
+- Added static website starter under `website/` with release/download, safety, feature, screenshot, FAQ, and checksum guidance.
+- Updated release docs, QA docs, README, WPF README, changelog, API docs, privacy/support/troubleshooting/build docs, and roadmap docs for v2.0.0.
+- Built release, packaged backend/WPF/launcher/portable app, built NSIS installer, generated and verified `SHA256SUMS.txt`.
+- Validated old v1.4 uninstall, fresh v2 install, installed app smoke, silent reinstall, v2 silent uninstall, fresh reinstall, and final installed smoke.
 
-## What Was Missing
+## WPF UI Findings
 
-- Backend endpoints for the v1.4 feature expansion list.
-- Local storage folders/files for reports, profiles, sessions, diagnostics, performance history, action log, and UI settings.
-- AI diagnosis and knowledge-base features that are not free-form shell execution.
-- Tests for roadmap-only boundaries, protected process blocking, corrupted JSON recovery, and reduce motion settings.
-- Root `API_REFERENCE.md`, `PRIVACY.md`, `DISCLAIMER.md`, `CONTRIBUTING.md`, and GitHub issue/PR templates.
-
-## What Was Added
-
-- `app/services/product_features.py` with local-first product services.
-- `app/api/product_v14.py` with v1.4 API contract.
-- v1.4 tests in `tests/test_v14_product_features.py`.
-- v1.4 release notes and refreshed active docs.
-- Real WPF cyber UI integration: `App.xaml` resource dictionaries, `MainWindow` shell, `Views/*`, `ViewModels/*`, and persisted UI settings.
-
-## Safety Findings
-
-- Mutating endpoints are covered by global session-token middleware.
-- Protection evaluator blocks dangerous action names and protected process targets.
-- Driver latest-stable comparison and global benchmark comparison are not fabricated.
-- RGB control, cloud sync, plugin SDK/marketplace, and license activation remain roadmap-only.
-
-## UI Findings
-
-- The old active WPF sidebar/MainWindow monolith was replaced. `MainWindow.xaml` now contains shell structure only: sidebar, topbar, content host, toast, and backend pulse.
-- New page views exist and are loaded through `NavigationService` from `wpf/Views/*`.
-- Global cyber theme/style dictionaries are referenced by `App.xaml` and bootstrapped by `MainWindow` for test contexts that create a plain `Application`.
-- Dashboard visibly includes the cyber hero, score cards, system cards, Safety Guard/restore/backend indicators, scanner line, and wired dashboard actions.
+- Old basic dark WPF UI is not the default running UI.
+- Sidebar navigation is the active cyber sidebar and routes to real pages.
+- Dashboard includes cyber hero, score rings, system cards, Safety Guard indicator, restore indicator, backend pulse, scanner-line animation, and main action buttons.
 - Settings includes Enable Animations, Reduce Motion, Accent color, Beginner, Advanced, and Expert Preview with `ui_settings.json` persistence.
-- Metadata/About version was updated to v1.4.0.
+- Feature Audit is a read-only cyber page with Safety Guard, restore, and session-token indicators.
+- About page reports `2.0.0` and `Ultimate Winner Edition` in the installed app.
 
-## Tests
+## Backend And Safety Findings
 
-- Python: `52 passed`.
-- .NET: `28 passed`.
-- Debug build: passed.
-- Release build: passed with 0 warnings after WPF shell integration.
+- Backend `/api/health` returns `ok` and `/api/version` returns `2.0.0` from packaged and installed runs.
+- Mutating endpoints remain session-token aware when `HYPERBOOSTX_SESSION_TOKEN` exists.
+- Safety Guard blocks dangerous action categories: Defender disable, permanent Windows Update disable, anti-cheat edits, GPU/audio/network driver service disable, overclock/undervolt/voltage/BIOS actions, arbitrary AI shell execution, and destructive cleanup.
+- Driver latest-stable comparison, global benchmark comparison, RGB control, cloud sync, plugin marketplace, and license activation are not fabricated as complete features.
 
-## Release Blockers Still Requiring Owner/Environment
+## Validation Summary
 
-- GitHub push/tag/release publishing requires authenticated remote access.
-- Code signing requires a real certificate.
-- Installed app smoke and uninstall/reinstall smoke must be rerun after the cyber WPF installer rebuild.
+- Python tests: `52 passed`.
+- .NET tests: `28 passed`.
+- Release build: passed with `0 Warning(s), 0 Error(s)`.
+- `build_release.bat`: passed, `257` WPF files copied.
+- `package_release.bat`: passed.
+- `build_installer.bat`: passed, installer size `144,217,409` bytes.
+- Portable smoke: backend `ok`/`2.0.0`, cyber UI text visible, orphan process count `0` after close.
+- Installed smoke: backend `ok`/`2.0.0`, About version visible, orphan process count `0` after close.
+- Silent reinstall/uninstall/fresh reinstall: passed.
+- Repo verification script: passed.
+- Secret scan: passed.
+- Checksum verification: passed.
+
+## Remaining Blockers
+
+- Code signing is blocked until the owner provides a real certificate thumbprint or PFX.
 - Multi-machine lab validation requires additional owner hardware.
+- GitHub branch/tag/release publication is a post-commit publishing step and must be reported from the actual `git`/`gh` result.
+
+## Roadmap Only
+
+- External performance overlay.
+- RGB device control.
+- Third-party plugin SDK/marketplace.
+- Cloud sync.
+- Paid license enforcement/activation server.
+- Similar-hardware benchmark database.
+- Automatic driver download/install.

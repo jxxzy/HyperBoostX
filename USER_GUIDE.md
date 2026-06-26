@@ -1,6 +1,6 @@
 # HyperBoostX User Guide
 
-Target version: `HyperBoostX v1.4.0 Feature Expansion Stable`
+Target version: `HyperBoostX v2.0.0 Ultimate Winner Edition`
 
 ## Beginner Path
 

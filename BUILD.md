@@ -1,6 +1,6 @@
 # Build
 
-Target version: `1.4.0`
+Target version: `2.0.0`
 
 ## Verify
 

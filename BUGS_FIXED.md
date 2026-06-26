@@ -1,9 +1,9 @@
-# Bugs Fixed - HyperBoostX v1.4.0
+# Bugs Fixed - HyperBoostX v2.0.0
 
 ## Version Sync
 
-- Backend constants, package metadata, WPF project metadata, launcher metadata, installer metadata, About page, update User-Agent, and `VERSION` now report `1.4.0`.
-- Active README, release guide, release notes, security docs, QA docs, audit docs, and API reference were updated for v1.4.0.
+- Backend constants, package metadata, WPF project metadata, launcher metadata, installer metadata, About page, update User-Agent, and `VERSION` now report `2.0.0`.
+- Active README, release guide, release notes, security docs, QA docs, audit docs, and API reference were updated for v2.0.0.
 
 ## v1.4 API Coverage
 

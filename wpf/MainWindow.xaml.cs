@@ -51,7 +51,7 @@ namespace HyperBoostX
 
             RegisterRoutes();
             ApplySavedUiSettings();
-            NavigateToPage("Dashboard");
+            NavigateToPage(ResolveStartupPageKey());
 
             _backendTimer.Interval = TimeSpan.FromSeconds(4);
             _backendTimer.Tick += async (_, _) => await UpdateBackendStatusAsync();
@@ -139,6 +139,17 @@ namespace HyperBoostX
             _navigationService.Register("Settings", () => new SettingsView());
             _navigationService.Register("FeatureAudit", () => new FeatureAuditView());
             _navigationService.Register("About", () => new AboutView());
+        }
+
+        private string ResolveStartupPageKey()
+        {
+            var requestedPage = Environment.GetEnvironmentVariable("HYPERBOOSTX_START_PAGE");
+            if (string.IsNullOrWhiteSpace(requestedPage))
+                return "Dashboard";
+
+            return _viewModel.NavigationItems.Any(item => string.Equals(item.Key, requestedPage, StringComparison.OrdinalIgnoreCase))
+                ? requestedPage
+                : "Dashboard";
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)

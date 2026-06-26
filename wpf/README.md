@@ -11,9 +11,9 @@ HyperBoostX WPF is the .NET 8 desktop shell for the local-first HyperBoostX back
 - Page navigation: sidebar routes load real `UserControl` views from `Views/`
 - Settings persistence: `%LocalAppData%\HyperBoost X\config\ui_settings.json`
 
-## Screenshot Placeholders
+## Screenshots
 
-Place release screenshots here after installer smoke on a Windows desktop:
+Release screenshots captured from the real WPF app:
 
 - `docs/screenshots/wpf-cyber-dashboard.png` - dashboard hero, score cards, backend pulse
 - `docs/screenshots/wpf-cyber-settings.png` - motion, accent, Beginner/Advanced/Expert Preview settings
@@ -118,6 +118,6 @@ dotnet run --project .\HyperBoostX.csproj
 
 ## Version
 
-- Client version: `1.4.0`
+- Client version: `2.0.0`
 - Target framework: `net8.0-windows`
 - Backend: local Flask API on `127.0.0.1`

@@ -1,7 +1,7 @@
 """Shared constants for HyperBoostX."""
 
 APP_NAME = "HyperBoostX"
-APP_VERSION = "1.4.0"
+APP_VERSION = "2.0.0"
 BACKEND_HOST = "127.0.0.1"
 BACKEND_PORT = 5000
 BACKEND_URL = f"http://{BACKEND_HOST}:{BACKEND_PORT}"

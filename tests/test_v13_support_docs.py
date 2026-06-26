@@ -37,7 +37,7 @@ def test_support_docs_faq_and_roadmap_exist_with_required_sections():
     assert "Safe Mode / Recovery Mode" in roadmap
     assert "App Integrity Check" in roadmap
     assert "local crash report export with redaction" in roadmap
-    assert "License activation is not implemented in v1.4.0" in roadmap
+    assert "License activation is not implemented in v2.0.0" in roadmap
     assert "v2.0.0" in roadmap
     assert "not uploaded automatically" in troubleshooting
 
