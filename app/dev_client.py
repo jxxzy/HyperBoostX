@@ -37,7 +37,7 @@ def main():
     # Create application
     app = QApplication(sys.argv)
     app.setApplicationName("HyperBoostX")
-    app.setApplicationVersion("1.3.0")
+    app.setApplicationVersion("1.4.0")
     
     # Apply dark theme
     apply_dark_theme(app)

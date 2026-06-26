@@ -1,4 +1,4 @@
-"""Safe boost API Blueprint for HyperBoostX v1.3.0."""
+"""Safe boost API Blueprint for HyperBoostX v1.4.0."""
 
 from flask import Blueprint, jsonify, request
 

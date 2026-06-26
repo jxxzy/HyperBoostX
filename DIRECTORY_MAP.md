@@ -1,72 +1,54 @@
 # Directory Map
 
-Quick reference for the current HyperBoostX repository layout.
-
 ## Root
 
-- `HyperBoostX.sln` - solution entry for the .NET projects
-- `build_backend.bat` - build backend executable into `release\backend`
-- `build_release.bat` - publish WPF UI into `release\wpf`
-- `build_launcher.bat` - publish launcher into `release\launcher`
-- `package_release.bat` - assemble `release\package` and `release\app`
-- `build_installer.bat` - build `HyperBoostXInstaller.exe`
-- `repair_uninstall.ps1` - force cleanup for broken installs
-- `HyperBoostXInstaller.nsi` - NSIS installer script
-- `HyperBoostXInstaller.exe` - latest built installer
-- `README.md` - project overview
-- `DIRECTORY_MAP.md` - this file
+- `README.md` - v1.4 product overview and download guidance.
+- `VERSION` - current release version.
+- `CHANGELOG.md` - release history.
+- `RELEASE.md` - release process.
+- `RELEASE_NOTES_v1.4.0.md` - v1.4 release notes.
+- `QA_RESULTS.md` - command evidence and known blockers.
+- `SECURITY.md`, `PRIVACY.md`, `DISCLAIMER.md`, `CONTRIBUTING.md` - trust docs.
+- `AUDIT_REPORT.md`, `BUGS_FOUND.md`, `BUGS_FIXED.md` - audit artifacts.
+- `HyperBoostXInstaller.nsi` - NSIS installer script.
 
-## Documentation folders
+## Backend
 
-- `docs\API_REFERENCE.md` - backend API notes
-- `docs\REALTIME_MONITORING.md` - monitoring architecture notes
-- `docs\RELEASE_BLUEPRINT.md` - consolidated release and product plan
-- `docs\release-notes` - archived historical release notes
-- `docs\release-gates` - archived historical release gate documents
+- `app/backend_server.py` - Flask app and blueprint registration.
+- `app/api/` - REST blueprints.
+- `app/api/product_v14.py` - v1.4 product API contract.
+- `app/services/product_features.py` - v1.4 advisor, knowledge base, storage, profiles, protection, benchmark, settings, and roadmap services.
+- `app/services/monitoring/` - hardware, GPU, report, crash report, monitor services.
+- `app/services/optimization/` - boost, startup, network, job queue, tweak services.
+- `app/core/` - config, constants, logging, restore, app state.
 
-## Source folders
+## WPF
 
-- `app`
-  - Python Flask backend
-  - API blueprints, services, config, optimization logic
-- `wpf`
-  - WPF UI project
-  - main window, routing, backend client
-- `launcher`
-  - launcher executable project
-  - backend lifecycle and app startup
-- `tests`
-  - tests and support assets
+- `wpf/App.xaml` - global cyber theme/style dictionary registration.
+- `wpf/MainWindow.xaml` - cyber shell only: sidebar, topbar, content host, toast, backend pulse.
+- `wpf/MainWindow.xaml.cs` - navigation registration, backend status, page transition, settings bootstrap, test compatibility audit.
+- `wpf/Themes/` - cyber colors, accent variants, and animation storyboards.
+- `wpf/Styles/` - buttons, cards, sidebar, badges, progress rings, toasts, and modal surfaces.
+- `wpf/Views/` - dashboard and all routed page views loaded by the shell.
+- `wpf/ViewModels/` - shell, dashboard, settings, audit, and feature page view models.
+- `wpf/Services/` - backend client, navigation, config, theme/motion, update, localization, Discord, AI services.
+- `wpf/localization/` - English and Indonesian localization files.
 
-## Release folders
+## Launcher
 
-- `release\backend`
-  - packaged backend executable
-- `release\wpf`
-  - published WPF executable
-- `release\launcher`
-  - published launcher executable
-- `release\package`
-  - installer input layout
-  - `launcher\HyperBoostLauncher.exe`
-  - `wpf\HyperBoostX.exe`
-  - `backend\hyperboost_backend.exe`
-- `release\app`
-  - portable end-user layout
-  - `HyperBoostX.exe`
-  - `runtime\wpf\HyperBoostX.exe`
-  - `runtime\backend\hyperboost_backend.exe`
+- `launcher/Program.cs` - starts packaged backend and WPF app.
+- `launcher/LauncherRuntimeLayout.cs` - runtime path resolution.
 
-## Runtime notes
+## Tests
 
-- End-user logs are written to `%LocalAppData%\HyperBoostX\logs`
-- The installed app entrypoint is `HyperBoostX.exe`
-- The backend is an internal runtime, not a user-facing executable
+- `tests/` - Python backend tests.
+- `tests/test_v14_product_features.py` - v1.4 product feature tests.
+- `dotnet-tests/HyperBoostX.Tests/` - .NET service and audit tests.
 
-## Recommended starting points
+## CI And Release
 
-- UI changes: `wpf\MainWindow.xaml` and `wpf\MainWindow.xaml.cs`
-- Launcher behavior: `launcher\Program.cs`
-- Backend startup: `app\backend_server.py`
-- API changes: `app\api`
-- System logic: `app\services`
+- `.github/workflows/` - Windows CI, release gate, and lab workflows.
+- `.github/ISSUE_TEMPLATE/` - GitHub issue templates.
+- `.github/pull_request_template.md` - PR template.
+- `scripts/` - verification, release, runtime, and e2e helper scripts.
+- `release/`, `artifacts/`, `build_tmp/` - generated release/build output.

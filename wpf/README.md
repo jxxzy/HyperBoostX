@@ -1,357 +1,123 @@
-# HyperBoostX - WPF Client
+# HyperBoostX WPF Client
 
-A modern C# Windows Presentation Foundation (WPF) client for HyperBoostX system optimization platform. This client communicates with the Python backend via REST API.
+HyperBoostX WPF is the .NET 8 desktop shell for the local-first HyperBoostX backend. The running app now uses the cyber UI directly: `MainWindow.xaml` is only a shell, `App.xaml` merges the global cyber dictionaries, and page content is loaded from `wpf/Views/*`.
+
+## Current UI
+
+- Cyber shell: `MainWindow.xaml` + `MainWindow.xaml.cs`
+- Global theme: `Themes/CyberTheme.xaml`, `Themes/AccentColors.xaml`, `Themes/Animations.xaml`
+- Global styles: `Styles/Buttons.xaml`, `Styles/Cards.xaml`, `Styles/Sidebar.xaml`, `Styles/Badges.xaml`, `Styles/ProgressRings.xaml`, `Styles/Toasts.xaml`, `Styles/Modals.xaml`
+- Dashboard: `Views/DashboardView.xaml` with PC Health, Gaming, Streaming, Startup, Network, Safety, CPU/RAM/GPU/VRAM/Storage/Network/Power/Restore/backend cards
+- Page navigation: sidebar routes load real `UserControl` views from `Views/`
+- Settings persistence: `%LocalAppData%\HyperBoost X\config\ui_settings.json`
+
+## Screenshot Placeholders
+
+Place release screenshots here after installer smoke on a Windows desktop:
+
+- `docs/screenshots/wpf-cyber-dashboard.png` - dashboard hero, score cards, backend pulse
+- `docs/screenshots/wpf-cyber-settings.png` - motion, accent, Beginner/Advanced/Expert Preview settings
+- `docs/screenshots/wpf-cyber-feature-audit.png` - read-only audit page with Safety Guard indicators
 
 ## Architecture
 
-```
-┌─────────────────────┐
-│   WPF Client        │  (C# .NET 6.0)
-│  - XAML UI          │  
-│  - Page Navigation  │  
-│  - Backend Client   │  
-└──────────┬──────────┘
-           │  HTTP REST API (JSON)
-           ↓
-┌─────────────────────┐
-│ Python Flask Server │  (Python 3.8+)
-│  - API Endpoints    │
-│  - Services Layer   │
-│  - System Access    │
-└─────────────────────┘
-```
+```text
+Launcher
+  -> generates local session token when configured
+  -> starts local backend on 127.0.0.1
+  -> starts WPF runtime
 
-## Prerequisites
+WPF cyber shell
+  -> App.xaml global theme/style dictionaries
+  -> MainWindow shell sidebar/topbar/content host/toast/status
+  -> Views/*.xaml page controls
+  -> ViewModels/*.cs page state
+  -> Services/HyperBoostBackendClient.cs localhost REST client
 
-- **Windows 10/11** (or Windows Server 2019+)
-- **.NET 6.0 SDK** or **Visual Studio 2022** (.NET Desktop Development)
-- **Newtonsoft.Json NuGet package** (will be auto-restored)
-- **Python backend** running on localhost:5000 (see Python project README)
-
-## Project Structure
-
-```
-wpf/
-├── HyperBoostX.csproj              # Project file
-├── App.xaml                         # Application root XAML
-├── App.xaml.cs                      # Application code-behind
-├── MainWindow.xaml                  # Main window UI definitions
-├── MainWindow.xaml.cs               # Main window event handlers and logic
-├── Services/
-│   └── HyperBoostBackendClient.cs   # REST API client for backend
-└── Properties/
-    └── AssemblyInfo.cs              # Assembly metadata
+Python Flask backend
+  -> /api/health, /api/version
+  -> safe scan/plan/report/restore/product APIs
+  -> mutating routes require X-HyperBoostX-Session when token is present
 ```
 
-## Key Features
+## Implemented Views
 
-### Pages Implemented
-- **Dashboard**: Real-time CPU, Memory, Disk usage with booster profiles
-- **System Info**: Complete system information (CPU, GPU, memory, disk, network, OS, temps)
-- **Booster**: Apply gaming optimization profiles (FPS, Latency, Streaming, Balanced)
-- **Drivers**: View installed drivers and check for updates
-- **Repair**: System repair tools (SFC, DISM, Cleanup)
-- **Tweaks**: Apply Windows optimization tweaks
-- **Settings**: Backend configuration and connection testing
+- Dashboard
+- AI Performance Advisor
+- Auto Gaming Mode
+- Game Library
+- Game Profiles
+- GPU Center
+- HyperBalance
+- One Click Boost
+- Process Analyzer
+- Startup Manager
+- Cleanup
+- Network Tools
+- Benchmark Lab
+- Performance History
+- Performance Report
+- Streaming Center
+- Creator Mode
+- Gaming Essentials
+- Restore & Backup
+- Protected Apps
+- Knowledge Base
+- Settings
+- Feature Audit
+- About
 
-### UI Design
-- Dark gaming theme matching Python PySide6 client
-- Color scheme:
-  - Background: `#1e1e1e` (Dark)
-  - Panels: `#2c2c2c` (Darker gray)
-  - Accent: `#2196F3` (Blue)
-  - Success: `#4CAF50` (Green)
-  - Warning: `#ff9800` (Orange)
-  - Error: `#f44336` (Red)
-- Sidebar navigation with 7 main sections
-- Real-time stats cards with progress indicators
-- Responsive layout
+## Safety UI Rules
 
-### API Client Features
+- The UI must not expose Defender-disable, permanent Windows Update disable, anti-cheat changes, driver service disabling, overclocking, undervolting, voltage tuning, BIOS edits, destructive cleanup, or arbitrary AI shell execution.
+- One Click Boost is plan-first. It may generate a safe plan, but apply still requires review, Safety Guard, approval, and restore metadata where supported.
+- Backend offline is not fatal. The shell shows Offline and keeps navigation usable.
+- Unknown GPU telemetry falls back to safe vendor guidance instead of crashing.
 
-The `HyperBoostBackendClient` class provides methods for all operations:
+## Settings
 
-```csharp
-// System Information
-await client.GetSystemInfoAsync()       // Complete system info
-await client.GetSystemStatsAsync()      // Real-time stats
+The Settings page exposes:
 
-// Booster Operations
-await client.GetBoosterProfilesAsync()  // Available profiles
-await client.ApplyBoosterAsync(profile) // Apply profile
+- Enable Animations
+- Reduce Motion
+- Accent color: Cyan, Purple, Green, Blue, Matrix Green, Red Alert, OLED Dark
+- Beginner, Advanced, Expert Preview
 
-// System Tools
-await client.RunSfcAsync()              // Run SFC scan
-await client.RunDismAsync()             // Run DISM repair
-await client.CleanupAsync()             // Cleanup temp files
+Settings are saved to `ui_settings.json` under LocalAppData. Corrupt settings files are copied aside and regenerated with safe defaults.
 
-// Driver Management
-await client.GetDriversAsync()          // List drivers
-await client.CheckDriverUpdatesAsync()  // Check for updates
+## Build
 
-// Tweaks Management
-await client.GetTweaksAsync()           // List available tweaks
-await client.ApplyTweakAsync(tweakId)  // Apply specific tweak
-
-// Network Tools
-await client.TestDnsAsync()             // Test DNS resolution
-await client.FlushDnsAsync()            // Flush DNS cache
-await client.OptimizeTcpAsync()         // Optimize TCP settings
-
-// Startup Management
-await client.GetStartupItemsAsync()     // List startup items
-
-// Connection Management
-await client.HealthCheckAsync()         // Check backend status
+```powershell
+dotnet restore ..\HyperBoostX.sln
+dotnet build ..\HyperBoostX.sln -v minimal
+dotnet build ..\HyperBoostX.sln -c Release -v minimal
+dotnet test ..\dotnet-tests\HyperBoostX.Tests\HyperBoostX.Tests.csproj -c Debug
 ```
 
-## Building the Project
+## Run Locally
 
-### Option 1: Visual Studio 2022
-1. Open `HyperBoostX.csproj` in Visual Studio 2022
-2. Build → Build Solution (Ctrl+Shift+B)
-3. Run → Start Debugging (F5)
+Recommended path is through the launcher so backend lifecycle and session-token behavior match the packaged app:
 
-### Option 2: Command Line (.NET CLI)
-```bash
-# Navigate to wpf directory
-cd wpf
-
-# Restore NuGet packages
-dotnet restore
-
-# Build the project
-dotnet build
-
-# Run the application
-dotnet run
+```powershell
+..\launcher\bin\Debug\net8.0-windows\win-x64\HyperBoostLauncher.exe
 ```
 
-### Option 3: Publish as Executable
-```bash
-cd wpf
+For UI-only development, the WPF client can run directly. Backend status will show Offline unless `python -m app.backend_server` is already running on `http://127.0.0.1:5000`.
 
-# Publish as self-contained executable
-dotnet publish -c Release --self-contained
-
-# Binary location: bin/Release/net6.0-windows/publish/HyperBoostX.exe
+```powershell
+dotnet run --project .\HyperBoostX.csproj
 ```
 
-## Running the Application
+## Development Notes
 
-### Prerequisites
-1. **Start Python Backend** (from Python project directory):
-   ```bash
-   python -m app.backend_server
-   # Server will start on http://127.0.0.1:5000
-   ```
+- Add new pages as `Views/NewPageView.xaml` plus `Views/NewPageView.xaml.cs`.
+- Add page state in `ViewModels/NewPageViewModel.cs`.
+- Register navigation in `MainWindow.xaml.cs` through `NavigationService`.
+- Keep `MainWindow.xaml` as shell only; do not add full feature screens back into the window.
+- Use existing styles and theme resources before adding new local styling.
 
-2. **Run WPF Client**:
-   ```bash
-   dotnet run
-   # Or double-click HyperBoostX.exe if published
-   ```
+## Version
 
-### Backend Configuration
-In the **Settings** page:
-- View current backend URL (default: `http://127.0.0.1:5000`)
-- Change backend URL if running on different host/port
-- Click "Test Backend Connection" to verify connectivity
-- Backend status indicator shows real-time connection status:
-  - 🟢 Green: Connected
-  - 🔴 Red: Disconnected
-
-## Error Handling
-
-The client includes comprehensive error handling:
-
-### Connection Errors
-- Timeout: 10 seconds per request
-- Retry: Manual via UI buttons
-- Status: Visual indicator in Settings page
-
-### API Errors
-- All operations wrapped in try/catch
-- Error details displayed in MessageBox dialogs
-- Graceful fallback if backend is offline
-
-### Data Parsing Errors
-- JSON deserialization errors logged
-- Alternative display format available
-- Detailed error messages shown to user
-
-## API Communication Details
-
-### Request Format
-```json
-POST /api/booster/apply
-Content-Type: application/json
-{
-    "profile": "fps"
-}
-```
-
-### Response Format
-```json
-HTTP/1.1 200 OK
-Content-Type: application/json
-{
-    "success": true,
-    "message": "Booster profile applied successfully",
-    "details": {
-        "profile": "fps",
-        "changes_applied": 12,
-        "duration_ms": 345
-    }
-}
-```
-
-### Error Response
-```json
-HTTP/1.1 500 Internal Server Error
-Content-Type: application/json
-{
-    "success": false,
-    "error": "Error message",
-    "details": "Stack trace or additional info"
-}
-```
-
-## Dependencies
-
-### NuGet Packages
-- **Newtonsoft.Json 13.0.3**: JSON serialization/deserialization
-  - Handles complex JSON responses from backend
-  - Provides `FormatJson()` for pretty-printing
-
-### .NET Framework
-- **System.Net.Http**: HTTP client support
-- **System.Threading.Tasks**: Async/await support
-- **System.Windows**: WPF framework
-
-## Development Guidelines
-
-### Adding New Features
-
-1. **Add API Method to Backend Client**:
-   ```csharp
-   public async Task<dynamic> NewFeatureAsync()
-   {
-       try
-       {
-           var response = await _httpClient.GetAsync($"{_baseUrl}/api/new-feature");
-           response.EnsureSuccessStatusCode();
-           var json = await response.Content.ReadAsStringAsync();
-           return JsonConvert.DeserializeObject(json);
-       }
-       catch (Exception ex)
-       {
-           throw new InvalidOperationException($"Failed to call new feature: {ex.Message}", ex);
-       }
-   }
-   ```
-
-2. **Add UI Page** (new StackPanel in MainWindow.xaml):
-   ```xaml
-   <StackPanel Name="NewFeatureContent" Visibility="Collapsed">
-       <TextBlock Text="Feature Title" FontSize="16" Foreground="#2196F3" FontWeight="Bold"/>
-       <!-- UI elements here -->
-   </StackPanel>
-   ```
-
-3. **Add Navigation Button** (in MainWindow.xaml):
-   ```xaml
-   <Button Name="NewFeatureBtn" 
-           Content="New Feature" 
-           Click="NewFeatureBtn_Click"
-           Style="{StaticResource NavButtonStyle}"/>
-   ```
-
-4. **Add Event Handler** (in MainWindow.xaml.cs):
-   ```csharp
-   private void NewFeatureBtn_Click(object sender, RoutedEventArgs e) 
-       => ShowPage("NewFeature", NewFeatureBtn);
-   ```
-
-## Performance Considerations
-
-- **UI Thread**: All long-running operations use async/await to prevent freezing
-- **Background Tasks**: HTTP requests run on thread pool
-- **Memory**: Client is lightweight (~5MB when running)
-- **Network**: JSON serialization optimized for bandwidth
-
-## Troubleshooting
-
-### Backend Connection Issues
-**Problem**: "Backend: Disconnected" status
-- Verify Python backend is running: `python -m app.backend_server`
-- Check backend URL in Settings (default: localhost:5000)
-- Ensure firewall allows localhost connections
-
-### JSON Parsing Errors
-**Problem**: "Error loading system info: Could not parse JSON response"
-- Check Python backend logs for API errors
-- Verify backend version matches expected API format
-- Test connection with `curl http://localhost:5000/api/health`
-
-### Missing Newtonsoft.Json
-**Problem**: Runtime error about missing Newtonsoft.Json
-- Run `dotnet restore` to install NuGet packages
-- Check Internet connection for package download
-- Try `dotnet nuget locals all --clear` if issues persist
-
-## Security Notes
-
-⚠️ **Important Considerations**:
-
-1. **Local Network Only**: By default client connects to `127.0.0.1:5000`
-   - For remote backend: Update URL in Settings
-   - Consider VPN or firewall rules for security
-
-2. **Admin Privileges**: Backend requires admin rights for sensitive operations
-   - Display "Allow" dialog when triggered
-   - Verify operations before confirming
-
-3. **No Authentication**: Current implementation has no auth
-   - Deploy backend behind firewall only
-   - Consider adding API key authentication for production
-
-## Version Information
-
-- **Client Version**: 1.3.0
-- **.NET Version**: 6.0 (NET6.0-Windows)
-- **C# Version**: 10.0+
-- **Target OS**: Windows 10/11, Windows Server 2019+
-
-## Related Projects
-
-- **Python Backend**: `../app/` directory
-  - Flask REST API server
-  - Service implementations
-  - System access layer
-
-- **Python PySide6 Client (legacy/dev only)**: `../app/dev_client.py`
-  - Alternative Python-based UI for development and testing
-  - Same backend API compatibility
-
-## License
-
-Proprietary - HyperBoostX by Mr.4NONY
-
-## Support
-
-For issues with the WPF client:
-1. Check troubleshooting section above
-2. Review Python backend logs
-3. Verify all prerequisites are installed
-4. Test with sample curl commands to backend API
-
-## Future Enhancements
-
-- [ ] Charts and graphs (WPF Toolkit)
-- [ ] Real-time monitoring overlay
-- [ ] Profile management UI
-- [ ] Batch operations
-- [ ] API authentication
-- [ ] Dark/Light theme switcher
-- [ ] Localization support
+- Client version: `1.4.0`
+- Target framework: `net8.0-windows`
+- Backend: local Flask API on `127.0.0.1`

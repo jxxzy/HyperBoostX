@@ -3,6 +3,19 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/CyberTheme.xaml"/>
+                <ResourceDictionary Source="Themes/AccentColors.xaml"/>
+                <ResourceDictionary Source="Themes/Animations.xaml"/>
+                <ResourceDictionary Source="Styles/Buttons.xaml"/>
+                <ResourceDictionary Source="Styles/Cards.xaml"/>
+                <ResourceDictionary Source="Styles/Sidebar.xaml"/>
+                <ResourceDictionary Source="Styles/Badges.xaml"/>
+                <ResourceDictionary Source="Styles/ProgressRings.xaml"/>
+                <ResourceDictionary Source="Styles/Toasts.xaml"/>
+                <ResourceDictionary Source="Styles/Modals.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -26,6 +26,7 @@ from api.repair import repair_bp
 from api.reports import reports_bp
 from api.network import network_bp
 from api.startup import startup_bp
+from api.product_v14 import product_v14_bp
 from api.websocket import ws_bp
 from api.middleware import APIMiddleware
 
@@ -98,6 +99,7 @@ class HyperBoostBackendServer:
         self.app.register_blueprint(reports_bp)
         self.app.register_blueprint(network_bp)
         self.app.register_blueprint(startup_bp)
+        self.app.register_blueprint(product_v14_bp)
         self.app.register_blueprint(ws_bp)
         
         self.logger.info("API blueprints registered successfully")

@@ -1,37 +1,28 @@
 # Install HyperBoostX
 
-Target release: `HyperBoostX v1.3.0 Stable`
+Target release: `HyperBoostX v1.4.0 Feature Expansion Stable`
 
-## Normal User Install
+## Recommended Install
 
-1. Download `HyperBoostXInstaller.exe` from the GitHub Release.
-2. Run the installer.
-3. Launch HyperBoostX from the desktop or Start Menu shortcut.
-
-Optional checksum verification:
+1. Download `HyperBoostXInstaller.exe` and `SHA256SUMS.txt` from the official GitHub Release.
+2. Verify SHA256:
 
 ```powershell
 Get-FileHash .\HyperBoostXInstaller.exe -Algorithm SHA256
+Get-Content .\SHA256SUMS.txt
 ```
 
-Compare the result with `SHA256SUMS.txt` if it is published.
+3. Run the installer.
+4. Launch HyperBoostX through the installed shortcut or launcher.
 
-## Installer Behavior
+## SmartScreen
 
-- Installs the app under `C:\Program Files\HyperBoostX` by default.
-- Removes the previous installed application files before installing the new runtime.
-- Preserves legacy user config, logs, backups, and automation state under `%LocalAppData%\HyperBoost X`.
-- Writes uninstall metadata under `HKLM\Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX`.
+If the installer is unsigned, Windows may show Unknown Publisher or SmartScreen. This is expected until a signed release is available. Do not install from unofficial mirrors.
 
-## Public Asset Policy
+## Portable Mode For Development
 
-Publish for normal users:
+Set `HYPERBOOSTX_PORTABLE_HOME` to a writable folder before starting the backend to keep config, reports, profiles, sessions, and logs in that folder.
 
-- `HyperBoostXInstaller.exe`
-- `SHA256SUMS.txt` when checksum verification is included
+## Uninstall
 
-Do not publish confusing internal artifacts such as raw backend executables, raw launcher executables, debug packages, temp packages, logs, cache folders, or local state.
-
-## Release Validation
-
-Installer install, installed launch, close, silent uninstall, reinstall, and reinstalled launch must be recorded in `QA_RESULTS.md` before a stable GitHub Release is published.
+Use Windows Installed Apps/Programs or the NSIS uninstaller entry. Verify no backend process remains after closing the app.

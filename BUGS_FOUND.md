@@ -1,58 +1,33 @@
-# Bugs Found - HyperBoostX v1.3.0 Audit
+# Bugs Found - HyperBoostX v1.4.0 Audit
 
-## BF-130-001 Version Mismatch
+## Active Version Drift
 
-Active source, installer metadata, backend health, README, release guide, QA docs, and gate checklists still referenced `1.2.14` while the target release is `1.3.0`.
+Active source and docs still reported `1.3.0` while the requested target was `1.4.0`.
 
-Impact: release artifacts and health checks would report the wrong stable version.
+## Missing v1.4 API Surface
 
-Status: fixed.
+The backend did not expose the requested v1.4 endpoints for AI Performance Advisor, Knowledge Base, Performance History, Game Profiles, Overlay Detector, Protected Process List, Benchmark Reports, GPU recommendations, Cleanup, Network diagnostics, Gaming Essentials, Restore sessions, Settings, Feature Audit, and roadmap foundations.
 
-## BF-130-002 Missing Universal GPU Backend Contract
+## Product Storage Gaps
 
-The tracked backend did not expose the required v1.3.0 hardware/GPU endpoints for NVIDIA, AMD Radeon, Intel, Microsoft Basic Display, and unknown fallback profiles.
+Runtime config created only the older config/data/logs/backups folders. v1.4 needed reports, profiles, sessions, and diagnostics folders plus corrupted JSON recovery.
 
-Impact: GPU Center and hardware profile workflows could not be validated through API tests.
+## Roadmap Risk
 
-Status: fixed.
+Some requested additions, such as global similar-hardware benchmark comparison, RGB control, cloud sync, plugin marketplace, and paid licensing, could become fake features if presented as complete without backend/data support.
 
-## BF-130-003 Missing Before/After Report Contract
+## Trust Docs Missing
 
-The backend did not expose `/api/reports/latest` or `/api/reports/export`.
+Root privacy, disclaimer, contributing, GitHub issue templates, PR template, and v1.4 API reference were missing or incomplete.
 
-Impact: One Click Boost could not produce a stable report schema for UI/export flows.
+## Legacy WPF UI Still Active
 
-Status: fixed.
+The running WPF client still used the large legacy `MainWindow.xaml`/`MainWindow.xaml.cs` layout, old sidebar structure, and old local color resources. New cyber UI work was not fully integrated into the app shell or installer output.
 
-## BF-130-004 Missing Job Queue Contract
+## Release Blockers
 
-Long-running task endpoints were missing.
+Code signing, GitHub release publishing, installed app smoke, uninstall/reinstall smoke, and multi-machine validation require owner credentials or an interactive release environment.
 
-Impact: cleanup, benchmark, hardware analysis, and repair flows had no progress/cancel contract.
+## Signing Script Parser Error
 
-Status: fixed.
-
-## BF-130-005 Mutating Endpoint Session Protection Missing
-
-The backend allowed local POST endpoints without a launcher-provided session header.
-
-Impact: local-only API was weaker than the v1.3.0 security target.
-
-Status: fixed for packaged launcher sessions. Developer mode remains compatible when no token is configured.
-
-## BF-130-006 Unknown GPU Fallback Regression During New Tests
-
-Initial v1.3.0 GPU classifier mapped unknown adapters to `Balanced GPU Mode` instead of `Unknown Safe GPU Mode`.
-
-Impact: unknown hardware fallback was less conservative than required.
-
-Status: fixed and covered by tests.
-
-## BF-130-007 WPF Architecture Still Legacy Large Shell
-
-`MainWindow.xaml.cs` remains a large legacy shell rather than a completed full MVVM split into all requested pages.
-
-Impact: frontend architecture target is only partially satisfied in this run.
-
-Status: known limitation, not claimed complete.
-
+`sign_release.ps1` placed `$ErrorActionPreference` before `param(...)`, which causes a PowerShell parser error and prevents proper signing readiness checks.

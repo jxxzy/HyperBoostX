@@ -1,4 +1,4 @@
-"""Safe boost plan orchestration for HyperBoostX v1.3.0."""
+"""Safe boost plan orchestration for HyperBoostX v1.4.0."""
 
 from __future__ import annotations
 

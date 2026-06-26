@@ -1,0 +1,144 @@
+<UserControl x:Class="HyperBoostX.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:HyperBoostX.ViewModels">
+    <UserControl.DataContext>
+        <vm:DashboardViewModel/>
+    </UserControl.DataContext>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="0,0,18,28">
+            <Border Style="{StaticResource CyberHeroCardStyle}" Margin="0,0,0,18" ClipToBounds="True">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="HyperBoostX" FontSize="38" FontWeight="Black" Foreground="{StaticResource Brush.Text.Primary}"/>
+                        <TextBlock Text="Safe AI Windows Gaming Optimizer" FontSize="17" Foreground="{StaticResource Brush.Accent.Primary}" Margin="0,4,0,0"/>
+                        <TextBlock Text="Scan your PC, detect bottlenecks, apply safe gaming profiles, compare before/after, and undo anytime." Foreground="{StaticResource Brush.Text.Secondary}" FontSize="13" Margin="0,10,0,18" TextWrapping="Wrap" MaxWidth="760"/>
+                        <WrapPanel>
+                            <Button Content="Start Smart Scan" Click="StartSmartScan_Click" Style="{StaticResource CyberButtonStyle}" Margin="0,0,10,10"/>
+                            <Button Content="One Click Safe Boost" Click="OneClickSafeBoost_Click" Style="{StaticResource CyberButtonStyle}" Margin="0,0,10,10"/>
+                            <Button Content="Auto Gaming Mode" Click="AutoGamingMode_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                            <Button Content="View Last Report" Click="ViewLastReport_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                            <Button Content="Restore Changes" Click="RestoreChanges_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                        </WrapPanel>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Width="230" Margin="22,0,0,0">
+                        <Border Style="{StaticResource SuccessBadgeStyle}" Margin="0,0,0,10">
+                            <TextBlock Text="Safety Guard Active" FontWeight="SemiBold" Foreground="{StaticResource Brush.Status.Success}"/>
+                        </Border>
+                        <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,0,10">
+                            <TextBlock Text="Restore Available" Foreground="{StaticResource Brush.Text.Secondary}"/>
+                        </Border>
+                        <Border Style="{StaticResource CyberBadgeStyle}">
+                            <TextBlock Text="{Binding BackendStatus, StringFormat=Backend: {0}}" Foreground="{StaticResource Brush.Text.Secondary}"/>
+                        </Border>
+                    </StackPanel>
+                    <Rectangle Height="2" Width="420" Fill="{StaticResource Brush.Gradient.CardTop}" VerticalAlignment="Bottom" Opacity="0.75">
+                        <Rectangle.RenderTransform>
+                            <TranslateTransform X="-420"/>
+                        </Rectangle.RenderTransform>
+                        <Rectangle.Triggers>
+                            <EventTrigger RoutedEvent="Loaded">
+                                <BeginStoryboard Storyboard="{StaticResource ScannerLineStoryboard}"/>
+                            </EventTrigger>
+                        </Rectangle.Triggers>
+                    </Rectangle>
+                </Grid>
+            </Border>
+
+            <ItemsControl ItemsSource="{Binding Scores}" Margin="0,0,0,18">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="3"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,14,0">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="{Binding Title}" Foreground="{StaticResource Brush.Text.Secondary}" FontWeight="SemiBold"/>
+                                <Grid Grid.Row="1" Margin="0,16,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Style="{StaticResource CyberRingContainerStyle}">
+                                        <Ellipse Stroke="#2A1749" StrokeThickness="10"/>
+                                        <Ellipse Stroke="{StaticResource Brush.Gradient.Cyber}" StrokeThickness="10" StrokeDashArray="4 2" Effect="{StaticResource Shadow.Glow}"/>
+                                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Value}" FontSize="24" FontWeight="Black" HorizontalAlignment="Center" Foreground="{StaticResource Brush.Accent.Primary}"/>
+                                            <TextBlock Text="/100" FontSize="10" HorizontalAlignment="Center" Foreground="{StaticResource Brush.Text.Muted}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <StackPanel Grid.Column="1" Margin="16,14,0,0">
+                                        <TextBlock Text="{Binding Detail}" Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap"/>
+                                        <ProgressBar Value="{Binding Score}" Maximum="100" Style="{StaticResource CyberProgressBarStyle}" Margin="0,16,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <Grid Margin="0,0,0,18">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="1.1*"/>
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,14,0" MinHeight="260">
+                    <StackPanel>
+                        <TextBlock Text="Performance Monitor" FontSize="16" FontWeight="Bold"/>
+                        <TextBlock Text="Live-style CPU/RAM/GPU/network pressure overview" Foreground="{StaticResource Brush.Text.Muted}" Margin="0,3,0,18"/>
+                        <Canvas Height="150" Background="#0B1020">
+                            <Polyline Stroke="{StaticResource Brush.Accent.Primary}" StrokeThickness="3" Points="0,110 60,92 120,98 180,72 240,88 300,64 360,76 420,46 480,70 540,58 600,84 660,64 720,70 780,52 840,66" Effect="{StaticResource Shadow.Glow}"/>
+                            <Line X1="0" X2="840" Y1="40" Y2="40" Stroke="#24304A" StrokeDashArray="2 6"/>
+                            <Line X1="0" X2="840" Y1="80" Y2="80" Stroke="#24304A" StrokeDashArray="2 6"/>
+                            <Line X1="0" X2="840" Y1="120" Y2="120" Stroke="#24304A" StrokeDashArray="2 6"/>
+                        </Canvas>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource CyberCardStyle}" MinHeight="260">
+                    <StackPanel>
+                        <TextBlock Text="AI Recommendation" FontSize="16" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding AiRecommendation}" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,12,0,18" TextWrapping="Wrap"/>
+                        <Border Style="{StaticResource WarningBadgeStyle}" Margin="0,0,0,10">
+                            <TextBlock Text="No guaranteed FPS claim" Foreground="{StaticResource Brush.Status.Warning}"/>
+                        </Border>
+                        <Border Style="{StaticResource SuccessBadgeStyle}">
+                            <TextBlock Text="All risky actions blocked" Foreground="{StaticResource Brush.Status.Success}"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <ItemsControl ItemsSource="{Binding SystemMetrics}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="4"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,14,0">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Glyph}" Foreground="{StaticResource Brush.Accent.Primary}" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding Title}" Foreground="{StaticResource Brush.Text.Muted}" Margin="0,10,0,2"/>
+                                <TextBlock Text="{Binding Value}" FontSize="28" FontWeight="Black"/>
+                                <TextBlock Text="{Binding Detail}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap"/>
+                                <ProgressBar Value="{Binding Score}" Maximum="100" Style="{StaticResource CyberProgressBarStyle}" Margin="0,14,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,234 +1,163 @@
-# HyperBoostX v1.3.0 API Reference
+# HyperBoostX v1.4.0 API Reference
 
 Base URL: `http://127.0.0.1:5000`
 
-The backend is local-only. Mutating endpoints require `X-HyperBoostX-Session` when the launcher supplies `HYPERBOOSTX_SESSION_TOKEN` to the backend process.
+The backend is local-only. Mutating endpoints require `X-HyperBoostX-Session` when `HYPERBOOSTX_SESSION_TOKEN` is present. All reports, logs, crash exports, and action logs apply privacy redaction for tokens, usernames, and sensitive local paths.
 
 ## Health
 
-### GET /api/health
-
-Returns backend readiness and version.
+`GET /api/health`
 
 ```json
-{
-  "status": "ok",
-  "version": "1.3.0",
-  "service": "HyperBoostX Backend",
-  "local_only": true,
-  "session_token_required": true
-}
+{"status":"ok","version":"1.4.0","local_only":true,"session_token_required":false}
 ```
 
-### GET /api/version
+`GET /api/version`
 
 ```json
-{
-  "name": "HyperBoostX",
-  "version": "1.3.0",
-  "release": "HyperBoostX v1.3.0 Stable"
-}
+{"name":"HyperBoostX","version":"1.4.0","release":"HyperBoostX v1.4.0 Stable"}
 ```
 
-## System
+## Existing Core APIs
 
 - `GET /api/system/stats`
 - `GET /api/system/info`
 - `GET /api/system/startup`
 - `GET /api/system/processes`
+- `GET /api/hardware/profile`
+- `GET /api/hardware/gpu`
+- `GET /api/hardware/vendors`
+- `GET /api/hardware/overlays`
+- `POST /api/boost/plan` - session token required when enabled.
+- `POST /api/boost/apply` - session token and user approval required.
+- `POST /api/boost/undo` - session token required when enabled.
+- `GET /api/reports/latest`
+- `POST /api/reports/export` - exports JSON/TXT/Markdown.
+- `POST /api/reports/crash-export` - privacy redaction enabled.
+- `POST /api/jobs/start`
+- `GET /api/jobs/{id}`
+- `POST /api/jobs/{id}/cancel`
 
-`/api/system/stats` returns CPU, RAM, disk, network, process count, temperatures when available, and GPU counters when available.
+## AI Advisor And Knowledge Base
 
-`/api/system/info` returns identity, CPU, memory, disk, system drive, device profile, network, OS, BIOS, GPU, and temperature data.
+- `GET /api/advisor/performance`
+- `POST /api/advisor/performance`
+- `GET /api/knowledge/terms`
+- `GET /api/knowledge/terms/{term}`
+- `GET /api/score/engine`
 
-## Hardware And GPU Center
-
-### GET /api/hardware/gpu
-
-Returns the active GPU summary plus all detected adapters.
-
-Important fields:
-
-- `vendor`: `Nvidia`, `Amd`, `Intel`, `MicrosoftBasic`, or `Unknown`
-- `model`
-- `family`
-- `active_display_gpu`
-- `driver_version`
-- `vram_total_mb`
-- `vram_used_mb`
-- `vram_usage_percent`
-- `gpu_usage_percent`
-- `temperature_c`
-- `dedicated_gpu`
-- `integrated_gpu`
-- `hybrid_gpu_system`
-- `multi_gpu_system`
-- `badge`
-- `profile_recommendation`
-- `safe_actions`
-- `skipped_actions`
-- `blocked_risky_actions`
-
-### GET /api/hardware/vendors
-
-Returns detected vendor, RGB, launcher, and streaming software classifications.
-
-Classifications:
-
-- `Safe to keep`
-- `Can pause while gaming`
-- `Heavy background service`
-- `Needs user decision`
-- `Do not disable`
-- `Unknown, analyze manually`
-
-### GET /api/hardware/overlays
-
-Returns overlay detections such as NVIDIA Overlay, Radeon Overlay, Intel Arc Overlay, Discord Overlay, Steam Overlay, Xbox Game Bar, and RTSS.
-
-### GET /api/hardware/profile
-
-Returns the hardware profile recommendation.
+Advisor output:
 
 ```json
 {
-  "recommended_profile": "High-End AMD Radeon PC",
-  "confidence": 0.91,
-  "reason": ["AMD Radeon RX detected", "32GB RAM detected"],
-  "scores": {
-    "pc_health": 87,
-    "gaming_readiness": 92,
-    "streaming_readiness": 84,
-    "startup_cleanliness": 76
-  },
-  "safe_actions": [],
-  "requires_approval": [],
-  "risky_actions_blocked": [],
-  "undo_available": true
+  "title": "HyperBoost AI Performance Advisor",
+  "diagnosis_mode": "local_deterministic_advisor",
+  "analysis": [{"type":"gpu_bottleneck","severity":"high","message":"GPU is saturated while CPU headroom remains."}],
+  "safe_plan": [{"action_id":"capture_before_after_report","requires_approval":false,"risk":"low"}],
+  "blocked_or_risky_actions": ["Disable Defender", "Permanent Windows Update disable"],
+  "requires_user_approval": true
 }
 ```
 
-## Boost
+## Games And Profiles
 
-### POST /api/boost/plan
+- `GET /api/games/library`
+- `GET /api/games/running`
+- `POST /api/games/scan`
+- `POST /api/games/add`
+- `POST /api/games/remove`
+- `POST /api/games/profile/preview`
+- `POST /api/games/profile/apply`
+- `POST /api/games/profile/restore`
+- `GET /api/games/session/latest`
+- `GET /api/games/session/history`
+- `POST /api/games/session/export`
 
-Creates a safe action plan. The plan does not execute risky actions.
+Mutating profile endpoints require session token when enabled. `profile/apply` also requires `user_approved: true`.
 
-Request:
+## Overlay And Protection
+
+- `GET /api/overlays/status`
+- `GET /api/overlays/recommendations`
+- `GET /api/protection/processes`
+- `POST /api/protection/add`
+- `POST /api/protection/remove`
+- `POST /api/protection/reset-defaults`
+- `POST /api/protection/evaluate-action`
+
+Blocked action example:
 
 ```json
-{
-  "goal": "gaming",
-  "mode": "balanced"
-}
+{"allowed":false,"blocked":true,"reason":"Safety Guard blocked dangerous/protected action.","requires_approval":true}
 ```
 
-### POST /api/boost/apply
+## Process, Benchmark, GPU, Driver
 
-Applies only approved safe actions.
+- `GET /api/processes/heavy`
+- `GET /api/processes/startup-impact`
+- `GET /api/processes/recommendations`
+- `POST /api/processes/export-report`
+- `POST /api/benchmark/manual`
+- `POST /api/benchmark/import-csv`
+- `GET /api/benchmark/latest`
+- `GET /api/benchmark/history`
+- `POST /api/benchmark/export`
+- `GET /api/gpu/vendor-guide`
+- `GET /api/gpu/recommendations`
+- `POST /api/gpu/export-report`
+- `GET /api/gpu/hardware-database`
+- `GET /api/drivers/recommendation`
 
-Request:
+Driver endpoint safety note: it returns local current-driver data and official-source guidance only. It does not fabricate latest stable driver numbers and does not auto-download drivers.
 
-```json
-{
-  "user_approved": true,
-  "approved_action_ids": []
-}
-```
+## Startup, Cleanup, Network
 
-Without approval, the endpoint returns `409` with `requires_approval: true`.
-
-### POST /api/boost/undo
-
-Returns undo/restore metadata status for the latest boost flow.
-
-## Reports
-
-### GET /api/reports/latest
-
-Returns the latest before/after report, generating one if none exists.
-
-### POST /api/reports/export
-
-Request:
-
-```json
-{
-  "format": "json"
-}
-```
-
-Supported formats: `json`, `txt`, `md`.
-
-### POST /api/reports/crash-export
-
-Creates a local-only crash report payload with privacy redaction. HyperBoostX does not upload crash reports automatically.
-
-Request:
-
-```json
-{
-  "format": "json",
-  "error_message": "Optional error message",
-  "stack_trace": "Optional stack trace",
-  "last_action": "Optional last user action",
-  "backend_status": "Optional backend status"
-}
-```
-
-The report includes app version, Windows version, CPU, RAM, GPU vendor/model, error message, stack trace, last action, backend status, and timestamp. API keys, AI keys, tokens, GitHub tokens, usernames, sensitive local paths, and future license keys are redacted.
-
-## Jobs
-
-### POST /api/jobs/start
-
-Starts a local long-running job.
-
-```json
-{
-  "job_type": "cleanup"
-}
-```
-
-Response:
-
-```json
-{
-  "job_id": "cleanup_12345678",
-  "status": "running",
-  "progress": 42,
-  "stage": "Cleaning temporary files",
-  "can_cancel": true,
-  "started_at": "2026-06-26T00:00:00+00:00",
-  "finished_at": null,
-  "logs": []
-}
-```
-
-### GET /api/jobs/{id}
-
-Returns job status.
-
-### POST /api/jobs/{id}/cancel
-
-Requests cancellation when `can_cancel` is true.
-
-## Legacy-Compatible Endpoints
-
-Existing endpoints remain available for WPF compatibility:
-
-- `GET /api/booster/profiles`
-- `POST /api/booster/apply`
-- `GET /api/startup/list`
-- `GET /api/tweaks/list`
-- `POST /api/tweaks/apply`
-- `POST /api/tweaks/revert`
-- `GET /api/drivers/list`
-- `POST /api/drivers/check-updates`
-- `POST /api/repair/run-sfc`
-- `POST /api/repair/run-dism`
-- `POST /api/repair/cleanup`
-- `POST /api/repair/reset-network`
+- `GET /api/startup/items`
+- `POST /api/startup/preview`
+- `POST /api/startup/apply`
+- `POST /api/startup/restore`
+- `POST /api/startup/export-report`
+- `GET /api/cleanup/scan`
+- `POST /api/cleanup/preview`
+- `POST /api/cleanup/apply`
+- `GET /api/cleanup/report`
+- `POST /api/cleanup/export-report`
+- `GET /api/network/diagnostics`
+- `POST /api/network/ping`
 - `GET /api/network/dns-test`
 - `POST /api/network/flush-dns`
-- `POST /api/network/optimize-tcp`
+- `POST /api/network/export-report`
+
+Cleanup apply is conservative in v1.4 and does not perform broad destructive deletion. Network mutation may return `admin_required` when Windows requires elevation.
+
+## Essentials, Streaming, Settings, Restore
+
+- `GET /api/essentials/list`
+- `GET /api/essentials/check`
+- `POST /api/essentials/install-preview`
+- `POST /api/essentials/install`
+- `GET /api/streaming/status`
+- `GET /api/rgb/status`
+- `GET /api/plugins/registry`
+- `GET /api/settings/ui`
+- `POST /api/settings/ui`
+- `GET /api/restore/sessions`
+- `GET /api/restore/session/{id}`
+- `POST /api/restore/session/{id}/preview`
+- `POST /api/restore/session/{id}/apply`
+- `GET /api/restore/session/{id}/verify`
+- `POST /api/restore/export`
+
+`/api/essentials/install` is manual-only in v1.4 and returns a blocked/manual response instead of running silent installers.
+
+## Product Foundation
+
+- `GET /api/history/scans`
+- `POST /api/history/scans`
+- `GET /api/history/timeline`
+- `GET /api/product/storage`
+- `GET /api/product/action-log`
+- `GET /api/product/v2-roadmap`
+- `GET|POST /api/feature-audit/run`
+
+Feature Audit is read-only and does not run destructive actions.

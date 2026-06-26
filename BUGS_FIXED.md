@@ -1,56 +1,39 @@
-# Bugs Fixed - HyperBoostX v1.3.0
+# Bugs Fixed - HyperBoostX v1.4.0
 
-## Version And Metadata
+## Version Sync
 
-- Backend version now comes from shared config and reports `1.3.0`.
-- WPF, launcher, installer, update user-agent, about text, and active docs were updated to `1.3.0`.
-- Installer metadata now writes `DisplayVersion` `1.3.0`.
+- Backend constants, package metadata, WPF project metadata, launcher metadata, installer metadata, About page, update User-Agent, and `VERSION` now report `1.4.0`.
+- Active README, release guide, release notes, security docs, QA docs, audit docs, and API reference were updated for v1.4.0.
 
-## Universal GPU Support
+## v1.4 API Coverage
 
-- Added GPU vendor enum values: `Nvidia`, `Amd`, `Intel`, `MicrosoftBasic`, `Unknown`.
-- Added GPU family detection for GeForce GTX/RTX, AMD Radeon RX/Vega/integrated, Intel Arc/Iris Xe/UHD/iGPU, Microsoft Basic Display, and unknown fallback.
-- Added hybrid and multi-GPU detection metadata.
-- Added vendor badge and dynamic accent recommendation metadata.
-- Added conservative `Unknown Safe GPU Mode` fallback.
+- Added `app/api/product_v14.py` and registered it in the Flask backend.
+- Added safe endpoints for advisor, knowledge base, scores, games, overlays, protection, processes, benchmark, GPU, drivers, startup, cleanup, network, essentials, streaming, RGB detection, plugins, settings, restore, feature audit, storage, action log, and v2 roadmap.
 
-## GPU Center Inputs
+## Storage And Privacy
 
-- Added vendor/RGB/overlay/launcher/streaming process catalog and safety classification.
-- Added API endpoints for GPU summary, vendor software, overlays, and hardware profile.
+- Added local JSON storage service with portable mode and corrupt JSON backup/regeneration.
+- Added local action log with redaction.
+- Added UI settings persistence including reduce motion and high contrast fields.
 
-## Safe Boost And Reports
+## Safety
 
-- Added safe boost plan/apply/undo API.
-- Apply now requires user approval and returns `409` when approval is missing.
-- Added before/after report snapshot and export contract for JSON, TXT, and Markdown.
-- Added blocked risky action metadata to reports and profiles.
+- Added protected process evaluator tests for dangerous actions.
+- Kept incomplete high-risk features as roadmap-only rather than exposing fake controls.
 
-## Job Queue
+## WPF Cyber UI Integration
 
-- Added local in-memory job queue with progress, stage, logs, cancel, and completion state.
-- Added job start/status/cancel endpoints.
+- Replaced the active legacy `MainWindow` UI with a shell-only layout.
+- Added global cyber theme/style dictionaries and referenced them from `App.xaml`.
+- Added real routed WPF views under `wpf/Views/*` for dashboard, gaming, GPU, reports, safety, settings, feature audit, and about pages.
+- Added cyber dashboard actions that either read backend state, build a safe plan, or navigate to the relevant real page.
+- Added persisted WPF UI settings for animations, Reduce Motion, accent color, and Beginner/Advanced/Expert Preview mode.
 
-## Local API Security
+## Tests
 
-- Added optional session-token enforcement for mutating endpoints when `HYPERBOOSTX_SESSION_TOKEN` is configured.
-- Launcher now generates a random session token and passes it to backend and WPF process environments.
-- WPF backend client sends `X-HyperBoostX-Session` when present.
-- CORS allows only localhost origins and includes `X-HyperBoostX-Session` in allowed headers.
+- Python tests expanded from 43 to 52 and pass.
+- .NET tests pass after v1.4 metadata update.
 
-## Tests Added
+## Signing Script
 
-- NVIDIA RTX detection.
-- AMD Radeon detection.
-- Intel Arc detection.
-- Intel iGPU/hybrid detection.
-- Microsoft Basic Display fallback.
-- Unknown GPU safe fallback.
-- Vendor software and overlay classification.
-- Hardware profile schema.
-- v1.3.0 health/version endpoints.
-- Session token rejection/approval.
-- Boost approval required.
-- Job queue lifecycle.
-- Before/after report export schema.
-
+- Moved `param(...)` to the top of `sign_release.ps1` so signing readiness checks fail for the correct reason: missing `-Thumbprint` or `-PfxPath`, not parser syntax.

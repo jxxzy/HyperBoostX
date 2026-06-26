@@ -1,62 +1,52 @@
 # HyperBoostX Roadmap
 
-## v1.3.0 Stable
+## v1.4.0 Feature Expansion Stable
 
-- Universal GPU detection for NVIDIA GeForce GTX/RTX, AMD Radeon/RX/Vega, Intel Arc/iGPU, Microsoft Basic Display Adapter, and unknown fallback.
-- GPU Center with vendor badge, profile recommendation, overlay detector, vendor/RGB software detector, and safe action guidance.
-- PC Health, Gaming Readiness, Streaming Readiness, and Startup Cleanliness scoring through the hardware profile engine.
-- Plan-first boost flow, before/after reports, local API session token security, backend job queue, Safety Guard, restore/undo protection, and local crash report export with redaction.
+Completed in this branch:
 
-## v1.3.1 Hotfix
+- AI Performance Advisor local diagnosis.
+- Knowledge Base for GPU/game performance terms.
+- HyperBoost Score Engine with documented heuristic inputs.
+- Performance history and timeline APIs.
+- Game database and safe profile metadata flow.
+- Overlay Detector and Protected Process evaluator.
+- Process Analyzer, local benchmark history, GPU Center guidance, startup/cleanup/network facades, Gaming Essentials helper, Streaming Center, RGB detection, plugin registry foundation, restore sessions, and UI settings.
+- Local JSON storage recovery, action logging, portable mode, and privacy redaction.
 
-- Real user bug fixes.
-- Installer polish.
-- GPU detection fixes.
-- UI scaling fixes.
-- Backend health timeout fixes.
-- Dashboard freeze fixes.
-- Restore/undo bug fixes.
+## v1.5.x Polish
 
-## v1.3.2 Stability
+- WPF MVVM split for the largest remaining MainWindow sections.
+- More polished cyber dashboard widgets and responsive states.
+- Better keyboard navigation and screen reader labels.
+- Safe Mode / Recovery Mode entry points for users who need guided rollback.
+- App Integrity Check for installed files and release manifest validation.
+- Website starter or docs site with screenshots, download guidance, and SHA256 verification.
 
-- Improve AMD and Intel detection.
-- Reduce UI animation load.
-- Improve report export.
-- Improve AI Doctor prompts.
-- Improve vendor/RGB software detection.
+## v1.6.x Trust And Distribution
 
-## v1.4.0 Auto Game Mode
+- Signed installer when a code-signing certificate is available.
+- Auto updater that checks GitHub Release, downloads only after user approval, verifies SHA256/signature, installs, and rolls back on failure.
+- Stable, Preview, Beta, and Developer update channels.
+- Optional anonymous telemetry with explicit opt-in and local preview of the payload.
+- Local crash report export with redaction improvements and optional manual share flow. Crash reports are not uploaded automatically.
+- local crash report export with redaction remains a required trust feature for every release.
 
-- Auto profile switching when a game opens.
-- Tray mode.
-- Scheduled cleanup.
-- Game-specific profiles.
-- Auto revert when a game closes.
-- Safe Discord, OBS, launcher, and overlay handling.
+## v2.0.0 Vision 2026-2027
 
-## v1.5.0 Update And Diagnostics
+- Plugin SDK for third-party developers.
+- Official plugin marketplace.
+- Local LLM or small offline model option for AI diagnosis.
+- Driver health analyzer.
+- Hardware stress test.
+- Verified HyperBoostX benchmark engine and similar-hardware dataset.
+- Performance Monitor Overlay, only if it adds clear value beyond existing tools.
+- HyperBoostX Cloud for optional profiles, reports, and settings sync.
+- Optional professional license server, activation, lifetime plan, and admin dashboard.
 
-- App Integrity Check for backend, launcher, WPF app, config, version match, required files, package health, and backend recovery.
-- Safe Mode / Recovery Mode that disables heavy animations, skips AI startup calls, skips deep scan on launch, opens Restore first, allows undo, exports redacted diagnostics, resets app settings, restarts backend, and shows repair install guidance.
-- Privacy-friendly optional diagnostics. Diagnostics must be opt-in and anonymous if implemented.
-- Update checker foundation: latest GitHub release, latest version, download link, and checksum guidance.
+## Roadmap-Only In v1.4.0
 
-## v1.6.0 Website And Community
-
-- Landing page content for HyperBoostX Universal Windows Gaming Optimizer.
-- Download button, feature list, screenshots, before/after examples, Safety Guard, Restore/Undo, FAQ, changelog, Discord support, and GitHub Release link.
-- Documentation website and tester program.
-
-## Future Code Signing
-
-Future commercial releases should use a code signing certificate to reduce Windows SmartScreen and Unknown Publisher warnings. Do not fake publisher signatures.
-
-## Future Auto Updater
-
-Future auto updater should check updates, download releases, verify SHA256 or signature, install updates, rollback on failure, and support Stable, Preview, Beta, and Developer channels. Manual update via GitHub Release is acceptable for v1.3.0.
-
-## v2.0.0 Commercial Roadmap Only
-
-License activation is not implemented in v1.3.0. Future v2.0.0 or later may include license activation, license server, signed license token, offline grace, device limit, Pro/Lifetime plans, admin license dashboard, and payment integration.
-
-No v1.3.0 feature is locked behind a license.
+- RGB control is not implemented. v1.4 detects RGB apps only.
+- Global benchmark comparison is not implemented without a verified dataset.
+- Plugin SDK/marketplace is not active. v1.4 exposes a local registry foundation only.
+- Cloud sync is not implemented.
+- License activation is not implemented in v1.4.0. No v1.4.0 feature is locked behind a license.

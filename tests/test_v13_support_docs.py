@@ -37,12 +37,12 @@ def test_support_docs_faq_and_roadmap_exist_with_required_sections():
     assert "Safe Mode / Recovery Mode" in roadmap
     assert "App Integrity Check" in roadmap
     assert "local crash report export with redaction" in roadmap
-    assert "License activation is not implemented in v1.3.0" in roadmap
+    assert "License activation is not implemented in v1.4.0" in roadmap
     assert "v2.0.0" in roadmap
     assert "not uploaded automatically" in troubleshooting
 
 
-def test_api_reference_documents_v13_backend_contracts():
+def test_api_reference_documents_v14_backend_contracts():
     api_reference = read_text("docs/API_REFERENCE.md")
     backend_sources = "\n".join([
         read_text("app/api/hardware.py"),
@@ -51,6 +51,7 @@ def test_api_reference_documents_v13_backend_contracts():
         read_text("app/api/reports.py"),
         read_text("app/api/system_info.py"),
         read_text("app/api/health.py"),
+        read_text("app/api/product_v14.py"),
     ])
 
     required_endpoints = [
@@ -73,6 +74,16 @@ def test_api_reference_documents_v13_backend_contracts():
         "/api/jobs/start",
         "/api/jobs/{id}",
         "/api/jobs/{id}/cancel",
+        "/api/advisor/performance",
+        "/api/knowledge/terms",
+        "/api/score/engine",
+        "/api/games/library",
+        "/api/overlays/status",
+        "/api/protection/processes",
+        "/api/benchmark/history",
+        "/api/gpu/vendor-guide",
+        "/api/drivers/recommendation",
+        "/api/product/v2-roadmap",
     ]
 
     for endpoint in required_endpoints:

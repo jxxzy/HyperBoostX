@@ -1,5 +1,3 @@
-$ErrorActionPreference = "Stop"
-
 param(
     [string]$Thumbprint = "",
     [string]$PfxPath = "",
@@ -8,6 +6,8 @@ param(
     [string]$Description = "HyperBoostX by MR.4NONY - HYPERINDO CYBER TEAM",
     [string]$DescriptionUrl = "https://github.com/jxxzy/HyperBoostX"
 )
+
+$ErrorActionPreference = "Stop"
 
 Set-Location -LiteralPath $PSScriptRoot
 

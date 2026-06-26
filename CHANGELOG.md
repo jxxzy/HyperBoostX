@@ -2,6 +2,23 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v1.4.0 - 2026-06-26
+- Added local AI Performance Advisor for CPU, GPU, VRAM, RAM, storage, startup, and bottleneck diagnosis.
+- Added HyperBoostX Knowledge Base terms for DLSS, FSR, XeSS, Resizable BAR, Game Mode, HAGS, VRR, V-Sync, G-Sync, FreeSync, Frame Generation, Reflex, AFMF, and HYPR-RX.
+- Added deterministic HyperBoost Score Engine with Gaming, AI, Health, Streaming, Storage, Network, and Security scores.
+- Added v1.4 API endpoints for game profiles, overlay status, protected processes, process analysis, local benchmark history, GPU guidance, startup preview/apply facade, cleanup preview/report facade, network diagnostics, gaming essentials, restore sessions, UI settings, plugin registry, RGB detection, action log, and v2 roadmap.
+- Added local JSON storage recovery with corrupt-file backup and portable mode through `HYPERBOOSTX_PORTABLE_HOME`.
+- Updated backend, WPF, launcher, installer, About page, and release metadata to `1.4.0`.
+- Replaced the active legacy WPF `MainWindow` UI with a cyber shell that loads real page views from `wpf/Views/*`.
+- Added global WPF resources in `wpf/Themes/CyberTheme.xaml`, `wpf/Themes/AccentColors.xaml`, `wpf/Themes/Animations.xaml`, `wpf/Styles/Buttons.xaml`, `wpf/Styles/Cards.xaml`, `wpf/Styles/Sidebar.xaml`, `wpf/Styles/Badges.xaml`, `wpf/Styles/ProgressRings.xaml`, `wpf/Styles/Toasts.xaml`, and `wpf/Styles/Modals.xaml`.
+- Added cyber WPF pages for Dashboard, AI Advisor, Auto Gaming, Game Library, Game Profiles, GPU Center, HyperBalance, One Click Boost, Process Analyzer, Startup, Cleanup, Network Tools, Benchmark Lab, Performance History, Performance Report, Streaming Center, Creator Mode, Gaming Essentials, Restore & Backup, Protected Apps, Knowledge Base, Settings, Feature Audit, and About.
+- Added persisted WPF UI settings for animations, Reduce Motion, accent color, and Beginner/Advanced/Expert Preview mode.
+- Fixed NSIS silent reinstall by suppressing the previous-install information `MessageBox` when the installer runs with `/S`.
+- Updated active README, API reference, release notes, security, QA, audit, support, troubleshooting, roadmap, and release docs for v1.4.0.
+- Added Python tests for v1.4 product APIs, advisor diagnosis, knowledge base, protected process blocking, benchmark local history, corrupted JSON recovery, reduce motion settings, and roadmap-only feature boundaries.
+- Kept Safety Guard blocks for Defender disable, permanent Windows Update disable, anti-cheat changes, driver service changes, overclock/undervolt/voltage/BIOS actions, arbitrary shell execution, and destructive cleanup.
+- Marked RGB control, global benchmark comparison, plugin SDK/marketplace, cloud sync, and licensing as roadmap-only instead of claiming them as completed release features.
+
 ## v1.3.0 - 2026-06-26
 - Added universal GPU detection for NVIDIA GeForce GTX/RTX, AMD Radeon/RX/Vega, Intel Arc, Intel Iris Xe/UHD/iGPU, Microsoft Basic Display Adapter, and unknown fallback.
 - Added GPU profile recommendation, vendor badge metadata, hybrid/multi-GPU detection, and safe blocked-action metadata.

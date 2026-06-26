@@ -1,41 +1,37 @@
-# HyperBoostX FAQ
+# FAQ
 
-## Is HyperBoostX safe?
+## Does HyperBoostX guarantee more FPS?
 
-HyperBoostX is designed around Safety Guard, user approval, and restore/undo metadata for supported actions. It avoids unsafe driver hacks and irreversible changes.
+No. HyperBoostX does not guarantee FPS increase on every PC. It helps detect local pressure, reduce avoidable background load, and create before/after reports.
 
-## Does HyperBoostX disable Defender?
+## Does HyperBoostX disable security for FPS?
 
-No. HyperBoostX does not force-disable Windows Defender.
-
-## Can I undo changes?
-
-Supported boost flows create restore or undo metadata where applicable. Open Restore & Backup before applying more changes if something feels wrong.
+No. HyperBoostX does not force-disable Windows Defender, does not permanently disable Windows Update, and blocks anti-cheat, driver-service, BIOS, overclock, undervolt, voltage, and destructive cleanup actions.
 
 ## Does it support AMD Radeon?
 
-Yes. v1.3.0 adds AMD Radeon/RX/Vega and AMD integrated graphics detection and safe recommendations.
+Yes. v1.4.0 supports AMD Radeon/RX/Vega and AMD integrated graphics detection with safe recommendations.
 
-## Does it support Intel Arc/iGPU?
+## Does it support Intel Arc or iGPU?
 
-Yes. v1.3.0 adds Intel Arc, Intel Iris Xe, Intel UHD, and iGPU safe-mode fallback recommendations.
+Yes. v1.4.0 supports Intel Arc, Intel Iris Xe, Intel UHD, and iGPU safe fallback recommendations.
 
-## Does it work on laptops?
+## What if my GPU is unknown?
 
-Yes, with safe laptop and hybrid graphics handling. Hardware counters may vary by device and driver.
+HyperBoostX uses Unknown Safe GPU Mode and avoids vendor-specific changes.
 
-## Does it guarantee FPS increase?
+## Does Driver Recommendation Center download drivers?
 
-No. HyperBoostX does not guarantee FPS increase on every PC. HyperBoostX focuses on reducing background load, improving startup cleanliness, giving safe recommendations, and making Windows more gaming-ready while keeping Safety Guard and undo protection.
+No. It shows local current-driver data and official-source guidance only. It does not fabricate latest stable versions and does not auto-download or silently install drivers.
 
-## Why does Windows show unknown publisher?
+## Why does Windows show Unknown Publisher?
 
-The v1.3.0 installer may be unsigned if no code signing certificate is available. Windows may show Unknown Publisher or SmartScreen until a future signed commercial release.
+The v1.4.0 installer may be unsigned if no code signing certificate is available. Windows may show Unknown Publisher or SmartScreen until a signed release is available. Download only from the official GitHub Release and verify SHA256.
 
-## How do I uninstall?
+## Is telemetry enabled?
 
-Use Windows Settings > Apps > Installed apps, select HyperBoostX, and uninstall.
+No. Anonymous Usage is off by default, and v1.4.0 does not silently upload telemetry.
 
-## How do I report a bug?
+## Is there a paid license?
 
-Use `BUG_REPORT_TEMPLATE.md` and include version, Windows, CPU, RAM, GPU, issue, steps before error, screenshot, and logs if available.
+No. No v1.4.0 feature is locked behind a license. Licensing is roadmap-only.

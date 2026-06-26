@@ -1,52 +1,49 @@
-# HyperBoostX Security
+# Security Policy
 
-Target release: `HyperBoostX v1.3.0 Stable`
+Target release: `HyperBoostX v1.4.0 Feature Expansion Stable`
 
 ## Local Backend
 
-The backend is intended for local runtime use on `127.0.0.1` only. CORS is limited to localhost origins.
+- Backend binds to `127.0.0.1` only.
+- CORS is limited to localhost/127.0.0.1 origins.
+- WPF should normally be launched through the .NET launcher so lifecycle and session token setup are consistent.
 
-When the packaged launcher starts the backend, it generates a random in-memory session token and passes it to the backend and WPF client through `HYPERBOOSTX_SESSION_TOKEN`. Mutating endpoints require the matching header:
+## Session Token
 
-```http
-X-HyperBoostX-Session: <token>
-```
-
-The token must not be logged, persisted, committed, packaged as plaintext, or included in reports.
-
-## Credential Storage
-
-NVIDIA API keys and Discord webhook URLs must be stored through Windows Credential Manager. They must not be written to plaintext config, logs, reports, crash dumps, release packages, installer artifacts, or repository files.
-
-Known Credential Manager targets:
-
-- `HyperBoostX:NVIDIA:ApiKey`
-- `HyperBoostX:Discord:WebhookUrl`
-- `HyperBoostX:Discord:UpdateWebhookUrl`
+When `HYPERBOOSTX_SESSION_TOKEN` is present, mutating methods require `X-HyperBoostX-Session`. Missing or invalid tokens return `401`.
 
 ## Safety Guard
 
-Safety Guard blocks or downgrades destructive actions including:
+HyperBoostX blocks:
 
-- forced Defender disablement
-- permanent Windows Update disablement
-- GPU driver service disablement without an explicit safe rollback path
-- BIOS/UEFI edits
-- voltage changes
-- overclocking
-- undervolting
-- deleting system files
-- deleting user data
-- irreversible registry edits without restore metadata
-- arbitrary AI-generated shell actions
+- Forced Windows Defender disable.
+- Permanent Windows Update disable.
+- Anti-cheat process/service changes.
+- GPU, audio, or network driver service disabling.
+- BIOS/UEFI, overclock, undervolt, or voltage actions.
+- Arbitrary AI-generated shell execution.
+- Destructive cleanup of user documents, downloads, desktop, pictures, videos, music, game saves, or system files.
 
-AI and automation must generate a plan first, explain risk, require user approval, and preserve undo/restore metadata where applicable.
+## AI Restrictions
 
-## Secret Scan Policy
+The v1.4 AI Performance Advisor is a local deterministic diagnosis engine. It may suggest allowlisted safe action IDs, but it does not execute shell commands, bypass Safety Guard, or apply actions without approval.
 
-Before release, scan tracked source and release assets for plaintext secrets. Do not ship if any real API key, Discord webhook, GitHub token, NVIDIA/AMD/Intel credential, bearer token, local session token, or machine-specific secret is found.
+## Protected Processes
 
-## Known Security Limitations
+The Protected Process List includes anti-cheat, security, audio, and GPU/driver-related processes. `/api/protection/evaluate-action` blocks dangerous or protected targets.
 
-- Local token enforcement is active when the launcher supplies `HYPERBOOSTX_SESSION_TOKEN`. Developer-mode backend sessions without this environment variable remain compatible with existing local tests.
-- HyperBoostX is not a sandbox and should not be used to run untrusted scripts.
+## Redaction
+
+Crash reports, action logs, exported reports, and diagnostics redact API keys, AI keys, GitHub tokens, Discord webhooks/tokens, bearer tokens, local session tokens, Windows usernames, user profile paths, sensitive local paths, and future license keys.
+
+## Telemetry
+
+Telemetry is off by default. v1.4 includes settings fields for future anonymous usage opt-in, but no online telemetry is sent silently.
+
+## Driver And Installer Safety
+
+HyperBoostX does not auto-download drivers, does not silently install third-party software, and does not claim official NVIDIA/AMD/Intel partnership. Unsigned installer builds must be documented with Unknown Publisher and SmartScreen guidance.
+
+## Reporting Issues
+
+Open a GitHub issue with the template. Do not paste secrets, tokens, private logs, or unredacted crash dumps.

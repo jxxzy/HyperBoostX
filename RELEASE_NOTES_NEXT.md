@@ -1,8 +1,5 @@
-# HyperBoostX v1.3.0 Stable
+# HyperBoostX v1.4.0 Feature Expansion Stable
 
-The active next-release notes are now finalized as `RELEASE_NOTES_v1.3.0.md`.
+The active next-release notes are finalized as `RELEASE_NOTES_v1.4.0.md`.
 
-Recommended public download: `HyperBoostXInstaller.exe`.
-Optional checksum asset: `SHA256SUMS.txt`.
-
-Do not publish internal backend, launcher, debug, temp, log, cache, or CI artifacts as normal-user release assets.
+Future unreleased work should start from the roadmap sections for v1.5.x, v1.6.x, and v2.0.0.

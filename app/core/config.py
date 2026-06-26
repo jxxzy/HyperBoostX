@@ -65,6 +65,10 @@ class Config:
     DATA_DIR = APP_DIR / "data"
     LOG_DIR = APP_DIR / "logs"
     BACKUP_DIR = APP_DIR / "backups"
+    REPORTS_DIR = APP_DIR / "reports"
+    PROFILES_DIR = APP_DIR / "profiles"
+    SESSIONS_DIR = APP_DIR / "sessions"
+    DIAGNOSTICS_DIR = APP_DIR / "diagnostics"
     
     # Default configuration
     DEFAULT_CONFIG = {
@@ -105,6 +109,10 @@ class Config:
         cls.DATA_DIR.mkdir(parents=True, exist_ok=True)
         cls.LOG_DIR.mkdir(parents=True, exist_ok=True)
         cls.BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+        cls.REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+        cls.PROFILES_DIR.mkdir(parents=True, exist_ok=True)
+        cls.SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
+        cls.DIAGNOSTICS_DIR.mkdir(parents=True, exist_ok=True)
         
         # Load or create config
         cls._load_config()

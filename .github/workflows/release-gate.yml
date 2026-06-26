@@ -56,6 +56,25 @@ jobs:
       - name: Run .NET tests
         run: dotnet test dotnet-tests/HyperBoostX.Tests/HyperBoostX.Tests.csproj -c Release
 
+      - name: Secret scan
+        shell: powershell
+        run: |
+          $patterns = @(
+            'ghp_[A-Za-z0-9_]{20,}',
+            'github_pat_[A-Za-z0-9_]{20,}',
+            'sk-[A-Za-z0-9]{20,}',
+            'nvapi-[A-Za-z0-9_-]{20,}',
+            'discord\.com/api/webhooks/[0-9]{12,}/[A-Za-z0-9_-]{30,}'
+          )
+          $files = git ls-files
+          foreach ($pattern in $patterns) {
+            $hits = Select-String -Path $files -Pattern $pattern -ErrorAction SilentlyContinue
+            if ($hits) {
+              $hits | ForEach-Object { "$($_.Path):$($_.LineNumber): secret-like pattern $pattern" }
+              throw "Secret scan failed for pattern $pattern"
+            }
+          }
+
       - name: Build release package
         shell: powershell
         run: .\scripts\build_release_ci.ps1

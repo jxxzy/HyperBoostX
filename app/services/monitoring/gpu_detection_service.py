@@ -1,4 +1,4 @@
-"""GPU and background app detection for HyperBoostX v1.3.0."""
+"""GPU and background app detection for HyperBoostX v1.4.0."""
 
 from __future__ import annotations
 

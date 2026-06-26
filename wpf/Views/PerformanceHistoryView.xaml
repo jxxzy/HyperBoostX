@@ -1,0 +1,10 @@
+<UserControl x:Class="HyperBoostX.Views.PerformanceHistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:HyperBoostX.ViewModels"
+             xmlns:views="clr-namespace:HyperBoostX.Views">
+    <UserControl.DataContext>
+        <vm:PerformanceHistoryViewModel/>
+    </UserControl.DataContext>
+    <views:CyberPageChrome/>
+</UserControl>

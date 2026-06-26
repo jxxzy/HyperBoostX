@@ -1,18 +1,15 @@
-# HyperBoostX Support
+# Support
 
-HyperBoostX v1.3.0 is a local Windows optimizer. Support should focus on safety, restore/undo access, installer issues, backend health, GPU detection, and crash diagnostics.
+HyperBoostX v1.4.0 is a local Windows gaming optimizer. Support should focus on Safety Guard behavior, restore/undo access, installer issues, backend health, GPU detection, AI Advisor diagnosis, and crash diagnostics.
 
-## Recommended First Steps
+## Before Opening An Issue
 
-1. Open HyperBoostX and check the backend status badge.
-2. Open Restore & Backup before applying more changes.
-3. Export logs or a local crash report if the app shows an error.
-4. Include your Windows version, CPU, RAM, and GPU when reporting a problem.
+- Confirm you downloaded from the official GitHub Release.
+- Verify `SHA256SUMS.txt` when available.
+- Check `/api/health` if the backend appears offline.
+- Export a redacted crash report if the app crashed.
 
-## Bug Report Format
-
-```text
-HyperBoostX Bug Report
+## Issue Template
 
 Version:
 Windows:
@@ -23,18 +20,5 @@ Issue:
 Steps before error:
 Screenshot:
 Logs if available:
-```
 
-## Privacy
-
-Diagnostics stay local unless you manually share them. Local crash reports redact API keys, AI keys, tokens, GitHub tokens, usernames, sensitive local paths, and future license keys.
-
-## Safety Notes
-
-HyperBoostX does not force-disable Defender, does not permanently disable Windows Update, does not disable GPU driver services blindly, and does not overclock, undervolt, or change voltage.
-
-## Release Download
-
-Recommended download: `HyperBoostXInstaller.exe` from the GitHub Release page.
-
-Optional: `SHA256SUMS.txt` for checksum verification.
+Do not paste secrets, API keys, session tokens, Discord webhooks, license keys, or unredacted personal paths.

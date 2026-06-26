@@ -1,44 +1,65 @@
-# Audit Report - HyperBoostX v1.3.0 Stable
+# Audit Report - HyperBoostX v1.4.0
 
-Audit date: 2026-06-26
-Target version: `1.3.0`
+Target version: `1.4.0`
+Branch: `feature/v1.4.0-ultra-complete-update`
+Audit date: `2026-06-26`
 
-## Summary
+## What Exists
 
-The repository was audited for version consistency, release hygiene, backend API coverage, GPU-neutral wording, local API security, restore/undo safety, AI approval flow, release artifacts, tests, and documentation.
+- WPF desktop client with active cyber shell, global theme/style dictionaries, and page views under `wpf/Views/*`.
+- Python Flask backend bound to `127.0.0.1`.
+- .NET launcher with local backend lifecycle/session-token support.
+- NSIS installer script.
+- v1.3 safe boost, hardware/GPU, reports, jobs, startup, network, and crash-report redaction contracts.
+- v1.4 product feature APIs for advisor, knowledge base, score engine, games, overlays, protection, processes, benchmark, GPU, driver recommendation, cleanup, network, essentials, restore, settings, plugins, RGB detection, action log, and roadmap.
 
-The v1.2.14 source line was still the tracked base at the start of this run. v1.3.0 changes add backend contracts and tests for Universal GPU support, hardware profile scoring, safe boost planning, before/after reports, job queue lifecycle, and local session-token protection.
+## What Was Stale
 
-## Key Findings
+- Active release metadata referenced `1.3.0` before this v1.4 branch work.
+- README, release guide, QA docs, security docs, WPF metadata, launcher metadata, installer metadata, About page, and backend constants required v1.4 sync.
 
-- Active source and docs still referenced `1.2.14` as the current release.
-- Backend health returned a hardcoded `1.2.14` instead of a shared version constant.
-- Required v1.3.0 endpoints for hardware/GPU, reports, jobs, and safe boost plan/apply/undo were missing.
-- Mutating backend endpoints had no launcher-generated local session-token enforcement.
-- Release docs still described v1.2.14 installer validation and NVIDIA-focused release gates.
-- WPF remains a large legacy shell rather than a completed per-page MVVM split.
+## What Was Missing
 
-## Fixes Applied
+- Backend endpoints for the v1.4 feature expansion list.
+- Local storage folders/files for reports, profiles, sessions, diagnostics, performance history, action log, and UI settings.
+- AI diagnosis and knowledge-base features that are not free-form shell execution.
+- Tests for roadmap-only boundaries, protected process blocking, corrupted JSON recovery, and reduce motion settings.
+- Root `API_REFERENCE.md`, `PRIVACY.md`, `DISCLAIMER.md`, `CONTRIBUTING.md`, and GitHub issue/PR templates.
 
-- Updated backend, WPF, launcher, installer, and active docs to `1.3.0`.
-- Added `GET /api/version` and made `/api/health` use shared version config.
-- Added `/api/hardware/gpu`, `/api/hardware/vendors`, `/api/hardware/overlays`, and `/api/hardware/profile`.
-- Added `/api/boost/plan`, `/api/boost/apply`, and `/api/boost/undo` with approval required.
-- Added `/api/reports/latest` and `/api/reports/export`.
-- Added `/api/jobs/start`, `/api/jobs/{id}`, and `/api/jobs/{id}/cancel`.
-- Added local session-token middleware for mutating endpoints when `HYPERBOOSTX_SESSION_TOKEN` is configured.
-- Updated launcher to generate and pass the local session token to backend and WPF processes.
-- Added Python tests for NVIDIA, AMD Radeon, Intel Arc, Intel iGPU/hybrid, Microsoft Basic Display, unknown fallback, overlay/vendor classification, hardware profile schema, reports, jobs, token auth, and approval flow.
+## What Was Added
 
-## Validation Snapshot
+- `app/services/product_features.py` with local-first product services.
+- `app/api/product_v14.py` with v1.4 API contract.
+- v1.4 tests in `tests/test_v14_product_features.py`.
+- v1.4 release notes and refreshed active docs.
+- Real WPF cyber UI integration: `App.xaml` resource dictionaries, `MainWindow` shell, `Views/*`, `ViewModels/*`, and persisted UI settings.
 
-- Python tests: PASS, `39 passed`.
-- .NET tests: PASS, `28 passed`.
-- Remaining release gates are tracked in `QA_RESULTS.md`.
+## Safety Findings
 
-## Known Limitations
+- Mutating endpoints are covered by global session-token middleware.
+- Protection evaluator blocks dangerous action names and protected process targets.
+- Driver latest-stable comparison and global benchmark comparison are not fabricated.
+- RGB control, cloud sync, plugin SDK/marketplace, and license activation remain roadmap-only.
 
-- Full WPF MVVM split into all requested per-page `Views/` and `ViewModels/` is not complete.
-- Full multi-machine Windows lab matrix is not claimed.
-- GPU telemetry depends on Windows/WMI/driver support and can safely fall back to unknown values.
-- GitHub Release publishing depends on authentication and repository permissions.
+## UI Findings
+
+- The old active WPF sidebar/MainWindow monolith was replaced. `MainWindow.xaml` now contains shell structure only: sidebar, topbar, content host, toast, and backend pulse.
+- New page views exist and are loaded through `NavigationService` from `wpf/Views/*`.
+- Global cyber theme/style dictionaries are referenced by `App.xaml` and bootstrapped by `MainWindow` for test contexts that create a plain `Application`.
+- Dashboard visibly includes the cyber hero, score cards, system cards, Safety Guard/restore/backend indicators, scanner line, and wired dashboard actions.
+- Settings includes Enable Animations, Reduce Motion, Accent color, Beginner, Advanced, and Expert Preview with `ui_settings.json` persistence.
+- Metadata/About version was updated to v1.4.0.
+
+## Tests
+
+- Python: `52 passed`.
+- .NET: `28 passed`.
+- Debug build: passed.
+- Release build: passed with 0 warnings after WPF shell integration.
+
+## Release Blockers Still Requiring Owner/Environment
+
+- GitHub push/tag/release publishing requires authenticated remote access.
+- Code signing requires a real certificate.
+- Installed app smoke and uninstall/reinstall smoke must be rerun after the cyber WPF installer rebuild.
+- Multi-machine lab validation requires additional owner hardware.

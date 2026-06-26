@@ -1,4 +1,4 @@
-"""Hardware API Blueprint for HyperBoostX v1.3.0."""
+"""Hardware API Blueprint for HyperBoostX v1.4.0."""
 
 from flask import Blueprint, jsonify
 

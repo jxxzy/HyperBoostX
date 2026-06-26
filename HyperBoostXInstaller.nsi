@@ -5,12 +5,12 @@ Name "HyperBoostX"
 OutFile "HyperBoostXInstaller.exe"
 InstallDir "$PROGRAMFILES64\HyperBoostX"
 RequestExecutionLevel admin
-VIProductVersion "1.3.0.0"
+VIProductVersion "1.4.0.0"
 VIAddVersionKey "ProductName" "HyperBoostX"
 VIAddVersionKey "CompanyName" "MR.4NONY - HYPERINDO CYBER TEAM"
 VIAddVersionKey "FileDescription" "HyperBoostX Installer"
-VIAddVersionKey "FileVersion" "1.3.0"
-VIAddVersionKey "ProductVersion" "1.3.0"
+VIAddVersionKey "FileVersion" "1.4.0"
+VIAddVersionKey "ProductVersion" "1.4.0"
 VIAddVersionKey "LegalCopyright" "Copyright (c) MR.4NONY - HYPERINDO CYBER TEAM"
 !define MUI_ICON "wpf\Assets\HyperBoostX.ico"
 !define MUI_UNICON "wpf\Assets\HyperBoostX.ico"
@@ -40,7 +40,9 @@ Function UninstallPreviousVersion
   StrCpy $ExistingUninstaller "$ExistingInstallDir\Uninstall.exe"
   IfFileExists "$ExistingUninstaller" 0 done
 
+  IfSilent skipPreviousInstallMessage 0
   MessageBox MB_ICONINFORMATION|MB_OK "HyperBoostX versi lama terdeteksi.$\r$\n$\r$\nInstaller akan menghapus aplikasi lama terlebih dulu, lalu memasang versi terbaru.$\r$\n$\r$\nConfig, backup, dan setting user di %LocalAppData% akan tetap disimpan."
+skipPreviousInstallMessage:
   DetailPrint "Previous HyperBoostX installation detected."
   DetailPrint "Removing old application files from $ExistingInstallDir and keeping user config in %LocalAppData%."
   ExecWait '"$ExistingUninstaller" /S _?=$ExistingInstallDir'
@@ -80,7 +82,7 @@ Section "Install"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "DisplayIcon" "$INSTDIR\HyperBoostX.exe"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "InstallLocation" "$INSTDIR"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "Publisher" "MR.4NONY - HYPERINDO CYBER TEAM"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "DisplayVersion" "1.3.0"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "DisplayVersion" "1.4.0"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "UninstallString" "$\"$INSTDIR\Uninstall.exe$\""
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "NoRepair" 1
