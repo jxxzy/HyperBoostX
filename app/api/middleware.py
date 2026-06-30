@@ -16,6 +16,17 @@ SESSION_HEADER = "X-HyperBoostX-Session"
 MUTATING_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 
 
+def unauthorized_local_session_response():
+    """Return a stable, UI-friendly envelope for local session mismatches."""
+    return jsonify({
+        "ok": False,
+        "status": "unauthorized_local_session",
+        "message": "Local session token mismatch. Restart backend from launcher.",
+        "error": "Unauthorized local session",
+        "can_retry": True,
+    }), 401
+
+
 def get_session_token() -> str:
     """Return the memory/session token supplied by the launcher, if any."""
     return os.environ.get("HYPERBOOSTX_SESSION_TOKEN", "").strip()
@@ -35,7 +46,7 @@ def require_session_token(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         if not is_session_authorized():
-            return jsonify({"error": "Unauthorized local session"}), 401
+            return unauthorized_local_session_response()
         return f(*args, **kwargs)
     return wrapper
 
@@ -101,7 +112,7 @@ class APIMiddleware:
             logger.debug(f"Request: {request.method} {request.url}")
 
             if request.method in MUTATING_METHODS and not is_session_authorized():
-                return jsonify({"error": "Unauthorized local session"}), 401
+                return unauthorized_local_session_response()
 
         @app.after_request
         def add_security_headers(response):
@@ -114,15 +125,33 @@ class APIMiddleware:
         @app.errorhandler(404)
         def not_found(error):
             """Handle 404 errors."""
-            return jsonify({"error": "Endpoint not found"}), 404
+            return jsonify({
+                "ok": False,
+                "status": "not_found",
+                "message": "Endpoint not found in this HyperBoostX build. Run route verification before release.",
+                "error": "Endpoint not found",
+                "can_retry": False,
+            }), 404
 
         @app.errorhandler(405)
         def method_not_allowed(error):
             """Handle 405 errors."""
-            return jsonify({"error": "Method not allowed"}), 405
+            return jsonify({
+                "ok": False,
+                "status": "method_not_allowed",
+                "message": "This endpoint exists, but the requested HTTP method is not supported.",
+                "error": "Method not allowed",
+                "can_retry": False,
+            }), 405
 
         @app.errorhandler(500)
         def internal_error(error):
             """Handle 500 errors."""
             logger.error(f"Internal server error: {error}")
-            return jsonify({"error": "Internal server error"}), 500
+            return jsonify({
+                "ok": False,
+                "status": "internal_server_error",
+                "message": "Backend hit an internal error. No system change was applied by this failed request.",
+                "error": "Internal server error",
+                "can_retry": True,
+            }), 500

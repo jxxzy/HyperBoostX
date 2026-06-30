@@ -53,7 +53,7 @@ namespace HyperBoostX
             DispatcherUnhandledException += App_DispatcherUnhandledException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
-            _logWatcherTimer.Interval = TimeSpan.FromSeconds(12);
+            _logWatcherTimer.Interval = TimeSpan.FromSeconds(45);
             _logWatcherTimer.Tick += LogWatcherTimer_Tick;
         }
 

@@ -118,6 +118,6 @@ dotnet run --project .\HyperBoostX.csproj
 
 ## Version
 
-- Client version: `2.0.0`
+- Client version: `2.0.1`
 - Target framework: `net8.0-windows`
 - Backend: local Flask API on `127.0.0.1`

@@ -1,8 +1,8 @@
 # HyperBoostX Roadmap
 
-## v2.0.0 Ultimate Winner Edition
+## v2.x Development Preview Direction
 
-Completed in this branch:
+Implemented or prototyped in the v2 development branch:
 
 - AI Performance Advisor local diagnosis.
 - Knowledge Base for GPU/game performance terms.

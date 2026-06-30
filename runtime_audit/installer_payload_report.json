@@ -1,0 +1,74 @@
+﻿{
+    "generated_at":  "2026-06-30T21:07:07.9676666Z",
+    "repo_root":  "F:\\BOOSTER BY MR.4NONY",
+    "expected_version":  "2.10.0-beta.1",
+    "installer_path":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe",
+    "checks":  [
+                   {
+                       "name":  "version sync script passed",
+                       "ok":  true,
+                       "evidence":  "scripts\\\\verify_version_sync.ps1"
+                   },
+                   {
+                       "name":  "release artifact content script passed",
+                       "ok":  true,
+                       "evidence":  "scripts\\\\verify_release_artifact_contents.ps1"
+                   },
+                   {
+                       "name":  "NSIS file exists",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.nsi"
+                   },
+                   {
+                       "name":  "NSIS DisplayVersion uses current version",
+                       "ok":  true,
+                       "evidence":  "expected DisplayVersion 2.10.0-beta.1"
+                   },
+                   {
+                       "name":  "NSIS writes HKLM uninstall metadata",
+                       "ok":  true,
+                       "evidence":  "uninstall registry entry"
+                   },
+                   {
+                       "name":  "NSIS writes QuietUninstallString",
+                       "ok":  true,
+                       "evidence":  "silent uninstall metadata"
+                   },
+                   {
+                       "name":  "NSIS writes owner publisher",
+                       "ok":  true,
+                       "evidence":  "publisher metadata"
+                   },
+                   {
+                       "name":  "NSIS creates Start Menu shortcut",
+                       "ok":  true,
+                       "evidence":  "Start Menu shortcut"
+                   },
+                   {
+                       "name":  "NSIS creates desktop shortcut",
+                       "ok":  true,
+                       "evidence":  "desktop shortcut"
+                   },
+                   {
+                       "name":  "installer exists",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe"
+                   },
+                   {
+                       "name":  "installer hash available",
+                       "ok":  true,
+                       "evidence":  "05e689131175efd1acfe40e6995b014f48228cd4156fcf99724283a3887f5a6d"
+                   },
+                   {
+                       "name":  "v2.10 checksum file exists",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\SHA256SUMS_v2.10.0-beta.1.txt"
+                   },
+                   {
+                       "name":  "checksum file includes current installer hash",
+                       "ok":  true,
+                       "evidence":  "05e689131175efd1acfe40e6995b014f48228cd4156fcf99724283a3887f5a6d"
+                   }
+               ],
+    "ok":  true
+}

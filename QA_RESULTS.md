@@ -1,59 +1,63 @@
-# QA Results - HyperBoostX v2.0.0 Ultimate Winner Edition
+# QA Results - HyperBoostX v2.10.0-beta.1
 
-Date/time: `2026-06-26 20:08:00 +07:00 Asia/Jakarta`
+Date: 2026-07-01
 Branch: `feature/hyperboostx-v2-release`
-Base commit at start of v2 work: `9a72d28 release: prepare HyperBoostX v1.4.0 cyber UI update`
-Final release commit: recorded by git after this QA evidence is committed.
+Decision: `BETA_READY` / source-package stable candidate. Not public stable.
 
-## Test And Build Evidence
+## Final Automated Gate
 
-| Gate | Status | Evidence |
+| Gate | Result | Evidence |
 | --- | --- | --- |
-| Python tests | PASS | `app\venv\Scripts\python.exe -m pytest -q tests` returned `52 passed in 23.48s`. |
-| .NET Release build | PASS | `dotnet build HyperBoostX.sln -c Release -v minimal` succeeded with `0 Warning(s), 0 Error(s)`. |
-| .NET Debug tests | PASS | `dotnet test dotnet-tests\HyperBoostX.Tests\HyperBoostX.Tests.csproj -c Debug -v minimal` returned `Passed: 28`. |
-| WPF release package | PASS | `.\build_release.bat` published WPF and copied `257` files to `release\wpf`. |
-| Combined package | PASS | `.\package_release.bat` rebuilt backend, WPF, launcher, `release\package`, and portable `release\app\HyperBoostX.exe`. |
-| Installer build | PASS | `.\build_installer.bat` created `HyperBoostXInstaller.exe`, size `144,217,409` bytes. |
-| Packaged backend health | PASS | `release\package\backend\hyperboost_backend.exe` returned `/api/health` `ok` and `/api/version` `2.0.0`. |
-| Portable app smoke | PASS | `release\app\HyperBoostX.exe` launched backend and WPF; backend returned `ok`/`2.0.0`; UI Automation found `Safe AI Windows Gaming Optimizer`, `One Click Safe Boost`, `Safety Guard Active`, and `Restore Available`; orphan process count after close was `0`. |
-| Old install removal | PASS | Existing `HyperBoostX` `DisplayVersion=1.4.0` was uninstalled with `Uninstall.exe /S`, exit code `0`; registry entry and Program Files directory were removed. |
-| Fresh installer install | PASS | `HyperBoostXInstaller.exe /S` returned exit code `0`; registry `DisplayVersion` became `2.0.0`; installed launcher existed at `C:\Program Files\HyperBoostX\HyperBoostX.exe`. |
-| Installed app smoke | PASS | Installed launcher opened WPF cyber UI; backend returned `ok`/`2.0.0`; About page showed `2.0.0 / Ultimate Winner Edition`; orphan process count after close was `0`. |
-| Silent reinstall smoke | PASS | Existing v2 install plus `HyperBoostXInstaller.exe /S` returned exit code `0`; registry stayed `DisplayVersion=2.0.0`. |
-| v2 silent uninstall/reinstall | PASS | v2 `Uninstall.exe /S` returned exit code `0`, removed Program Files directory and registry entry, then fresh install returned exit code `0` with `DisplayVersion=2.0.0`. |
-| Final installed smoke after reinstall | PASS | Installed app again returned backend `ok`/`2.0.0`, showed About version text, and closed with orphan process count `0`. |
-| Repository verification | PASS | `powershell -ExecutionPolicy Bypass -File .\scripts\verify_repo.ps1` completed with `Repository verification passed.`; Python `52 passed`, .NET `28 passed`. |
-| SHA256 | PASS | `SHA256SUMS.txt` generated and verified. Installer SHA256: `179be383d8e84cb871686dff1c595bcc720f8708ec95fd7a862d89fa9dd5e83e`. |
-| Secret scan | PASS | Refined regex scan found no realistic GitHub/OpenAI/NVIDIA/Discord/Slack token, webhook, or private-key patterns outside generated artifacts. |
-| Signing readiness | BLOCKED | `powershell -ExecutionPolicy Bypass -File .\sign_release.ps1` stopped with `Provide either -Thumbprint or -PfxPath to sign release artifacts.` No owner signing certificate/PFX was available locally. |
-| GitHub publish | PENDING | Source commit, branch push, tag push, and GitHub Release creation happen after this QA file is committed. Final work report must record the actual result. |
+| Full QA gate | PASS WITH INSTALL SKIP | `artifacts/qa/full_qa_summary.json` status `BETA_READY`. |
+| Python tests | PASS | `72 passed` via `app\venv\Scripts\python.exe -m pytest -q tests`. |
+| .NET tests | PASS | `38 passed` in Debug and Release gate runs. |
+| Solution build | PASS | `dotnet build HyperBoostX.sln -v minimal` completed with `0 Warning(s), 0 Error(s)`. |
+| Release build/test | PASS | Full QA Release build/test passed. |
+| Backend route contract | PASS | `runtime_audit/backend_routes_report.json`; route smoke `8 passed`. |
+| WPF UI/UX quality | PASS | Button handler verifier, placeholder guard, and UI/UX quality verifier passed. |
+| Real usability | PASS | Route contract, WPF handlers, placeholder guard, and .NET contract tests passed. |
+| Version sync | PASS | `runtime_audit/version_sync_report.json`, expected `2.10.0-beta.1` and Windows file version `2.10.0.0`. |
+| Release artifact contents | PASS | `runtime_audit/release_artifact_contents_report.json`. |
+| Secret scan | PASS | Full QA realistic token/webhook/private-key scan found no hits. |
+| PowerShell syntax | PASS | Full QA PSParser scan passed. |
+| Installer rebuild | PASS | `scripts/package_installer_v2.10.0.ps1` rebuilt installer and checksum manifest. |
+| Installed runtime verification | FAIL/BLOCKER | `runtime_audit/runtime_audit_report.md`; installed registry reports `1.3.0` and backend health was not found. |
 
-## WPF UI Smoke Details
+## Current Metrics
 
-- `MainWindow.xaml` is shell-only: sidebar, topbar, content host, toast, and backend pulse.
-- `App.xaml` references the cyber theme/style dictionaries.
-- `wpf/Views/*` pages exist and are loaded by `NavigationService`.
-- Dashboard visible text includes `Safe AI Windows Gaming Optimizer`, `One Click Safe Boost`, `Safety Guard Active`, and `Restore Available`.
-- Settings exposes Enable Animations, Reduce Motion, Accent color, Beginner, Advanced, and Expert Preview preferences.
-- About/version smoke confirmed `2.0.0 / Ultimate Winner Edition` in the installed app.
+| Metric | Count |
+| --- | ---: |
+| Total menu | 72 |
+| Total buttons | 596 |
+| Active buttons | 596 |
+| Partial/roadmap/guidance buttons | 0 |
+| Guarded destructive buttons | 20 |
+| Unique UI endpoints used | 165 |
+| Backend API route rules | 365 |
+| Unique backend API paths | 361 |
 
-## Screenshot Evidence
+## Release Artifacts
 
-Captured from the real WPF app, not mockups:
+| Artifact | Status |
+| --- | --- |
+| `HyperBoostXInstaller.exe` | Rebuilt locally. |
+| `release/package` | Synced from fresh local deploy output. |
+| `release/app` | Synced from fresh local deploy output. |
+| `SHA256SUMS.txt` | Updated. |
+| `SHA256SUMS_v2.10.0-beta.1.txt` | Updated. |
 
-- `docs/screenshots/wpf-cyber-dashboard.png`
-- `docs/screenshots/wpf-cyber-settings.png`
-- `docs/screenshots/wpf-cyber-feature-audit.png`
+Installer SHA256:
 
-The same PNG files are copied to `website/assets/` for the static website starter.
+```text
+05e689131175efd1acfe40e6995b014f48228cd4156fcf99724283a3887f5a6d  HyperBoostXInstaller.exe
+```
 
-## Known Limitations
+## Known Blockers Before Public Stable
 
-- Installer artifacts are unsigned until the owner provides a real signing certificate/PFX.
-- Multi-machine hardware validation was not performed on additional owner devices.
-- External performance overlay, RGB control, third-party plugin marketplace, global similar-hardware benchmark comparison, cloud sync, automatic driver download/install, and paid license activation remain roadmap-only.
+- Installed runtime fresh install/reinstall/silent uninstall must be run as admin with the rebuilt installer.
+- Admin apply/rollback lab is not executed in this session.
+- Hardware matrix across NVIDIA/AMD/Intel/no-GPU/low-end machines is not executed.
+- Code signing is `SKIPPED_BY_OWNER_NO_CERT`; unsigned distribution requires explicit owner approval and checksum verification.
+- No stable tag or GitHub Release was created.
 
-## Release Decision
-
-Local build, test, package, installer, portable smoke, installed smoke, uninstall/reinstall, checksum, and secret-scan gates passed for v2.0.0. The only local release blocker is code signing credentials; GitHub publication is handled after commit/tag creation.
+Public README policy remains: v1.3.0 is the recommended public stable baseline; v2.10.0-beta.1 is a beta/stable-candidate build for validation.

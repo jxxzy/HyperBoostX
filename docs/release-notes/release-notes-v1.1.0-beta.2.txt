@@ -48,6 +48,6 @@ Other assets:
 
 ## Notes
 
-- this is still a prerelease, not a final stable release
+- this is still a prerelease; the public stable label is not applied here
 - admin-required tweaks can still return limited-access warnings on non-elevated sessions
 - this beta is mainly aimed at replacing older installed runtimes and making the next audit pass cleaner and more trustworthy

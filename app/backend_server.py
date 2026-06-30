@@ -5,6 +5,7 @@ Refactored with Flask blueprints for better organization and maintainability
 """
 
 import json
+import os
 import threading
 from typing import Dict, Any
 from urllib.parse import urlparse
@@ -27,6 +28,9 @@ from api.reports import reports_bp
 from api.network import network_bp
 from api.startup import startup_bp
 from api.product_v14 import product_v14_bp
+from api.contract_v21 import contract_v21_bp
+from api.real_features_v210 import real_features_v210_bp
+from api.system_reality_guard import system_reality_guard_bp
 from api.websocket import ws_bp
 from api.middleware import APIMiddleware
 
@@ -100,6 +104,9 @@ class HyperBoostBackendServer:
         self.app.register_blueprint(network_bp)
         self.app.register_blueprint(startup_bp)
         self.app.register_blueprint(product_v14_bp)
+        self.app.register_blueprint(contract_v21_bp)
+        self.app.register_blueprint(real_features_v210_bp)
+        self.app.register_blueprint(system_reality_guard_bp)
         self.app.register_blueprint(ws_bp)
         
         self.logger.info("API blueprints registered successfully")
@@ -140,7 +147,13 @@ class HyperBoostBackendServer:
 
 def main():
     """Run the backend server standalone."""
-    server = HyperBoostBackendServer()
+    raw_port = os.environ.get("HYPERBOOSTX_BACKEND_PORT", "5000")
+    try:
+        port = int(raw_port)
+    except ValueError:
+        port = 5000
+
+    server = HyperBoostBackendServer(port=port)
     
     # Run Flask app directly (blocking)
     try:

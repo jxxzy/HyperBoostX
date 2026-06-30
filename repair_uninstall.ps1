@@ -33,6 +33,11 @@ function Remove-InstallDirectory {
     }
 
     Write-Host "Removing install directory..."
+    $resolvedInstallDir = (Resolve-Path -LiteralPath $installDir).Path
+    $programFilesRoot = [System.IO.Path]::GetFullPath(${env:ProgramFiles}).TrimEnd('\')
+    if (-not $resolvedInstallDir.StartsWith($programFilesRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "Refusing to remove path outside Program Files: $resolvedInstallDir"
+    }
 
     Get-ChildItem -LiteralPath $installDir -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object {
         try {
@@ -50,10 +55,16 @@ function Remove-InstallDirectory {
 
     foreach ($path in $pathsToRemove) {
         if (Test-Path $path) {
+            $resolvedPath = (Resolve-Path -LiteralPath $path).Path
+            if (-not $resolvedPath.StartsWith($resolvedInstallDir, [System.StringComparison]::OrdinalIgnoreCase)) {
+                throw "Refusing to remove path outside install directory: $resolvedPath"
+            }
+
             try {
                 Remove-Item -LiteralPath $path -Recurse -Force -ErrorAction Stop
             } catch {
-                Start-Process -FilePath "cmd.exe" -ArgumentList "/c rmdir /s /q `"$path`"" -WindowStyle Hidden -Wait
+                Start-Sleep -Milliseconds 400
+                Remove-Item -LiteralPath $path -Recurse -Force -ErrorAction Stop
             }
         }
     }

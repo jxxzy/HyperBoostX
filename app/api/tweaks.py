@@ -35,7 +35,8 @@ def apply_tweak():
     """Apply a specific system tweak."""
     data = request.get_json()
     tweak_id = data['tweak_id']
-    result = tweak_service.apply_tweak(tweak_id)
+    confirmed = bool(data.get('confirmed') or data.get('user_approved'))
+    result = tweak_service.apply_tweak(tweak_id, confirmed=confirmed)
     return jsonify(result)
 
 

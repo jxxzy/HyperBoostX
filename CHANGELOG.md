@@ -2,6 +2,27 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v2.0.1 - 2026-06-26
+- Fixed Dashboard `One Click Safe Boost` runtime wiring so it builds a supported `/api/boost/plan` instead of calling removed Triple AI routes.
+- Added official WPF backend client methods for safe boost plan/apply/undo and kept old TripleAi wrappers as compatibility adapters.
+- Added stricter backend route contract coverage for Smart Scan, advisor plan/safe-actions, KB aliases, history/report aliases, background pressure, streaming/creator recommendations, recovery, update, network DNS, action log, and restore aliases.
+- Restored the legacy Streaming Mode surface from v1.2.7-v1.3.0 into the v2 WPF Streaming Center: Advanced Mic / Voice Meter, Mic Diagnostics, Voicemeeter detect/open/download, Windows sound/privacy/mixer shortcuts, Advanced Webcam Studio, camera presets, camera shortcuts, and OBS/TikTok/Discord profile output.
+- Added streaming backend `legacy_toolkit` payload so runtime audit can verify mic, Voicemeeter, webcam, and profile sections without claiming fake DSP/device-driver writes.
+- Added explicit WPF local config schema version, migration history, and migration status so old/corrupt LocalAppData recovery is auditable.
+- Added `docs/LEGACY_FEATURE_MATRIX.md` and `docs/REGRESSION_AUDIT_FROM_V1.md` for version-1-to-latest regression tracking.
+- Added non-interactive runtime verification scripts for version sync, WPF navigation, backend routes, release artifact contents, installed runtime, and clean-install dry-run.
+- Added Python and .NET regression tests for runtime route coverage, streaming legacy visibility, and safe boost endpoint wiring.
+- Restored the v1.3 sidebar/menu surface in the cyber WPF shell with legacy-safe pages for performance, background apps, storage, gaming booster, privacy/security, app management, system config/tools, restore points, automation, utilities, master test, and feature audit matrix.
+- Added v1.3 parity backend status/preview routes for storage, privacy, security, apps, tweaks, Windows services/features, update control, repair, power, visual effects, restore points, automation, utilities, master test, feature-audit matrix, and camera tracking.
+- Added v2.1 compatibility API aliases with standard response envelopes for core status/settings, dashboard, scan, boost preview/history, performance, background process preview, storage, gaming, GPU, network, AI fallback, audit, update preview, reports, and logs while keeping existing WPF-facing route shapes intact.
+- Hardened legacy tweak APIs so Defender disable and permanent Windows Update disable are removed from the active catalog, hard-blocked before restore/registry work, and covered by regression tests; remaining mutating tweaks require explicit confirmation.
+- Fixed launcher handling for stale token-protected backends so WPF sidebar POST actions do not fail with mismatched local-session tokens.
+- Improved sidebar error/status rendering for blocked, preview, partial, admin-required, and 401 local-session states.
+- Reduced idle desktop overhead by slowing background backend/log polling and limiting WPF publish satellite resources to `en-US;id-ID`.
+- Improved Dashboard live refresh, GPU Center live status, Network Tools empty state, dynamic About version, generic loading/error states, and Apply/Undo confirmation UX.
+- Added parity/audit docs: `docs/FEATURE_PARITY_v1.3_vs_latest.md`, `docs/FULL_AUDIT_REPORT.md`, `docs/UI_UX_AUDIT.md`, and `docs/BACKEND_ROUTE_AUDIT.md`.
+- Release remains honest: real mic DSP, audio service reset, webcam hardware writes, full startup/cleanup apply, and universal restore rollback remain partial or hardware-lab gated.
+
 ## v2.0.0 - 2026-06-26
 - Promoted active release metadata to `2.0.0` across backend, WPF, launcher, installer, About page, docs, and tests.
 - Kept the real cyber WPF shell as the default running UI, with `MainWindow` shell-only and routed pages under `wpf/Views/*`.

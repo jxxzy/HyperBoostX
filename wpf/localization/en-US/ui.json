@@ -91,7 +91,7 @@
     },
     "app_uninstaller": {
       "title": "App Uninstaller",
-      "subtitle": "Uninstall, analyze, deep-clean residuals, force-remove stubborn apps, and review application impact from one module."
+      "subtitle": "Analyze apps, preview uninstall impact, review residual cleanup guidance, and keep every removal confirmation-first."
     },
     "windows_services": {
       "title": "Services (Local Machine)",

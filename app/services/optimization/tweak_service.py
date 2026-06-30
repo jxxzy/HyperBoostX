@@ -13,16 +13,13 @@ logger = Logger.get_logger(__name__)
 
 class TweakService:
     """Service for Windows tweaks and optimizations."""
+
+    BLOCKED_TWEAKS = {
+        "disable_defender": "Disabling Microsoft Defender is blocked by HyperBoostX Safety Guard.",
+        "disable_updates": "Permanently disabling Windows Update is blocked by HyperBoostX Safety Guard.",
+    }
     
     TWEAKS = [
-        {
-            "id": "disable_defender",
-            "name": "Disable Windows Defender",
-            "description": "Disables Windows Defender real-time protection",
-            "risk": "High",
-            "category": "Security",
-            "requires_admin": True
-        },
         {
             "id": "optimize_visual",
             "name": "Optimize Visual Effects",
@@ -46,14 +43,6 @@ class TweakService:
             "risk": "Low",
             "category": "Gaming",
             "requires_admin": False
-        },
-        {
-            "id": "disable_updates",
-            "name": "Disable Auto Updates",
-            "description": "Disables automatic Windows updates",
-            "risk": "High",
-            "category": "Maintenance",
-            "requires_admin": True
         },
         {
             "id": "disable_superfetch",
@@ -94,15 +83,46 @@ class TweakService:
     @staticmethod
     def get_tweak_info(tweak_id: str) -> Optional[Dict[str, Any]]:
         """Get information about a specific tweak."""
+        if tweak_id in TweakService.BLOCKED_TWEAKS:
+            return {
+                "id": tweak_id,
+                "name": "Blocked unsafe tweak",
+                "description": TweakService.BLOCKED_TWEAKS[tweak_id],
+                "risk": "Blocked",
+                "category": "Safety Guard",
+                "requires_admin": True,
+                "blocked": True,
+            }
         for tweak in TweakService.TWEAKS:
             if tweak["id"] == tweak_id:
                 return tweak.copy()
         return None
     
     @staticmethod
-    def apply_tweak(tweak_id: str) -> Dict[str, Any]:
+    def apply_tweak(tweak_id: str, confirmed: bool = False) -> Dict[str, Any]:
         """Apply a tweak with backup and error handling."""
         logger.info(f"Applying tweak: {tweak_id}")
+
+        if tweak_id in TweakService.BLOCKED_TWEAKS:
+            return {
+                "success": False,
+                "blocked": True,
+                "requires_approval": False,
+                "safety_guard": "blocked",
+                "error": TweakService.BLOCKED_TWEAKS[tweak_id],
+            }
+
+        if TweakService.get_tweak_info(tweak_id) is None:
+            return {"success": False, "error": f"Unknown tweak: {tweak_id}"}
+
+        if not confirmed:
+            return {
+                "success": False,
+                "requires_approval": True,
+                "preview_required": True,
+                "restore_metadata_required": True,
+                "error": "User confirmation is required before applying a system tweak.",
+            }
         
         try:
             # Create restore point
@@ -113,16 +133,12 @@ class TweakService:
             
             # Apply the specific tweak
             success = False
-            if tweak_id == "disable_defender":
-                success = TweakService._apply_disable_defender(restore_point)
-            elif tweak_id == "optimize_visual":
+            if tweak_id == "optimize_visual":
                 success = TweakService._apply_optimize_visual(restore_point)
             elif tweak_id == "disable_telemetry":
                 success = TweakService._apply_disable_telemetry(restore_point)
             elif tweak_id == "disable_xbox":
                 success = TweakService._apply_disable_xbox(restore_point)
-            elif tweak_id == "disable_updates":
-                success = TweakService._apply_disable_updates(restore_point)
             elif tweak_id == "disable_superfetch":
                 success = TweakService._apply_disable_superfetch(restore_point)
             elif tweak_id == "optimize_power":
@@ -158,43 +174,9 @@ class TweakService:
     
     @staticmethod
     def _apply_disable_defender(restore_point: RestorePoint) -> bool:
-        """Disable Windows Defender real-time protection."""
-        try:
-            # Backup current settings
-            current_value = RegistryUtil.get_value(
-                TweakService.REG_PATHS["defender_realtime"], 
-                "DisableRealtimeMonitoring"
-            )
-            if current_value is not None:
-                restore_point.files[f"reg:{TweakService.REG_PATHS['defender_realtime']}\\DisableRealtimeMonitoring"] = str(current_value)
-            
-            # Disable real-time monitoring
-            success1 = RegistryUtil.set_value(
-                TweakService.REG_PATHS["defender_realtime"],
-                "DisableRealtimeMonitoring",
-                1,
-                winreg.REG_DWORD
-            )
-            
-            # Disable reporting
-            current_reporting = RegistryUtil.get_value(
-                TweakService.REG_PATHS["defender_reporting"],
-                "UILockdown"
-            )
-            if current_reporting is not None:
-                restore_point.files[f"reg:{TweakService.REG_PATHS['defender_reporting']}\\UILockdown"] = str(current_reporting)
-            
-            success2 = RegistryUtil.set_value(
-                TweakService.REG_PATHS["defender_reporting"],
-                "UILockdown",
-                1,
-                winreg.REG_DWORD
-            )
-            
-            return success1 and success2
-        except Exception as e:
-            logger.error(f"Failed to disable Defender: {e}")
-            return False
+        """Blocked by Safety Guard; retained only for legacy import compatibility."""
+        logger.warning("Blocked unsafe Defender tweak request")
+        return False
     
     @staticmethod
     def _apply_optimize_visual(restore_point: RestorePoint) -> bool:
@@ -285,26 +267,9 @@ class TweakService:
     
     @staticmethod
     def _apply_disable_updates(restore_point: RestorePoint) -> bool:
-        """Disable automatic Windows updates."""
-        try:
-            # Backup current AU options
-            current_au = RegistryUtil.get_value(
-                TweakService.REG_PATHS["updates_policy"],
-                "AUOptions"
-            )
-            if current_au is not None:
-                restore_point.files[f"reg:{TweakService.REG_PATHS['updates_policy']}\\AUOptions"] = str(current_au)
-            
-            # Set AUOptions to "Never check for updates" (value = 1)
-            return RegistryUtil.set_value(
-                TweakService.REG_PATHS["updates_policy"],
-                "AUOptions",
-                1,
-                winreg.REG_DWORD
-            )
-        except Exception as e:
-            logger.error(f"Failed to disable updates: {e}")
-            return False
+        """Blocked by Safety Guard; retained only for legacy import compatibility."""
+        logger.warning("Blocked unsafe permanent Windows Update tweak request")
+        return False
     
     @staticmethod
     def _apply_disable_superfetch(restore_point: RestorePoint) -> bool:

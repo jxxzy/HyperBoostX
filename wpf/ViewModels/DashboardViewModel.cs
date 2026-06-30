@@ -5,33 +5,35 @@ namespace HyperBoostX.ViewModels
     public sealed class DashboardViewModel : BaseViewModel
     {
         private string _backendStatus = "Connecting";
-        private string _activeGpu = "Detecting GPU";
+        private string _activeGpu = "Run Smart Scan first";
         private string _aiRecommendation = "Run Smart Scan to diagnose bottlenecks, overlays, startup pressure, and restore readiness.";
+        private bool _isBusy;
 
         public ObservableCollection<CyberMetricViewModel> Scores { get; } = new()
         {
-            new CyberMetricViewModel { Title = "PC Health", Value = "92", Detail = "Safe local profile", Score = 92, Glyph = "H" },
-            new CyberMetricViewModel { Title = "Gaming Readiness", Value = "88", Detail = "Overlays need review", Score = 88, Glyph = "G" },
-            new CyberMetricViewModel { Title = "Streaming Readiness", Value = "84", Detail = "Encoder-ready", Score = 84, Glyph = "S" },
-            new CyberMetricViewModel { Title = "Startup Cleanliness", Value = "79", Detail = "Review startup apps", Score = 79, Glyph = "B" },
-            new CyberMetricViewModel { Title = "Network Score", Value = "90", Detail = "DNS route healthy", Score = 90, Glyph = "N" },
-            new CyberMetricViewModel { Title = "Safety Score", Value = "100", Detail = "Dangerous tweaks blocked", Score = 100, Glyph = "SG" }
+            new CyberMetricViewModel { Title = "PC Health", Value = "Scan", Detail = "Run Smart Scan first", Score = 0, Glyph = "HLT" },
+            new CyberMetricViewModel { Title = "Gaming Readiness", Value = "Scan", Detail = "Run Smart Scan first", Score = 0, Glyph = "GM" },
+            new CyberMetricViewModel { Title = "Streaming Readiness", Value = "Scan", Detail = "Run Smart Scan first", Score = 0, Glyph = "STR" },
+            new CyberMetricViewModel { Title = "Storage Score", Value = "Scan", Detail = "Run Smart Scan first", Score = 0, Glyph = "SSD" },
+            new CyberMetricViewModel { Title = "Network Score", Value = "Scan", Detail = "Run Smart Scan first", Score = 0, Glyph = "NET" },
+            new CyberMetricViewModel { Title = "Safety Score", Value = "Guard", Detail = "Dangerous tweaks blocked", Score = 100, Glyph = "SAFE" }
         };
 
         public ObservableCollection<CyberMetricViewModel> SystemMetrics { get; } = new()
         {
-            new CyberMetricViewModel { Title = "CPU", Value = "--%", Detail = "Live backend metric", Score = 38, Glyph = "CPU" },
-            new CyberMetricViewModel { Title = "RAM", Value = "--%", Detail = "Memory pressure", Score = 50, Glyph = "RAM" },
-            new CyberMetricViewModel { Title = "GPU", Value = "--%", Detail = "Vendor-aware mode", Score = 11, Glyph = "GPU" },
-            new CyberMetricViewModel { Title = "VRAM", Value = "Guide", Detail = "Shown when telemetry is available", Score = 76, Glyph = "VR" },
-            new CyberMetricViewModel { Title = "Storage", Value = "Scan", Detail = "Safe cleanup allowlist", Score = 84, Glyph = "SSD" },
-            new CyberMetricViewModel { Title = "Network", Value = "17 ms", Detail = "Local DNS route", Score = 94, Glyph = "NET" },
-            new CyberMetricViewModel { Title = "Power Plan", Value = "Balanced", Detail = "No forced unsafe tweak", Score = 88, Glyph = "PWR" },
-            new CyberMetricViewModel { Title = "Active Game", Value = "None", Detail = "Auto gaming waits for detection", Score = 70, Glyph = "GAME" },
-            new CyberMetricViewModel { Title = "Overlays", Value = "Review", Detail = "Discord, Steam, capture tools", Score = 78, Glyph = "OVR" },
-            new CyberMetricViewModel { Title = "Restore", Value = "Available", Detail = "Undo remains visible", Score = 100, Glyph = "RST" },
+            new CyberMetricViewModel { Title = "CPU", Value = "Run scan", Detail = "Run Smart Scan first", Score = 0, Glyph = "CPU" },
+            new CyberMetricViewModel { Title = "RAM", Value = "Run scan", Detail = "Run Smart Scan first", Score = 0, Glyph = "RAM" },
+            new CyberMetricViewModel { Title = "GPU", Value = "Run scan", Detail = "Sensor unavailable until backend scan", Score = 0, Glyph = "GPU" },
+            new CyberMetricViewModel { Title = "VRAM", Value = "Run scan", Detail = "Sensor unavailable until backend scan", Score = 0, Glyph = "VR" },
+            new CyberMetricViewModel { Title = "Storage", Value = "Run scan", Detail = "Safe cleanup allowlist", Score = 0, Glyph = "SSD" },
+            new CyberMetricViewModel { Title = "Network", Value = "Run scan", Detail = "Use Network Tools for diagnostics", Score = 0, Glyph = "NET" },
+            new CyberMetricViewModel { Title = "Power Plan", Value = "Unknown", Detail = "Permission may be required to read/change", Score = 50, Glyph = "PWR" },
+            new CyberMetricViewModel { Title = "Active Game", Value = "Detect", Detail = "Auto gaming waits for local process detection", Score = 0, Glyph = "GAME" },
+            new CyberMetricViewModel { Title = "Overlays", Value = "Review", Detail = "Run Smart Scan for detected overlays", Score = 0, Glyph = "OVR" },
+            new CyberMetricViewModel { Title = "Restore", Value = "No changes", Detail = "Restore sessions appear after approved actions", Score = 80, Glyph = "RST" },
             new CyberMetricViewModel { Title = "Backend", Value = "Checking", Detail = "127.0.0.1 local API", Score = 50, Glyph = "API" },
-            new CyberMetricViewModel { Title = "Safety Guard", Value = "Active", Detail = "Blocks unsafe actions", Score = 100, Glyph = "SAFE" }
+            new CyberMetricViewModel { Title = "Safety Guard", Value = "Active", Detail = "Blocks unsafe actions", Score = 100, Glyph = "SAFE" },
+            new CyberMetricViewModel { Title = "Release", Value = "Beta", Detail = "Stable waits for installer/admin/hardware/signing gates", Score = 80, Glyph = "BETA" }
         };
 
         public string BackendStatus
@@ -50,6 +52,12 @@ namespace HyperBoostX.ViewModels
         {
             get => _aiRecommendation;
             set => SetProperty(ref _aiRecommendation, value);
+        }
+
+        public bool IsBusy
+        {
+            get => _isBusy;
+            set => SetProperty(ref _isBusy, value);
         }
     }
 }

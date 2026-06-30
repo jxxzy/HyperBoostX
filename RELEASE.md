@@ -1,7 +1,9 @@
-# HyperBoostX v2.0.0 Release Guide
+# HyperBoostX v2.x Development Release Guide
 
-Target release: `HyperBoostX v2.0.0 Ultimate Winner Edition`
-Tag target: `v2.0.0`
+Public stable baseline: `HyperBoostX v1.3.0 Stable`
+Development preview line: `HyperBoostX v2.x`
+Next stable candidate: `v2.10.0` only after full validation
+Tag target: do not tag a v2 stable release until feature parity, UI/UX, backend, installer, smoke, checksum, and release-gate validation pass.
 Branch: `feature/hyperboostx-v2-release`
 
 Do not publish a stable release unless required gates pass. If a gate cannot be completed because of missing credentials, signing certificate, or interactive installer access, mark the release as partial/blocker rather than claiming DONE.
@@ -34,6 +36,6 @@ dotnet test dotnet-tests\HyperBoostX.Tests\HyperBoostX.Tests.csproj -c Debug
 
 ## Release Scope
 
-v2.0.0 includes the real WPF cyber shell, routed views, global cyber themes/styles, Settings motion/accent/mode controls, backend Ultimate Winner Edition foundations, safer product docs, metadata sync, expanded tests, installer packaging, portable/installed smoke validation, and static website starter.
+The v2 development line includes the real WPF cyber shell, routed views, global cyber themes/styles, Settings motion/accent/mode controls, backend product foundations, safer product docs, metadata sync, expanded tests, installer packaging, portable/installed smoke validation, and static website starter.
 
 Signed distribution, cloud sync, plugin marketplace, RGB control, global benchmark comparison, performance overlay, automatic driver download/install, and license activation remain roadmap or owner-environment work.

@@ -1,0 +1,22 @@
+﻿{
+    "generated_at":  "2026-06-30T21:07:12.7640234Z",
+    "expected_version":  "2.10.0-beta.1",
+    "backend_port":  5000,
+    "installer_path":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe",
+    "is_admin":  false,
+    "old_registry_entries":  [
+
+                             ],
+    "new_registry_entries":  [
+
+                             ],
+    "runtime_verifier_exit":  null,
+    "steps":  [
+                  {
+                      "name":  "administrator shell required",
+                      "ok":  false,
+                      "detail":  "STABLE_BLOCKED_ELEVATION: run this script from Windows PowerShell as Administrator."
+                  }
+              ],
+    "ok":  false
+}

@@ -1,6 +1,8 @@
 # Install HyperBoostX
 
-Target release: `HyperBoostX v2.0.0 Ultimate Winner Edition`
+Current recommended public stable: `HyperBoostX v1.3.0 Stable`
+
+v2.x builds are development previews until the owner validates feature parity, UI/UX, backend routes, installer behavior, and real smoke tests.
 
 ## Recommended Install
 

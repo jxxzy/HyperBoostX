@@ -1,41 +1,62 @@
 # Implementation Status
 
-Status date: `2026-06-26`
-Branch: `feature/hyperboostx-v2-release`
+Status date: 2026-06-28
+Working version: `2.10.0-beta.1`
+Decision: `BETA_READY` / stable candidate for owner lab.
 
-## Complete In This Branch
+## Complete In This Work
 
-- Active version metadata is `2.0.0` across backend, WPF, launcher, installer, About page, tests, and docs.
-- Backend product API contract covers advisor, knowledge, scores, games, overlays, protection, processes, benchmark, GPU, drivers, startup, cleanup, network, essentials, streaming, RGB detection, plugins, settings, restore, audit, storage, action log, and roadmap boundaries.
-- Session-token middleware remains active for mutating endpoints when `HYPERBOOSTX_SESSION_TOKEN` is set.
-- Safety Guard blocks dangerous action categories.
-- WPF cyber shell is active in the running app and `MainWindow` no longer hosts all feature UI.
-- `wpf/Views/*`, `wpf/ViewModels/*`, `wpf/Themes/*`, and `wpf/Styles/*` exist and build.
-- Settings persist motion/accent/mode preferences locally.
-- Python tests and .NET tests pass after WPF refactor.
-- Real WPF screenshots exist in `docs/screenshots/` and `website/assets/`.
-- Installer, portable smoke, installed app smoke, old v1.4 uninstall, silent reinstall, v2 silent uninstall, fresh reinstall, SHA256 verification, and refined secret scan pass locally.
+- Version metadata is synchronized to `2.10.0-beta.1` with Windows file version `2.10.0.0`.
+- WPF action map contains 72 menus and 596 active buttons.
+- All action-map buttons are marked real-safe; partial/roadmap/guidance button count is 0.
+- WPF supports runtime mode awareness, sidebar search, and stable/dev action loading.
+- Backend exposes feature registry audit endpoints:
+  - `/api/features`
+  - `/api/features/audit`
+  - `/api/features/stable-visible`
+  - `/api/features/non-real`
+- Backend includes real-safe v2.10 route handlers for system, network, power, visual effects, apps, automation, restore, repair, services, security, drivers, RGB, reports, logs, license, and plugins.
+- Safety Guard blocks dangerous changes rather than returning fake success.
+- WPF/backend route coverage is verified by Python route tests and WPF contract tests.
+- Release packaging now syncs fresh `artifacts/local-deploy` output into `release/package` and `release/app` before NSIS packaging.
+- Installer and checksum manifests were rebuilt after final backend changes.
+- Root folder audit was added in `docs/ROOT_FOLDER_AUDIT_v2.10.0.md`.
+- Stale duplicate `FEATURE_MATRIX_UPDATED.md` was removed from root.
 
-## Partial
+## Current Automated Evidence
 
-- Startup/Cleanup/Game Profile apply paths are conservative facades and remain approval/session-gated.
-- Restore/crash recovery metadata exists, but full multi-scenario rollback validation still needs lab coverage.
-- Streaming/Creator surfaces are present with backend status/recommendation foundations, not full professional suite parity.
-- Code signing remains blocked until owner signing credentials are provided.
-- GitHub release publication is performed after commit/tag creation and must use the actual `git`/`gh` result.
+| Gate | Result |
+| --- | --- |
+| Python tests | `72 passed` |
+| .NET tests | `38 passed` |
+| Solution build | PASS, `0 Warning(s), 0 Error(s)` |
+| Full QA gate | PASS, `BETA_READY` |
+| Backend route contract | PASS |
+| WPF UI/UX quality | PASS |
+| Real usability | PASS |
+| Version sync | PASS |
+| Release artifact contents | PASS |
+| Secret scan | PASS |
+| Installer rebuild | PASS |
 
-## Roadmap Only
+## Real-Safe Boundaries
 
-- External performance monitor overlay.
-- RGB control.
-- Third-party plugin SDK/marketplace.
-- Cloud sync.
-- Paid license enforcement.
-- Similar-hardware benchmark database.
-- Automatic driver download/install.
+- RGB: software/conflict detection and approved restart guidance only.
+- License/cloud: local beta license state only.
+- Plugins: local catalog/manifest validation only.
+- Drivers: local hardware-aware guidance/report export, not automatic install.
+- Repair tools: explicit approval/admin gated.
+- Security/update controls: status/preview/safe boundaries; forced disable is blocked.
 
-## Blockers
+## Blocked Before Public Stable
 
-- Code signing needs owner certificate/PFX.
-- GitHub push/tag/release publishing needs authenticated remote access.
-- Multi-machine validation needs additional hardware.
+- Fresh install/reinstall/silent uninstall must be run as admin using rebuilt installer.
+- Installed runtime verifier must pass after installation.
+- Admin apply/rollback lab must pass.
+- Hardware matrix must pass across owner devices/profiles.
+- Code signing requires owner certificate/PFX.
+- Stable tag/GitHub Release requires owner approval.
+
+## Release Position
+
+`2.10.0-beta.1` is usable as a controlled beta/stable-candidate build. Public stable remains v1.3.0 until the remaining blockers close.

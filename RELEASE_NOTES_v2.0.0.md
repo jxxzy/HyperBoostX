@@ -1,6 +1,6 @@
-# HyperBoostX v2.0 Ultimate Winner Edition
+# HyperBoostX v2.0 Development Preview
 
-HyperBoostX v2.0 promotes the local-first Safe AI Windows Gaming Optimizer into a release-ready cyber desktop product. This release focuses on the real WPF cyber shell, safe AI diagnosis, transparent plan-first optimization, restore visibility, local reports/history, and professional trust artifacts.
+HyperBoostX v2.0 is part of the next major rebuild line. It focuses on the real WPF cyber shell, safe AI diagnosis, transparent plan-first optimization, restore visibility, local reports/history, and trust artifacts. The current recommended public stable baseline remains v1.3.0 unless the owner validates and promotes a later v2 release.
 
 ## Recommended Download
 

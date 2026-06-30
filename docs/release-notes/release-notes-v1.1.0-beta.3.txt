@@ -49,6 +49,6 @@ Other assets:
 
 ## Notes
 
-- this is still a prerelease, not a final stable release
+- this is still a prerelease; the public stable label is not applied here
 - installed users should prefer the installer asset if they want the runtime layout refreshed cleanly
 - portable/runtime logs are still written under `%LocalAppData%\HyperBoost X\logs`

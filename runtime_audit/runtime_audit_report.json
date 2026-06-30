@@ -1,0 +1,155 @@
+﻿{
+    "generated_at":  "2026-06-30T20:31:24.4385868Z",
+    "expected_version":  "2.10.0-beta.1",
+    "is_admin":  false,
+    "launch_installed_app":  false,
+    "stop_after_probe":  false,
+    "backend_probe_timeout_seconds":  2,
+    "requested_backend_port":  5055,
+    "registry_entries":  {
+                             "root":  "HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
+                             "key":  "HyperBoostX",
+                             "DisplayName":  "HyperBoostX",
+                             "DisplayVersion":  "1.3.0",
+                             "Publisher":  "MR.4NONY - HYPERINDO CYBER TEAM",
+                             "InstallLocation":  "C:\\Program Files\\HyperBoostX",
+                             "UninstallString":  "\"C:\\Program Files\\HyperBoostX\\Uninstall.exe\"",
+                             "QuietUninstallString":  null,
+                             "InstallDate":  null,
+                             "EstimatedSize":  null
+                         },
+    "primary_registry":  {
+                             "root":  "HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
+                             "key":  "HyperBoostX",
+                             "DisplayName":  "HyperBoostX",
+                             "DisplayVersion":  "1.3.0",
+                             "Publisher":  "MR.4NONY - HYPERINDO CYBER TEAM",
+                             "InstallLocation":  "C:\\Program Files\\HyperBoostX",
+                             "UninstallString":  "\"C:\\Program Files\\HyperBoostX\\Uninstall.exe\"",
+                             "QuietUninstallString":  null,
+                             "InstallDate":  null,
+                             "EstimatedSize":  null
+                         },
+    "install_location":  "C:\\Program Files\\HyperBoostX",
+    "launcher_path":  "C:\\Program Files\\HyperBoostX\\HyperBoostX.exe",
+    "wpf_path":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\HyperBoostX.exe",
+    "backend_path":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe",
+    "desktop_shortcuts":  [
+                              {
+                                  "path":  "C:\\Users\\jxxzy\\OneDrive\\Desktop\\HyperBoostX.lnk",
+                                  "exists":  false,
+                                  "target":  null,
+                                  "working_directory":  null,
+                                  "icon_location":  null,
+                                  "error":  null
+                              },
+                              {
+                                  "path":  "C:\\Users\\Public\\Desktop\\HyperBoostX.lnk",
+                                  "exists":  true,
+                                  "target":  "exists; target resolution skipped to avoid COM shell hangs",
+                                  "working_directory":  null,
+                                  "icon_location":  null,
+                                  "error":  null
+                              }
+                          ],
+    "start_menu_shortcut":  {
+                                "path":  "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\HyperBoostX\\HyperBoostX.lnk",
+                                "exists":  true,
+                                "target":  "exists; target resolution skipped to avoid COM shell hangs",
+                                "working_directory":  null,
+                                "icon_location":  null,
+                                "error":  null
+                            },
+    "launch_process":  null,
+    "launch_error":  null,
+    "backend":  {
+                    "found":  false,
+                    "port":  null,
+                    "base_url":  null,
+                    "health":  null,
+                    "version":  null
+                },
+    "backend_version":  null,
+    "session_token_required":  false,
+    "token_sync_status":  "NOT_TESTED_NO_LAUNCH",
+    "processes_before_stop":  {
+
+                              },
+    "stopped_processes":  [
+
+                          ],
+    "processes_after_stop":  {
+
+                             },
+    "launcher_log_tail":  [
+                              "log exists; tail read skipped to avoid blocking on a locked runtime log"
+                          ],
+    "checks":  [
+                   {
+                       "name":  "registry installed",
+                       "ok":  true,
+                       "evidence":  "C:\\Program Files\\HyperBoostX"
+                   },
+                   {
+                       "name":  "DisplayVersion matches source",
+                       "ok":  false,
+                       "evidence":  "1.3.0"
+                   },
+                   {
+                       "name":  "launcher exists",
+                       "ok":  true,
+                       "evidence":  "C:\\Program Files\\HyperBoostX\\HyperBoostX.exe"
+                   },
+                   {
+                       "name":  "WPF runtime exists",
+                       "ok":  true,
+                       "evidence":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\HyperBoostX.exe"
+                   },
+                   {
+                       "name":  "backend runtime exists",
+                       "ok":  true,
+                       "evidence":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe"
+                   },
+                   {
+                       "name":  "desktop shortcut exists",
+                       "ok":  true,
+                       "evidence":  "[{\"path\":\"C:\\\\Users\\\\jxxzy\\\\OneDrive\\\\Desktop\\\\HyperBoostX.lnk\",\"exists\":false,\"target\":null,\"working_directory\":null,\"icon_location\":null,\"error\":null},{\"path\":\"C:\\\\Users\\\\Public\\\\Desktop\\\\HyperBoostX.lnk\",\"exists\":true,\"target\":\"exists; target resolution skipped to avoid COM shell hangs\",\"working_directory\":null,\"icon_location\":null,\"error\":null}]"
+                   },
+                   {
+                       "name":  "start menu shortcut exists",
+                       "ok":  true,
+                       "evidence":  "{\"path\":\"C:\\\\ProgramData\\\\Microsoft\\\\Windows\\\\Start Menu\\\\Programs\\\\HyperBoostX\\\\HyperBoostX.lnk\",\"exists\":true,\"target\":\"exists; target resolution skipped to avoid COM shell hangs\",\"working_directory\":null,\"icon_location\":null,\"error\":null}"
+                   },
+                   {
+                       "name":  "backend health works",
+                       "ok":  false,
+                       "evidence":  "not found"
+                   },
+                   {
+                       "name":  "backend version matches source",
+                       "ok":  false,
+                       "evidence":  "missing"
+                   },
+                   {
+                       "name":  "WPF installed smoke",
+                       "ok":  false,
+                       "evidence":  "not launched"
+                   },
+                   {
+                       "name":  "token sync",
+                       "ok":  false,
+                       "evidence":  "NOT_TESTED_NO_LAUNCH"
+                   },
+                   {
+                       "name":  "no orphan process",
+                       "ok":  false,
+                       "evidence":  "not tested without -StopAfterProbe"
+                   },
+                   {
+                       "name":  "legacy active runtime not detected",
+                       "ok":  true,
+                       "evidence":  ""
+                   }
+               ],
+    "ok":  false
+}

@@ -5,16 +5,24 @@ from services.monitoring.crash_report_service import CrashReportService
 from services.monitoring.report_service import ReportService
 
 
-def test_health_and_version_are_v200():
+def test_health_and_version_are_v210_beta():
     server = HyperBoostBackendServer()
     client = server.app.test_client()
 
     health = client.get("/api/health")
     version = client.get("/api/version")
+    readiness = client.get("/api/release/readiness")
 
     assert health.status_code == 200
-    assert health.get_json()["version"] == "2.0.0"
-    assert version.get_json()["release"] == "HyperBoostX v2.0.0 Stable"
+    assert health.get_json()["version"] == "2.10.0-beta.1"
+    version_payload = version.get_json()
+    assert version_payload["release"] == "HyperBoostX v2.10.0-beta.1 Beta"
+    assert version_payload["channel"] == "Beta"
+    assert version_payload["stable"] is False
+    readiness_payload = readiness.get_json()
+    assert readiness_payload["status"] == "beta_ready"
+    assert readiness_payload["stable"] is False
+    assert readiness_payload["manual_lab_required"] is True
 
 
 def test_required_v13_read_endpoints_exist(monkeypatch):

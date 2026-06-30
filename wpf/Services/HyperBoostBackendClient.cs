@@ -11,7 +11,7 @@ namespace HyperBoostX.Services
 {
     /// <summary>
     /// C# WPF client for HyperBoostX Python backend API
-    /// Communicates with Flask REST API server running on localhost:5000
+    /// Communicates with the launcher-provided or locally configured Flask REST API.
     /// </summary>
     public class HyperBoostBackendClient : IHyperBoostBackendClient, IDisposable
     {
@@ -39,15 +39,78 @@ namespace HyperBoostX.Services
         private static readonly TimeSpan StartupItemsCacheLifetime = TimeSpan.FromSeconds(6);
         private static readonly TimeSpan ProcessesCacheLifetime = TimeSpan.FromSeconds(2);
 
-        public HyperBoostBackendClient(string baseUrl = "http://127.0.0.1:5000")
+        public HyperBoostBackendClient(string baseUrl = null)
         {
-            _baseUrl = baseUrl.TrimEnd('/');
+            _baseUrl = ResolveBaseUrl(baseUrl);
             _httpClient = new HttpClient();
             _httpClient.Timeout = TimeSpan.FromSeconds(10);
             _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
             var sessionToken = Environment.GetEnvironmentVariable("HYPERBOOSTX_SESSION_TOKEN");
             if (!string.IsNullOrWhiteSpace(sessionToken))
                 _httpClient.DefaultRequestHeaders.TryAddWithoutValidation(SessionHeaderName, sessionToken.Trim());
+        }
+
+        public string BaseUrl => _baseUrl;
+
+        private static string ResolveBaseUrl(string baseUrl)
+        {
+            var configuredUrl = string.IsNullOrWhiteSpace(baseUrl)
+                ? Environment.GetEnvironmentVariable("HYPERBOOSTX_BACKEND_URL")
+                : baseUrl;
+
+            if (string.IsNullOrWhiteSpace(configuredUrl))
+                configuredUrl = DiscoverCompatibleLocalBackendUrl();
+
+            return configuredUrl.Trim().TrimEnd('/');
+        }
+
+        private static string DiscoverCompatibleLocalBackendUrl()
+        {
+            var configuredPort = Environment.GetEnvironmentVariable("HYPERBOOSTX_BACKEND_PORT");
+            var candidates = new List<int>();
+            if (int.TryParse(configuredPort, out var port) && port is >= 1024 and <= 65535)
+                candidates.Add(port);
+
+            for (var candidatePort = 5055; candidatePort <= 5065; candidatePort++)
+                candidates.Add(candidatePort);
+
+            candidates.Add(5000);
+
+            foreach (var candidatePort in candidates)
+            {
+                var candidateUrl = $"http://127.0.0.1:{candidatePort}";
+                if (IsCompatibleBackend(candidateUrl))
+                    return candidateUrl;
+            }
+
+            var legacyDefault = "http://127.0.0.1:5000";
+            return IsBackendHealthy(legacyDefault)
+                ? "http://127.0.0.1:5055"
+                : legacyDefault;
+        }
+
+        private static bool IsCompatibleBackend(string candidateUrl)
+        {
+            return ProbeBackend(candidateUrl, "/api/feature-audit/matrix");
+        }
+
+        private static bool IsBackendHealthy(string candidateUrl)
+        {
+            return ProbeBackend(candidateUrl, "/api/health");
+        }
+
+        private static bool ProbeBackend(string candidateUrl, string path)
+        {
+            try
+            {
+                using var client = new HttpClient { Timeout = TimeSpan.FromMilliseconds(220) };
+                var response = client.GetAsync($"{candidateUrl.TrimEnd('/')}{path}").GetAwaiter().GetResult();
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -171,6 +234,54 @@ namespace HyperBoostX.Services
         private static JToken ParseJsonToken(string json)
         {
             return string.IsNullOrWhiteSpace(json) ? JValue.CreateNull() : JToken.Parse(json);
+        }
+
+        public async Task<dynamic> GetJsonAsync(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException("API path is required.", nameof(path));
+
+            var normalizedPath = path.StartsWith("/", StringComparison.Ordinal) ? path : "/" + path;
+            var response = await _httpClient.GetAsync($"{_baseUrl}{normalizedPath}");
+            await EnsureJsonSuccessAsync(response, normalizedPath);
+            var json = await response.Content.ReadAsStringAsync();
+            return ParseJsonToken(json);
+        }
+
+        public async Task<dynamic> PostJsonRouteAsync(string path, object payload = null)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException("API path is required.", nameof(path));
+
+            var normalizedPath = path.StartsWith("/", StringComparison.Ordinal) ? path : "/" + path;
+            return await PostJsonAsync(normalizedPath, payload ?? new { });
+        }
+
+        private async Task<dynamic> PostJsonAsync(string path, object payload)
+        {
+            var content = new StringContent(
+                JsonConvert.SerializeObject(payload ?? new { }),
+                System.Text.Encoding.UTF8,
+                "application/json"
+            );
+
+            var response = await _httpClient.PostAsync($"{_baseUrl}{path}", content);
+            await EnsureJsonSuccessAsync(response, path);
+            var json = await response.Content.ReadAsStringAsync();
+            return ParseJsonToken(json);
+        }
+
+        private static async Task EnsureJsonSuccessAsync(HttpResponseMessage response, string path)
+        {
+            if (response.IsSuccessStatusCode)
+                return;
+
+            var body = await response.Content.ReadAsStringAsync();
+            if (body.Length > 2000)
+                body = body[..2000] + " ... response truncated";
+
+            throw new HttpRequestException(
+                $"Backend request {path} failed with {(int)response.StatusCode} {response.ReasonPhrase}. Body: {body}");
         }
 
         private static JObject NormalizeNamedArrayPayload(JToken payload, params string[] preferredKeys)
@@ -511,6 +622,50 @@ namespace HyperBoostX.Services
             }
         }
 
+        public async Task<dynamic> CreateBoostPlanAsync(string goal = "gaming", string mode = "balanced")
+        {
+            try
+            {
+                return await PostJsonAsync("/api/boost/plan", new
+                {
+                    goal = string.IsNullOrWhiteSpace(goal) ? "gaming" : goal,
+                    mode = string.IsNullOrWhiteSpace(mode) ? "balanced" : mode,
+                });
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to create safe boost plan: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<dynamic> ApplyBoostPlanAsync(IReadOnlyList<string> approvedActionIds = null, bool userApproved = false)
+        {
+            try
+            {
+                return await PostJsonAsync("/api/boost/apply", new
+                {
+                    user_approved = userApproved,
+                    approved_action_ids = approvedActionIds ?? Array.Empty<string>(),
+                });
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to apply safe boost plan: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<dynamic> UndoBoostPlanAsync()
+        {
+            try
+            {
+                return await PostJsonAsync("/api/boost/undo", new { });
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to undo safe boost plan: {ex.Message}", ex);
+            }
+        }
+
         public async Task<dynamic> ExportReportAsync(string format = "md")
         {
             try
@@ -603,67 +758,69 @@ namespace HyperBoostX.Services
                 throw new InvalidOperationException($"Failed to reset network: {ex.Message}", ex);
             }
         }
-        public async Task<dynamic> RunTripleAiFlowAsync(string userGoal = "gaming", string game = "")
+        public async Task<dynamic> RunSafePlanFlowAsync(string userGoal = "gaming", string game = "")
         {
             try
             {
-                var content = new StringContent(
-                    JsonConvert.SerializeObject(new { user_goal = userGoal, game = game }),
-                    System.Text.Encoding.UTF8,
-                    "application/json"
-                );
-
-                var response = await _httpClient.PostAsync($"{_baseUrl}/api/triple-ai/full-flow", content);
-                response.EnsureSuccessStatusCode();
-                var json = await response.Content.ReadAsStringAsync();
-                return ParseJsonToken(json);
+                return await CreateBoostPlanAsync(userGoal, "balanced");
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Failed to run Triple AI flow: {ex.Message}", ex);
+                throw new InvalidOperationException($"Failed to run safe plan flow: {ex.Message}", ex);
             }
         }
 
-        public async Task<dynamic> ApplyTripleAiTweaksAsync(JArray approvedTweaks, bool userApproved = false)
+        public async Task<dynamic> ApplySafePlanActionsAsync(JArray approvedActions, bool userApproved = false)
         {
             try
             {
-                var content = new StringContent(
-                    JsonConvert.SerializeObject(new { approved_tweaks = approvedTweaks ?? new JArray(), user_approved = userApproved }),
-                    System.Text.Encoding.UTF8,
-                    "application/json"
-                );
+                var approvedIds = new List<string>();
+                if (approvedActions != null)
+                {
+                    foreach (var item in approvedActions)
+                    {
+                        var id = item.Type == JTokenType.String ? item.ToString() : item["id"]?.ToString() ?? item["action_id"]?.ToString();
+                        if (!string.IsNullOrWhiteSpace(id))
+                            approvedIds.Add(id);
+                    }
+                }
 
-                var response = await _httpClient.PostAsync($"{_baseUrl}/api/triple-ai/tweaks/apply", content);
-                response.EnsureSuccessStatusCode();
-                var json = await response.Content.ReadAsStringAsync();
-                return ParseJsonToken(json);
+                return await ApplyBoostPlanAsync(approvedIds, userApproved);
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Failed to apply Triple AI tweaks: {ex.Message}", ex);
+                throw new InvalidOperationException($"Failed to apply safe plan actions: {ex.Message}", ex);
             }
         }
 
-        public async Task<dynamic> RevertTripleAiTweaksAsync(string backupId = "", IReadOnlyList<string> tweakIds = null)
+        public async Task<dynamic> RevertSafePlanActionsAsync(string backupId = "", IReadOnlyList<string> actionIds = null)
         {
             try
             {
-                var content = new StringContent(
-                    JsonConvert.SerializeObject(new { backup_id = backupId ?? "", tweak_ids = tweakIds ?? Array.Empty<string>() }),
-                    System.Text.Encoding.UTF8,
-                    "application/json"
-                );
-
-                var response = await _httpClient.PostAsync($"{_baseUrl}/api/triple-ai/tweaks/revert", content);
-                response.EnsureSuccessStatusCode();
-                var json = await response.Content.ReadAsStringAsync();
-                return ParseJsonToken(json);
+                return await UndoBoostPlanAsync();
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Failed to revert Triple AI tweaks: {ex.Message}", ex);
+                throw new InvalidOperationException($"Failed to undo safe plan actions: {ex.Message}", ex);
             }
+        }
+
+        [Obsolete("Use RunSafePlanFlowAsync. This wrapper is kept only for v1.x compatibility.")]
+        public Task<dynamic> RunTripleAiFlowAsync(string userGoal = "gaming", string game = "")
+        {
+            return RunSafePlanFlowAsync(userGoal, game);
+        }
+
+        [Obsolete("Use ApplySafePlanActionsAsync. This wrapper is kept only for v1.x compatibility.")]
+        public Task<dynamic> ApplyTripleAiTweaksAsync(JArray approvedTweaks, bool userApproved = false)
+        {
+            return ApplySafePlanActionsAsync(approvedTweaks, userApproved);
+        }
+
+        [Obsolete("Use RevertSafePlanActionsAsync. This wrapper is kept only for v1.x compatibility.")]
+        public Task<dynamic> RevertTripleAiTweaksAsync(string backupId = "", IReadOnlyList<string> tweakIds = null)
+        {
+            return RevertSafePlanActionsAsync(backupId, tweakIds);
         }
 
         /// <summary>

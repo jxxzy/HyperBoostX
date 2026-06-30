@@ -1,6 +1,6 @@
 param(
-    [string]$StableVersion = "1.1.0",
-    [string]$StableUiLabel = "1.1.0 - 2026",
+    [string]$CandidateVersion = "2.10.0",
+    [switch]$OwnerApprovedStable,
     [switch]$WhatIfOnly
 )
 
@@ -9,122 +9,51 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $repoRoot
 
-$targets = @(
-    @{
-        Path = "wpf\HyperBoostX.csproj"
-        Replacements = @(
-            @{ Old = "<Version>1.1.0-beta</Version>"; New = "<Version>$StableVersion</Version>" },
-            @{ Old = "<InformationalVersion>1.1.0-beta</InformationalVersion>"; New = "<InformationalVersion>$StableVersion</InformationalVersion>" }
-        )
-    },
-    @{
-        Path = "launcher\HyperBoostLauncher.csproj"
-        Replacements = @(
-            @{ Old = "<Version>1.1.0-beta</Version>"; New = "<Version>$StableVersion</Version>" },
-            @{ Old = "<InformationalVersion>1.1.0-beta</InformationalVersion>"; New = "<InformationalVersion>$StableVersion</InformationalVersion>" }
-        )
-    },
-    @{
-        Path = "HyperBoostXInstaller.nsi"
-        Replacements = @(
-            @{ Old = 'WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "DisplayVersion" "1.1.0-beta"'; New = 'WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HyperBoostX" "DisplayVersion" "' + $StableVersion + '"' }
-        )
-    },
-    @{
-        Path = "wpf\MainWindow.xaml"
-        Replacements = @(
-            @{ Pattern = 'Name="AboutVersionText"\s+Text="[^"]+"'; New = 'Name="AboutVersionText" Text="' + $StableUiLabel + '"' }
-        )
-    },
-    @{
-        Path = "wpf\MainWindow.xaml.cs"
-        Replacements = @(
-            @{ Old = '?? "1.1.0-beta";'; New = '?? "' + $StableVersion + '";' }
-        )
-    },
-    @{
-        Path = "wpf\Services\AppUpdateService.cs"
-        Replacements = @(
-            @{ Old = 'client.DefaultRequestHeaders.UserAgent.ParseAdd("HyperBoostX/1.1.0-beta");'; New = 'client.DefaultRequestHeaders.UserAgent.ParseAdd("HyperBoostX/' + $StableVersion + '");' }
-        )
-    },
-    @{
-        Path = "app\__init__.py"
-        Replacements = @(
-            @{ Old = '__version__ = "1.1.0-beta"'; New = '__version__ = "' + $StableVersion + '"' }
-        )
-    },
-    @{
-        Path = "app\core\config.py"
-        Replacements = @(
-            @{ Old = 'VERSION = "1.1.0-beta"'; New = 'VERSION = "' + $StableVersion + '"' }
-        )
-    },
-    @{
-        Path = "app\api\health.py"
-        Replacements = @(
-            @{ Old = '"version": "1.1.0-beta"'; New = '"version": "' + $StableVersion + '"' }
-        )
-    },
-    @{
-        Path = "app\dev_client.py"
-        Replacements = @(
-            @{ Old = 'app.setApplicationVersion("1.1.0-beta")'; New = 'app.setApplicationVersion("' + $StableVersion + '")' }
-        )
-    },
-    @{
-        Path = "README.md"
-        Replacements = @(
-            @{ Old = '- `1.1.0-beta`'; New = ('- `' + $StableVersion + '`') },
-            @{ Old = '## What changed in `1.1.0-beta`'; New = ('## What changed in `' + $StableVersion + '`') },
-            @{ Old = '- GitHub prerelease: `v1.1.0-beta`'; New = ('- GitHub release: `v' + $StableVersion + '`') }
-        )
-    }
+if (-not $OwnerApprovedStable) {
+    Write-Host "HyperBoostX stable release guard is active." -ForegroundColor Yellow
+    Write-Host "This script will not promote v$CandidateVersion to Stable without -OwnerApprovedStable." -ForegroundColor Yellow
+    Write-Host "Run release gates and manual lab evidence first. Current allowed state is Stable Candidate / Owner Approval Required."
+    exit 2
+}
+
+if ($WhatIfOnly) {
+    Write-Host "[DRY RUN] Owner approval flag supplied. No files will be modified."
+}
+
+$requiredFiles = @(
+    "VERSION",
+    "wpf\HyperBoostX.csproj",
+    "launcher\HyperBoostLauncher.csproj",
+    "HyperBoostXInstaller.nsi",
+    "README.md",
+    "RELEASE.md",
+    "docs\FINAL_AUDIT_REPORT_v2.10.0.md",
+    "docs\STABLE_MODE_AUDIT_v2.10.0.md",
+    "docs\INSTALLER_LAB_GATE_v2.10.0.md",
+    "docs\HARDWARE_MATRIX_v2.10.0.md",
+    "docs\CODE_SIGNING_READINESS.md"
 )
 
-foreach ($target in $targets) {
-    $path = Join-Path $repoRoot $target.Path
-    if (-not (Test-Path $path)) {
-        throw "Missing target file: $($target.Path)"
-    }
-
-    $content = Get-Content -LiteralPath $path -Raw
-    $updated = $content
-
-    foreach ($replacement in $target.Replacements) {
-        if ($replacement.ContainsKey("Pattern")) {
-            $next = [System.Text.RegularExpressions.Regex]::Replace($updated, $replacement.Pattern, $replacement.New)
-            if ($next -ne $updated) {
-                $updated = $next
-            }
-            else {
-                Write-Warning "Pattern not found in $($target.Path): $($replacement.Pattern)"
-            }
-        }
-        elseif ($updated.Contains($replacement.Old)) {
-            $updated = $updated.Replace($replacement.Old, $replacement.New)
-        }
-        else {
-            Write-Warning "Text not found in $($target.Path): $($replacement.Old)"
-        }
-    }
-
-    if ($updated -ne $content) {
-        if ($WhatIfOnly) {
-            Write-Host "[DRY RUN] Would update $($target.Path)"
-        }
-        else {
-            [System.IO.File]::WriteAllText($path, $updated, [System.Text.Encoding]::UTF8)
-            Write-Host "Updated $($target.Path)"
-        }
-    }
-    else {
-        Write-Host "No change needed for $($target.Path)"
-    }
+$missing = @($requiredFiles | Where-Object { -not (Test-Path -LiteralPath $_) })
+if ($missing.Count -gt 0) {
+    throw "Cannot prepare stable release. Missing required files: $($missing -join ', ')"
 }
 
-Write-Host ""
-Write-Host "Stable release preparation script completed."
-if ($WhatIfOnly) {
-    Write-Host "No files were modified because -WhatIfOnly was used."
+$versionText = (Get-Content -LiteralPath "VERSION" -Raw).Trim()
+if ($versionText -notin @("2.10.0-beta.1", "2.10.0-rc.1", $CandidateVersion)) {
+    throw "Unexpected VERSION value '$versionText'. Refusing stable promotion."
 }
+
+$gateSummary = if (Test-Path -LiteralPath "artifacts\qa\full_qa_summary.json") {
+    Get-Content -LiteralPath "artifacts\qa\full_qa_summary.json" -Raw | ConvertFrom-Json
+} else {
+    $null
+}
+
+if ($gateSummary -and $gateSummary.status -notin @("STABLE_CANDIDATE_READY", "BETA_READY")) {
+    throw "Full QA status '$($gateSummary.status)' is not acceptable for stable preparation."
+}
+
+Write-Host "Stable owner approval guard passed for v$CandidateVersion." -ForegroundColor Green
+Write-Host "No automatic tag/release is created by this script."
+Write-Host "Next manual steps: verify installer lab, hardware matrix, code signing decision, then create tag/release explicitly."

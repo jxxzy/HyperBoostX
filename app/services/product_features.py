@@ -408,8 +408,18 @@ class GameDatabaseService:
 class ProtectionService:
     """Protected process and Safety Guard evaluator."""
 
-    DEFAULT_PROCESSES = ["vgc.exe", "vgk.sys", "EasyAntiCheat.exe", "BEService.exe", "EACService.exe", "RiotClientServices.exe", "MsMpEng.exe", "NisSrv.exe", "audiodg.exe", "nvcontainer.exe", "amdfendrsr.exe", "IntelCpHDCPSvc.exe"]
-    DANGEROUS_TOKENS = ["defender", "windows update", "wuauserv", "anticheat", "anti-cheat", "eac", "battleye", "vgc", "vgk", "overclock", "undervolt", "voltage", "bios", "uefi", "gpu driver service", "audio service", "network driver", "delete documents", "delete downloads", "shell", "powershell"]
+    DEFAULT_PROCESSES = ["vgc.exe", "vgk.sys", "EasyAntiCheat.exe", "BEService.exe", "EACService.exe", "RiotClientServices.exe", "MsMpEng.exe", "NisSrv.exe", "audiodg.exe", "nvcontainer.exe", "amdfendrsr.exe", "IntelCpHDCPSvc.exe", "TRCC.exe", "HiMOS.exe"]
+    DANGEROUS_TOKENS = [
+        "defender", "kill_msmpeng", "full_drive_exclusion", "broad_user_folder_exclusion",
+        "windows update", "wuauserv", "permanent_windows_update_disable",
+        "anticheat", "anti-cheat", "eac", "battleye", "vgc", "vgk",
+        "kill_required_lcd_app", "disable_required_lcd_startup", "patch_vendor_binary",
+        "inject_vendor_process", "delete_vendor_helper_files", "hidden_vendor_api_call",
+        "unsafe_vendor_config_edit", "trcc", "himos",
+        "overclock", "undervolt", "voltage", "bios", "uefi", "thermal protection",
+        "gpu driver service", "audio service", "network driver", "fan control service",
+        "delete documents", "delete downloads", "delete user file", "shell", "powershell",
+    ]
 
     @classmethod
     def list_processes(cls) -> Dict[str, Any]:
@@ -448,19 +458,35 @@ class ProtectionService:
 
     @classmethod
     def blocked_actions(cls) -> List[str]:
-        return ["Disable Defender", "Permanent Windows Update disable", "Anti-cheat process/service changes", "GPU/audio/network driver service changes", "Overclock/undervolt/voltage/BIOS actions", "Arbitrary shell execution", "Destructive cleanup"]
+        return ["Disable Defender", "Kill MsMpEng", "Full-drive Defender exclusion", "Permanent Windows Update disable", "Anti-cheat process/service changes", "Required LCD app kill/startup disable", "Vendor binary patch/injection/helper deletion", "GPU/audio/network/fan driver service changes", "Overclock/undervolt/voltage/BIOS/thermal-protection actions", "Arbitrary shell execution", "Destructive cleanup"]
 
 
 class ProcessAnalyzerService:
     """Read-only process pressure analyzer."""
 
+    EXCLUDED_PROCESS_NAMES = {"system idle process", "idle"}
+
     @classmethod
     def heavy(cls, limit: int = 10) -> Dict[str, Any]:
         rows = []
+        cpu_count = max(1, psutil.cpu_count(logical=True) or 1)
         for proc in psutil.process_iter(["pid", "name", "cpu_percent", "memory_info"]):
             try:
+                pid = int(proc.info.get("pid") or 0)
+                raw_name = proc.info.get("name", "") or ""
+                normalized_name = raw_name.strip().lower()
+                if pid == 0 or normalized_name in cls.EXCLUDED_PROCESS_NAMES:
+                    continue
+
                 memory = getattr(proc.info.get("memory_info"), "rss", 0) / (1024 * 1024)
-                rows.append({"pid": proc.info.get("pid"), "name": CrashReportService.redact(proc.info.get("name", "")), "cpu_percent": proc.info.get("cpu_percent") or 0, "memory_mb": round(memory, 1)})
+                raw_cpu = float(proc.info.get("cpu_percent") or 0)
+                cpu_percent = max(0.0, min(100.0, raw_cpu / cpu_count))
+                rows.append({
+                    "pid": pid,
+                    "name": CrashReportService.redact(raw_name),
+                    "cpu_percent": round(cpu_percent, 1),
+                    "memory_mb": round(memory, 1),
+                })
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 continue
         rows.sort(key=lambda item: (item["cpu_percent"], item["memory_mb"]), reverse=True)
@@ -723,12 +749,93 @@ class GamingEssentialsService:
 class StreamingCenterService:
     STREAMING_APPS = ["obs", "discord", "nvidia broadcast", "voicemeeter", "elgato", "tiktok live studio"]
 
+    LEGACY_TOOLKIT = [
+        {
+            "section": "Microphone Tools",
+            "items": [
+                "Mic device detection",
+                "Default mic detection",
+                "Mic diagnostics",
+                "Mic privacy shortcut",
+                "Sound settings shortcut",
+                "Windows Volume Mixer shortcut",
+                "Device refresh",
+                "Mute/unmute guidance",
+                "Gain guidance",
+                "Noise gate preview guidance",
+                "Compressor preview guidance",
+                "Communications microphone apply with approval when supported",
+            ],
+            "status": "visible_safe_guidance",
+        },
+        {
+            "section": "Voicemeeter / Advanced Mic",
+            "items": [
+                "Input level meter guidance",
+                "Clipping warning",
+                "Noise level hint",
+                "Voice test checklist",
+                "Recommended settings",
+                "Safe preset",
+                "Voicemeeter detection",
+                "Voicemeeter launch if installed",
+                "Official download shortcut",
+            ],
+            "status": "visible_safe_guidance",
+        },
+        {
+            "section": "Webcam Tools",
+            "items": [
+                "Camera detection",
+                "Webcam diagnostics",
+                "Windows Camera app launch",
+                "Camera settings shortcut",
+                "Camera privacy shortcut",
+                "Device Manager shortcut",
+                "Brightness guidance",
+                "Contrast guidance",
+                "Sharpness guidance",
+                "Exposure guidance",
+                "FPS target guidance",
+                "Low-light preset",
+                "Sharp-face preset",
+            ],
+            "status": "visible_safe_guidance",
+        },
+        {
+            "section": "Streaming Profiles",
+            "items": [
+                "OBS profile recommendation",
+                "TikTok LIVE Studio recommendation",
+                "Discord camera profile",
+                "Export profile/report",
+                "Creator Mode connection",
+            ],
+            "status": "visible_safe_guidance",
+        },
+    ]
+
     @classmethod
     def status(cls) -> Dict[str, Any]:
         apps = GpuDetectionService.detect_background_apps()
         detected = [item for item in apps if item.get("detected") and item.get("category") in {"streaming", "chat", "recording"}]
         score = _clamp(92 - max(0, len(detected) - 3) * 5)
-        return {"streaming_ready_score": score, "detected_apps": detected, "recommendations": ["Keep OBS/voice apps enabled when streaming.", "Pause duplicate overlays only after approval."]}
+        return {
+            "streaming_ready_score": score,
+            "detected_apps": detected,
+            "legacy_toolkit": cls.LEGACY_TOOLKIT,
+            "recommendations": [
+                "Keep OBS and voice apps enabled when streaming.",
+                "Pause duplicate overlays only after approval.",
+                "Use mic gain, gate, compressor, and webcam sliders as profile guidance unless a supported Windows endpoint action is available.",
+                "Voicemeeter integration is detect/launch/download guidance; HyperBoostX does not install or rewire virtual audio silently.",
+            ],
+            "safety": {
+                "no_driver_service_changes": True,
+                "no_forced_camera_driver_writes": True,
+                "requires_approval_for_endpoint_changes": True,
+            },
+        }
 
 
 class RgbDetectionService:

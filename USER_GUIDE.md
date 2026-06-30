@@ -1,6 +1,8 @@
 # HyperBoostX User Guide
 
-Target version: `HyperBoostX v2.0.0 Ultimate Winner Edition`
+Current recommended public stable: `HyperBoostX v1.3.0 Stable`
+
+v2.x builds are development previews until feature parity, UI/UX restoration, backend audit, installer validation, and smoke testing pass.
 
 ## Beginner Path
 

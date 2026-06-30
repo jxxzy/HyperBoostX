@@ -1,7 +1,8 @@
 <UserControl x:Class="HyperBoostX.Views.DashboardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="clr-namespace:HyperBoostX.ViewModels">
+             xmlns:vm="clr-namespace:HyperBoostX.ViewModels"
+             Loaded="DashboardView_Loaded">
     <UserControl.DataContext>
         <vm:DashboardViewModel/>
     </UserControl.DataContext>
@@ -18,11 +19,17 @@
                         <TextBlock Text="Safe AI Windows Gaming Optimizer" FontSize="17" Foreground="{StaticResource Brush.Accent.Primary}" Margin="0,4,0,0"/>
                         <TextBlock Text="Scan your PC, detect bottlenecks, apply safe gaming profiles, compare before/after, and undo anytime." Foreground="{StaticResource Brush.Text.Secondary}" FontSize="13" Margin="0,10,0,18" TextWrapping="Wrap" MaxWidth="760"/>
                         <WrapPanel>
-                            <Button Content="Start Smart Scan" Click="StartSmartScan_Click" Style="{StaticResource CyberButtonStyle}" Margin="0,0,10,10"/>
-                            <Button Content="One Click Safe Boost" Click="OneClickSafeBoost_Click" Style="{StaticResource CyberButtonStyle}" Margin="0,0,10,10"/>
-                            <Button Content="Auto Gaming Mode" Click="AutoGamingMode_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
-                            <Button Content="View Last Report" Click="ViewLastReport_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
-                            <Button Content="Restore Changes" Click="RestoreChanges_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                            <Button x:Name="StartSmartScanButton" Content="Start Smart Scan" Click="StartSmartScan_Click" Style="{StaticResource CyberButtonStyle}" Margin="0,0,10,10"/>
+                            <Button x:Name="OneClickSafeBoostButton" Content="One Click Safe Boost" Click="OneClickSafeBoost_Click" Style="{StaticResource CyberButtonStyle}" Margin="0,0,10,10"/>
+                            <Button x:Name="AutoGamingModeButton" Content="Auto Gaming Mode" Click="AutoGamingMode_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                            <Button x:Name="ViewLastReportButton" Content="View Last Report" Click="ViewLastReport_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                            <Button x:Name="RestoreChangesButton" Content="Restore Changes" Click="RestoreChanges_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                            <Button x:Name="RefreshStatusButton" Content="Refresh Status" Click="RefreshStatus_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                            <Button x:Name="OpenBoostPlanButton" Content="Open Boost Plan" Click="OpenBoostPlan_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                            <Button x:Name="ExportDashboardReportButton" Content="Export Report" Click="ExportDashboardReport_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                            <Button x:Name="OpenSettingsButton" Content="Settings" Click="OpenSettings_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                            <Button x:Name="ViewPerformanceHistoryButton" Content="History" Click="ViewPerformanceHistory_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                            <Button x:Name="RunFeatureAuditButton" Content="Feature Audit" Click="RunFeatureAudit_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
                         </WrapPanel>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Width="230" Margin="22,0,0,0">
@@ -31,6 +38,9 @@
                         </Border>
                         <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,0,10">
                             <TextBlock Text="Restore Available" Foreground="{StaticResource Brush.Text.Secondary}"/>
+                        </Border>
+                        <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,0,10">
+                            <TextBlock Text="{Binding ActiveGpu, StringFormat=GPU: {0}}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap"/>
                         </Border>
                         <Border Style="{StaticResource CyberBadgeStyle}">
                             <TextBlock Text="{Binding BackendStatus, StringFormat=Backend: {0}}" Foreground="{StaticResource Brush.Text.Secondary}"/>

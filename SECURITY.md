@@ -1,6 +1,8 @@
 # Security Policy
 
-Target release: `HyperBoostX v2.0.0 Ultimate Winner Edition`
+Current public stable baseline: `HyperBoostX v1.3.0 Stable`
+
+The v2.x line is a development preview until full validation is complete. Security boundaries below apply to both stable and preview lines.
 
 ## Local Backend
 

@@ -18,8 +18,8 @@ public class AppConfigServiceTests
             Settings = new PersistedSettingsState
             {
                 NvidiaApiKey = nvidiaApiKey,
-                DiscordWebhookUrl = "https://discord.com/api/webhooks/123/secret",
-                DiscordUpdateWebhookUrl = "https://discord.com/api/webhooks/456/secret"
+                DiscordWebhookUrl = "https://example.invalid/discord-webhook/123/secret",
+                DiscordUpdateWebhookUrl = "https://example.invalid/discord-webhook/456/secret"
             }
         };
 
@@ -49,8 +49,8 @@ public class AppConfigServiceTests
                 "Theme": "Dark",
                 "{{legacyKeyName}}": "legacy-secret",
                 "NvidiaApiKey": "{{legacyNvidiaKey}}",
-                "DiscordWebhookUrl": "https://discord.com/api/webhooks/123/legacy",
-                "DiscordUpdateWebhookUrl": "https://discord.com/api/webhooks/456/legacy"
+                "DiscordWebhookUrl": "https://example.invalid/discord-webhook/123/legacy",
+                "DiscordUpdateWebhookUrl": "https://example.invalid/discord-webhook/456/legacy"
               }
             }
             """);

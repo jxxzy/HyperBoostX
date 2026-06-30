@@ -1,21 +1,45 @@
-# HyperBoostX v2.0.0 API Reference
+# HyperBoostX v2.0.1 Working API Reference
 
 Base URL: `http://127.0.0.1:5000`
 
 The backend is local-only. Mutating endpoints require `X-HyperBoostX-Session` when `HYPERBOOSTX_SESSION_TOKEN` is present. All reports, logs, crash exports, and action logs apply privacy redaction for tokens, usernames, and sensitive local paths.
+
+This document describes the current v2.0.1 working tree. The public v2.0.0 release routes remain supported; v2.1 compatibility aliases are exposed for the restored WPF sidebar and future clients. Preview/read-only/blocked responses are intentional safety states, not release claims for destructive automation.
+
+## Standard v2.1 Envelope
+
+Compatibility aliases return this envelope shape:
+
+```json
+{
+  "ok": true,
+  "module": "boost",
+  "action": "preview",
+  "status": "preview",
+  "message": "Preview generated. No system change has been applied.",
+  "data": {},
+  "warnings": [],
+  "blocked_reasons": [],
+  "restore_available": true,
+  "restore_session_id": null,
+  "report_id": null
+}
+```
+
+`status` can be `success`, `preview`, `partial`, `blocked`, or `error`. `blocked` means Safety Guard intentionally refused a risky action.
 
 ## Health
 
 `GET /api/health`
 
 ```json
-{"status":"ok","version":"2.0.0","local_only":true,"session_token_required":false}
+{"status":"ok","version":"2.0.1","local_only":true,"session_token_required":false}
 ```
 
 `GET /api/version`
 
 ```json
-{"name":"HyperBoostX","version":"2.0.0","release":"HyperBoostX v2.0.0 Stable"}
+{"name":"HyperBoostX","version":"2.0.1","release":"HyperBoostX v2.0.1 Working Build"}
 ```
 
 ## Existing Core APIs
@@ -37,6 +61,23 @@ The backend is local-only. Mutating endpoints require `X-HyperBoostX-Session` wh
 - `POST /api/jobs/start`
 - `GET /api/jobs/{id}`
 - `POST /api/jobs/{id}/cancel`
+
+## v2.1 Compatibility Aliases
+
+These routes exist to remove client/docs drift and give every restored WPF sidebar page a safe backend target. Mutating aliases are preview/approval/blocked by design unless a supported safe handler exists.
+
+- Core: `GET /api/status`, `GET|POST /api/settings`
+- Dashboard: `GET /api/dashboard/summary`, `GET /api/dashboard/score`, `GET /api/dashboard/alerts`, `GET /api/dashboard/activity`
+- Scan: `POST /api/scan/system`, `POST /api/scan/quick`, `POST /api/scan/full`, `POST /api/scan/smart`
+- Boost: `POST /api/boost/preview`, `GET /api/boost/last-result`, `GET /api/boost/history`
+- Performance: `GET /api/performance/summary`, `POST /api/performance/plan`, `POST /api/performance/apply`
+- Processes: `GET /api/processes`, `GET /api/processes/summary`, `POST /api/processes/preview-close`, `POST /api/processes/close-selected`
+- Storage/Cleanup: `GET /api/storage/drives`, `POST /api/storage/scan`, `POST /api/storage/analyze`, `POST /api/storage/cleanup-preview`, `GET /api/cleanup/history`
+- Gaming: `GET /api/gaming/detect`, `GET /api/gaming/profiles`, `POST /api/gaming/profile/apply`, `POST /api/gaming/profile/restore`, `POST /api/gaming/overlay/scan`, `POST /api/gaming/boost/preview`, `POST /api/gaming/boost/apply`
+- GPU/Network/Security: `GET /api/gpu/info`, `GET /api/gpu/health`, `GET /api/network/status`, `POST /api/network/ping-test`, `POST /api/network/dns-preview`, `POST /api/network/dns-apply`, `POST /api/network/reset-preview`, `GET /api/security/health`
+- Apps/Windows/Repair: `POST /api/apps/uninstall`, `POST /api/windows/features/apply`, `POST /api/windows/services/apply`, `POST /api/repair/sfc-preview`, `POST /api/repair/dism-preview`, `POST /api/repair/sfc-run`, `POST /api/repair/dism-run`
+- Restore/Automation/AI/Audit: `POST /api/restore/create`, `POST /api/restore/undo-last`, `POST /api/automation/create`, `POST /api/automation/dry-run`, `POST /api/automation/enable`, `POST /api/automation/disable`, `POST /api/automation/delete`, `GET /api/ai/status`, `POST /api/ai/ask`, `POST /api/ai/plan`, `POST /api/ai/approve`, `POST /api/ai/reject`, `GET /api/audit/features`, `POST /api/audit/run`, `GET /api/audit/report`
+- Update/Reports/Logs: `POST /api/update/download-preview`, `POST /api/update/download`, `POST /api/update/install-preview`, `GET /api/reports`, `GET /api/reports/{report_id}`, `GET /api/logs/recent`, `POST /api/logs/export`
 
 ## AI Advisor And Knowledge Base
 
@@ -112,6 +153,7 @@ Driver endpoint safety note: it returns local current-driver data and official-s
 
 ## Startup, Cleanup, Network
 
+- `GET /api/startup/list` - legacy client alias.
 - `GET /api/startup/items`
 - `POST /api/startup/preview`
 - `POST /api/startup/apply`

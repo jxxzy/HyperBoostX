@@ -1,0 +1,21 @@
+﻿{
+    "generated_at":  "2026-06-30T20:31:29.4033416Z",
+    "repo_root":  "F:\\BOOSTER BY MR.4NONY",
+    "installer_path":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe",
+    "execute":  false,
+    "dry_run":  true,
+    "local_appdata_backup":  null,
+    "steps":  [
+                  {
+                      "name":  "installer exists",
+                      "ok":  true,
+                      "detail":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe"
+                  },
+                  {
+                      "name":  "destructive clean install skipped",
+                      "ok":  true,
+                      "detail":  "Run from an elevated shell with -Execute to stop processes, uninstall, back up LocalAppData, install, launch, and run runtime verifiers."
+                  }
+              ],
+    "ok":  true
+}

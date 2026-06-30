@@ -26,7 +26,7 @@ namespace HyperBoostX.Services
         public bool AutoBackupEnabled { get; set; } = true;
         public bool AutoRestorePointEnabled { get; set; } = true;
         public string LoggingLevel { get; set; } = "Advanced";
-        public string UpdateChannel { get; set; } = "Stable";
+        public string UpdateChannel { get; set; } = "Prerelease";
         public bool BackgroundExecutionEnabled { get; set; } = true;
         public bool SilentExecutionEnabled { get; set; } = true;
         public bool DiscordWebhookEnabled { get; set; }

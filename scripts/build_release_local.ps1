@@ -27,6 +27,19 @@ function Ensure-Dir {
     New-Item -ItemType Directory -Force -Path $PathValue | Out-Null
 }
 
+function Invoke-Checked {
+    param(
+        [string]$Description,
+        [scriptblock]$Command
+    )
+
+    Write-Host $Description
+    & $Command
+    if ($LASTEXITCODE -ne 0) {
+        throw "$Description failed with exit code $LASTEXITCODE"
+    }
+}
+
 $backendOut = Join-Path $OutputRoot "backend"
 $launcherOut = Join-Path $OutputRoot "launcher"
 $wpfOut = Join-Path $OutputRoot "wpf"
@@ -47,7 +60,6 @@ Ensure-Dir $pyInstallerWork
 Ensure-Dir $pyInstallerDist
 Ensure-Dir $pyInstallerSpec
 
-Write-Host "Building backend into isolated artifacts..."
 Push-Location (Join-Path $projectRoot "app")
 try {
     $pythonExe = Join-Path (Get-Location) "venv\Scripts\python.exe"
@@ -56,7 +68,9 @@ try {
         $pythonExe = "python"
     }
 
-    & $pythonExe -m PyInstaller --clean --noconfirm --onefile --name hyperboost_backend --distpath $pyInstallerDist --workpath $pyInstallerWork --specpath $pyInstallerSpec --add-data "$dataDir;data" --hidden-import flask_sock --hidden-import wmi --hidden-import psutil backend_server.py
+    Invoke-Checked "Building backend into isolated artifacts..." {
+        & $pythonExe -m PyInstaller --clean --noconfirm --onefile --name hyperboost_backend --distpath $pyInstallerDist --workpath $pyInstallerWork --specpath $pyInstallerSpec --add-data "$dataDir;data" --hidden-import flask_sock --hidden-import wmi --hidden-import psutil backend_server.py
+    }
     $builtBackend = Join-Path $pyInstallerDist "hyperboost_backend.exe"
     if (-not (Test-Path $builtBackend)) {
         throw "Backend executable was not produced."
@@ -68,11 +82,32 @@ finally {
     Pop-Location
 }
 
-Write-Host "Publishing launcher into isolated artifacts..."
-dotnet publish launcher\HyperBoostLauncher.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true -o $launcherOut
+Invoke-Checked "Restoring launcher for win-x64..." {
+    dotnet restore launcher\HyperBoostLauncher.csproj -r win-x64
+}
 
-Write-Host "Publishing WPF into isolated artifacts..."
-dotnet publish wpf\HyperBoostX.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=false -o $wpfOut
+Invoke-Checked "Publishing launcher into isolated artifacts..." {
+    dotnet publish launcher\HyperBoostLauncher.csproj -c Release -r win-x64 --self-contained true --no-restore /p:PublishSingleFile=true -o $launcherOut
+}
+
+Invoke-Checked "Restoring WPF for win-x64..." {
+    dotnet restore wpf\HyperBoostX.csproj -r win-x64
+}
+
+Invoke-Checked "Publishing WPF into isolated artifacts..." {
+    dotnet publish wpf\HyperBoostX.csproj -c Release -r win-x64 --self-contained true --no-restore /p:PublishSingleFile=false -o $wpfOut
+}
+
+$requiredOutputs = @(
+    (Join-Path $launcherOut "HyperBoostLauncher.exe"),
+    (Join-Path $backendOut "hyperboost_backend.exe"),
+    (Join-Path $wpfOut "HyperBoostX.exe")
+)
+foreach ($requiredOutput in $requiredOutputs) {
+    if (-not (Test-Path -LiteralPath $requiredOutput)) {
+        throw "Required build output missing: $requiredOutput"
+    }
+}
 
 Write-Host "Assembling portable/runtime layout..."
 Ensure-Dir (Join-Path $portableOut "runtime\backend")

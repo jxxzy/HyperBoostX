@@ -91,7 +91,7 @@
     },
     "app_uninstaller": {
       "title": "Pencopot Aplikasi",
-      "subtitle": "Uninstall, analisa, deep-clean sisa, force-remove app bandel, dan review dampak aplikasi dari satu modul."
+      "subtitle": "Analisa aplikasi, preview dampak uninstall, review panduan cleanup sisa, dan pastikan setiap penghapusan butuh konfirmasi."
     },
     "windows_services": {
       "title": "Layanan Windows",
