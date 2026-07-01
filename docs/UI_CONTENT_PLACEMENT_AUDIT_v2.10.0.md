@@ -10,7 +10,7 @@ This audit rebuilds the WPF UI placement using the v1.3 information architecture
 - page-specific feature sections second
 - primary actions after context
 - result and history after actions
-- advanced/raw details behind an explicit Advanced Details expander
+- raw backend details behind an explicit Technical Details expander
 - restore and safety placed beside result/history, not hidden at the bottom
 
 ## Implemented Changes
@@ -20,7 +20,7 @@ This audit rebuilds the WPF UI placement using the v1.3 information architecture
 | Sidebar density | Beginner mode now exposes the safe v1.3 baseline; Advanced adds technical pages; Expert Preview exposes all stable-real pages. |
 | Generic wrappers | Core and legacy feature routes now use `PlacementPageChrome` instead of `CyberPageChrome`. |
 | Dashboard | Hero reduced to 3 CTAs; secondary tools moved below hero; hardcoded chart removed. |
-| Raw backend payload | Raw JSON is only shown in `Advanced Details`; main result uses human-readable summaries. |
+| Raw backend payload | Raw JSON is only shown in `Technical Details`; main result uses human-readable summaries. |
 | Safety and restore | Safety note and restore actions are grouped beside result/history on every placement page. |
 | Theme | Theme colors, radius, shadows, card hover, and sidebar active state were reduced for a cleaner premium cyber UI. |
 | Motion | Dashboard scanner and unconditional backend pulse were removed; page transition still respects animation settings. |

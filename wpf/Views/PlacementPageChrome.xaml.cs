@@ -46,7 +46,7 @@ namespace HyperBoostX.Views
             page.IsBusy = true;
             SetActionButtonsEnabled(false);
             page.Status = $"Running {action.Label}...";
-            page.LiveResultTitle = "Advanced Details";
+            page.LiveResultTitle = "Technical Details";
             page.LiveResult = $"Calling {NormalizeMethod(action.Method)} {NormalizePath(action.Path)}...";
             page.LastUpdated = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             if (page is PlacementPageViewModel placement)
@@ -65,7 +65,7 @@ namespace HyperBoostX.Views
                 page.LiveResult = BuildReadableRaw(action, token);
                 page.LastUpdated = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 if (page is PlacementPageViewModel placementPage)
-                    placementPage.ResultSummary = BuildSummary(token, fallback: $"{action.Label} completed. Review Advanced Details for the raw backend payload.");
+                    placementPage.ResultSummary = BuildSummary(token, fallback: $"{action.Label} completed. Review Technical Details for the raw backend payload.");
                 UpdateMetricsFromResult(page, token, action);
             }
             catch (Exception ex)

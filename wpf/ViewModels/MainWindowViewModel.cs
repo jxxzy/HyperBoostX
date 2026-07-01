@@ -25,14 +25,14 @@ namespace HyperBoostX.ViewModels
         private static readonly IReadOnlyList<string> BeginnerNavigationKeys = new[]
         {
             "Dashboard",
-            "OneClickBoost",
-            "AutoGamingMode",
-            "AIPerformanceAdvisor",
             "PerformanceBoost",
             "StartupManager",
             "BackgroundApps",
             "Cleanup",
             "Storage",
+            "OneClickBoost",
+            "AutoGamingMode",
+            "AIPerformanceAdvisor",
             "GpuCenter",
             "GamingBooster",
             "StreamingCenter",
@@ -103,7 +103,7 @@ namespace HyperBoostX.ViewModels
             new NavigationItemViewModel { Key = "OneClickBoost", Label = "One Click Boost", Glyph = "OB", Group = "Quick Access" },
             new NavigationItemViewModel { Key = "AutoGamingMode", Label = "Gaming Mode", Glyph = "GM", Group = "Quick Access" },
             new NavigationItemViewModel { Key = "SmartScan", Label = "Smart Scan", Glyph = "SS", Group = "Quick Access" },
-            new NavigationItemViewModel { Key = "AIPerformanceAdvisor", Label = "Smart Recommendation", Glyph = "SR", Group = "Quick Access" },
+            new NavigationItemViewModel { Key = "AIPerformanceAdvisor", Label = "Smart Recommendation / AI Hub", Glyph = "SR", Group = "Quick Access" },
             new NavigationItemViewModel { Key = "AICenter", Label = "AI Center", Glyph = "AI", Group = "Quick Access" },
             new NavigationItemViewModel { Key = "NvidiaCopilot", Label = "NVIDIA Copilot", Glyph = "NV", Group = "Quick Access" },
 
@@ -126,7 +126,7 @@ namespace HyperBoostX.ViewModels
             new NavigationItemViewModel { Key = "GamingBooster", Label = "Gaming Booster", Glyph = "GB", Group = "Gaming & Creator" },
             new NavigationItemViewModel { Key = "GameLibrary", Label = "Game Library", Glyph = "GL", Group = "Gaming & Creator" },
             new NavigationItemViewModel { Key = "GameProfiles", Label = "Game Profiles", Glyph = "GP", Group = "Gaming & Creator" },
-            new NavigationItemViewModel { Key = "StreamingCenter", Label = "Streaming Mode", Glyph = "SC", Group = "Gaming & Creator" },
+            new NavigationItemViewModel { Key = "StreamingCenter", Label = "Streaming Center", Glyph = "SC", Group = "Gaming & Creator" },
             new NavigationItemViewModel { Key = "CreatorMode", Label = "Creator Mode", Glyph = "CM", Group = "Gaming & Creator" },
             new NavigationItemViewModel { Key = "AdvancedMicMixer", Label = "Voice Meter / Mic Mixer", Glyph = "MIC", Group = "Gaming & Creator" },
             new NavigationItemViewModel { Key = "WebcamStudio", Label = "Webcam Diagnostics", Glyph = "CAM", Group = "Gaming & Creator" },
@@ -238,7 +238,7 @@ namespace HyperBoostX.ViewModels
             _runtimeNavigationItems = visible;
             ApplySearchFilter();
             ToastMessage = snapshot.Mode == HyperBoostAppMode.Stable
-                ? $"{modeLabel} sidebar ready: {visible.Count} stable-real page(s), {snapshot.HiddenFromStable} non-real beta/dev feature(s) hidden"
+                ? $"{modeLabel} sidebar ready: {visible.Count} stable-real page(s), {snapshot.HiddenFromStable} preview/dev feature(s) hidden"
                 : "DEV_MODE shows experimental features for internal audit";
         }
 

@@ -126,7 +126,7 @@ namespace HyperBoostX.Views
             if (MicStatusText == null || MicGainSlider == null)
                 return;
 
-            MicStatusText.Text = $"Mic profile: gain {MicGainSlider.Value:0} | gate {MicGateSlider.Value:0} | compressor {MicCompressorSlider.Value:0}. Preview only until an approved endpoint action is available.";
+            MicStatusText.Text = $"Preview Only: gain {MicGainSlider.Value:0} | gate {MicGateSlider.Value:0} | compressor {MicCompressorSlider.Value:0}. Endpoint changes require approved action support.";
         }
 
         private void RefreshCameraProfileText()
@@ -134,7 +134,7 @@ namespace HyperBoostX.Views
             if (CameraStatusText == null || CameraBrightnessSlider == null)
                 return;
 
-            CameraStatusText.Text = $"Camera studio: brightness {CameraBrightnessSlider.Value:+0;-0;0} | contrast {CameraContrastSlider.Value:+0;-0;0} | sharpness {CameraSharpnessSlider.Value:0} | exposure {CameraExposureSlider.Value:+0.0;-0.0;0.0} EV | target {CameraFpsSlider.Value:0} FPS.";
+            CameraStatusText.Text = $"Preview Only: brightness {CameraBrightnessSlider.Value:+0;-0;0} | contrast {CameraContrastSlider.Value:+0;-0;0} | sharpness {CameraSharpnessSlider.Value:0} | exposure {CameraExposureSlider.Value:+0.0;-0.0;0.0} EV | target {CameraFpsSlider.Value:0} FPS.";
         }
 
         private string BuildStreamingProfile()

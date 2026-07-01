@@ -2,7 +2,7 @@
     "schema_version":  "2.10.0",
     "app_version":  "2.10.0",
     "channel":  "Stable",
-    "generated_at":  "2026-07-01 15.05.04 +07:00",
+    "generated_at":  "2026-07-02 01.59.34 +07:00",
     "policy":  {
                    "minimum_buttons_per_menu":  6,
                    "minimum_buttons_per_big_menu":  10,
@@ -14748,7 +14748,7 @@
                                       {
                                           "id":  "About.primary.1",
                                           "menu_key":  "About",
-                                          "label":  "Run About App",
+                                          "label":  "Open Version Info",
                                           "command":  "AboutPrimaryCommand",
                                           "method":  "GET",
                                           "path":  "/api/version",
@@ -14767,12 +14767,12 @@
                                           "success_state":  "Live Result panel shows returned JSON and updates page status",
                                           "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
                                           "test_coverage":  "tests/test_ui_action_map_v210.py",
-                                          "tooltip":  "Run About App -\u003e GET /api/version"
+                                          "tooltip":  "Open Version Info -\u003e GET /api/version"
                                       },
                                       {
                                           "id":  "About.preview.2",
                                           "menu_key":  "About",
-                                          "label":  "Preview About App",
+                                          "label":  "Check Backend Health",
                                           "command":  "AboutPreviewCommand",
                                           "method":  "GET",
                                           "path":  "/api/health",
@@ -14791,12 +14791,12 @@
                                           "success_state":  "Live Result panel shows returned JSON and updates page status",
                                           "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
                                           "test_coverage":  "tests/test_ui_action_map_v210.py",
-                                          "tooltip":  "Preview About App -\u003e GET /api/health"
+                                          "tooltip":  "Check Backend Health -\u003e GET /api/health"
                                       },
                                       {
                                           "id":  "About.apply.3",
                                           "menu_key":  "About",
-                                          "label":  "Apply Approved About App",
+                                          "label":  "Check for Updates",
                                           "command":  "AboutApplyCommand",
                                           "method":  "GET",
                                           "path":  "/api/update/check",
@@ -14815,12 +14815,12 @@
                                           "success_state":  "Live Result panel shows returned JSON and updates page status",
                                           "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
                                           "test_coverage":  "tests/test_ui_action_map_v210.py",
-                                          "tooltip":  "Apply Approved About App -\u003e GET /api/update/check"
+                                          "tooltip":  "Check for Updates -\u003e GET /api/update/check"
                                       },
                                       {
                                           "id":  "About.restore.4",
                                           "menu_key":  "About",
-                                          "label":  "Restore About App",
+                                          "label":  "Open Latest Release",
                                           "command":  "AboutRestoreCommand",
                                           "method":  "GET",
                                           "path":  "/api/update/latest",
@@ -14839,12 +14839,12 @@
                                           "success_state":  "Live Result panel shows returned JSON and updates page status",
                                           "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
                                           "test_coverage":  "tests/test_ui_action_map_v210.py",
-                                          "tooltip":  "Restore About App -\u003e GET /api/update/latest"
+                                          "tooltip":  "Open Latest Release -\u003e GET /api/update/latest"
                                       },
                                       {
                                           "id":  "About.export.5",
                                           "menu_key":  "About",
-                                          "label":  "Export About App",
+                                          "label":  "Open Release Readiness",
                                           "command":  "AboutExportCommand",
                                           "method":  "GET",
                                           "path":  "/api/release/readiness",
@@ -14863,7 +14863,7 @@
                                           "success_state":  "Live Result panel shows returned JSON and updates page status",
                                           "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
                                           "test_coverage":  "tests/test_ui_action_map_v210.py",
-                                          "tooltip":  "Export About App -\u003e GET /api/release/readiness"
+                                          "tooltip":  "Open Release Readiness -\u003e GET /api/release/readiness"
                                       },
                                       {
                                           "id":  "About.refresh.6",

@@ -30,13 +30,13 @@
 
             <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.35*"/>
-                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="0.95*"/>
+                    <ColumnDefinition Width="1.4*"/>
                 </Grid.ColumnDefinitions>
 
                 <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,14,0">
                     <StackPanel>
-                        <TextBlock Text="Current State" FontSize="17" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding StateTitle}" FontSize="17" FontWeight="Bold"/>
                         <TextBlock Text="{Binding EmptyState}" Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,5,0,14"/>
 
                         <ItemsControl ItemsSource="{Binding Metrics}">
@@ -62,12 +62,18 @@
 
                 <Border Grid.Column="1" Style="{StaticResource CyberCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="Placement Notes" FontSize="17" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding WorkspaceTitle}" FontSize="17" FontWeight="Bold"/>
                         <ItemsControl ItemsSource="{Binding PlacementSections}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="2"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <StackPanel Margin="0,10,0,0">
-                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{StaticResource Brush.Accent.Primary}"/>
+                                    <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="12" Margin="0,10,10,0">
+                                        <StackPanel>
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{StaticResource Brush.Accent.Primary}" TextWrapping="Wrap"/>
                                         <TextBlock Text="{Binding Description}" Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,8"/>
                                         <ItemsControl ItemsSource="{Binding Items}">
                                             <ItemsControl.ItemTemplate>
@@ -76,7 +82,8 @@
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
-                                    </StackPanel>
+                                        </StackPanel>
+                                    </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
@@ -86,8 +93,8 @@
 
             <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,0,16">
                 <StackPanel>
-                    <TextBlock Text="Primary Actions" FontSize="17" FontWeight="Bold"/>
-                    <TextBlock Text="Start with preview or refresh. Apply-style actions stay confirmation-gated by the backend session and Safety Guard." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
+                    <TextBlock Text="{Binding ActionTitle}" FontSize="17" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding ActionHint}" Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
                     <ItemsControl x:Name="PrimaryActionItems" ItemsSource="{Binding PrimaryPlacementActions}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -101,7 +108,7 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <TextBlock Text="Supporting Actions" FontSize="14" FontWeight="Bold" Margin="0,10,0,8"/>
+                    <TextBlock Text="{Binding SecondaryActionTitle}" FontSize="14" FontWeight="Bold" Margin="0,10,0,8"/>
                     <ItemsControl x:Name="SecondaryActionItems" ItemsSource="{Binding SecondaryPlacementActions}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -125,13 +132,13 @@
 
                 <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,14,0">
                     <StackPanel>
-                        <TextBlock Text="Result &amp; History" FontSize="17" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding ResultTitle}" FontSize="17" FontWeight="Bold"/>
                         <TextBlock Text="{Binding ResultSummary}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,10,0,12"/>
                         <Border Style="{StaticResource CyberBadgeStyle}">
                             <TextBlock Text="{Binding Status}" Foreground="{StaticResource Brush.Text.Primary}" TextWrapping="Wrap"/>
                         </Border>
 
-                        <Expander Header="Advanced Details" Foreground="{StaticResource Brush.Text.Primary}" Margin="0,16,0,0" IsExpanded="False">
+                        <Expander Header="Technical Details" Foreground="{StaticResource Brush.Text.Primary}" Margin="0,16,0,0" IsExpanded="False">
                             <StackPanel Margin="0,10,0,0">
                                 <TextBlock Text="Routes used by this page" Foreground="{StaticResource Brush.Text.Muted}" Margin="0,0,0,6"/>
                                 <ItemsControl ItemsSource="{Binding AdvancedRouteLines}" Margin="0,0,0,12">
@@ -149,7 +156,7 @@
 
                 <Border Grid.Column="1" Style="{StaticResource CyberCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="Restore &amp; Safety" FontSize="17" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding SafetyTitle}" FontSize="17" FontWeight="Bold"/>
                         <Border Style="{StaticResource WarningBadgeStyle}" Margin="0,10,0,10">
                             <TextBlock Text="{Binding SafetyNote}" Foreground="{StaticResource Brush.Status.Warning}" TextWrapping="Wrap"/>
                         </Border>
@@ -172,7 +179,7 @@
 
             <Border Style="{StaticResource CyberCardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Recommendations" FontSize="17" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding RecommendationsTitle}" FontSize="17" FontWeight="Bold"/>
                     <ItemsControl ItemsSource="{Binding Recommendations}" Margin="0,10,0,0">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>

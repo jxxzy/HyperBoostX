@@ -67,7 +67,6 @@ namespace HyperBoostX.Views
         private void OpenBoostPlan_Click(object sender, RoutedEventArgs e) => NavigateShell("OneClickBoost");
         private void OpenSettings_Click(object sender, RoutedEventArgs e) => NavigateShell("Settings");
         private void ViewPerformanceHistory_Click(object sender, RoutedEventArgs e) => NavigateShell("PerformanceHistory");
-        private void RunFeatureAudit_Click(object sender, RoutedEventArgs e) => NavigateShell("FeatureAudit");
 
         private async void ExportDashboardReport_Click(object sender, RoutedEventArgs e)
         {
@@ -228,7 +227,7 @@ namespace HyperBoostX.Views
                 return;
 
             var percent = Math.Clamp(value.Value, 0, 100);
-            UpdateMetric(title, $"{percent:0}%", "Live backend metric", (int)Math.Round(100 - percent));
+            UpdateMetric(title, $"{percent:0}%", "Live backend metric", (int)Math.Round(percent));
         }
 
         private void UpdateSystemStats(JObject obj)
@@ -243,7 +242,7 @@ namespace HyperBoostX.Views
                 var detail = used.HasValue && total.HasValue
                     ? $"{used.Value:0.0}/{total.Value:0.0} GB used on system drive"
                     : "System drive usage from backend";
-                UpdateMetric("Storage", $"{Math.Clamp(disk.Value, 0, 100):0}%", detail, (int)Math.Round(100 - Math.Clamp(disk.Value, 0, 100)));
+                UpdateMetric("Storage", $"{Math.Clamp(disk.Value, 0, 100):0}%", detail, (int)Math.Round(Math.Clamp(disk.Value, 0, 100)));
             }
 
             var download = FindNumber(obj, "network_download_mb_s");
@@ -257,7 +256,6 @@ namespace HyperBoostX.Views
                     80);
             }
 
-            UpdateMetric("Power Plan", "Review", "HyperBoostX will not force power-plan changes without approval", 80);
         }
 
         private void UpdateGpuStatus(JToken token)
@@ -272,18 +270,18 @@ namespace HyperBoostX.Views
 
             ViewModel.ActiveGpu = model;
             if (usage.HasValue)
-                UpdateMetric("GPU", $"{Math.Clamp(usage.Value, 0, 100):0}%", $"{vendor} - {model}", (int)Math.Round(100 - Math.Clamp(usage.Value, 0, 100)));
+                UpdateMetric("GPU", $"{Math.Clamp(usage.Value, 0, 100):0}%", $"{vendor} - {model}", (int)Math.Round(Math.Clamp(usage.Value, 0, 100)));
             else
                 UpdateMetric("GPU", vendor, $"{model}; usage sensor unavailable", 70);
 
             if (vramPercent.HasValue && vramTotal.HasValue && vramTotal.Value > 0)
-                UpdateMetric("VRAM", $"{Math.Clamp(vramPercent.Value, 0, 100):0}%", $"{FormatMb(vramUsed ?? 0)}/{FormatMb(vramTotal.Value)}", (int)Math.Round(100 - Math.Clamp(vramPercent.Value, 0, 100)));
+                UpdateMetric("VRAM", $"{Math.Clamp(vramPercent.Value, 0, 100):0}%", $"{FormatMb(vramUsed ?? 0)}/{FormatMb(vramTotal.Value)}", (int)Math.Round(Math.Clamp(vramPercent.Value, 0, 100)));
             else if (vramTotal.HasValue && vramTotal.Value > 0)
                 UpdateMetric("VRAM", FormatMb(vramTotal.Value), "Total VRAM detected; usage sensor unavailable", 75);
             else
                 UpdateMetric("VRAM", "Unavailable", "Sensor unavailable on this GPU/API", 50);
 
-            UpdateMetric("GPU", usage.HasValue ? $"{Math.Clamp(usage.Value, 0, 100):0}%" : vendor, $"{model}; driver {driver}", usage.HasValue ? (int)Math.Round(100 - Math.Clamp(usage.Value, 0, 100)) : 70);
+            UpdateMetric("GPU", usage.HasValue ? $"{Math.Clamp(usage.Value, 0, 100):0}%" : vendor, $"{model}; driver {driver}", usage.HasValue ? (int)Math.Round(Math.Clamp(usage.Value, 0, 100)) : 70);
         }
 
         private void UpdateScoresFromScan(JToken scanToken)
@@ -332,7 +330,7 @@ namespace HyperBoostX.Views
                 return;
 
             var detected = items.Count(item => item.Value<bool?>("detected") == true);
-            UpdateMetric("Overlays", detected == 0 ? "Clear" : detected.ToString(), detected == 0 ? "No known overlay pressure detected" : "Review detected overlay apps before gaming", detected == 0 ? 92 : Math.Max(40, 90 - detected * 10));
+            UpdateMetric("Overlays", detected == 0 ? "Clear" : detected.ToString(), detected == 0 ? "No known overlay pressure detected" : "Review detected overlay apps before gaming", detected == 0 ? 0 : Math.Min(100, detected * 20));
         }
 
         private void UpdateRestoreStatus(JToken token)
@@ -341,13 +339,13 @@ namespace HyperBoostX.Views
             if (items == null)
                 return;
 
-            UpdateMetric("Restore", items.Count == 0 ? "No changes" : items.Count.ToString(), items.Count == 0 ? "No approved action has created restore metadata yet" : "Restore sessions available", items.Count == 0 ? 80 : 100);
+            UpdateMetric("Restore", items.Count == 0 ? "No changes" : items.Count.ToString(), items.Count == 0 ? "No approved action has created restore metadata yet" : "Restore sessions available", items.Count == 0 ? 0 : 100);
         }
 
         private void UpdateActiveGame(JToken token)
         {
             var name = FindString(token, "name", "game", "active_game", "process");
-            UpdateMetric("Active Game", string.IsNullOrWhiteSpace(name) ? "None" : name, string.IsNullOrWhiteSpace(name) ? "No supported game process detected" : "Local process detection only", string.IsNullOrWhiteSpace(name) ? 70 : 92);
+            UpdateMetric("Active Game", string.IsNullOrWhiteSpace(name) ? "None" : name, string.IsNullOrWhiteSpace(name) ? "No supported game process detected" : "Local process detection only", string.IsNullOrWhiteSpace(name) ? 0 : 100);
         }
 
         private void UpdateMetric(string title, string value, string detail, int score)
@@ -415,7 +413,7 @@ namespace HyperBoostX.Views
             if (ViewModel != null)
                 ViewModel.IsBusy = isBusy;
 
-            foreach (var button in new[] { StartSmartScanButton, OneClickSafeBoostButton, AutoGamingModeButton, ViewLastReportButton, RestoreChangesButton, RefreshStatusButton, OpenBoostPlanButton, ExportDashboardReportButton, OpenSettingsButton, ViewPerformanceHistoryButton, RunFeatureAuditButton })
+            foreach (var button in new[] { StartSmartScanButton, OneClickSafeBoostButton, AutoGamingModeButton, ViewLastReportButton, RestoreChangesButton, RefreshStatusButton, OpenBoostPlanButton, ExportDashboardReportButton, OpenSettingsButton, ViewPerformanceHistoryButton })
                 if (button != null)
                     button.IsEnabled = !isBusy;
         }

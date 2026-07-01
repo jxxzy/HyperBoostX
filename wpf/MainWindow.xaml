@@ -33,22 +33,40 @@
                     <StackPanel>
                         <TextBlock Text="HyperBoostX" FontSize="22" FontWeight="Black" Foreground="{StaticResource Brush.Accent.Primary}"/>
                         <TextBlock Text="SAFE AI GAMING OPTIMIZER" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource Brush.Text.Muted}" Margin="0,6,0,0"/>
-                        <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                 ToolTip="Search visible features"
-                                 Margin="0,14,0,0"
-                                 Height="32"
-                                 Padding="10,6"
-                                 Background="#121A2A"
-                                 BorderBrush="{StaticResource Brush.Border.Subtle}"
-                                 Foreground="{StaticResource Brush.Text.Primary}"
-                                 CaretBrush="{StaticResource Brush.Accent.Primary}"/>
+                        <Grid Margin="0,14,0,0">
+                            <TextBox x:Name="SidebarSearchBox"
+                                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="Search visible features"
+                                     Height="32"
+                                     Padding="10,6"
+                                     Background="#121A2A"
+                                     BorderBrush="{StaticResource Brush.Border.Subtle}"
+                                     Foreground="{StaticResource Brush.Text.Primary}"
+                                     CaretBrush="{StaticResource Brush.Accent.Primary}"/>
+                            <TextBlock Text="Search tools..."
+                                       IsHitTestVisible="False"
+                                       Foreground="{StaticResource Brush.Text.Muted}"
+                                       Margin="12,0,0,0"
+                                       VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=SidebarSearchBox}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
                     </StackPanel>
                 </Border>
 
                 <StackPanel DockPanel.Dock="Bottom" Margin="16,10,16,18">
                     <UniformGrid Columns="3" Margin="0,0,0,10">
-                        <Button Content="Scan" Style="{StaticResource CyberGhostButtonStyle}" Click="QuickSmartScan_Click" Margin="0,0,6,0"/>
-                        <Button Content="Boost" Style="{StaticResource CyberGhostButtonStyle}" Click="QuickSafeBoost_Click" Margin="0,0,6,0"/>
+                        <Button Content="Smart Scan" Style="{StaticResource CyberGhostButtonStyle}" Click="QuickSmartScan_Click" Margin="0,0,6,0"/>
+                        <Button Content="Safe Boost" Style="{StaticResource CyberGhostButtonStyle}" Click="QuickSafeBoost_Click" Margin="0,0,6,0"/>
                         <Button Content="Restore" Style="{StaticResource CyberGhostButtonStyle}" Click="QuickRestore_Click"/>
                     </UniformGrid>
                     <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,0,10">
@@ -72,6 +90,7 @@
                 </StackPanel>
 
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="14,12,14,12">
+                    <Grid>
                     <ItemsControl ItemsSource="{Binding Source={StaticResource GroupedNavigationItems}}">
                         <ItemsControl.GroupStyle>
                             <GroupStyle>
@@ -114,6 +133,24 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                    <Border Padding="10,28,10,0" IsHitTestVisible="False">
+                        <TextBlock Text="No tools found."
+                                   Foreground="{StaticResource Brush.Text.Muted}"
+                                   FontSize="12"
+                                   HorizontalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding NavigationItems.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Border>
+                    </Grid>
                 </ScrollViewer>
             </DockPanel>
         </Border>
@@ -140,9 +177,6 @@
                         </Border>
                         <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,10,0">
                             <TextBlock Text="{Binding RuntimeMode, StringFormat=Mode: {0}}" Foreground="{StaticResource Brush.Text.Secondary}"/>
-                        </Border>
-                        <Border Style="{StaticResource CyberBadgeStyle}">
-                            <TextBlock Text="{Binding AccentColor, StringFormat=Accent: {0}}" Foreground="{StaticResource Brush.Text.Secondary}"/>
                         </Border>
                     </WrapPanel>
                 </Grid>

@@ -138,11 +138,11 @@ function New-Action([hashtable]$Menu, [string]$Kind, [hashtable]$Endpoint, [int]
     $confirmationRequired = $isMutating -and $Kind -in @("apply", "restore")
     $requiresAdmin = $confirmationRequired -and $adminCategories -contains $Menu.category
     $buttonLabel = switch ($Kind) {
-        "primary" { "Run $label" }
-        "preview" { "Preview $label" }
-        "apply" { "Apply Approved $label" }
-        "restore" { "Restore $label" }
-        "export" { "Export $label" }
+        "primary" { if ($key -eq "About") { "Open Version Info" } else { "Run $label" } }
+        "preview" { if ($key -eq "About") { "Check Backend Health" } else { "Preview $label" } }
+        "apply" { if ($key -eq "About") { "Check for Updates" } else { "Apply Approved $label" } }
+        "restore" { if ($key -eq "About") { "Open Latest Release" } else { "Restore $label" } }
+        "export" { if ($key -eq "About") { "Open Release Readiness" } else { "Export $label" } }
         "refresh" { "Refresh Backend" }
         "log" { "Open Action Log" }
         "readiness" { "Release Readiness" }
@@ -201,7 +201,7 @@ $jsonMenus = foreach ($menu in $menus) {
     }
 }
 
-$version = if (Test-Path $VersionFile) { (Get-Content -LiteralPath $VersionFile -Raw).Trim() } else { "2.10.0-beta.1" }
+$version = if (Test-Path $VersionFile) { (Get-Content -LiteralPath $VersionFile -Raw).Trim() } else { "2.10.0" }
 $totalButtons = ($jsonMenus | ForEach-Object { $_.actions.Count } | Measure-Object -Sum).Sum
 $totalPartial = 0
 $totalDestructive = ($jsonMenus.actions | Where-Object { $_.is_destructive }).Count

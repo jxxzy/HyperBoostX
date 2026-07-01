@@ -1,0 +1,55 @@
+﻿{
+    "generated_at":  "2026-07-01T19:36:40.6163869Z",
+    "expected_version":  "2.10.0",
+    "final_status":  "FINAL_STABLE_PASS",
+    "checks":  [
+                   {
+                       "name":  "version consistency",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  622
+                   },
+                   {
+                       "name":  "UI release gate",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  3016
+                   },
+                   {
+                       "name":  "no template UI regression",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  207
+                   },
+                   {
+                       "name":  "UI page body markers",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  210
+                   },
+                   {
+                       "name":  "UI button labels",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  293
+                   },
+                   {
+                       "name":  "no placement notes",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  193
+                   },
+                   {
+                       "name":  "release docs consistency",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  1960
+                   },
+                   {
+                       "name":  "installer runtime evidence",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  1308
+                   }
+               ]
+}

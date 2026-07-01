@@ -154,11 +154,11 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel>
-                            <TextBlock Text="Restored v1.3 / v1.4 Tools" FontSize="17" FontWeight="Bold"/>
-                            <TextBlock Text="Legacy page content is preserved as modern preview-first flows with live route mapping." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                            <TextBlock Text="Feature Workspace" FontSize="17" FontWeight="Bold"/>
+                            <TextBlock Text="Page tools are shown as preview-first flows with live route mapping." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,0"/>
                         </StackPanel>
                         <Border Grid.Column="1" Style="{StaticResource SuccessBadgeStyle}" Margin="12,0,0,0" VerticalAlignment="Top">
-                            <TextBlock Text="Legacy parity" Foreground="{StaticResource Brush.Status.Success}"/>
+                            <TextBlock Text="Tools ready" Foreground="{StaticResource Brush.Status.Success}"/>
                         </Border>
                     </Grid>
 
@@ -215,7 +215,7 @@
                         <TextBlock Text="{Binding LastUpdated, StringFormat=Last updated: {0}}" Foreground="{StaticResource Brush.Text.Muted}" Margin="0,4,0,12"/>
                     </StackPanel>
                     <Border Grid.Column="1" Style="{StaticResource CyberBadgeStyle}" Margin="12,0,0,12">
-                        <TextBlock Text="v1.3/v1.4 runtime flow" Foreground="{StaticResource Brush.Text.Secondary}"/>
+                        <TextBlock Text="Stable runtime flow" Foreground="{StaticResource Brush.Text.Secondary}"/>
                     </Border>
 
                     <TextBox Grid.Row="1" Grid.ColumnSpan="2"

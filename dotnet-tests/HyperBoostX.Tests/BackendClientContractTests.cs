@@ -27,15 +27,15 @@ public class BackendClientContractTests
         var streamingXaml = File.ReadAllText(Path.Combine(repoRoot, "wpf", "Views", "StreamingCenterView.xaml"));
         var streamingCode = File.ReadAllText(Path.Combine(repoRoot, "wpf", "Views", "StreamingCenterView.xaml.cs"));
 
-        Assert.Contains("Advanced Mic / Voice Meter", streamingXaml);
-        Assert.Contains("Restored v1.3 / v1.4 Tools", streamingXaml);
+        Assert.Contains("Microphone &amp; Voice Meter", streamingXaml);
+        Assert.Contains("Streaming Toolkit", streamingXaml);
         Assert.Contains("Voice Meter / Voicemeeter / volume mixer", streamingXaml);
         Assert.Contains("OBS/TikTok/Discord profile", streamingXaml);
         Assert.Contains("Start Streaming Optimization / Refresh Detect / Restore After Streaming", streamingXaml);
         Assert.Contains("No hidden capture or driver rewiring", streamingXaml);
         Assert.Contains("Mic Diagnostics", streamingXaml);
         Assert.Contains("Voicemeeter", streamingXaml);
-        Assert.Contains("Advanced Webcam Studio", streamingXaml);
+        Assert.Contains("Webcam Studio", streamingXaml);
         Assert.Contains("Low Light Preset", streamingXaml);
         Assert.Contains("Sharp Face Preset", streamingXaml);
         Assert.Contains("OBS", streamingXaml);
@@ -265,7 +265,8 @@ public class BackendClientContractTests
         var cyberPageVm = File.ReadAllText(Path.Combine(repoRoot, "wpf", "ViewModels", "CyberPageViewModel.cs"));
         var catalog = File.ReadAllText(Path.Combine(repoRoot, "wpf", "ViewModels", "LegacyFeatureCatalog.cs"));
 
-        Assert.Contains("Restored v1.3 / v1.4 Tools", chromeXaml);
+        Assert.Contains("Feature Workspace", chromeXaml);
+        Assert.Contains("Tools ready", chromeXaml);
         Assert.Contains("LegacyTools", chromeXaml);
         Assert.Contains("LegacyFeatureCatalog.Apply(this)", cyberPageVm);
 

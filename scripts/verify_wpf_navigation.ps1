@@ -33,7 +33,7 @@ foreach ($match in $navMatches) {
     $checks.Add([pscustomobject]@{ name = "view exists: $key"; ok = ($routeExists -and (Test-Path -LiteralPath $viewPath)); evidence = $viewPath })
 }
 
-foreach ($button in @("Start Smart Scan", "One Click Safe Boost", "Auto Gaming Mode", "View Last Report", "Restore Changes", "Refresh Status")) {
+foreach ($button in @("Start Smart Scan", "One Click Safe Boost", "Restore / Undo", "Gaming Mode", "View Last Report", "Refresh Snapshot", "Open Boost Plan", "Export Report", "Settings", "History")) {
     $checks.Add([pscustomobject]@{ name = "dashboard button: $button"; ok = $dashboard.Contains($button); evidence = $dashboardPath })
 }
 
@@ -45,7 +45,7 @@ foreach ($view in Get-ChildItem -LiteralPath (Join-Path $RepoRoot "wpf\Views") -
     }
 }
 $checks.Add([pscustomobject]@{ name = "no blank or placeholder-only views"; ok = ($blankViews.Count -eq 0); evidence = ($blankViews -join "; ") })
-$checks.Add([pscustomobject]@{ name = "v1.3 parity sidebar count >= 50"; ok = ($navMatches.Count -ge 50); evidence = "found $($navMatches.Count)" })
+$checks.Add([pscustomobject]@{ name = "source sidebar inventory count >= 50"; ok = ($navMatches.Count -ge 50); evidence = "found $($navMatches.Count)" })
 
 $report = [pscustomobject]@{
     generated_at = (Get-Date).ToUniversalTime().ToString("o")

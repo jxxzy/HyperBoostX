@@ -1,0 +1,62 @@
+﻿{
+    "generated_at":  "2026-07-01T19:24:56.3638917Z",
+    "installed_launcher":  "C:\\Program Files\\HyperBoostX\\HyperBoostX.exe",
+    "backend_port":  5000,
+    "ok":  true,
+    "screenshots":  [
+                        {
+                            "file":  "dashboard.png",
+                            "label":  "Dashboard",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\dashboard.png",
+                            "exists":  true,
+                            "bytes":  112872,
+                            "last_write_utc":  "2026-07-01T19:24:48.8631059Z"
+                        },
+                        {
+                            "file":  "performance.png",
+                            "label":  "Performance",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\performance.png",
+                            "exists":  true,
+                            "bytes":  114412,
+                            "last_write_utc":  "2026-07-01T19:24:50.3983923Z"
+                        },
+                        {
+                            "file":  "gpu-center.png",
+                            "label":  "GPU Center",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\gpu-center.png",
+                            "exists":  true,
+                            "bytes":  108595,
+                            "last_write_utc":  "2026-07-01T19:24:51.8724754Z"
+                        },
+                        {
+                            "file":  "streaming-center.png",
+                            "label":  "Streaming Center",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\streaming-center.png",
+                            "exists":  true,
+                            "bytes":  117485,
+                            "last_write_utc":  "2026-07-01T19:24:53.3316005Z"
+                        },
+                        {
+                            "file":  "settings.png",
+                            "label":  "App Settings",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\settings.png",
+                            "exists":  true,
+                            "bytes":  94879,
+                            "last_write_utc":  "2026-07-01T19:24:54.8216645Z"
+                        },
+                        {
+                            "file":  "about.png",
+                            "label":  "About App",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\about.png",
+                            "exists":  true,
+                            "bytes":  113305,
+                            "last_write_utc":  "2026-07-01T19:24:56.3076543Z"
+                        }
+                    ]
+}

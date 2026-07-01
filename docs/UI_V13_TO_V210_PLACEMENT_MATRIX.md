@@ -2,12 +2,12 @@
 
 Status: source placement implemented, runtime screenshot smoke pending.
 
-| v1.3 Panel / Flow | v2.10.0 Page | Beginner | Advanced | Expert | Placement Notes |
+| Historical Panel / Flow | v2.10.0 Page | Beginner | Advanced | Expert | Final Placement |
 | --- | --- | --- | --- | --- | --- |
 | Dashboard overview | Dashboard | Yes | Yes | Yes | Hero limited to Scan, Boost, Restore; secondary tools below. |
 | One-click boost | One Click Boost | Yes | Yes | Yes | Preview/apply/undo/report actions use the v2.10 action map. |
 | Smart scan | Dashboard / Smart Scan | Dashboard entry | Yes | Yes | Smart Scan route remains available; Beginner starts from Dashboard. |
-| AI recommendation | Smart Recommendation | Yes | Yes | Yes | Raw provider/backend details stay in Advanced Details. |
+| AI recommendation | Smart Recommendation | Yes | Yes | Yes | Raw provider/backend details stay in Technical Details. |
 | Gaming mode | Gaming Mode | Yes | Yes | Yes | Auto mode stays restore-aware. |
 | Startup manager | Startup | Yes | Yes | Yes | Startup list and selected apply flow remain grouped. |
 | Background apps/process review | Background Apps / Process Analyzer | Background Apps | Yes | Yes | Protected process guard remains visible. |

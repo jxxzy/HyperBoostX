@@ -2,7 +2,7 @@
 
 Version: 2.10.0
 Channel: Stable
-Generated: 2026-07-01 15.05.04 +07:00
+Generated: 2026-07-02 01.59.34 +07:00
 
 This map is the v2.10.0 source of truth for WPF menu buttons. All visible v2.10 actions are classified Real; risky operations still return Safety Guard blocks when unsafe or not approved.
 
@@ -605,11 +605,11 @@ This map is the v2.10.0 source of truth for WPF menu buttons. All visible v2.10 
 | App Settings | Release Readiness | SettingsReadinessCommand | GET | /api/release/readiness | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
 | App Settings | Feature Audit Status | SettingsAuditCommand | GET | /api/feature-audit/status | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
 | App Settings | Safety Help | SettingsHelpCommand | GET | /api/kb/search?q=safety | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
-| About App | Run About App | AboutPrimaryCommand | GET | /api/version | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
-| About App | Preview About App | AboutPreviewCommand | GET | /api/health | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
-| About App | Apply Approved About App | AboutApplyCommand | GET | /api/update/check | False | False | True | True | tests/test_ui_action_map_v210.py | Real |
-| About App | Restore About App | AboutRestoreCommand | GET | /api/update/latest | False | False | True | True | tests/test_ui_action_map_v210.py | Real |
-| About App | Export About App | AboutExportCommand | GET | /api/release/readiness | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
+| About App | Open Version Info | AboutPrimaryCommand | GET | /api/version | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
+| About App | Check Backend Health | AboutPreviewCommand | GET | /api/health | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
+| About App | Check for Updates | AboutApplyCommand | GET | /api/update/check | False | False | True | True | tests/test_ui_action_map_v210.py | Real |
+| About App | Open Latest Release | AboutRestoreCommand | GET | /api/update/latest | False | False | True | True | tests/test_ui_action_map_v210.py | Real |
+| About App | Open Release Readiness | AboutExportCommand | GET | /api/release/readiness | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
 | About App | Refresh Backend | AboutRefreshCommand | GET | /api/health | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
 | Default Fallback | Run Default Fallback | DefaultPrimaryCommand | GET | /api/health | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
 | Default Fallback | Preview Default Fallback | DefaultPreviewCommand | GET | /api/release/readiness | False | False | True | False | tests/test_ui_action_map_v210.py | Real |

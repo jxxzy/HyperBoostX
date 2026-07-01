@@ -1,10 +1,168 @@
 <UserControl x:Class="HyperBoostX.Views.AboutView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="clr-namespace:HyperBoostX.ViewModels"
-             xmlns:views="clr-namespace:HyperBoostX.Views">
+             xmlns:vm="clr-namespace:HyperBoostX.ViewModels">
     <UserControl.DataContext>
         <vm:AboutViewModel/>
     </UserControl.DataContext>
-    <views:PlacementPageChrome/>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="0,0,18,28">
+            <Border Style="{StaticResource CyberHeroCardStyle}" Margin="0,0,0,18">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Product Summary" FontSize="13" FontWeight="Bold" Foreground="{StaticResource Brush.Accent.Primary}" Margin="0,0,0,4"/>
+                        <TextBlock Text="About HyperBoostX" FontSize="34" FontWeight="Black"/>
+                        <TextBlock Text="Safe AI Windows Gaming Optimizer, local-first and restore-aware." FontSize="14" Foreground="{StaticResource Brush.Accent.Primary}" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="HyperBoostX is a Windows desktop control center for safe local diagnostics, gaming readiness, preview-first optimization, reports, and restore visibility." Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,12,0,0" TextWrapping="Wrap" MaxWidth="920"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Width="250" Margin="22,0,0,0">
+                        <Border Style="{StaticResource SuccessBadgeStyle}" Margin="0,0,0,10">
+                            <TextBlock Text="Safety Guard Active" Foreground="{StaticResource Brush.Status.Success}"/>
+                        </Border>
+                        <Border Style="{StaticResource WarningBadgeStyle}">
+                            <TextBlock Text="Stable Unsigned" Foreground="{StaticResource Brush.Status.Warning}"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <UniformGrid Columns="2" Margin="0,0,0,18">
+                <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,14,14">
+                    <StackPanel>
+                        <TextBlock Text="Release Status" FontSize="18" FontWeight="Bold"/>
+                        <TextBlock Text="Version and package facts are kept short here. Full technical details are collapsed below." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
+                        <UniformGrid Columns="2">
+                            <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="12" Margin="0,0,10,10">
+                                <StackPanel>
+                                    <TextBlock Text="Version" Foreground="{StaticResource Brush.Text.Muted}"/>
+                                    <TextBlock Text="{Binding Version}" FontSize="22" FontWeight="Black"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="12" Margin="0,0,10,10">
+                                <StackPanel>
+                                    <TextBlock Text="Channel" Foreground="{StaticResource Brush.Text.Muted}"/>
+                                    <TextBlock Text="{Binding ReleaseChannel}" FontSize="22" FontWeight="Black"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="12" Margin="0,0,10,10">
+                                <StackPanel>
+                                    <TextBlock Text="Installer" Foreground="{StaticResource Brush.Text.Muted}"/>
+                                    <TextBlock Text="{Binding InstallerStatus}" FontSize="22" FontWeight="Black"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="12" Margin="0,0,10,10">
+                                <StackPanel>
+                                    <TextBlock Text="Backend" Foreground="{StaticResource Brush.Text.Muted}"/>
+                                    <TextBlock Text="{Binding Backend}" FontSize="22" FontWeight="Black" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="12" Margin="0,0,10,10">
+                                <StackPanel>
+                                    <TextBlock Text="Build" Foreground="{StaticResource Brush.Text.Muted}"/>
+                                    <TextBlock Text="{Binding BuildHashShort}" FontSize="22" FontWeight="Black" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock Text="Safety &amp; Transparency" FontSize="18" FontWeight="Bold"/>
+                        <TextBlock Text="HyperBoostX avoids exaggerated claims and blocks risky categories by design." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
+                        <WrapPanel>
+                            <Border Style="{StaticResource WarningBadgeStyle}" Margin="0,0,8,8"><TextBlock Text="No guaranteed FPS claim" Foreground="{StaticResource Brush.Status.Warning}"/></Border>
+                            <Border Style="{StaticResource WarningBadgeStyle}" Margin="0,0,8,8"><TextBlock Text="No silent driver install" Foreground="{StaticResource Brush.Status.Warning}"/></Border>
+                            <Border Style="{StaticResource WarningBadgeStyle}" Margin="0,0,8,8"><TextBlock Text="No silent uninstall" Foreground="{StaticResource Brush.Status.Warning}"/></Border>
+                            <Border Style="{StaticResource WarningBadgeStyle}" Margin="0,0,8,8"><TextBlock Text="No Defender/Firewall disable" Foreground="{StaticResource Brush.Status.Warning}"/></Border>
+                            <Border Style="{StaticResource WarningBadgeStyle}" Margin="0,0,8,8"><TextBlock Text="No BIOS/OC/undervolt" Foreground="{StaticResource Brush.Status.Warning}"/></Border>
+                            <Border Style="{StaticResource SuccessBadgeStyle}" Margin="0,0,8,8"><TextBlock Text="Preview and confirmation required" Foreground="{StaticResource Brush.Status.Success}"/></Border>
+                            <Border Style="{StaticResource SuccessBadgeStyle}" Margin="0,0,8,8"><TextBlock Text="Telemetry off by default" Foreground="{StaticResource Brush.Status.Success}"/></Border>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,14,14">
+                    <StackPanel>
+                        <TextBlock Text="Key Features" FontSize="18" FontWeight="Bold"/>
+                        <UniformGrid Columns="2" Margin="0,12,0,0">
+                            <TextBlock Text="- Dashboard &amp; system monitoring" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,0,8,7"/>
+                            <TextBlock Text="- One Click Boost" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,0,8,7"/>
+                            <TextBlock Text="- Performance optimizer" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,0,8,7"/>
+                            <TextBlock Text="- Startup Manager" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,0,8,7"/>
+                            <TextBlock Text="- Background Apps" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,0,8,7"/>
+                            <TextBlock Text="- Cleanup &amp; Storage" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,0,8,7"/>
+                            <TextBlock Text="- GPU Center" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,0,8,7"/>
+                            <TextBlock Text="- Gaming Mode" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,0,8,7"/>
+                            <TextBlock Text="- Gaming Booster" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,0,8,7"/>
+                            <TextBlock Text="- Streaming Center" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,0,8,7"/>
+                            <TextBlock Text="- Creator Mode" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,0,8,7"/>
+                            <TextBlock Text="- Network Booster" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,0,8,7"/>
+                            <TextBlock Text="- DNS &amp; Latency Tools" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,0,8,7"/>
+                            <TextBlock Text="- Privacy Center" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,0,8,7"/>
+                            <TextBlock Text="- Security &amp; Health" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,0,8,7"/>
+                            <TextBlock Text="- Restore &amp; Backup" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,0,8,7"/>
+                        </UniformGrid>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock Text="Architecture" FontSize="18" FontWeight="Bold"/>
+                        <TextBlock Text="Desktop UI, launcher, and local backend stay on the owner's PC." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
+                        <WrapPanel>
+                            <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,8,8"><TextBlock Text="WPF Desktop UI" Foreground="{StaticResource Brush.Text.Secondary}"/></Border>
+                            <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,8,8"><TextBlock Text="Python local backend" Foreground="{StaticResource Brush.Text.Secondary}"/></Border>
+                            <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,8,8"><TextBlock Text=".NET launcher/runtime" Foreground="{StaticResource Brush.Text.Secondary}"/></Border>
+                            <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,8,8"><TextBlock Text="Local API only" Foreground="{StaticResource Brush.Text.Secondary}"/></Border>
+                            <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,8,8"><TextBlock Text="Session-token protected" Foreground="{StaticResource Brush.Text.Secondary}"/></Border>
+                            <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,8,8"><TextBlock Text="Safety Guard approval" Foreground="{StaticResource Brush.Text.Secondary}"/></Border>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <Grid Margin="0,0,0,18">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,14,0">
+                    <StackPanel>
+                        <TextBlock Text="Developer / Author" FontSize="18" FontWeight="Bold"/>
+                        <TextBlock Text="MR.4NONY / HyperIndo Cyber Team" FontSize="20" FontWeight="Black" Margin="0,10,0,4"/>
+                        <TextBlock Text="Publisher identity, docs, release notes, and support links stay visible so users can verify what they are running." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource CyberCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Release &amp; Support Actions" FontSize="18" FontWeight="Bold"/>
+                        <WrapPanel Margin="0,12,0,0">
+                            <Button Content="Open GitHub Release" Click="OpenRelease_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                            <Button Content="Open Repository" Click="OpenRepository_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                            <Button Content="Open Documentation" Click="OpenDocumentation_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                            <Button Content="Copy Version Info" Click="CopyVersionInfo_Click" Style="{StaticResource CyberButtonStyle}" Margin="0,0,10,10"/>
+                            <Button Content="Report Issue" Click="ReportIssue_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                            <Button Content="Export App Info" Click="ExportAppInfo_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Style="{StaticResource CyberCardStyle}">
+                <Expander Header="Technical Details" Foreground="{StaticResource Brush.Text.Primary}" IsExpanded="False">
+                    <StackPanel Margin="0,12,0,0">
+                        <TextBlock Text="{Binding BuildHashFull, StringFormat=Build hash: {0}}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" FontFamily="Consolas"/>
+                        <TextBlock Text="Local API status, package SHA256, install path, config path, and raw diagnostics belong in reports/gates, not the first-view About page." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Expander>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

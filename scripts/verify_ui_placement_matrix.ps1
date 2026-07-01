@@ -27,7 +27,7 @@ if (Test-Path -LiteralPath $auditPath) {
 
 if (Test-Path -LiteralPath $matrixPath) {
     $matrix = Get-Content -LiteralPath $matrixPath -Raw
-    foreach ($token in @("v1.3 Panel", "Beginner Baseline", "Expert Boundary", "Plugin Marketplace", "RGB Software Detector")) {
+    foreach ($token in @("Historical Panel", "Beginner Baseline", "Expert Boundary", "Plugin Marketplace", "RGB Software Detector", "Final Placement")) {
         if ($matrix -notmatch [regex]::Escape($token)) {
             $failures.Add("Placement matrix missing token: $token")
         }
@@ -36,7 +36,7 @@ if (Test-Path -LiteralPath $matrixPath) {
 
 if (Test-Path -LiteralPath $placementXamlPath) {
     $placementXaml = Get-Content -LiteralPath $placementXamlPath -Raw
-    foreach ($token in @("Current State", "Primary Actions", "Result &amp; History", "Advanced Details", "Restore &amp; Safety")) {
+    foreach ($token in @("StateTitle", "WorkspaceTitle", "ActionTitle", "SecondaryActionTitle", "ResultTitle", "SafetyTitle", "RecommendationsTitle", "PlacementSections", "Technical Details")) {
         if ($placementXaml -notmatch [regex]::Escape($token)) {
             $failures.Add("Placement shell missing section: $token")
         }

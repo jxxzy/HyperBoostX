@@ -32,7 +32,7 @@ foreach ($match in $legacyRouteMatches) {
 }
 
 if ($navKeys.Count -lt 50) {
-    Add-Failure "Sidebar has fewer than 50 expected v1.3 parity entries. Found $($navKeys.Count)."
+    Add-Failure "Sidebar has fewer than 50 expected source inventory entries. Found $($navKeys.Count)."
 }
 
 foreach ($key in $navKeys) {
@@ -84,9 +84,15 @@ foreach ($quick in @('QuickSmartScan_Click','QuickSafeBoost_Click','QuickRestore
     }
 }
 
-foreach ($setting in @('Enable Animations','Reduce Motion','Accent Color','Beginner','Advanced','Expert Preview')) {
+foreach ($setting in @('Enable animations','Reduce motion','Accent Color','Beginner','Advanced','Expert','General','Appearance','Safety Guard','Backend &amp; Local Engine','Privacy &amp; Local Data','Reports &amp; History','Updates','Reset Settings','Export Settings','Import Settings')) {
     if ($settingsXaml -notmatch [regex]::Escape($setting)) {
         Add-Failure "Settings UI missing expected control/text: $setting"
+    }
+}
+
+foreach ($sidebarToken in @('Search tools','No tools found')) {
+    if ($mainXaml -notmatch [regex]::Escape($sidebarToken)) {
+        Add-Failure "Sidebar search UX missing expected text: $sidebarToken"
     }
 }
 

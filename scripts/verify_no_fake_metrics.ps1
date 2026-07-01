@@ -15,7 +15,10 @@ $forbiddenDashboardPatterns = @(
     '<Polyline\b',
     'Live-style',
     'Points="0,110',
-    'fake live charts'
+    'fake live charts',
+    'CyberRingContainerStyle',
+    'No live measurement',
+    'Feature Audit'
 )
 
 foreach ($pattern in $forbiddenDashboardPatterns) {
@@ -26,6 +29,12 @@ foreach ($pattern in $forbiddenDashboardPatterns) {
 
 if ($dashboardVm -match 'Value\s*=\s*"Beta"' -or $dashboardVm -match 'Glyph\s*=\s*"BETA"') {
     $failures.Add("Dashboard release metric still reports Beta.")
+}
+
+foreach ($fakeValue in @('Value\s*=\s*"Scan"', 'Value\s*=\s*"Guard"')) {
+    if ($dashboardVm -match $fakeValue) {
+        $failures.Add("Dashboard score cards still use synthetic value pattern: $fakeValue")
+    }
 }
 
 $heroBlock = [regex]::Match($dashboardXaml, '<Border Style="\{StaticResource CyberHeroCardStyle\}".*?</Border>', [System.Text.RegularExpressions.RegexOptions]::Singleline)

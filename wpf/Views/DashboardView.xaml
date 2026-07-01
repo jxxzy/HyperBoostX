@@ -17,11 +17,11 @@
                     <StackPanel>
                         <TextBlock Text="HyperBoostX" FontSize="36" FontWeight="Black" Foreground="{StaticResource Brush.Text.Primary}"/>
                         <TextBlock Text="Safe AI Windows Gaming Optimizer" FontSize="17" Foreground="{StaticResource Brush.Accent.Primary}" Margin="0,4,0,0"/>
-                        <TextBlock Text="Scan your PC, detect bottlenecks, apply safe gaming profiles, compare before/after, and undo anytime." Foreground="{StaticResource Brush.Text.Secondary}" FontSize="13" Margin="0,10,0,18" TextWrapping="Wrap" MaxWidth="760"/>
+                        <TextBlock Text="Local-first scan, safe plan, report, and restore. HyperBoostX shows live evidence separately from Smart Scan recommendations." Foreground="{StaticResource Brush.Text.Secondary}" FontSize="13" Margin="0,10,0,18" TextWrapping="Wrap" MaxWidth="760"/>
                         <WrapPanel>
                             <Button x:Name="StartSmartScanButton" Content="Start Smart Scan" Click="StartSmartScan_Click" Style="{StaticResource CyberButtonStyle}" Margin="0,0,10,10"/>
                             <Button x:Name="OneClickSafeBoostButton" Content="One Click Safe Boost" Click="OneClickSafeBoost_Click" Style="{StaticResource CyberButtonStyle}" Margin="0,0,10,10"/>
-                            <Button x:Name="RestoreChangesButton" Content="Restore Changes" Click="RestoreChanges_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                            <Button x:Name="RestoreChangesButton" Content="Restore / Undo" Click="RestoreChanges_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
                         </WrapPanel>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Width="230" Margin="22,0,0,0">
@@ -43,22 +43,36 @@
 
             <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,0,18">
                 <StackPanel>
-                    <TextBlock Text="Supporting Tools" FontSize="17" FontWeight="Bold"/>
-                    <TextBlock Text="Secondary actions stay out of the hero so the first screen remains readable." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
-                    <WrapPanel>
-                        <Button x:Name="AutoGamingModeButton" Content="Auto Gaming Mode" Click="AutoGamingMode_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
-                        <Button x:Name="ViewLastReportButton" Content="View Last Report" Click="ViewLastReport_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
-                        <Button x:Name="RefreshStatusButton" Content="Refresh Status" Click="RefreshStatus_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
-                        <Button x:Name="OpenBoostPlanButton" Content="Open Boost Plan" Click="OpenBoostPlan_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
-                        <Button x:Name="ExportDashboardReportButton" Content="Export Report" Click="ExportDashboardReport_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
-                        <Button x:Name="OpenSettingsButton" Content="Settings" Click="OpenSettings_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
-                        <Button x:Name="ViewPerformanceHistoryButton" Content="History" Click="ViewPerformanceHistory_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
-                        <Button x:Name="RunFeatureAuditButton" Content="Feature Audit" Click="RunFeatureAudit_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
-                    </WrapPanel>
+                    <TextBlock Text="Live Hardware Snapshot" FontSize="17" FontWeight="Bold"/>
+                    <TextBlock Text="Live backend metrics can be available before Smart Scan. Recommendations and before/after analysis still require Smart Scan." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
+                    <ItemsControl ItemsSource="{Binding SystemMetrics}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="5"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="14" Margin="0,0,12,12">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Glyph}" Foreground="{StaticResource Brush.Accent.Primary}" FontWeight="Bold" FontSize="11"/>
+                                        <TextBlock Text="{Binding Title}" Foreground="{StaticResource Brush.Text.Muted}" Margin="0,8,0,2"/>
+                                        <TextBlock Text="{Binding Value}" FontSize="22" FontWeight="Black" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding Detail}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" MinHeight="38"/>
+                                        <ProgressBar Value="{Binding Score}" Maximum="100" Style="{StaticResource CyberProgressBarStyle}" Margin="0,12,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </Border>
 
-            <ItemsControl ItemsSource="{Binding Scores}" Margin="0,0,0,18">
+            <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,0,18">
+                <StackPanel>
+                    <TextBlock Text="Smart Scan Results" FontSize="17" FontWeight="Bold"/>
+                    <TextBlock Text="Smart Scan has not run yet. Live hardware snapshot is available, but recommendations and before/after analysis require Smart Scan." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
+            <ItemsControl ItemsSource="{Binding Scores}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <UniformGrid Columns="3"/>
@@ -66,36 +80,19 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,14,0">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
+                        <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="14" Margin="0,0,14,14">
+                            <StackPanel>
                                 <TextBlock Text="{Binding Title}" Foreground="{StaticResource Brush.Text.Secondary}" FontWeight="SemiBold"/>
-                                <Grid Grid.Row="1" Margin="0,16,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid Style="{StaticResource CyberRingContainerStyle}">
-                                        <Ellipse Stroke="#2A1749" StrokeThickness="10"/>
-                                        <Ellipse Stroke="{StaticResource Brush.Gradient.Cyber}" StrokeThickness="10" StrokeDashArray="4 2" Effect="{StaticResource Shadow.Glow}"/>
-                                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Value}" FontSize="24" FontWeight="Black" HorizontalAlignment="Center" Foreground="{StaticResource Brush.Accent.Primary}"/>
-                                            <TextBlock Text="/100" FontSize="10" HorizontalAlignment="Center" Foreground="{StaticResource Brush.Text.Muted}"/>
-                                        </StackPanel>
-                                    </Grid>
-                                    <StackPanel Grid.Column="1" Margin="16,14,0,0">
-                                        <TextBlock Text="{Binding Detail}" Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap"/>
-                                        <ProgressBar Value="{Binding Score}" Maximum="100" Style="{StaticResource CyberProgressBarStyle}" Margin="0,16,0,0"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Grid>
+                                <TextBlock Text="{Binding Value}" FontSize="24" FontWeight="Black" Margin="0,10,0,4"/>
+                                <TextBlock Text="{Binding Detail}" Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap"/>
+                                <ProgressBar Value="{Binding Score}" Maximum="100" Style="{StaticResource CyberProgressBarStyle}" Margin="0,14,0,0"/>
+                            </StackPanel>
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+                </StackPanel>
+            </Border>
 
             <Grid Margin="0,0,0,18">
                 <Grid.ColumnDefinitions>
@@ -104,8 +101,8 @@
                 </Grid.ColumnDefinitions>
                 <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,14,0" MinHeight="260">
                     <StackPanel>
-                        <TextBlock Text="Measurement Workspace" FontSize="16" FontWeight="Bold"/>
-                        <TextBlock Text="Run Smart Scan to collect real local CPU, RAM, GPU, storage, and network evidence. HyperBoostX does not draw synthetic charts before data exists." Foreground="{StaticResource Brush.Text.Muted}" Margin="0,3,0,18" TextWrapping="Wrap"/>
+                        <TextBlock Text="Recommendations Preview" FontSize="16" FontWeight="Bold"/>
+                        <TextBlock Text="Run Smart Scan to collect local pressure evidence and produce a safe plan. No synthetic chart or guaranteed FPS claim is shown before scan data exists." Foreground="{StaticResource Brush.Text.Muted}" Margin="0,3,0,18" TextWrapping="Wrap"/>
                         <Border Background="#0B1220" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="18" MinHeight="150">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -113,8 +110,8 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
-                                    <TextBlock Text="No live measurement yet" FontSize="18" FontWeight="Bold"/>
-                                    <TextBlock Text="Start a scan to populate the report, recommendation, and before/after history panels." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,7,0,0"/>
+                                    <TextBlock Text="Smart Scan not run yet" FontSize="18" FontWeight="Bold"/>
+                                    <TextBlock Text="Live hardware snapshot is separate. Start Smart Scan to populate recommendations, report, and before/after history." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,7,0,0"/>
                                 </StackPanel>
                                 <WrapPanel Grid.Column="1" VerticalAlignment="Center" Margin="18,0,0,0">
                                     <Button Content="Start Smart Scan" Click="StartSmartScan_Click" Style="{StaticResource CyberButtonStyle}" Margin="0,0,10,0"/>
@@ -138,26 +135,21 @@
                 </Border>
             </Grid>
 
-            <ItemsControl ItemsSource="{Binding SystemMetrics}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid Columns="4"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,14,0">
-                            <StackPanel>
-                                <TextBlock Text="{Binding Glyph}" Foreground="{StaticResource Brush.Accent.Primary}" FontWeight="Bold"/>
-                                <TextBlock Text="{Binding Title}" Foreground="{StaticResource Brush.Text.Muted}" Margin="0,10,0,2"/>
-                                <TextBlock Text="{Binding Value}" FontSize="28" FontWeight="Black"/>
-                                <TextBlock Text="{Binding Detail}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap"/>
-                                <ProgressBar Value="{Binding Score}" Maximum="100" Style="{StaticResource CyberProgressBarStyle}" Margin="0,14,0,0"/>
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <Border Style="{StaticResource CyberCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Activity &amp; Shortcuts" FontSize="17" FontWeight="Bold"/>
+                    <TextBlock Text="User-facing shortcuts stay separate from release and audit tools. Expert mode keeps developer gates elsewhere." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
+                    <WrapPanel>
+                        <Button x:Name="AutoGamingModeButton" Content="Gaming Mode" Click="AutoGamingMode_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                        <Button x:Name="ViewLastReportButton" Content="View Last Report" Click="ViewLastReport_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                        <Button x:Name="RefreshStatusButton" Content="Refresh Snapshot" Click="RefreshStatus_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                        <Button x:Name="OpenBoostPlanButton" Content="Open Boost Plan" Click="OpenBoostPlan_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                        <Button x:Name="ExportDashboardReportButton" Content="Export Report" Click="ExportDashboardReport_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                        <Button x:Name="OpenSettingsButton" Content="Settings" Click="OpenSettings_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                        <Button x:Name="ViewPerformanceHistoryButton" Content="History" Click="ViewPerformanceHistory_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10"/>
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

@@ -1,5 +1,5 @@
-{
-    "generated_at":  "2026-07-01T17:11:07.1943256Z",
+﻿{
+    "generated_at":  "2026-07-01T19:21:40.9677594Z",
     "expected_version":  "2.10.0",
     "is_admin":  true,
     "launch_installed_app":  true,
@@ -12,9 +12,9 @@
                              "DisplayName":  "HyperBoostX",
                              "DisplayVersion":  "2.10.0",
                              "Publisher":  "HyperBoostX / jxxzy",
-                             "InstallLocation":  "<INSTALL_DIR>",
-                             "UninstallString":  "\"<INSTALL_DIR>\\Uninstall.exe\"",
-                             "QuietUninstallString":  "\"<INSTALL_DIR>\\Uninstall.exe\" /S",
+                             "InstallLocation":  "C:\\Program Files\\HyperBoostX",
+                             "UninstallString":  "\"C:\\Program Files\\HyperBoostX\\Uninstall.exe\"",
+                             "QuietUninstallString":  "\"C:\\Program Files\\HyperBoostX\\Uninstall.exe\" /S",
                              "InstallDate":  null,
                              "EstimatedSize":  null
                          },
@@ -24,20 +24,20 @@
                              "DisplayName":  "HyperBoostX",
                              "DisplayVersion":  "2.10.0",
                              "Publisher":  "HyperBoostX / jxxzy",
-                             "InstallLocation":  "<INSTALL_DIR>",
-                             "UninstallString":  "\"<INSTALL_DIR>\\Uninstall.exe\"",
-                             "QuietUninstallString":  "\"<INSTALL_DIR>\\Uninstall.exe\" /S",
+                             "InstallLocation":  "C:\\Program Files\\HyperBoostX",
+                             "UninstallString":  "\"C:\\Program Files\\HyperBoostX\\Uninstall.exe\"",
+                             "QuietUninstallString":  "\"C:\\Program Files\\HyperBoostX\\Uninstall.exe\" /S",
                              "InstallDate":  null,
                              "EstimatedSize":  null
                          },
-    "install_location":  "<INSTALL_DIR>",
-    "launcher_path":  "<INSTALL_DIR>\\HyperBoostX.exe",
-    "wpf_path":  "<INSTALL_DIR>\\runtime\\wpf\\HyperBoostX.exe",
-    "backend_path":  "<INSTALL_DIR>\\runtime\\backend\\hyperboost_backend.exe",
-    "installed_action_map_path":  "<INSTALL_DIR>\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+    "install_location":  "C:\\Program Files\\HyperBoostX",
+    "launcher_path":  "C:\\Program Files\\HyperBoostX\\HyperBoostX.exe",
+    "wpf_path":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\HyperBoostX.exe",
+    "backend_path":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe",
+    "installed_action_map_path":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
     "desktop_shortcuts":  [
                               {
-                                  "path":  "<USER_DESKTOP>\\HyperBoostX.lnk",
+                                  "path":  "C:\\Users\\jxxzy\\OneDrive\\Desktop\\HyperBoostX.lnk",
                                   "exists":  false,
                                   "target":  null,
                                   "working_directory":  null,
@@ -45,7 +45,7 @@
                                   "error":  null
                               },
                               {
-                                  "path":  "<PUBLIC_DESKTOP>\\HyperBoostX.lnk",
+                                  "path":  "C:\\Users\\Public\\Desktop\\HyperBoostX.lnk",
                                   "exists":  true,
                                   "target":  "exists; target resolution skipped to avoid COM shell hangs",
                                   "working_directory":  null,
@@ -54,7 +54,7 @@
                               }
                           ],
     "start_menu_shortcut":  {
-                                "path":  "<START_MENU>\\Programs\\HyperBoostX\\HyperBoostX.lnk",
+                                "path":  "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\HyperBoostX\\HyperBoostX.lnk",
                                 "exists":  true,
                                 "target":  "exists; target resolution skipped to avoid COM shell hangs",
                                 "working_directory":  null,
@@ -62,7 +62,7 @@
                                 "error":  null
                             },
     "launch_process":  {
-                           "id":  13012,
+                           "id":  13884,
                            "has_exited":  true
                        },
     "launch_error":  null,
@@ -77,7 +77,7 @@
                                                 "backend_mode":  "stable",
                                                 "feature_registry_status":  {
                                                                                 "action_map_found":  true,
-                                                                                "action_map_source":  "<INSTALL_DIR>\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                                "action_map_source":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
                                                                                 "errors":  [
 
                                                                                            ],
@@ -158,19 +158,19 @@
                                                       "require_real_features":  true,
                                                       "show_experimental":  false
                                                   },
-                                       "source":  "<INSTALL_DIR>\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+                                       "source":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
                                        "source_candidates":  [
-                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "<INSTALL_DIR>\\runtime\\backend\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "<INSTALL_DIR>\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "<INSTALL_DIR>\\runtime\\backend\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "<INSTALL_DIR>\\runtime\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\_MEI259242\\services\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\_MEI259242\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\_MEI259242\\services\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\_MEI259242\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Users\\<USER>\\AppData\\Local\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
+                                                                 "C:\\Users\\jxxzy\\AppData\\Local\\Temp\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Program Files\\HyperBoostX\\runtime\\backend\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Program Files\\HyperBoostX\\runtime\\backend\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Program Files\\HyperBoostX\\runtime\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Users\\jxxzy\\AppData\\Local\\Temp\\_MEI278722\\services\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Users\\jxxzy\\AppData\\Local\\Temp\\_MEI278722\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Users\\jxxzy\\AppData\\Local\\Temp\\_MEI278722\\services\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Users\\jxxzy\\AppData\\Local\\Temp\\_MEI278722\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Users\\jxxzy\\AppData\\Local\\Temp\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Users\\jxxzy\\AppData\\Local\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
                                                              ],
                                        "source_found":  true,
                                        "stable_visible":  [
@@ -15251,7 +15251,7 @@
                                                                                       "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
                                                                                       "id":  "About.primary.1",
                                                                                       "is_destructive":  false,
-                                                                                      "label":  "Run About App",
+                                                                                      "label":  "Open Version Info",
                                                                                       "loading_state":  "Button disables while GET /api/version is running",
                                                                                       "menu_key":  "About",
                                                                                       "method":  "GET",
@@ -15267,7 +15267,7 @@
                                                                                       "status":  "Real",
                                                                                       "success_state":  "Live Result panel shows returned JSON and updates page status",
                                                                                       "test_coverage":  "tests/test_ui_action_map_v210.py",
-                                                                                      "tooltip":  "Run About App -\u003e GET /api/version"
+                                                                                      "tooltip":  "Open Version Info -\u003e GET /api/version"
                                                                                   },
                                                                                   {
                                                                                       "command":  "AboutPreviewCommand",
@@ -15275,7 +15275,7 @@
                                                                                       "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
                                                                                       "id":  "About.preview.2",
                                                                                       "is_destructive":  false,
-                                                                                      "label":  "Preview About App",
+                                                                                      "label":  "Check Backend Health",
                                                                                       "loading_state":  "Button disables while GET /api/health is running",
                                                                                       "menu_key":  "About",
                                                                                       "method":  "GET",
@@ -15291,7 +15291,7 @@
                                                                                       "status":  "Real",
                                                                                       "success_state":  "Live Result panel shows returned JSON and updates page status",
                                                                                       "test_coverage":  "tests/test_ui_action_map_v210.py",
-                                                                                      "tooltip":  "Preview About App -\u003e GET /api/health"
+                                                                                      "tooltip":  "Check Backend Health -\u003e GET /api/health"
                                                                                   },
                                                                                   {
                                                                                       "command":  "AboutApplyCommand",
@@ -15299,7 +15299,7 @@
                                                                                       "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
                                                                                       "id":  "About.apply.3",
                                                                                       "is_destructive":  false,
-                                                                                      "label":  "Apply Approved About App",
+                                                                                      "label":  "Check for Updates",
                                                                                       "loading_state":  "Button disables while GET /api/update/check is running",
                                                                                       "menu_key":  "About",
                                                                                       "method":  "GET",
@@ -15315,7 +15315,7 @@
                                                                                       "status":  "Real",
                                                                                       "success_state":  "Live Result panel shows returned JSON and updates page status",
                                                                                       "test_coverage":  "tests/test_ui_action_map_v210.py",
-                                                                                      "tooltip":  "Apply Approved About App -\u003e GET /api/update/check"
+                                                                                      "tooltip":  "Check for Updates -\u003e GET /api/update/check"
                                                                                   },
                                                                                   {
                                                                                       "command":  "AboutRestoreCommand",
@@ -15323,7 +15323,7 @@
                                                                                       "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
                                                                                       "id":  "About.restore.4",
                                                                                       "is_destructive":  false,
-                                                                                      "label":  "Restore About App",
+                                                                                      "label":  "Open Latest Release",
                                                                                       "loading_state":  "Button disables while GET /api/update/latest is running",
                                                                                       "menu_key":  "About",
                                                                                       "method":  "GET",
@@ -15339,7 +15339,7 @@
                                                                                       "status":  "Real",
                                                                                       "success_state":  "Live Result panel shows returned JSON and updates page status",
                                                                                       "test_coverage":  "tests/test_ui_action_map_v210.py",
-                                                                                      "tooltip":  "Restore About App -\u003e GET /api/update/latest"
+                                                                                      "tooltip":  "Open Latest Release -\u003e GET /api/update/latest"
                                                                                   },
                                                                                   {
                                                                                       "command":  "AboutExportCommand",
@@ -15347,7 +15347,7 @@
                                                                                       "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
                                                                                       "id":  "About.export.5",
                                                                                       "is_destructive":  false,
-                                                                                      "label":  "Export About App",
+                                                                                      "label":  "Open Release Readiness",
                                                                                       "loading_state":  "Button disables while GET /api/release/readiness is running",
                                                                                       "menu_key":  "About",
                                                                                       "method":  "GET",
@@ -15363,7 +15363,7 @@
                                                                                       "status":  "Real",
                                                                                       "success_state":  "Live Result panel shows returned JSON and updates page status",
                                                                                       "test_coverage":  "tests/test_ui_action_map_v210.py",
-                                                                                      "tooltip":  "Export About App -\u003e GET /api/release/readiness"
+                                                                                      "tooltip":  "Open Release Readiness -\u003e GET /api/release/readiness"
                                                                                   },
                                                                                   {
                                                                                       "command":  "AboutRefreshCommand",
@@ -30649,7 +30649,7 @@
                                                                                       "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
                                                                                       "id":  "About.primary.1",
                                                                                       "is_destructive":  false,
-                                                                                      "label":  "Run About App",
+                                                                                      "label":  "Open Version Info",
                                                                                       "loading_state":  "Button disables while GET /api/version is running",
                                                                                       "menu_key":  "About",
                                                                                       "method":  "GET",
@@ -30665,7 +30665,7 @@
                                                                                       "status":  "Real",
                                                                                       "success_state":  "Live Result panel shows returned JSON and updates page status",
                                                                                       "test_coverage":  "tests/test_ui_action_map_v210.py",
-                                                                                      "tooltip":  "Run About App -\u003e GET /api/version"
+                                                                                      "tooltip":  "Open Version Info -\u003e GET /api/version"
                                                                                   },
                                                                                   {
                                                                                       "command":  "AboutPreviewCommand",
@@ -30673,7 +30673,7 @@
                                                                                       "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
                                                                                       "id":  "About.preview.2",
                                                                                       "is_destructive":  false,
-                                                                                      "label":  "Preview About App",
+                                                                                      "label":  "Check Backend Health",
                                                                                       "loading_state":  "Button disables while GET /api/health is running",
                                                                                       "menu_key":  "About",
                                                                                       "method":  "GET",
@@ -30689,7 +30689,7 @@
                                                                                       "status":  "Real",
                                                                                       "success_state":  "Live Result panel shows returned JSON and updates page status",
                                                                                       "test_coverage":  "tests/test_ui_action_map_v210.py",
-                                                                                      "tooltip":  "Preview About App -\u003e GET /api/health"
+                                                                                      "tooltip":  "Check Backend Health -\u003e GET /api/health"
                                                                                   },
                                                                                   {
                                                                                       "command":  "AboutApplyCommand",
@@ -30697,7 +30697,7 @@
                                                                                       "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
                                                                                       "id":  "About.apply.3",
                                                                                       "is_destructive":  false,
-                                                                                      "label":  "Apply Approved About App",
+                                                                                      "label":  "Check for Updates",
                                                                                       "loading_state":  "Button disables while GET /api/update/check is running",
                                                                                       "menu_key":  "About",
                                                                                       "method":  "GET",
@@ -30713,7 +30713,7 @@
                                                                                       "status":  "Real",
                                                                                       "success_state":  "Live Result panel shows returned JSON and updates page status",
                                                                                       "test_coverage":  "tests/test_ui_action_map_v210.py",
-                                                                                      "tooltip":  "Apply Approved About App -\u003e GET /api/update/check"
+                                                                                      "tooltip":  "Check for Updates -\u003e GET /api/update/check"
                                                                                   },
                                                                                   {
                                                                                       "command":  "AboutRestoreCommand",
@@ -30721,7 +30721,7 @@
                                                                                       "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
                                                                                       "id":  "About.restore.4",
                                                                                       "is_destructive":  false,
-                                                                                      "label":  "Restore About App",
+                                                                                      "label":  "Open Latest Release",
                                                                                       "loading_state":  "Button disables while GET /api/update/latest is running",
                                                                                       "menu_key":  "About",
                                                                                       "method":  "GET",
@@ -30737,7 +30737,7 @@
                                                                                       "status":  "Real",
                                                                                       "success_state":  "Live Result panel shows returned JSON and updates page status",
                                                                                       "test_coverage":  "tests/test_ui_action_map_v210.py",
-                                                                                      "tooltip":  "Restore About App -\u003e GET /api/update/latest"
+                                                                                      "tooltip":  "Open Latest Release -\u003e GET /api/update/latest"
                                                                                   },
                                                                                   {
                                                                                       "command":  "AboutExportCommand",
@@ -30745,7 +30745,7 @@
                                                                                       "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
                                                                                       "id":  "About.export.5",
                                                                                       "is_destructive":  false,
-                                                                                      "label":  "Export About App",
+                                                                                      "label":  "Open Release Readiness",
                                                                                       "loading_state":  "Button disables while GET /api/release/readiness is running",
                                                                                       "menu_key":  "About",
                                                                                       "method":  "GET",
@@ -30761,7 +30761,7 @@
                                                                                       "status":  "Real",
                                                                                       "success_state":  "Live Result panel shows returned JSON and updates page status",
                                                                                       "test_coverage":  "tests/test_ui_action_map_v210.py",
-                                                                                      "tooltip":  "Export About App -\u003e GET /api/release/readiness"
+                                                                                      "tooltip":  "Open Release Readiness -\u003e GET /api/release/readiness"
                                                                                   },
                                                                                   {
                                                                                       "command":  "AboutRefreshCommand",
@@ -30981,52 +30981,52 @@
     "processes_before_stop":  [
                                   {
                                       "name":  "HyperBoostX",
-                                      "id":  13012,
-                                      "path":  "<INSTALL_DIR>\\HyperBoostX.exe",
+                                      "id":  12256,
+                                      "path":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\HyperBoostX.exe",
                                       "from_install":  true
                                   },
                                   {
                                       "name":  "HyperBoostX",
-                                      "id":  16924,
-                                      "path":  "<INSTALL_DIR>\\runtime\\wpf\\HyperBoostX.exe",
+                                      "id":  13884,
+                                      "path":  "C:\\Program Files\\HyperBoostX\\HyperBoostX.exe",
                                       "from_install":  true
                                   },
                                   {
                                       "name":  "hyperboost_backend",
-                                      "id":  6548,
-                                      "path":  "<INSTALL_DIR>\\runtime\\backend\\hyperboost_backend.exe",
+                                      "id":  16884,
+                                      "path":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe",
                                       "from_install":  true
                                   },
                                   {
                                       "name":  "hyperboost_backend",
-                                      "id":  25924,
-                                      "path":  "<INSTALL_DIR>\\runtime\\backend\\hyperboost_backend.exe",
+                                      "id":  27872,
+                                      "path":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe",
                                       "from_install":  true
                                   }
                               ],
     "stopped_processes":  [
                               {
                                   "name":  "HyperBoostX",
-                                  "id":  13012,
-                                  "path":  "<INSTALL_DIR>\\HyperBoostX.exe",
+                                  "id":  12256,
+                                  "path":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\HyperBoostX.exe",
                                   "from_install":  true
                               },
                               {
                                   "name":  "HyperBoostX",
-                                  "id":  16924,
-                                  "path":  "<INSTALL_DIR>\\runtime\\wpf\\HyperBoostX.exe",
+                                  "id":  13884,
+                                  "path":  "C:\\Program Files\\HyperBoostX\\HyperBoostX.exe",
                                   "from_install":  true
                               },
                               {
                                   "name":  "hyperboost_backend",
-                                  "id":  6548,
-                                  "path":  "<INSTALL_DIR>\\runtime\\backend\\hyperboost_backend.exe",
+                                  "id":  16884,
+                                  "path":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe",
                                   "from_install":  true
                               },
                               {
                                   "name":  "hyperboost_backend",
-                                  "id":  25924,
-                                  "path":  "<INSTALL_DIR>\\runtime\\backend\\hyperboost_backend.exe",
+                                  "id":  27872,
+                                  "path":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe",
                                   "from_install":  true
                               }
                           ],
@@ -31040,7 +31040,7 @@
                    {
                        "name":  "registry installed",
                        "ok":  true,
-                       "evidence":  "<INSTALL_DIR>"
+                       "evidence":  "C:\\Program Files\\HyperBoostX"
                    },
                    {
                        "name":  "DisplayVersion matches source",
@@ -31050,27 +31050,27 @@
                    {
                        "name":  "launcher exists",
                        "ok":  true,
-                       "evidence":  "<INSTALL_DIR>\\HyperBoostX.exe"
+                       "evidence":  "C:\\Program Files\\HyperBoostX\\HyperBoostX.exe"
                    },
                    {
                        "name":  "WPF runtime exists",
                        "ok":  true,
-                       "evidence":  "<INSTALL_DIR>\\runtime\\wpf\\HyperBoostX.exe"
+                       "evidence":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\HyperBoostX.exe"
                    },
                    {
                        "name":  "backend runtime exists",
                        "ok":  true,
-                       "evidence":  "<INSTALL_DIR>\\runtime\\backend\\hyperboost_backend.exe"
+                       "evidence":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe"
                    },
                    {
                        "name":  "desktop shortcut exists",
                        "ok":  true,
-                       "evidence":  "[{\"path\":\"<USER_DESKTOP>\\\\HyperBoostX.lnk\",\"exists\":false,\"target\":null,\"working_directory\":null,\"icon_location\":null,\"error\":null},{\"path\":\"<PUBLIC_DESKTOP>\\\\HyperBoostX.lnk\",\"exists\":true,\"target\":\"exists; target resolution skipped to avoid COM shell hangs\",\"working_directory\":null,\"icon_location\":null,\"error\":null}]"
+                       "evidence":  "[{\"path\":\"C:\\\\Users\\\\jxxzy\\\\OneDrive\\\\Desktop\\\\HyperBoostX.lnk\",\"exists\":false,\"target\":null,\"working_directory\":null,\"icon_location\":null,\"error\":null},{\"path\":\"C:\\\\Users\\\\Public\\\\Desktop\\\\HyperBoostX.lnk\",\"exists\":true,\"target\":\"exists; target resolution skipped to avoid COM shell hangs\",\"working_directory\":null,\"icon_location\":null,\"error\":null}]"
                    },
                    {
                        "name":  "start menu shortcut exists",
                        "ok":  true,
-                       "evidence":  "{\"path\":\"<START_MENU>\\\\Programs\\\\HyperBoostX\\\\HyperBoostX.lnk\",\"exists\":true,\"target\":\"exists; target resolution skipped to avoid COM shell hangs\",\"working_directory\":null,\"icon_location\":null,\"error\":null}"
+                       "evidence":  "{\"path\":\"C:\\\\ProgramData\\\\Microsoft\\\\Windows\\\\Start Menu\\\\Programs\\\\HyperBoostX\\\\HyperBoostX.lnk\",\"exists\":true,\"target\":\"exists; target resolution skipped to avoid COM shell hangs\",\"working_directory\":null,\"icon_location\":null,\"error\":null}"
                    },
                    {
                        "name":  "backend health works",
@@ -31085,17 +31085,17 @@
                    {
                        "name":  "installed action map exists",
                        "ok":  true,
-                       "evidence":  "<INSTALL_DIR>\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "installed action map exists",
                        "ok":  true,
-                       "evidence":  "<INSTALL_DIR>\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "installed action map JSON parses",
                        "ok":  true,
-                       "evidence":  "<INSTALL_DIR>\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "installed action map app_version matches VERSION",
@@ -31230,7 +31230,7 @@
                    {
                        "name":  "legacy active runtime not detected",
                        "ok":  true,
-                       "evidence":  "[{\"name\":\"HyperBoostX\",\"id\":13012,\"path\":\"<INSTALL_DIR>\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"HyperBoostX\",\"id\":16924,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\wpf\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":6548,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":25924,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true}]"
+                       "evidence":  "[{\"name\":\"HyperBoostX\",\"id\":12256,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\wpf\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"HyperBoostX\",\"id\":13884,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":16884,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":27872,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true}]"
                    }
                ],
     "ok":  true

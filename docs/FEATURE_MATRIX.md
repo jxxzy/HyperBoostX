@@ -56,12 +56,12 @@ Allowed claims:
 
 Blocked claims:
 
-- guaranteed FPS increase
-- guaranteed ping reduction
-- official NVIDIA/AMD/Intel partnership
-- anti-drop 100%
-- auto-fix everything
-- automatic latest driver install
+- No guaranteed FPS increase
+- No guaranteed ping reduction
+- No official NVIDIA/AMD/Intel partnership claim
+- No anti-drop 100% claim
+- No auto-fix everything claim
+- No automatic latest driver install claim
 
 Canonical detail files:
 

@@ -171,15 +171,15 @@ Allowed claims:
 
 Blocked claims:
 
-- guaranteed FPS increase
-- guaranteed ping or latency reduction
-- official NVIDIA, AMD, Intel, Microsoft, MSI, ASUS, Corsair, or OEM partnership
-- anti-drop 100%
-- auto-fix everything
-- automatic latest driver installation
-- full RGB device lighting control
-- production cloud sync
-- production license server
+- No guaranteed FPS increase
+- No guaranteed ping or latency reduction
+- No official NVIDIA, AMD, Intel, Microsoft, MSI, ASUS, Corsair, or OEM partnership claim
+- No anti-drop 100% claim
+- No auto-fix everything claim
+- No automatic latest driver installation claim
+- No full RGB device lighting control claim
+- No production cloud sync claim
+- No production license server claim
 
 ## Requirements
 

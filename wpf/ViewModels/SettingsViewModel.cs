@@ -12,7 +12,7 @@ namespace HyperBoostX.ViewModels
             Metrics.Add(new CyberMetricViewModel { Title = "Telemetry", Value = "OFF", Detail = "Opt-in only", Score = 100, Glyph = "PR" });
             Metrics.Add(new CyberMetricViewModel { Title = "Mode", Value = "BEGINNER", Detail = "Safe defaults", Score = 94, Glyph = "MD" });
             Recommendations.Add("Reduce Motion disables scanner and pulse effects.");
-            Recommendations.Add("Expert Preview remains off by default.");
+            Recommendations.Add("Expert mode exposes technical tools without bypassing Safety Guard.");
             PrimaryAction = "Save Settings";
         }
 

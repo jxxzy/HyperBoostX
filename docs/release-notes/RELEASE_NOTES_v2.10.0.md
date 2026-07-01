@@ -1,6 +1,6 @@
 # HyperBoostX v2.10.0 Stable Release Notes
 
-Release date: 2026-07-01
+Release date: 2026-07-02
 Status: `STABLE_READY_UNSIGNED`
 
 ## Highlights
@@ -9,7 +9,10 @@ Status: `STABLE_READY_UNSIGNED`
 - Rebuilt the NSIS installer from fresh backend/WPF/launcher output.
 - Rebuilt clean premium WPF content placement from the v1.3 information architecture.
 - Added Beginner, Advanced, and Expert sidebar filtering without bypassing Safety Guard.
-- Replaced core generic wrappers with placement-aware pages that keep raw backend payloads behind `Advanced Details`.
+- Replaced core generic wrappers with placement-aware pages that keep raw backend payloads behind `Technical Details`.
+- Rebuilt Dashboard, Settings, About, and Streaming Center after installed screenshot review found stale/template UI evidence.
+- Added installed-app screenshot evidence captured from the real installed runtime after the owner admin gate.
+- Hardened the installer runtime gate so stale source/installer/runtime evidence cannot pass.
 - Passed full QA: Python `72 passed`, .NET `39 passed`.
 - Passed UI release gate: navigation, button handlers, theme resources, placement matrix, fake metric guard, generic wrapper guard, and UI/UX quality.
 - Passed owner admin stable gate against the installed artifact.
@@ -27,7 +30,7 @@ Status: `STABLE_READY_UNSIGNED`
 - 596 active buttons/actions.
 - 0 stable action-map buttons marked partial/roadmap/guidance.
 - 165 unique UI endpoints.
-- 365 backend route rules and 361 unique backend API paths.
+- 366 backend Flask routes and 384 backend route methods.
 
 ## Safety
 
@@ -40,7 +43,7 @@ Code signing is `SKIPPED_BY_OWNER_NO_CERT`. Windows SmartScreen may warn because
 Verify SHA256 before installing:
 
 ```text
-d33c4233ffb129362bac4625f9cd87445f17e1b2863eca4bf78b0894875d49eb  HyperBoostXInstaller.exe
+8960200b125dbf9a2e12a77a1c7cabfdc386dbf0628ca066acc6be1c7b88b4f4  HyperBoostXInstaller.exe
 ```
 
 ## Known Limitations
