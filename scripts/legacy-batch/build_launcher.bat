@@ -1,8 +1,11 @@
 @echo off
+set "SCRIPT_DIR=%~dp0"
+for %%I in ("%SCRIPT_DIR%..\..\") do set "REPO_ROOT=%%~fI"
+cd /d "%REPO_ROOT%"
 REM HyperBoostX - Build Launcher Runtime
 REM Publishes the internal launcher executable used by installer and portable app.
 
-cd /d "%~dp0"
+cd /d "%REPO_ROOT%"
 echo Checking .NET SDK...
 dotnet --version >nul 2>&1
 if errorlevel 1 (
@@ -13,7 +16,7 @@ if errorlevel 1 (
 )
 
 echo Publishing launcher...
-set "releaseLauncherDir=%~dp0release\launcher"
+set "releaseLauncherDir=%REPO_ROOT%\release\launcher"
 if exist "%releaseLauncherDir%" rmdir /s /q "%releaseLauncherDir%"
 mkdir "%releaseLauncherDir%" >nul 2>&1
 dotnet publish launcher\HyperBoostLauncher.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true -o "%releaseLauncherDir%"

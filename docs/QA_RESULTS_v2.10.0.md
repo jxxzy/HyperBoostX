@@ -7,7 +7,7 @@ Decision: `STABLE_READY_UNSIGNED`
 
 | Gate | Status | Evidence |
 | --- | --- | --- |
-| Full QA gate | PASS | `artifacts/qa/full_qa_summary.json`. |
+| Full QA gate | PASS | `docs/runtime-audit/full_qa_summary.json`. |
 | Python tests | PASS | `72 passed` across final full test/gate runs. |
 | .NET Debug tests | PASS | `38 passed`. |
 | .NET Release build/test | PASS | `38 passed`. |
@@ -16,12 +16,12 @@ Decision: `STABLE_READY_UNSIGNED`
 | UI action map contract | PASS | `tests/test_ui_action_map_v210.py`. |
 | WPF UI/UX quality | PASS | Button handler verifier, placeholder guard, and UI/UX quality verifier passed. |
 | Real usability | PASS | Route contract, WPF handlers, placeholder guard, and .NET contract tests passed. |
-| Version sync | PASS | `runtime_audit/version_sync_report.json`. |
-| Release artifact contents | PASS | `runtime_audit/release_artifact_contents_report.json`. |
+| Version sync | PASS | `docs/runtime-audit/version_sync_report.json`. |
+| Release artifact contents | PASS | `docs/runtime-audit/release_artifact_contents_report.json`. |
 | Secret scan | PASS | Full QA realistic token/webhook/private-key scan passed. |
 | PowerShell syntax | PASS | Full QA PSParser scan passed. |
 | Installer/package rebuild | PASS | `HyperBoostXInstaller.exe` rebuilt and checksum manifests updated. |
-| Installed runtime | PASS | `runtime_audit/owner_admin_stable_gate_report.json`. |
+| Installed runtime | PASS | `docs/runtime-audit/owner_admin_stable_gate_report.json`. |
 | Silent uninstall/reinstall | PASS | Owner admin stable gate. |
 | No orphan process | PASS | Owner admin stable gate and follow-up process check. |
 

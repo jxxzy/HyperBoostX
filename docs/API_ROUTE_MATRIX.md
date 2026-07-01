@@ -1,4 +1,4 @@
-﻿# API Route Matrix
+# API Route Matrix
 
 Audit date: 2026-06-27
 
@@ -36,6 +36,6 @@ Route smoke: PASS via `tests/test_runtime_route_contract.py` and `scripts/verify
 | POST | `/api/reports/export` | Export report | Yes | Yes | No | PASS | Route contract pass. |
 | GET | `/api/logs/recent` | Recent logs | Yes | No | No | PASS | v2.1 envelope. |
 
-Full machine-readable route smoke evidence: `runtime_audit/backend_routes_report.json`.
+Full machine-readable route smoke evidence: `docs/runtime-audit/backend_routes_report.json`.
 
 

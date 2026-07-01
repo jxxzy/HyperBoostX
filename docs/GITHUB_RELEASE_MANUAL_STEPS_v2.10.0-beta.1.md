@@ -17,9 +17,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\runtime_verifier.p
 
 Review:
 
-- `runtime_audit/clean_install_verify_report.md`
-- `runtime_audit/runtime_audit_report.md`
-- `artifacts/qa/full_qa_summary.md`
+- `docs/runtime-audit/clean_install_verify_report.md`
+- `docs/runtime-audit/runtime_audit_report.md`
+- `docs/runtime-audit/full_qa_summary.md`
 - `SHA256SUMS_v2.10.0-beta.1.txt`
 
 ## If Owner Lab Passes

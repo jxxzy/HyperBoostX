@@ -1,29 +1,32 @@
 @echo off
+set "SCRIPT_DIR=%~dp0"
+for %%I in ("%SCRIPT_DIR%..\..\") do set "REPO_ROOT=%%~fI"
+cd /d "%REPO_ROOT%"
 REM HyperBoostX - Package Final Release Folder
 REM Builds launcher, backend, and WPF UI, then assembles installer and portable layouts.
 
-cd /d "%~dp0"
+cd /d "%REPO_ROOT%"
 echo Packaging final release...
 
-call build_backend.bat
+call "%SCRIPT_DIR%build_backend.bat"
 if errorlevel 1 (
     echo ERROR: Backend build failed.
     exit /b 1
 )
 
-call build_release.bat
+call "%SCRIPT_DIR%build_release.bat"
 if errorlevel 1 (
     echo ERROR: WPF release build failed.
     exit /b 1
 )
 
-call build_launcher.bat
+call "%SCRIPT_DIR%build_launcher.bat"
 if errorlevel 1 (
     echo ERROR: Launcher build failed.
     exit /b 1
 )
 
-set "releaseDir=%~dp0release"
+set "releaseDir=%REPO_ROOT%\release"
 set "packageDir=%releaseDir%\package"
 set "appDir=%releaseDir%\app"
 

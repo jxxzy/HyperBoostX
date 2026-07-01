@@ -31,9 +31,9 @@ Primary local artifact:
 
 - `HyperBoostXInstaller.exe`
 
-Final release bundle:
+GitHub release:
 
-- `release/final/v2.10.0/`
+- https://github.com/jxxzy/HyperBoostX/releases/tag/v2.10.0
 
 Current installer SHA256:
 
@@ -108,15 +108,15 @@ dotnet test dotnet-tests\HyperBoostX.Tests\HyperBoostX.Tests.csproj -c Release
 
 ## Documentation
 
-- [Release notes v2.10.0](RELEASE_NOTES_v2.10.0.md)
+- [Release notes v2.10.0](docs/release-notes/RELEASE_NOTES_v2.10.0.md)
 - [Final audit report](docs/FINAL_AUDIT_REPORT_v2.10.0.md)
 - [Release gate result](docs/RELEASE_GATE_RESULT.md)
-- [QA results](QA_RESULTS.md)
-- [Feature matrix](FEATURE_MATRIX.md)
+- [QA results](docs/QA_RESULTS.md)
+- [Feature matrix](docs/FEATURE_MATRIX.md)
 - [Security](SECURITY.md)
-- [User guide](USER_GUIDE.md)
-- [Troubleshooting](TROUBLESHOOTING.md)
-- [API reference](API_REFERENCE.md)
+- [User guide](docs/USER_GUIDE.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [API reference](docs/API_REFERENCE.md)
 
 ## Known Limitations
 

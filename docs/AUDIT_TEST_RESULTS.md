@@ -7,17 +7,17 @@ Audit date: 2026-06-27
 | Python backend tests | PASS | `60 passed` via `app\venv\Scripts\python.exe -m pytest -q tests`. |
 | .NET desktop tests | PASS | `35 passed` via `dotnet test dotnet-tests\HyperBoostX.Tests\HyperBoostX.Tests.csproj -c Debug`. |
 | Full repo verify | PASS | `scripts/verify_repo.ps1`. |
-| Backend route smoke | PASS | `runtime_audit/backend_routes_report.json`, `6 passed`. |
-| WPF navigation | PASS | `runtime_audit/wpf_navigation_report.json`. |
+| Backend route smoke | PASS | `docs/runtime-audit/backend_routes_report.json`, `6 passed`. |
+| WPF navigation | PASS | `docs/runtime-audit/wpf_navigation_report.json`. |
 | WPF button handlers | PASS | `scripts/verify_wpf_button_handlers.ps1`. |
 | Placeholder/fake UI guard | PASS | `scripts/verify_placeholder_guard.ps1`. |
 | UI/UX quality | PASS | `scripts/verify_ui_ux_quality.ps1`. |
 | Real usability | PASS | `scripts/verify_real_usability.ps1`. |
 | Pre-v2 preservation | PASS | `scripts/verify_pre_v2_feature_preservation.ps1`. |
-| Version sync | PASS | `runtime_audit/version_sync_report.json`. |
-| Release artifact contents | PASS | `runtime_audit/release_artifact_contents_report.json`. |
-| Clean install dry-run | PASS | `runtime_audit/clean_install_verify_report.json`. |
-| Installed runtime audit | BLOCKED | `runtime_audit/runtime_audit_report.json` shows installed registry `1.3.0`. |
+| Version sync | PASS | `docs/runtime-audit/version_sync_report.json`. |
+| Release artifact contents | PASS | `docs/runtime-audit/release_artifact_contents_report.json`. |
+| Clean install dry-run | PASS | `docs/runtime-audit/clean_install_verify_report.json`. |
+| Installed runtime audit | BLOCKED | `docs/runtime-audit/runtime_audit_report.json` shows installed registry `1.3.0`. |
 
 ## Note
 

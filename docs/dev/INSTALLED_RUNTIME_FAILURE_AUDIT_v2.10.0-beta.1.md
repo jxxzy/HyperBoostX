@@ -2,7 +2,7 @@
 
 Generated: 2026-07-01 03:36 +07:00
 
-Source report: `runtime_audit/runtime_audit_report.md`
+Source report: `docs/runtime-audit/runtime_audit_report.md`
 
 ## Result
 

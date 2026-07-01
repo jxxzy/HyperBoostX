@@ -8,7 +8,7 @@ Working version: `2.0.1`
 
 - Source areas: `app/`, `wpf/`, `launcher/`, `scripts/`, `tests/`, `dotnet-tests/`, `docs/`, `website/`, installer files, release package layout.
 - Baselines: tag `v1.3.0`, branch `feature/v1.4.0-ultra-complete-update`, current `v2.0.0` branch plus local `2.0.1` patch.
-- Runtime evidence: `runtime_audit/*.json`, `runtime_audit/*.md`, source tests, .NET tests, route smoke, WPF static navigation/button audits.
+- Runtime evidence: `docs/runtime-audit/*.json`, `docs/runtime-audit/*.md`, source tests, .NET tests, route smoke, WPF static navigation/button audits.
 
 ## Current Evidence
 

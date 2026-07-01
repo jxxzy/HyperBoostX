@@ -71,4 +71,4 @@ Detailed reports:
 - `docs/FINAL_AUDIT_REPORT_v2.10.0.md`
 - `docs/QA_RESULTS_v2.10.0.md`
 - `docs/RELEASE_GATE_RESULT.md`
-- `runtime_audit/owner_admin_stable_gate_report.json`
+- `docs/runtime-audit/owner_admin_stable_gate_report.json`

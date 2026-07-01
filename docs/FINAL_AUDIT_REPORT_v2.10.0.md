@@ -87,11 +87,11 @@ daec54b8ca059f9196c388811cd8ea0ad9fbff3c61f678f14bccd55f78ea3924  HyperBoostXIns
 
 Artifact manifests:
 
-- `SHA256SUMS.txt`
-- `SHA256SUMS_2.10.0.txt`
-- `runtime_audit/release_artifact_contents_report.json`
-- `runtime_audit/owner_admin_stable_gate_report.json`
-- `artifacts/qa/full_qa_summary.json`
+- `docs/release/checksums/SHA256SUMS.txt`
+- `docs/release/checksums/SHA256SUMS_2.10.0.txt`
+- `docs/runtime-audit/release_artifact_contents_report.json`
+- `docs/runtime-audit/owner_admin_stable_gate_report.json`
+- `docs/runtime-audit/full_qa_summary.json`
 
 ## Known Limitations
 

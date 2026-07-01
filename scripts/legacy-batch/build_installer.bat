@@ -1,13 +1,16 @@
 @echo off
+set "SCRIPT_DIR=%~dp0"
+for %%I in ("%SCRIPT_DIR%..\..\") do set "REPO_ROOT=%%~fI"
+cd /d "%REPO_ROOT%"
 REM HyperBoostX - Build Windows Installer
 REM Requires NSIS installed and makensis available in PATH.
 
-cd /d "%~dp0"
+cd /d "%REPO_ROOT%"
 echo Building Windows installer...
 
 if not exist "release\package" (
     echo ERROR: release\package directory not found.
-    echo Run package_release.bat first to assemble the final release files.
+    echo Run scripts\legacy-batch\package_release.bat first to assemble the final release files.
     pause
     exit /b 1
 )
@@ -39,6 +42,6 @@ if errorlevel 1 (
 )
 
 echo.
-echo Installer created successfully: "%~dp0HyperBoostXInstaller.exe"
+echo Installer created successfully: "%REPO_ROOT%\HyperBoostXInstaller.exe"
 pause
 exit /b 0

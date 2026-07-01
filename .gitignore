@@ -25,11 +25,11 @@ dotnet-tests/**/obj/
 dotnet-tests/**/*.log
 wpf/temp_obj/
 wpf/temp_build_check/
-build_tmp/
-artifacts/
+/build_tmp/
+/artifacts/
 app/artifacts/
 
-release/
+/release/
 *.exe
 *.pdb
 *.pyc

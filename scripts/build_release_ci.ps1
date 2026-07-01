@@ -119,7 +119,7 @@ if (-not (Test-Path (Join-Path $projectRoot "HyperBoostXInstaller.exe"))) {
     throw "Installer was not produced."
 }
 
-Write-Host "Generating SHA256SUMS.txt..."
+Write-Host "Generating docs\release\checksums\SHA256SUMS.txt..."
 $checksumTargets = @(
     (Join-Path $projectRoot "HyperBoostXInstaller.exe"),
     (Join-Path $backendReleaseDir "hyperboost_backend.exe"),
@@ -132,7 +132,9 @@ $checksumLines = foreach ($target in $checksumTargets) {
     "{0} *{1}" -f $hash, (Split-Path $target -Leaf)
 }
 
-$checksumPath = Join-Path $projectRoot "SHA256SUMS.txt"
+$checksumDir = Join-Path $projectRoot "docs\release\checksums"
+Ensure-Dir $checksumDir
+$checksumPath = Join-Path $checksumDir "SHA256SUMS.txt"
 Set-Content -Path $checksumPath -Value $checksumLines -Encoding ASCII
 
 if ($env:HYPERBOOSTX_REQUIRE_SIGNING -eq "1") {

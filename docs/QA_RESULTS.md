@@ -8,20 +8,20 @@ Decision: `STABLE_READY_UNSIGNED`
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| Full QA gate | PASS | `artifacts/qa/full_qa_summary.json`. |
+| Full QA gate | PASS | `docs/runtime-audit/full_qa_summary.json`. |
 | Python tests | PASS | `72 passed`. |
 | .NET tests | PASS | `38 passed`. |
 | Solution build | PASS | `0 Warning(s), 0 Error(s)`. |
 | Release build/test | PASS | Full QA Release build/test passed. |
-| Backend route contract | PASS | `runtime_audit/backend_routes_report.json`. |
+| Backend route contract | PASS | `docs/runtime-audit/backend_routes_report.json`. |
 | WPF UI/UX quality | PASS | Button handler verifier, placeholder guard, and UI/UX quality verifier passed. |
 | Real usability | PASS | Route contract, WPF handlers, placeholder guard, and .NET contract tests passed. |
-| Version sync | PASS | `runtime_audit/version_sync_report.json`, expected `2.10.0`. |
-| Release artifact contents | PASS | `runtime_audit/release_artifact_contents_report.json`. |
+| Version sync | PASS | `docs/runtime-audit/version_sync_report.json`, expected `2.10.0`. |
+| Release artifact contents | PASS | `docs/runtime-audit/release_artifact_contents_report.json`. |
 | Secret scan | PASS | Full QA realistic token/webhook/private-key scan found no hits. |
 | PowerShell syntax | PASS | Full QA PSParser scan passed. |
 | Installer rebuild | PASS | `HyperBoostXInstaller.exe` rebuilt. |
-| Installed runtime verification | PASS | `runtime_audit/owner_admin_stable_gate_report.json`. |
+| Installed runtime verification | PASS | `docs/runtime-audit/owner_admin_stable_gate_report.json`. |
 | Silent uninstall/reinstall | PASS | Owner admin stable gate. |
 
 ## Metrics

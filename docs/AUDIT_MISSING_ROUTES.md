@@ -6,7 +6,7 @@ Audit date: 2026-06-27
 
 - Live Flask app exposes 245 `/api/*` routes.
 - Backend route smoke: `tests/test_runtime_route_contract.py` passed 6 tests.
-- `scripts/verify_backend_routes.ps1` generated `runtime_audit/backend_routes_report.json` with `ok: true`.
+- `scripts/verify_backend_routes.ps1` generated `docs/runtime-audit/backend_routes_report.json` with `ok: true`.
 - WPF navigation route registration count: 55.
 
 ## Required Contract Coverage

@@ -1,6 +1,6 @@
 # HyperBoostX API Reference
 
-The full current backend contract is maintained in [docs/API_REFERENCE.md](docs/API_REFERENCE.md).
+The full current backend contract is maintained in [docs/API_REFERENCE.md](API_REFERENCE.md).
 
 Base URL: `http://127.0.0.1:5000`
 

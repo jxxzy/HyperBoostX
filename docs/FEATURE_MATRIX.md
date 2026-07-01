@@ -1,18 +1,70 @@
-# Feature Matrix
+# HyperBoostX Feature Matrix
 
-Audit date: 2026-06-27
+Status date: 2026-07-01
+Active version: `2.10.0`
+Release status: `STABLE_READY_UNSIGNED`
 
-| Page | Section | Legacy feature | v2 control | Has backend | Endpoint | Risk | Admin | Preview | Approval | Rollback | Report | Test | UI status | Backend status | Safety status | Fix status | Notes |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Dashboard | Quick actions | Smart Scan / Safe Boost / Restore | Buttons + live result | Yes | `/api/scan/smart`, `/api/boost/plan`, `/api/restore/sessions` | SAFE | No | Yes | Yes | Yes | Yes | Yes | RESTORED | WIRED | TESTED | TESTED | Uses real backend data. |
-| One Click Boost | Presets | Safe/Balanced/Extreme/Custom | Preset action body | Yes | `/api/boost/plan`, `/api/boost/apply`, `/api/boost/undo` | SAFE to EXPERT | Some | Yes | Yes | Yes | Yes | Yes | RESTORED | WIRED | TESTED | TESTED | Extreme remains gated. |
-| Performance Boost | Profiles | Daily/Work/Gaming/Streaming/Extreme | Legacy functional page | Yes | `/api/performance/plan`, `/api/boost/plan` | SAFE to EXPERT | Some | Yes | Yes | Yes | Yes | Yes | RESTORED | WIRED | TESTED | TESTED | No fake FPS claims. |
-| Startup Manager | Inventory | View/disable/delay/restore startup | Functional page | Yes | `/api/startup/items`, `/api/startup/preview`, `/api/startup/restore` | MODERATE | Some | Yes | Yes | Yes | Yes | Yes | RESTORED | WIRED | TESTED | TESTED | Direct disable is guarded. |
-| Background Apps | Process pressure | Top processes, whitelist, export | Functional page | Yes | `/api/processes/heavy`, `/api/protection/evaluate-action` | MODERATE | No | Yes | Yes | N/A | Yes | Yes | RESTORED | WIRED | TESTED | TESTED | No auto-kill in Beginner. |
-| Cleanup | Safe cleaner | Temp/cache/log scan and preview | Functional page | Yes | `/api/cleanup/scan`, `/api/cleanup/preview`, `/api/cleanup/apply` | MODERATE | Some | Yes | Yes | Partial | Yes | Yes | RESTORED | WIRED | TESTED | TESTED | Personal folders excluded. |
-| GPU Center | Hardware | Vendor/VRAM/driver/status | Dedicated page | Yes | `/api/gpu/status`, `/api/gpu/recommendations` | SAFE | No | Read-only | N/A | N/A | Yes | Yes | RESTORED | WIRED | TESTED | TESTED | Hardware lab still needed. |
-| Network | DNS/latency | DNS, flush, ping, reset | Functional page | Yes | `/api/network/dns`, `/api/network/flush-dns`, `/api/network/ping` | MODERATE | Some | Yes | Yes | Partial | Yes | Yes | RESTORED | WIRED | TESTED | TESTED | DNS apply blocked until adapter rollback. |
-| Repair | SFC/DISM | Repair previews | Functional page | Yes | `/api/repair/preview`, `/api/repair/sfc-preview` | MODERATE | Yes | Yes | Yes | N/A | Yes | Yes | RESTORED | WIRED | NEEDS_ADMIN | TESTED | Direct run blocked without elevated runner. |
-| Restore | Rollback center | Sessions/preview/apply/export | Dedicated page | Yes | `/api/restore/sessions`, `/api/restore/preview`, `/api/restore/apply` | SAFE | Some | Yes | Yes | Yes | Yes | Yes | RESTORED | WIRED | TESTED | TESTED | System-level apply limited to supported actions. |
-| Profile/automation | Profile Hub equivalent | Rules/dry-run/profile concepts | Legacy functional pages | Yes | `/api/automation/preview`, `/api/automation/rules` | MODERATE to EXPERT | Some | Yes | Yes | Yes | Yes | Yes | RESTORED | WIRED | TESTED | TESTED | Signed profile pack remains P1. |
+## v2.10 Action Surface
 
+| Metric | Count |
+| --- | ---: |
+| Menus | 72 |
+| Buttons/actions | 596 |
+| Active buttons/actions | 596 |
+| Partial/roadmap/guidance buttons | 0 |
+| Guarded destructive buttons | 20 |
+| Unique UI endpoints used | 165 |
+| Backend API route rules | 365 |
+| Unique backend API paths | 361 |
+
+## Feature Status
+
+| Area | v2.10 status | Notes |
+| --- | --- | --- |
+| Dashboard/system overview | Real | Local health, scores, backend pulse, scan/report access. |
+| One Click Boost | Real-safe | Plan/apply/undo path remains approval and Safety Guard gated. |
+| Smart Scan / Advisor | Real | Local scans, recommendations, route contract covered. |
+| Game library/profiles | Real-safe | Local library/profile flow; risky game tweaks remain guarded. |
+| GPU Center | Real guidance | Hardware/vendor detection and driver guidance; no automatic driver install. |
+| Process Analyzer | Real | Local process pressure, heavy process lists, protected process blocks. |
+| Startup Manager | Real-safe | Preview/apply/restore, guarded against protected/system entries. |
+| Cleanup | Real-safe | Preview/apply/report, no user-file deletion by default. |
+| Network Tools | Real-safe | Diagnostics, DNS benchmark/apply/restore with approval boundaries. |
+| Power/visual effects | Real-safe | Plan/apply/restore with admin/approval boundaries. |
+| Apps/Uninstaller | Real-safe | Inventory and uninstall plan/apply; no silent arbitrary removal. |
+| Windows features/services | Real-safe | Planning/status plus guarded service start/stop endpoints. |
+| Security status | Real | Defender/firewall/update status; forced disable remains blocked. |
+| Repair tools | Real-safe | SFC/DISM/CHKDSK command paths are explicit approval/admin gated. |
+| Restore/rollback | Real-safe | Session metadata, preview/apply/verify/export/rollback routes. |
+| Reports/logs | Real | JSON/TXT/MD export and redacted local log export. |
+| Automation | Real-safe | Local task metadata and enable/disable/delete, not arbitrary shell execution. |
+| Beginner/Advanced/Expert modes | Real | Expert exposes detail but does not bypass Safety Guard. |
+| RGB | Real-safe boundary | Software/conflict detection and approved restart guidance, not device lighting control. |
+| License/cloud | Real-safe boundary | Local-only boundary state, not production cloud sync. |
+| Plugins | Real-safe boundary | Local catalog/manifest validation; unsigned/arbitrary execution blocked. |
+| Documentation/audit | Real | Feature, route, UI, safety, QA, release, and root-folder audit docs present. |
+
+## Claims Boundary
+
+Allowed claims:
+
+- safe local optimization
+- preview-first changes
+- restoreable local actions
+- hardware-aware recommendations
+- local-first control center
+
+Blocked claims:
+
+- guaranteed FPS increase
+- guaranteed ping reduction
+- official NVIDIA/AMD/Intel partnership
+- anti-drop 100%
+- auto-fix everything
+- automatic latest driver install
+
+Canonical detail files:
+
+- `docs/FEATURE_TRUTH_MATRIX_v2.10.0.md`
+- `docs/UI_ACTION_MAP_v2.10.0.md`
+- `wpf/Data/ui_action_map_v2_10.json`

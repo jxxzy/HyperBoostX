@@ -6,7 +6,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$scriptDir = if (-not [string]::IsNullOrWhiteSpace($PSScriptRoot)) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
+$repoRoot = (Resolve-Path (Join-Path $scriptDir "..\..")).Path
 Set-Location $repoRoot
 
 if (-not $OwnerApprovedStable) {
@@ -26,7 +27,7 @@ $requiredFiles = @(
     "launcher\HyperBoostLauncher.csproj",
     "HyperBoostXInstaller.nsi",
     "README.md",
-    "RELEASE.md",
+    "docs\RELEASE.md",
     "docs\FINAL_AUDIT_REPORT_v2.10.0.md",
     "docs\STABLE_MODE_AUDIT_v2.10.0.md",
     "docs\INSTALLER_LAB_GATE_v2.10.0.md",
@@ -44,8 +45,8 @@ if ($versionText -notin @("2.10.0-beta.1", "2.10.0-rc.1", $CandidateVersion)) {
     throw "Unexpected VERSION value '$versionText'. Refusing stable promotion."
 }
 
-$gateSummary = if (Test-Path -LiteralPath "artifacts\qa\full_qa_summary.json") {
-    Get-Content -LiteralPath "artifacts\qa\full_qa_summary.json" -Raw | ConvertFrom-Json
+$gateSummary = if (Test-Path -LiteralPath "docs\runtime-audit\full_qa_summary.json") {
+    Get-Content -LiteralPath "docs\runtime-audit\full_qa_summary.json" -Raw | ConvertFrom-Json
 } else {
     $null
 }

@@ -20,7 +20,7 @@ if ([string]::IsNullOrWhiteSpace($ExpectedVersion)) {
     $ExpectedVersion = (Get-Content -LiteralPath (Join-Path $RepoRoot "VERSION") -Raw).Trim()
 }
 
-$outDir = Join-Path $RepoRoot "runtime_audit"
+$outDir = Join-Path $RepoRoot "docs\runtime-audit"
 $docsDir = Join-Path $RepoRoot "docs"
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 New-Item -ItemType Directory -Force -Path $docsDir | Out-Null

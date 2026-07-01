@@ -25,7 +25,7 @@ Audit date: 2026-06-27
 | 50 repeated health checks | 0 failures, 0.13s total |
 | Orphan process after smoke | None found |
 
-Evidence file: `artifacts/qa/backend-live-smoke.json`.
+Evidence file: `docs/runtime-audit/backend-live-smoke.json`.
 
 ## Limitations
 

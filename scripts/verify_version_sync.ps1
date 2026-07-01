@@ -67,7 +67,7 @@ $report = [pscustomobject]@{
     ok = -not ($checks | Where-Object { -not $_.ok })
 }
 
-$outDir = Join-Path $RepoRoot "runtime_audit"
+$outDir = Join-Path $RepoRoot "docs\runtime-audit"
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 $jsonPath = Join-Path $outDir "version_sync_report.json"
 $mdPath = Join-Path $outDir "version_sync_report.md"

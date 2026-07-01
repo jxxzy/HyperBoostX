@@ -1,8 +1,11 @@
 @echo off
+set "SCRIPT_DIR=%~dp0"
+for %%I in ("%SCRIPT_DIR%..\..\") do set "REPO_ROOT=%%~fI"
+cd /d "%REPO_ROOT%"
 REM HyperBoostX - Build Python Backend Executable
 REM Uses PyInstaller to bundle the Python backend into a single .exe.
 
-pushd "%~dp0app"
+pushd "%REPO_ROOT%\app"
 echo Checking Python installation...
 set "PYTHON_EXE=%CD%\venv\Scripts\python.exe"
 if exist "%PYTHON_EXE%" goto python_ready
@@ -32,9 +35,9 @@ if errorlevel 1 (
 )
 
 echo Building backend executable with PyInstaller...
-set "PYI_DIST=%~dp0release\pyinstaller\dist"
-set "PYI_WORK=%~dp0release\pyinstaller\build"
-set "PYI_SPEC=%~dp0release\pyinstaller\spec"
+set "PYI_DIST=%REPO_ROOT%\release\pyinstaller\dist"
+set "PYI_WORK=%REPO_ROOT%\release\pyinstaller\build"
+set "PYI_SPEC=%REPO_ROOT%\release\pyinstaller\spec"
 set "APP_ROOT=%CD%"
 set "APP_DATA=%APP_ROOT%\data"
 set "BACKEND_ENTRY=%APP_ROOT%\backend_server.py"
@@ -59,12 +62,12 @@ if not exist "%PYI_DIST%\hyperboost_backend.exe" (
     exit /b 1
 )
 
-mkdir "%~dp0release\backend" >nul 2>&1
-copy /y "%PYI_DIST%\hyperboost_backend.exe" "%~dp0release\backend\" >nul
+mkdir "%REPO_ROOT%\release\backend" >nul 2>&1
+copy /y "%PYI_DIST%\hyperboost_backend.exe" "%REPO_ROOT%\release\backend\" >nul
 
 echo.
 echo Backend executable created successfully.
-echo Output copied to: "%~dp0release\backend\hyperboost_backend.exe"
+echo Output copied to: "%REPO_ROOT%\release\backend\hyperboost_backend.exe"
 pause
 popd
 exit /b 0

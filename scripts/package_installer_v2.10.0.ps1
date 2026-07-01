@@ -6,7 +6,9 @@ $ErrorActionPreference = "Stop"
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $packageVersion = (Get-Content -LiteralPath (Join-Path $repoRoot "VERSION") -Raw).Trim()
-$versionedHashFile = "SHA256SUMS_$packageVersion.txt"
+$checksumDir = Join-Path $repoRoot "docs\release\checksums"
+$versionedHashFile = Join-Path $checksumDir "SHA256SUMS_$packageVersion.txt"
+$rollingHashFile = Join-Path $checksumDir "SHA256SUMS.txt"
 
 Write-Host "== Package HyperBoostX $packageVersion installer =="
 
@@ -46,8 +48,9 @@ foreach ($candidate in $hashCandidates) {
 }
 
 if ($hashLines.Count -gt 0) {
+    New-Item -ItemType Directory -Force -Path $checksumDir | Out-Null
     $hashLines | Set-Content -LiteralPath $versionedHashFile -Encoding ASCII
-    $hashLines | Set-Content -LiteralPath "SHA256SUMS.txt" -Encoding ASCII
+    $hashLines | Set-Content -LiteralPath $rollingHashFile -Encoding ASCII
 }
 
 Write-Host "Installer package step complete. Signing remains blocked unless owner certificate/PFX is provided."

@@ -11,8 +11,8 @@ Installer payload verification passed after rebuilding the stable package.
 - Installer: `HyperBoostXInstaller.exe`
 - Package root: `release/package`
 - App root: `release/app`
-- Payload report: `runtime_audit/installer_payload_report.json`
-- Release artifact report: `runtime_audit/release_artifact_contents_report.json`
+- Payload report: `docs/runtime-audit/installer_payload_report.json`
+- Release artifact report: `docs/runtime-audit/release_artifact_contents_report.json`
 - SHA256 manifest: `SHA256SUMS_2.10.0.txt`
 
 ## Installer SHA256

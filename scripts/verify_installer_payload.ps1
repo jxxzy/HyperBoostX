@@ -14,7 +14,7 @@ if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
 $expectedVersion = (Get-Content -LiteralPath (Join-Path $RepoRoot "VERSION") -Raw).Trim()
 $installerPath = Join-Path $RepoRoot "HyperBoostXInstaller.exe"
 $nsiPath = Join-Path $RepoRoot "HyperBoostXInstaller.nsi"
-$outDir = Join-Path $RepoRoot "runtime_audit"
+$outDir = Join-Path $RepoRoot "docs\runtime-audit"
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 $jsonPath = Join-Path $outDir "installer_payload_report.json"
 $mdPath = Join-Path $outDir "installer_payload_report.md"
@@ -52,7 +52,7 @@ else {
     Add-Check "installer exists" $false $installerPath
 }
 
-$hashFile = Join-Path $RepoRoot ("SHA256SUMS_{0}.txt" -f $expectedVersion)
+$hashFile = Join-Path $RepoRoot ("docs\release\checksums\SHA256SUMS_{0}.txt" -f $expectedVersion)
 Add-Check "v2.10 checksum file exists" (Test-Path -LiteralPath $hashFile) $hashFile
 if ((Test-Path -LiteralPath $hashFile) -and (Test-Path -LiteralPath $installerPath)) {
     $hashText = Get-Content -LiteralPath $hashFile -Raw

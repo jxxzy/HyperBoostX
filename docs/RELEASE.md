@@ -1,10 +1,9 @@
 # HyperBoostX v2.x Development Release Guide
 
-Public stable baseline: `HyperBoostX v1.3.0 Stable`
+Public stable baseline: `HyperBoostX v2.10.0 Stable Unsigned`
 Development preview line: `HyperBoostX v2.x`
-Next stable candidate: `v2.10.0` only after full validation
-Tag target: do not tag a v2 stable release until feature parity, UI/UX, backend, installer, smoke, checksum, and release-gate validation pass.
-Branch: `feature/hyperboostx-v2-release`
+Current stable tag: `v2.10.0`
+Branch: `main`
 
 Do not publish a stable release unless required gates pass. If a gate cannot be completed because of missing credentials, signing certificate, or interactive installer access, mark the release as partial/blocker rather than claiming DONE.
 
@@ -18,16 +17,13 @@ dotnet restore HyperBoostX.sln
 dotnet build HyperBoostX.sln -v minimal
 dotnet build HyperBoostX.sln -c Release -v minimal
 dotnet test dotnet-tests\HyperBoostX.Tests\HyperBoostX.Tests.csproj -c Debug
-.\build_backend.bat
-.\build_launcher.bat
-.\build_release.bat
-.\package_release.bat
-.\build_installer.bat
+powershell -ExecutionPolicy Bypass -File .\scripts\full_qa_gate.ps1 -SkipInstall
+powershell -ExecutionPolicy Bypass -File .\scripts\build_stable_release.ps1 -SkipTests
 ```
 
 ## Trust Requirements
 
-- Generate `SHA256SUMS.txt` for release artifacts.
+- Generate checksum manifests under `docs\release\checksums\`.
 - Sign only if a real code-signing certificate is available.
 - If unsigned, keep Unknown Publisher and SmartScreen notes in release notes.
 - Do not claim multi-machine validation unless actually tested.

@@ -1,4 +1,4 @@
-﻿# Worktree Audit Before Stable Commit v2.10.0
+# Worktree Audit Before Stable Commit v2.10.0
 
 Generated: 2026-07-01
 
@@ -20,7 +20,7 @@ Feature work is frozen. This audit classifies the current changed/untracked work
 ## Cleanup Decision
 
 - Removed ignored cache/temp files only: Python `__pycache__`, `.pytest_cache`, WPF temp directories, and runtime verifier trace log.
-- Kept release/build outputs that are needed as owner handoff artifacts: `HyperBoostXInstaller.exe`, `release/`, `artifacts/`, and `runtime_audit/` reports.
+- Kept release/build outputs that are needed as owner handoff artifacts: `HyperBoostXInstaller.exe`, `release/`, `artifacts/`, and `docs/runtime-audit/` reports.
 - No source, tests, docs, scripts, runtime evidence, installer metadata, or release checksums were deleted.
 
 ## Gate Status
@@ -176,21 +176,21 @@ Feature work is frozen. This audit classifies the current changed/untracked work
 | ?? | installer scripts | `scripts/verify_version_sync.ps1` |
 | ?? | installer scripts | `scripts/verify_wpf_button_handlers.ps1` |
 | ?? | installer scripts | `scripts/verify_wpf_navigation.ps1` |
-| ?? | release evidence | `runtime_audit/backend_routes_report.json` |
-| ?? | release evidence | `runtime_audit/backend_routes_report.md` |
-| ?? | release evidence | `runtime_audit/clean_install_verify_report.json` |
-| ?? | release evidence | `runtime_audit/clean_install_verify_report.md` |
-| ?? | release evidence | `runtime_audit/installer_payload_report.json` |
-| ?? | release evidence | `runtime_audit/installer_payload_report.md` |
-| ?? | release evidence | `runtime_audit/owner_admin_stable_gate_report.json` |
-| ?? | release evidence | `runtime_audit/release_artifact_contents_report.json` |
-| ?? | release evidence | `runtime_audit/release_artifact_contents_report.md` |
-| ?? | release evidence | `runtime_audit/runtime_audit_report.json` |
-| ?? | release evidence | `runtime_audit/runtime_audit_report.md` |
-| ?? | release evidence | `runtime_audit/version_sync_report.json` |
-| ?? | release evidence | `runtime_audit/version_sync_report.md` |
-| ?? | release evidence | `runtime_audit/wpf_navigation_report.json` |
-| ?? | release evidence | `runtime_audit/wpf_navigation_report.md` |
+| ?? | release evidence | `docs/runtime-audit/backend_routes_report.json` |
+| ?? | release evidence | `docs/runtime-audit/backend_routes_report.md` |
+| ?? | release evidence | `docs/runtime-audit/clean_install_verify_report.json` |
+| ?? | release evidence | `docs/runtime-audit/clean_install_verify_report.md` |
+| ?? | release evidence | `docs/runtime-audit/installer_payload_report.json` |
+| ?? | release evidence | `docs/runtime-audit/installer_payload_report.md` |
+| ?? | release evidence | `docs/runtime-audit/owner_admin_stable_gate_report.json` |
+| ?? | release evidence | `docs/runtime-audit/release_artifact_contents_report.json` |
+| ?? | release evidence | `docs/runtime-audit/release_artifact_contents_report.md` |
+| ?? | release evidence | `docs/runtime-audit/runtime_audit_report.json` |
+| ?? | release evidence | `docs/runtime-audit/runtime_audit_report.md` |
+| ?? | release evidence | `docs/runtime-audit/version_sync_report.json` |
+| ?? | release evidence | `docs/runtime-audit/version_sync_report.md` |
+| ?? | release evidence | `docs/runtime-audit/wpf_navigation_report.json` |
+| ?? | release evidence | `docs/runtime-audit/wpf_navigation_report.md` |
 | M | release evidence | `SHA256SUMS.txt` |
 | ?? | release evidence | `SHA256SUMS_v2.10.0-beta.1.txt` |
 | M | source code | `app/__init__.py` |

@@ -8,7 +8,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$qaRoot = Join-Path $repoRoot "artifacts\qa"
+$qaRoot = Join-Path $repoRoot "docs\runtime-audit"
 $logPath = Join-Path $qaRoot "full_qa_gate.log"
 $jsonPath = Join-Path $qaRoot "full_qa_summary.json"
 $mdPath = Join-Path $qaRoot "full_qa_summary.md"
@@ -91,7 +91,7 @@ try {
 
     Invoke-GateStep "Secret scan" "realistic token/webhook regex scan over source/docs/scripts/tests" {
         $files = Get-ChildItem -Recurse -File -ErrorAction SilentlyContinue | Where-Object {
-            $_.FullName -notmatch "\\.git\\|\\bin\\|\\obj\\|\\node_modules\\|\\artifacts\\|\\dist\\|\\build_tmp\\|\\release\\|\\runtime_audit\\|\\app\\venv(\\|\.|$)|\\.pytest_cache\\|__pycache__" -and
+            $_.FullName -notmatch "\\.git\\|\\bin\\|\\obj\\|\\node_modules\\|\\artifacts\\|\\dist\\|\\build_tmp\\|\\release\\|\\docs\runtime-audit\\|\\app\\venv(\\|\.|$)|\\.pytest_cache\\|__pycache__" -and
             $_.Extension -notin @(".exe", ".dll", ".pdb", ".zip", ".pyc", ".ico", ".png", ".jpg", ".jpeg")
         }
         $pattern = "ghp_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}|nvapi-[A-Za-z0-9_-]{20,}|xox[baprs]-[A-Za-z0-9-]{20,}|https://discord(app)?\.com/api/webhooks/[0-9]+/[A-Za-z0-9_-]+"
@@ -111,7 +111,7 @@ try {
     Invoke-GateStep "PowerShell syntax" "PSParser tokenize all source scripts" {
         $failures = @()
         Get-ChildItem -Recurse -Filter *.ps1 -File | Where-Object {
-            $_.FullName -notmatch "\\.git\\|\\release\\|\\artifacts\\|\\runtime_audit\\|\\app\\venv\\|\\bin\\|\\obj\\"
+            $_.FullName -notmatch "\\.git\\|\\release\\|\\artifacts\\|\\docs\runtime-audit\\|\\app\\venv\\|\\bin\\|\\obj\\"
         } | ForEach-Object {
             $errors = $null
             [System.Management.Automation.PSParser]::Tokenize((Get-Content -LiteralPath $_.FullName -Raw), [ref]$errors) | Out-Null

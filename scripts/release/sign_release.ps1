@@ -9,7 +9,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-Set-Location -LiteralPath $PSScriptRoot
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
+Set-Location -LiteralPath $repoRoot
 
 $signtoolCandidates = @(
     "C:\Program Files (x86)\Windows Kits\10\bin\x64\signtool.exe",

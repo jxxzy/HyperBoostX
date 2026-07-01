@@ -16,7 +16,7 @@ if ([string]::IsNullOrWhiteSpace($InstallerPath)) {
     $InstallerPath = Join-Path $RepoRoot "HyperBoostXInstaller.exe"
 }
 
-$outDir = Join-Path $RepoRoot "runtime_audit"
+$outDir = Join-Path $RepoRoot "docs\runtime-audit"
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 $jsonPath = Join-Path $outDir "clean_install_verify_report.json"
 $mdPath = Join-Path $outDir "clean_install_verify_report.md"

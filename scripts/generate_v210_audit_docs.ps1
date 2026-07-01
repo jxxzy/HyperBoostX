@@ -126,7 +126,7 @@ No real code-signing certificate, thumbprint, or PFX was available in this works
 ## Command Template
 
 ```powershell
-.\sign_release.ps1 -Thumbprint "<CERT_THUMBPRINT>"
+.\scripts\release\sign_release.ps1 -Thumbprint "<CERT_THUMBPRINT>"
 Get-AuthenticodeSignature .\HyperBoostXInstaller.exe
 ```
 "@

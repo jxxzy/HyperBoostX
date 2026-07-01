@@ -6,7 +6,7 @@ Status: `CURRENT_MACHINE_PASS_EXTERNAL_EXPANSION_RECOMMENDED`
 
 | Scenario | Status | Evidence |
 | --- | --- | --- |
-| Owner Windows machine install/runtime | PASS | `runtime_audit/owner_admin_stable_gate_report.json` |
+| Owner Windows machine install/runtime | PASS | `docs/runtime-audit/owner_admin_stable_gate_report.json` |
 | Installed backend health/version | PASS | `/api/health`, `/api/version` on port `5000` |
 | WPF installed smoke | PASS | Owner admin stable gate |
 | Token sync | PASS | Owner admin stable gate |

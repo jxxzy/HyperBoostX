@@ -18,4 +18,4 @@ Audit date: 2026-07-01
 - Installed registry `DisplayVersion`: `2.10.0`
 - Installed `/api/version`: `2.10.0`
 
-Evidence: `runtime_audit/version_sync_report.json` and `runtime_audit/owner_admin_stable_gate_report.json`.
+Evidence: `docs/runtime-audit/version_sync_report.json` and `docs/runtime-audit/owner_admin_stable_gate_report.json`.

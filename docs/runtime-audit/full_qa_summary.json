@@ -1,0 +1,91 @@
+﻿{
+    "generated_at":  "2026-07-01T08:50:40.8229272Z",
+    "repo_root":  "F:\\BOOSTER BY MR.4NONY",
+    "version":  "2.10.0",
+    "release_channel":  "Stable",
+    "status":  "PASS",
+    "include_installer":  true,
+    "skip_install":  false,
+    "commands":  [
+                     "whoami; whoami /groups; dotnet --info; python --version; node --version; npm --version; git --version",
+                     "git status --short; git branch --show-current; git log -1 --oneline",
+                     "realistic token/webhook regex scan over source/docs/scripts/tests",
+                     "powershell -ExecutionPolicy Bypass -File .\\scripts\\verify_version_sync.ps1",
+                     "PSParser tokenize all source scripts",
+                     "dotnet restore HyperBoostX.sln; dotnet build HyperBoostX.sln -c Release; dotnet test dotnet-tests\\HyperBoostX.Tests\\HyperBoostX.Tests.csproj -c Release",
+                     "app\\venv\\Scripts\\python.exe -m pytest -q tests",
+                     "powershell -ExecutionPolicy Bypass -File .\\scripts\\verify_backend_routes.ps1",
+                     "powershell -ExecutionPolicy Bypass -File .\\scripts\\verify_ui_ux_quality.ps1",
+                     "powershell -ExecutionPolicy Bypass -File .\\scripts\\verify_real_usability.ps1",
+                     "powershell -ExecutionPolicy Bypass -File .\\scripts\\verify_release_artifact_contents.ps1",
+                     "check required final QA report docs",
+                     "powershell -ExecutionPolicy Bypass -File .\\scripts\\verify_installed_runtime.ps1 -ExpectedVersion 2.10.0 -BackendPort 5000 -LaunchInstalledApp -StopAfterProbe"
+                 ],
+    "results":  [
+                    {
+                        "name":  "Environment info",
+                        "status":  "PASS",
+                        "evidence":  "Completed in 3.8s"
+                    },
+                    {
+                        "name":  "Git info",
+                        "status":  "PASS",
+                        "evidence":  "Completed in 0.13s"
+                    },
+                    {
+                        "name":  "Secret scan",
+                        "status":  "PASS",
+                        "evidence":  "Completed in 0.81s"
+                    },
+                    {
+                        "name":  "Version sync",
+                        "status":  "PASS",
+                        "evidence":  "Completed in 0.25s"
+                    },
+                    {
+                        "name":  "PowerShell syntax",
+                        "status":  "PASS",
+                        "evidence":  "Completed in 0.17s"
+                    },
+                    {
+                        "name":  ".NET restore/build/test Release",
+                        "status":  "PASS",
+                        "evidence":  "Completed in 23.86s"
+                    },
+                    {
+                        "name":  "Python pytest",
+                        "status":  "PASS",
+                        "evidence":  "Completed in 85.76s"
+                    },
+                    {
+                        "name":  "Backend route contract",
+                        "status":  "PASS",
+                        "evidence":  "Completed in 67.83s"
+                    },
+                    {
+                        "name":  "WPF UI/UX quality",
+                        "status":  "PASS",
+                        "evidence":  "Completed in 0.56s"
+                    },
+                    {
+                        "name":  "Real usability",
+                        "status":  "PASS",
+                        "evidence":  "Completed in 92.2s"
+                    },
+                    {
+                        "name":  "Release artifact contents",
+                        "status":  "PASS",
+                        "evidence":  "Completed in 0.28s"
+                    },
+                    {
+                        "name":  "Docs existence",
+                        "status":  "PASS",
+                        "evidence":  "Completed in 0s"
+                    },
+                    {
+                        "name":  "Installed runtime verification",
+                        "status":  "PASS",
+                        "evidence":  "Completed in 5.77s"
+                    }
+                ]
+}

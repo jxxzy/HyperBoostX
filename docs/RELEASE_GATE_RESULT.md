@@ -9,17 +9,17 @@ Decision: `STABLE_READY_UNSIGNED`
 
 | Gate | Status | Evidence |
 | --- | --- | --- |
-| Version sync | PASS | `runtime_audit/version_sync_report.json`, expected `2.10.0`, Windows file version `2.10.0.0`. |
+| Version sync | PASS | `docs/runtime-audit/version_sync_report.json`, expected `2.10.0`, Windows file version `2.10.0.0`. |
 | Secret scan | PASS | Full QA realistic token/webhook/private-key scan passed. |
 | PowerShell syntax | PASS | Full QA PSParser scan passed. |
 | .NET Release build/test | PASS | `38 passed`. |
 | Python pytest | PASS | `72 passed`. |
-| Backend route contract | PASS | `runtime_audit/backend_routes_report.json`. |
+| Backend route contract | PASS | `docs/runtime-audit/backend_routes_report.json`. |
 | WPF UI/UX quality | PASS | Button handler, placeholder guard, and UI quality verifier passed. |
 | Real usability | PASS | Route, WPF handler, placeholder, and .NET contract gates passed. |
-| Release artifact contents | PASS | `runtime_audit/release_artifact_contents_report.json`. |
+| Release artifact contents | PASS | `docs/runtime-audit/release_artifact_contents_report.json`. |
 | Installer package | PASS | `HyperBoostXInstaller.exe` rebuilt from fresh `release/package`. |
-| Installed runtime | PASS | `runtime_audit/owner_admin_stable_gate_report.json`. |
+| Installed runtime | PASS | `docs/runtime-audit/owner_admin_stable_gate_report.json`. |
 | Registry DisplayVersion | PASS | Installed registry reports `2.10.0`. |
 | Desktop shortcut | PASS | Public Desktop shortcut exists and targets installed launcher. |
 | Start Menu shortcut | PASS | Start Menu shortcut exists and targets installed launcher. |
@@ -53,8 +53,8 @@ daec54b8ca059f9196c388811cd8ea0ad9fbff3c61f678f14bccd55f78ea3924  HyperBoostXIns
 
 Checksum manifests:
 
-- `SHA256SUMS.txt`
-- `SHA256SUMS_2.10.0.txt`
+- `docs/release/checksums/SHA256SUMS.txt`
+- `docs/release/checksums/SHA256SUMS_2.10.0.txt`
 
 ## Decision
 

@@ -9,7 +9,7 @@ if (-not (Test-Path -LiteralPath $python)) {
     $python = "python"
 }
 
-$outDir = Join-Path $RepoRoot "runtime_audit"
+$outDir = Join-Path $RepoRoot "docs\runtime-audit"
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 $jsonPath = Join-Path $outDir "backend_routes_report.json"
 $mdPath = Join-Path $outDir "backend_routes_report.md"
