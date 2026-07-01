@@ -7,7 +7,11 @@ Status: `STABLE_READY_UNSIGNED`
 
 - Promoted runtime, backend, WPF, launcher, installer, and package metadata to `2.10.0`.
 - Rebuilt the NSIS installer from fresh backend/WPF/launcher output.
-- Passed full QA: Python `72 passed`, .NET `38 passed`.
+- Rebuilt clean premium WPF content placement from the v1.3 information architecture.
+- Added Beginner, Advanced, and Expert sidebar filtering without bypassing Safety Guard.
+- Replaced core generic wrappers with placement-aware pages that keep raw backend payloads behind `Advanced Details`.
+- Passed full QA: Python `72 passed`, .NET `39 passed`.
+- Passed UI release gate: navigation, button handlers, theme resources, placement matrix, fake metric guard, generic wrapper guard, and UI/UX quality.
 - Passed owner admin stable gate against the installed artifact.
 - Confirmed registry `DisplayVersion=2.10.0`.
 - Confirmed installed backend `/api/health` and `/api/version`.
@@ -36,7 +40,7 @@ Code signing is `SKIPPED_BY_OWNER_NO_CERT`. Windows SmartScreen may warn because
 Verify SHA256 before installing:
 
 ```text
-3956493b2f9586a13c436a52560dab2def9476d2e38a0f02891bee0a1b084d89  HyperBoostXInstaller.exe
+d33c4233ffb129362bac4625f9cd87445f17e1b2863eca4bf78b0894875d49eb  HyperBoostXInstaller.exe
 ```
 
 ## Known Limitations
