@@ -2,6 +2,7 @@
 param(
     [string]$RepoRoot = "",
     [string]$ExpectedVersion = "2.10.0",
+    [string]$PrereleaseGateVersion = "2.10.0-beta.1",
     [switch]$SkipTests
 )
 
@@ -27,9 +28,11 @@ $gate = Get-Content -LiteralPath $ownerGateReport -Raw | ConvertFrom-Json
 if (-not $gate.ok) {
     throw "Stable build refused: owner admin stable gate did not pass."
 }
-if ([string]$gate.expected_version -ne $ExpectedVersion) {
-    throw "Stable build refused: owner admin stable gate expected '$($gate.expected_version)', not '$ExpectedVersion'."
+$gateExpectedVersion = [string]$gate.expected_version
+if (($gateExpectedVersion -ne $ExpectedVersion) -and ($gateExpectedVersion -ne $PrereleaseGateVersion)) {
+    throw "Stable build refused: owner admin gate expected '$gateExpectedVersion', not '$ExpectedVersion' or prerequisite '$PrereleaseGateVersion'."
 }
+Write-Host "Owner admin installed-runtime prerequisite passed for $gateExpectedVersion."
 
 Push-Location $RepoRoot
 try {

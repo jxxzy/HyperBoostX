@@ -5,7 +5,7 @@ param(
     [switch]$LaunchInstalledApp,
     [switch]$StopAfterProbe,
     [int]$ProbeTimeoutSeconds = 35,
-    [int]$BackendPort = 5055
+    [int]$BackendPort = 5000
 )
 
 Set-StrictMode -Version Latest
@@ -72,7 +72,7 @@ function Get-HyperBoostRegistryEntries {
             $propertyNames = @($p | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name)
             $displayName = Get-RegistryValue -Item $p -PropertyNames $propertyNames -Name "DisplayName"
             $publisher = Get-RegistryValue -Item $p -PropertyNames $propertyNames -Name "Publisher"
-            if (($displayName -like "*HyperBoost*") -or ($publisher -like "*HYPERINDO*")) {
+            if (($displayName -like "*HyperBoost*") -or ($publisher -like "*HyperBoost*") -or ($publisher -like "*HYPERINDO*")) {
                 $items += [pscustomobject]@{
                     root = $root
                     key = $key.PSChildName

@@ -1,26 +1,35 @@
 # HyperBoostX v2.10.0 Stable Release Notes
 
-Status: `DRAFT_BLOCKED_UNTIL_OWNER_ADMIN_GATE_PASS`
+Release date: 2026-07-01
+Status: `STABLE_READY_UNSIGNED`
 
-Do not publish these notes as stable until installed runtime verification passes after stable promotion.
+## Summary
 
-## Stable Requirements
+HyperBoostX v2.10.0 is the stable unsigned release artifact that passed source, package, installer, and installed-runtime gates on the owner machine.
 
-Before this release can be marked stable:
+## Validated Gates
 
-- Registry `DisplayVersion` must be `2.10.0`.
-- Backend `http://127.0.0.1:5000/api/health` must pass.
-- Backend `http://127.0.0.1:5000/api/version` must return `2.10.0`.
-- Desktop and Start Menu shortcuts must exist and target installed `HyperBoostX.exe`.
-- WPF installed smoke, token sync, and no-orphan checks must pass.
-- Fresh install, silent install, silent uninstall, and silent reinstall must pass.
-- Safe rollback/admin gate must pass or be explicitly handled by owner approval.
+- Version sync: PASS.
+- Full QA: PASS.
+- Python tests: `72 passed`.
+- .NET tests: `38 passed`.
+- Backend route contract: PASS.
+- WPF UI/UX guard: PASS.
+- Installer rebuild: PASS.
+- Registry DisplayVersion `2.10.0`: PASS.
+- Desktop and Start Menu shortcuts: PASS.
+- Installed backend health/version: PASS.
+- WPF installed smoke: PASS.
+- Token sync: PASS.
+- No orphan process: PASS.
+- Silent uninstall/reinstall: PASS.
 
-## Unsigned Installer Notice
+## Artifact
 
-Code signing is `SKIPPED_BY_OWNER_NO_CERT`. Windows SmartScreen may warn because the installer is unsigned. Verify SHA256 before installing.
+```text
+daec54b8ca059f9196c388811cd8ea0ad9fbff3c61f678f14bccd55f78ea3924  HyperBoostXInstaller.exe
+```
 
-## Current Draft Limitation
+## Unsigned Notice
 
-The current source remains `2.10.0-beta.1` until owner admin gate passes and stable promotion is intentionally applied.
-
+Code signing is `SKIPPED_BY_OWNER_NO_CERT`; distribute with checksum and Unknown Publisher / SmartScreen guidance.

@@ -36,7 +36,7 @@ Add-Check "NSIS file exists" (Test-Path -LiteralPath $nsiPath) $nsiPath
 Add-Check "NSIS DisplayVersion uses current version" ($nsiText -match [regex]::Escape("DisplayVersion`" `"$expectedVersion")) "expected DisplayVersion $expectedVersion"
 Add-Check "NSIS writes HKLM uninstall metadata" ($nsiText -match "CurrentVersion\\Uninstall\\HyperBoostX") "uninstall registry entry"
 Add-Check "NSIS writes QuietUninstallString" ($nsiText -match "QuietUninstallString") "silent uninstall metadata"
-Add-Check "NSIS writes owner publisher" ($nsiText -match 'Publisher"\s+"jxxzy / HyperBoostX"') "publisher metadata"
+Add-Check "NSIS writes owner publisher" ($nsiText -match 'Publisher"\s+"HyperBoostX / jxxzy"') "publisher metadata"
 Add-Check "NSIS creates Start Menu shortcut" ($nsiText -match "SMPROGRAMS") "Start Menu shortcut"
 Add-Check "NSIS creates desktop shortcut" ($nsiText -match "DESKTOP") "desktop shortcut"
 
@@ -52,7 +52,7 @@ else {
     Add-Check "installer exists" $false $installerPath
 }
 
-$hashFile = Join-Path $RepoRoot "SHA256SUMS_v2.10.0-beta.1.txt"
+$hashFile = Join-Path $RepoRoot ("SHA256SUMS_{0}.txt" -f $expectedVersion)
 Add-Check "v2.10 checksum file exists" (Test-Path -LiteralPath $hashFile) $hashFile
 if ((Test-Path -LiteralPath $hashFile) -and (Test-Path -LiteralPath $installerPath)) {
     $hashText = Get-Content -LiteralPath $hashFile -Raw

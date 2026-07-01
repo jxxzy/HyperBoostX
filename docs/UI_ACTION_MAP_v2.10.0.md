@@ -1,8 +1,8 @@
 ﻿# UI Action Map v2.10.0
 
-Version: 2.10.0-beta.1
-Channel: Beta
-Generated: 2026-07-01 02.27.01 +07:00
+Version: 2.10.0
+Channel: Stable
+Generated: 2026-07-01 15.05.04 +07:00
 
 This map is the v2.10.0 source of truth for WPF menu buttons. All visible v2.10 actions are classified Real; risky operations still return Safety Guard blocks when unsafe or not approved.
 
@@ -624,4 +624,4 @@ This map is the v2.10.0 source of truth for WPF menu buttons. All visible v2.10 
 - Big menus have at least ten active buttons.
 - Mutating actions are preview/confirmation/safety-guard gated.
 - Former roadmap/guidance surfaces now land on real local-safe boundary handlers such as local license state, plugin manifest validation, and RGB conflict detection.
-- The stable label for v2.10.0 remains blocked until installed runtime, admin rollback, hardware matrix, and code signing gates pass.
+- Stable label is allowed only with attached installed-runtime, admin rollback or owner waiver, hardware matrix, checksum, and unsigned-release evidence.

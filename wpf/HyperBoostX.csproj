@@ -16,10 +16,10 @@
     <Authors>MR.4NONY - HYPERINDO CYBER TEAM</Authors>
     <Product>HyperBoostX</Product>
     <Copyright>Copyright (c) MR.4NONY - HYPERINDO CYBER TEAM</Copyright>
-    <Version>2.10.0-beta.1</Version>
+    <Version>2.10.0</Version>
     <AssemblyVersion>2.10.0.0</AssemblyVersion>
     <FileVersion>2.10.0.0</FileVersion>
-    <InformationalVersion>2.10.0-beta.1</InformationalVersion>
+    <InformationalVersion>2.10.0</InformationalVersion>
     <SatelliteResourceLanguages>en-US;id-ID</SatelliteResourceLanguages>
   </PropertyGroup>
 

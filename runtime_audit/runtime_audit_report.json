@@ -1,20 +1,20 @@
 ﻿{
-    "generated_at":  "2026-06-30T20:31:24.4385868Z",
-    "expected_version":  "2.10.0-beta.1",
-    "is_admin":  false,
-    "launch_installed_app":  false,
-    "stop_after_probe":  false,
-    "backend_probe_timeout_seconds":  2,
-    "requested_backend_port":  5055,
+    "generated_at":  "2026-07-01T08:50:40.7686619Z",
+    "expected_version":  "2.10.0",
+    "is_admin":  true,
+    "launch_installed_app":  true,
+    "stop_after_probe":  true,
+    "backend_probe_timeout_seconds":  35,
+    "requested_backend_port":  5000,
     "registry_entries":  {
                              "root":  "HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
                              "key":  "HyperBoostX",
                              "DisplayName":  "HyperBoostX",
-                             "DisplayVersion":  "1.3.0",
-                             "Publisher":  "MR.4NONY - HYPERINDO CYBER TEAM",
+                             "DisplayVersion":  "2.10.0",
+                             "Publisher":  "HyperBoostX / jxxzy",
                              "InstallLocation":  "C:\\Program Files\\HyperBoostX",
                              "UninstallString":  "\"C:\\Program Files\\HyperBoostX\\Uninstall.exe\"",
-                             "QuietUninstallString":  null,
+                             "QuietUninstallString":  "\"C:\\Program Files\\HyperBoostX\\Uninstall.exe\" /S",
                              "InstallDate":  null,
                              "EstimatedSize":  null
                          },
@@ -22,11 +22,11 @@
                              "root":  "HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
                              "key":  "HyperBoostX",
                              "DisplayName":  "HyperBoostX",
-                             "DisplayVersion":  "1.3.0",
-                             "Publisher":  "MR.4NONY - HYPERINDO CYBER TEAM",
+                             "DisplayVersion":  "2.10.0",
+                             "Publisher":  "HyperBoostX / jxxzy",
                              "InstallLocation":  "C:\\Program Files\\HyperBoostX",
                              "UninstallString":  "\"C:\\Program Files\\HyperBoostX\\Uninstall.exe\"",
-                             "QuietUninstallString":  null,
+                             "QuietUninstallString":  "\"C:\\Program Files\\HyperBoostX\\Uninstall.exe\" /S",
                              "InstallDate":  null,
                              "EstimatedSize":  null
                          },
@@ -60,23 +60,100 @@
                                 "icon_location":  null,
                                 "error":  null
                             },
-    "launch_process":  null,
+    "launch_process":  {
+                           "id":  26480,
+                           "has_exited":  true
+                       },
     "launch_error":  null,
     "backend":  {
-                    "found":  false,
-                    "port":  null,
-                    "base_url":  null,
-                    "health":  null,
-                    "version":  null
+                    "found":  true,
+                    "port":  5000,
+                    "base_url":  "http://127.0.0.1:5000",
+                    "health":  {
+                                   "ok":  true,
+                                   "error":  null,
+                                   "data":  {
+                                                "backend_mode":  "stable",
+                                                "feature_registry_status":  {
+                                                                                "non_real_visible_in_stable":  0,
+                                                                                "stable_ui_ok":  true,
+                                                                                "stable_visible_features":  0
+                                                                            },
+                                                "local_only":  true,
+                                                "service":  "HyperBoostX Backend",
+                                                "session_token_required":  true,
+                                                "status":  "ok",
+                                                "version":  "2.10.0"
+                                            },
+                                   "uri":  "http://127.0.0.1:5000/api/health"
+                               },
+                    "version":  {
+                                    "ok":  true,
+                                    "error":  null,
+                                    "data":  {
+                                                 "channel":  "Stable",
+                                                 "name":  "HyperBoostX",
+                                                 "release":  "HyperBoostX v2.10.0 Stable",
+                                                 "stable":  true,
+                                                 "version":  "2.10.0"
+                                             },
+                                    "uri":  "http://127.0.0.1:5000/api/version"
+                                }
                 },
-    "backend_version":  null,
-    "session_token_required":  false,
-    "token_sync_status":  "NOT_TESTED_NO_LAUNCH",
-    "processes_before_stop":  {
-
-                              },
+    "backend_version":  "2.10.0",
+    "session_token_required":  true,
+    "token_sync_status":  "INFERRED_FROM_LAUNCHER_ENV_AND_TOKEN_REQUIRED_HEALTH",
+    "processes_before_stop":  [
+                                  {
+                                      "name":  "HyperBoostX",
+                                      "id":  8516,
+                                      "path":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\HyperBoostX.exe",
+                                      "from_install":  true
+                                  },
+                                  {
+                                      "name":  "HyperBoostX",
+                                      "id":  26480,
+                                      "path":  "C:\\Program Files\\HyperBoostX\\HyperBoostX.exe",
+                                      "from_install":  true
+                                  },
+                                  {
+                                      "name":  "hyperboost_backend",
+                                      "id":  19400,
+                                      "path":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe",
+                                      "from_install":  true
+                                  },
+                                  {
+                                      "name":  "hyperboost_backend",
+                                      "id":  25984,
+                                      "path":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe",
+                                      "from_install":  true
+                                  }
+                              ],
     "stopped_processes":  [
-
+                              {
+                                  "name":  "HyperBoostX",
+                                  "id":  8516,
+                                  "path":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\HyperBoostX.exe",
+                                  "from_install":  true
+                              },
+                              {
+                                  "name":  "HyperBoostX",
+                                  "id":  26480,
+                                  "path":  "C:\\Program Files\\HyperBoostX\\HyperBoostX.exe",
+                                  "from_install":  true
+                              },
+                              {
+                                  "name":  "hyperboost_backend",
+                                  "id":  19400,
+                                  "path":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe",
+                                  "from_install":  true
+                              },
+                              {
+                                  "name":  "hyperboost_backend",
+                                  "id":  25984,
+                                  "path":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe",
+                                  "from_install":  true
+                              }
                           ],
     "processes_after_stop":  {
 
@@ -92,8 +169,8 @@
                    },
                    {
                        "name":  "DisplayVersion matches source",
-                       "ok":  false,
-                       "evidence":  "1.3.0"
+                       "ok":  true,
+                       "evidence":  "2.10.0"
                    },
                    {
                        "name":  "launcher exists",
@@ -122,34 +199,34 @@
                    },
                    {
                        "name":  "backend health works",
-                       "ok":  false,
-                       "evidence":  "not found"
+                       "ok":  true,
+                       "evidence":  "http://127.0.0.1:5000"
                    },
                    {
                        "name":  "backend version matches source",
-                       "ok":  false,
-                       "evidence":  "missing"
+                       "ok":  true,
+                       "evidence":  "2.10.0"
                    },
                    {
                        "name":  "WPF installed smoke",
-                       "ok":  false,
-                       "evidence":  "not launched"
+                       "ok":  true,
+                       "evidence":  "wpf_running_from_install=True launch_error="
                    },
                    {
                        "name":  "token sync",
-                       "ok":  false,
-                       "evidence":  "NOT_TESTED_NO_LAUNCH"
+                       "ok":  true,
+                       "evidence":  "INFERRED_FROM_LAUNCHER_ENV_AND_TOKEN_REQUIRED_HEALTH"
                    },
                    {
                        "name":  "no orphan process",
-                       "ok":  false,
-                       "evidence":  "not tested without -StopAfterProbe"
+                       "ok":  true,
+                       "evidence":  ""
                    },
                    {
                        "name":  "legacy active runtime not detected",
                        "ok":  true,
-                       "evidence":  ""
+                       "evidence":  "[{\"name\":\"HyperBoostX\",\"id\":8516,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\wpf\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"HyperBoostX\",\"id\":26480,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":19400,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":25984,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true}]"
                    }
                ],
-    "ok":  false
+    "ok":  true
 }

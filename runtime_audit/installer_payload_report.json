@@ -1,7 +1,7 @@
 ﻿{
-    "generated_at":  "2026-06-30T21:07:07.9676666Z",
+    "generated_at":  "2026-07-01T08:30:11.4219477Z",
     "repo_root":  "F:\\BOOSTER BY MR.4NONY",
-    "expected_version":  "2.10.0-beta.1",
+    "expected_version":  "2.10.0",
     "installer_path":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe",
     "checks":  [
                    {
@@ -22,7 +22,7 @@
                    {
                        "name":  "NSIS DisplayVersion uses current version",
                        "ok":  true,
-                       "evidence":  "expected DisplayVersion 2.10.0-beta.1"
+                       "evidence":  "expected DisplayVersion 2.10.0"
                    },
                    {
                        "name":  "NSIS writes HKLM uninstall metadata",
@@ -57,17 +57,17 @@
                    {
                        "name":  "installer hash available",
                        "ok":  true,
-                       "evidence":  "05e689131175efd1acfe40e6995b014f48228cd4156fcf99724283a3887f5a6d"
+                       "evidence":  "daec54b8ca059f9196c388811cd8ea0ad9fbff3c61f678f14bccd55f78ea3924"
                    },
                    {
                        "name":  "v2.10 checksum file exists",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\SHA256SUMS_v2.10.0-beta.1.txt"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\SHA256SUMS_2.10.0.txt"
                    },
                    {
                        "name":  "checksum file includes current installer hash",
                        "ok":  true,
-                       "evidence":  "05e689131175efd1acfe40e6995b014f48228cd4156fcf99724283a3887f5a6d"
+                       "evidence":  "daec54b8ca059f9196c388811cd8ea0ad9fbff3c61f678f14bccd55f78ea3924"
                    }
                ],
     "ok":  true

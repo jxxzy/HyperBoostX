@@ -2,6 +2,17 @@
 
 All notable changes to HyperBoostX are documented here.
 
+## v2.10.0 - 2026-07-01
+- Promoted HyperBoostX from `2.10.0-beta.1` to `2.10.0` stable unsigned after beta installed-runtime gate passed.
+- Rebuilt the stable backend, WPF, launcher, package layout, and NSIS installer from fresh artifacts.
+- Passed full QA with Python `72 passed` and .NET `38 passed`.
+- Passed owner admin stable gate: registry `DisplayVersion=2.10.0`, Desktop shortcut, Start Menu shortcut, installed backend `/api/health`, installed backend `/api/version`, WPF smoke, token sync, no orphan process, silent uninstall, and silent reinstall.
+- Updated release readiness APIs so stable runtime reports `stable_ready_unsigned` instead of beta/stable-candidate wording.
+- Regenerated SHA256 manifests for the final stable installer.
+- Updated README, QA, audit, release notes, feature matrix, security, API, user guide, troubleshooting, hardware matrix, and rollback docs for the stable unsigned release.
+- Code signing remains `SKIPPED_BY_OWNER_NO_CERT`; distribute with checksum and Unknown Publisher / SmartScreen guidance.
+- External hardware matrix expansion remains recommended; no FPS, ping, vendor partnership, automatic driver install, full RGB device control, production cloud sync, or production license-server claims are made.
+
 ## v2.0.1 - 2026-06-26
 - Fixed Dashboard `One Click Safe Boost` runtime wiring so it builds a supported `/api/boost/plan` instead of calling removed Triple AI routes.
 - Added official WPF backend client methods for safe boost plan/apply/undo and kept old TripleAi wrappers as compatibility adapters.

@@ -1,8 +1,8 @@
 # HyperBoostX Feature Matrix
 
-Status date: 2026-06-28
-Active working version: `2.10.0-beta.1`
-Public stable baseline: `v1.3.0`
+Status date: 2026-07-01
+Active version: `2.10.0`
+Release status: `STABLE_READY_UNSIGNED`
 
 ## v2.10 Action Surface
 
@@ -35,12 +35,12 @@ Public stable baseline: `v1.3.0`
 | Windows features/services | Real-safe | Planning/status plus guarded service start/stop endpoints. |
 | Security status | Real | Defender/firewall/update status; forced disable remains blocked. |
 | Repair tools | Real-safe | SFC/DISM/CHKDSK command paths are explicit approval/admin gated. |
-| Restore/rollback | Real | Session metadata, preview/apply/verify/export/rollback routes. |
+| Restore/rollback | Real-safe | Session metadata, preview/apply/verify/export/rollback routes. |
 | Reports/logs | Real | JSON/TXT/MD export and redacted local log export. |
 | Automation | Real-safe | Local task metadata and enable/disable/delete, not arbitrary shell execution. |
 | Beginner/Advanced/Expert modes | Real | Expert exposes detail but does not bypass Safety Guard. |
 | RGB | Real-safe boundary | Software/conflict detection and approved restart guidance, not device lighting control. |
-| License/cloud | Real-safe boundary | Local beta license state, not production cloud sync. |
+| License/cloud | Real-safe boundary | Local-only boundary state, not production cloud sync. |
 | Plugins | Real-safe boundary | Local catalog/manifest validation; unsigned/arbitrary execution blocked. |
 | Documentation/audit | Real | Feature, route, UI, safety, QA, release, and root-folder audit docs present. |
 

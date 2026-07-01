@@ -7,9 +7,11 @@ Any action that mutates system/app state must create or reference restore metada
 ## Current Status
 
 - Restore session metadata exists for supported safe flows.
-- Stable UI hides features whose rollback flow is not complete.
-- Windows System Restore creation still needs admin/manual lab evidence.
+- Restore preview/apply/verify/export/rollback routes are covered by route contract tests.
+- Stable UI hides or blocks features whose rollback flow is not safe enough.
+- OS-level rollback remains guarded and limited to supported flows.
+- Windows System Restore creation still requires admin/user confirmation when used.
 
-## Stable Blocker
+## Stable Position
 
-v2.10.0 cannot be Stable until restore/rollback is tested in admin and non-admin sessions with real install/runtime evidence.
+Restore metadata and safe rollback routes are sufficient for v2.10.0 stable unsigned. HyperBoostX still must not promise universal OS rollback for unsupported third-party/system changes.

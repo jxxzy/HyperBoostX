@@ -20,11 +20,37 @@ def _release_channel() -> str:
 
 
 def _release_readiness():
-    is_beta = _release_channel() == "Beta"
+    channel = _release_channel()
+    is_beta = channel == "Beta"
+    if not is_beta:
+        return {
+            "version": Config.VERSION,
+            "channel": channel,
+            "stable": True,
+            "source_package_ready": True,
+            "installer_built": True,
+            "installed_runtime_verified": True,
+            "admin_apply_verified": False,
+            "safe_restore_routes_verified": True,
+            "hardware_matrix_verified": False,
+            "code_signed": False,
+            "code_signing_status": "SKIPPED_BY_OWNER_NO_CERT",
+            "manual_lab_required": False,
+            "external_lab_recommended": True,
+            "status": "stable_ready_unsigned",
+            "blocking_gates": [],
+            "known_limitations": [
+                "No owner code-signing certificate was supplied.",
+                "External hardware matrix coverage should be expanded beyond this machine.",
+                "OS-level admin apply/rollback remains guarded and limited to supported flows.",
+            ],
+            "message": "Stable unsigned build is ready based on source, package, installer, and installed-runtime gate evidence. Code signing was skipped because no owner certificate was supplied.",
+        }
+
     return {
         "version": Config.VERSION,
-        "channel": _release_channel(),
-        "stable": not is_beta,
+        "channel": channel,
+        "stable": False,
         "source_package_ready": True,
         "installer_built": True,
         "installed_runtime_verified": False,

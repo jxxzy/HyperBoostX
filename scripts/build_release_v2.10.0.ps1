@@ -4,9 +4,9 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "== Build HyperBoostX v2.10.0 beta package =="
-
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$buildVersion = (Get-Content -LiteralPath (Join-Path $repoRoot "VERSION") -Raw).Trim()
+Write-Host "== Build HyperBoostX $buildVersion package =="
 $localDeployRoot = Join-Path $repoRoot "artifacts\local-deploy"
 $releaseRoot = Join-Path $repoRoot "release"
 
@@ -45,4 +45,4 @@ foreach ($name in @("package", "app")) {
     Copy-Item -LiteralPath $source -Destination $target -Recurse -Force
 }
 
-Write-Host "Build complete. Verify artifacts before sharing beta builds."
+Write-Host "Build complete. Verify artifacts before sharing builds."

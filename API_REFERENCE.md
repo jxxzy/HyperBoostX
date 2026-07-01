@@ -1,7 +1,21 @@
 # HyperBoostX API Reference
 
-The current working backend contract is maintained in [docs/API_REFERENCE.md](docs/API_REFERENCE.md).
+The full current backend contract is maintained in [docs/API_REFERENCE.md](docs/API_REFERENCE.md).
 
 Base URL: `http://127.0.0.1:5000`
 
-Mutating endpoints require `X-HyperBoostX-Session` when `HYPERBOOSTX_SESSION_TOKEN` is present. v2.0.1 keeps the public v2.0.0 route shapes and adds v2.1 compatibility aliases with a standard response envelope. The public stable baseline documented in README remains v1.3.0 until a later v2 build is fully validated.
+Current release: `HyperBoostX v2.10.0 Stable Unsigned`
+
+Mutating endpoints require `X-HyperBoostX-Session` when `HYPERBOOSTX_SESSION_TOKEN` is present. v2.10.0 keeps existing v2 route shapes and compatibility aliases with a standard response envelope. Preview/read-only/blocked responses are intentional safety states, not fake automation.
+
+Core health endpoints:
+
+- `GET /api/health`
+- `GET /api/version`
+- `GET /api/release/readiness`
+
+Final installed runtime evidence:
+
+- `/api/health` returns version `2.10.0`.
+- `/api/version` returns channel `Stable`.
+- `/api/release/readiness` returns `stable_ready_unsigned`.

@@ -55,11 +55,38 @@ def _release_channel() -> str:
     return "Beta" if "-" in APP_VERSION else "Stable"
 
 def _release_readiness() -> dict:
-    is_beta = _release_channel() == "Beta"
+    channel = _release_channel()
+    is_beta = channel == "Beta"
+    if not is_beta:
+        return {
+            "current_version": APP_VERSION,
+            "channel": channel,
+            "stable": True,
+            "source_package_ready": True,
+            "installed_runtime_verified": True,
+            "admin_apply_verified": False,
+            "safe_restore_routes_verified": True,
+            "hardware_matrix_verified": False,
+            "code_signed": False,
+            "code_signing_status": "SKIPPED_BY_OWNER_NO_CERT",
+            "release_ready": True,
+            "stable_unsigned_ready": True,
+            "beta_ready": False,
+            "manual_lab_required": False,
+            "external_lab_recommended": True,
+            "status": "stable_ready_unsigned",
+            "blocking_gates": [],
+            "known_limitations": [
+                "No owner code-signing certificate was supplied.",
+                "External hardware matrix coverage should be expanded beyond this machine.",
+                "OS-level admin apply/rollback remains guarded and limited to supported flows.",
+            ],
+        }
+
     return {
         "current_version": APP_VERSION,
-        "channel": _release_channel(),
-        "stable": not is_beta,
+        "channel": channel,
+        "stable": False,
         "source_package_ready": True,
         "installed_runtime_verified": False,
         "admin_apply_verified": False,
@@ -956,12 +983,17 @@ def features_audit():
 @product_v14_bp.route("/update/check", methods=["GET"])
 @handle_errors
 def update_check():
+    channel = _release_channel()
     return jsonify({
         **_release_readiness(),
         "current_version": APP_VERSION,
         "manual_check_only": True,
         "auto_install": False,
-        "message": "Manual update check is guide-only in this beta; no silent updater runs.",
+        "message": (
+            "Manual update check is guide-only in this stable unsigned build; no silent updater runs."
+            if channel == "Stable"
+            else "Manual update check is guide-only in this beta; no silent updater runs."
+        ),
     })
 
 @product_v14_bp.route("/update/latest", methods=["GET"])
@@ -1282,11 +1314,12 @@ def utilities_status():
 @product_v14_bp.route("/master-test/status", methods=["GET"])
 @handle_errors
 def master_test_status():
+    readiness = _release_readiness()
     return jsonify({
-        **_release_readiness(),
-        "status": "beta_source_smoke_available",
+        **readiness,
+        "status": readiness.get("status", "beta_source_smoke_available"),
         "automated_suites": ["pytest", "dotnet test", "route contract", "UI/UX guard", "package guard"],
-        "installed_app_validation": "partial_until_installer_flow_runs",
+        "installed_app_validation": "passed_owner_admin_stable_gate" if readiness.get("stable") else "partial_until_installer_flow_runs",
     })
 
 

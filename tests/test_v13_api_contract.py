@@ -1,28 +1,42 @@
 import time
+from pathlib import Path
 
 from app.backend_server import HyperBoostBackendServer
 from services.monitoring.crash_report_service import CrashReportService
 from services.monitoring.report_service import ReportService
 
 
-def test_health_and_version_are_v210_beta():
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+def _expected_version():
+    return (REPO_ROOT / "VERSION").read_text(encoding="utf-8").strip()
+
+
+def _expected_channel(version):
+    return "Beta" if "-" in version else "Stable"
+
+
+def test_health_and_version_match_runtime_version():
     server = HyperBoostBackendServer()
     client = server.app.test_client()
+    expected_version = _expected_version()
+    expected_channel = _expected_channel(expected_version)
 
     health = client.get("/api/health")
     version = client.get("/api/version")
     readiness = client.get("/api/release/readiness")
 
     assert health.status_code == 200
-    assert health.get_json()["version"] == "2.10.0-beta.1"
+    assert health.get_json()["version"] == expected_version
     version_payload = version.get_json()
-    assert version_payload["release"] == "HyperBoostX v2.10.0-beta.1 Beta"
-    assert version_payload["channel"] == "Beta"
-    assert version_payload["stable"] is False
+    assert version_payload["release"] == f"HyperBoostX v{expected_version} {expected_channel}"
+    assert version_payload["channel"] == expected_channel
+    assert version_payload["stable"] is (expected_channel == "Stable")
     readiness_payload = readiness.get_json()
-    assert readiness_payload["status"] == "beta_ready"
-    assert readiness_payload["stable"] is False
-    assert readiness_payload["manual_lab_required"] is True
+    assert readiness_payload["status"] in {"beta_ready", "stable_candidate", "stable_candidate_requires_lab", "stable_ready", "stable_ready_unsigned"}
+    assert readiness_payload["stable"] is (expected_channel == "Stable")
+    assert readiness_payload["manual_lab_required"] is (expected_channel != "Stable")
 
 
 def test_required_v13_read_endpoints_exist(monkeypatch):

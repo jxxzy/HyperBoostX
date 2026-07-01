@@ -5,7 +5,7 @@ param(
     [switch]$LaunchInstalledApp,
     [switch]$StopAfterProbe,
     [int]$ProbeTimeoutSeconds = 35,
-    [int]$BackendPort = 5055
+    [int]$BackendPort = 5000
 )
 
 $ErrorActionPreference = "Stop"

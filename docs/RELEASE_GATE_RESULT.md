@@ -1,32 +1,34 @@
-﻿# Release Gate Result
+# Release Gate Result
 
 Audit date: 2026-07-01
-Candidate version: `2.10.0-beta.1`
+Candidate version: `2.10.0`
 Branch: `feature/hyperboostx-v2-release`
-Recommendation: `BETA_READY` / stable candidate for owner lab. Public stable: `NO-GO` until manual blockers close.
+Decision: `STABLE_READY_UNSIGNED`
 
 ## Gate Table
 
 | Gate | Status | Evidence |
 | --- | --- | --- |
-| Environment info | PASS | Captured by `artifacts/qa/full_qa_summary.json`. |
-| Repository info | PASS WITH NOTES | Worktree intentionally contains many staged/untracked v2.10 changes; no commit/tag created. |
+| Version sync | PASS | `runtime_audit/version_sync_report.json`, expected `2.10.0`, Windows file version `2.10.0.0`. |
 | Secret scan | PASS | Full QA realistic token/webhook/private-key scan passed. |
-| Version sync | PASS | `runtime_audit/version_sync_report.json`, `2.10.0-beta.1`, Windows file version `2.10.0.0`. |
 | PowerShell syntax | PASS | Full QA PSParser scan passed. |
-| .NET Release build/test | PASS | Build passed, tests `38 passed`. |
+| .NET Release build/test | PASS | `38 passed`. |
 | Python pytest | PASS | `72 passed`. |
-| Backend route contract | PASS | `runtime_audit/backend_routes_report.json`; route contract smoke passed. |
+| Backend route contract | PASS | `runtime_audit/backend_routes_report.json`. |
 | WPF UI/UX quality | PASS | Button handler, placeholder guard, and UI quality verifier passed. |
 | Real usability | PASS | Route, WPF handler, placeholder, and .NET contract gates passed. |
 | Release artifact contents | PASS | `runtime_audit/release_artifact_contents_report.json`. |
-| Docs existence | PASS | Required final docs exist. |
-| Installer package | PASS | Rebuilt `HyperBoostXInstaller.exe` from fresh synced `release/package`. |
-| Installed runtime | FAIL/BLOCKER | `runtime_audit/runtime_audit_report.md`; installed registry reports `1.3.0` and backend health was not found. |
-| Admin rollback lab | BLOCKED | Requires elevated owner lab run. |
-| Hardware matrix | BLOCKED | Requires owner devices/profiles. |
-| Code signing | SKIPPED_BY_OWNER_NO_CERT | Unsigned distribution requires explicit owner approval and checksum verification. |
-| Stable tag/release | NOT CREATED | Deliberately blocked until owner stable approval. |
+| Installer package | PASS | `HyperBoostXInstaller.exe` rebuilt from fresh `release/package`. |
+| Installed runtime | PASS | `runtime_audit/owner_admin_stable_gate_report.json`. |
+| Registry DisplayVersion | PASS | Installed registry reports `2.10.0`. |
+| Desktop shortcut | PASS | Public Desktop shortcut exists and targets installed launcher. |
+| Start Menu shortcut | PASS | Start Menu shortcut exists and targets installed launcher. |
+| Backend health/version | PASS | Installed `/api/health` and `/api/version` pass on port `5000`. |
+| WPF installed smoke | PASS | Installed launcher/WPF/backend smoke passed. |
+| Token sync | PASS | Token-required backend health plus WPF running from launcher passed. |
+| No orphan process | PASS | Installed processes were stopped and no orphan remained. |
+| Silent uninstall/reinstall | PASS | Owner admin stable gate passed both. |
+| Code signing | SKIPPED_BY_OWNER_NO_CERT | No owner certificate/PFX was supplied; unsigned distribution requires checksum verification. |
 
 ## Current Metrics
 
@@ -36,28 +38,24 @@ Recommendation: `BETA_READY` / stable candidate for owner lab. Public stable: `N
 | Total buttons | 596 |
 | Active buttons | 596 |
 | Partial/roadmap/guidance buttons | 0 |
+| Guarded destructive buttons | 20 |
 | Unique UI endpoints used | 165 |
 | Backend API route rules | 365 |
 | Unique backend API paths | 361 |
+| Python tests passed | 72 |
+| .NET tests passed | 38 |
 
-## Release Artifacts
+## Release Artifact
 
 ```text
-05e689131175efd1acfe40e6995b014f48228cd4156fcf99724283a3887f5a6d  HyperBoostXInstaller.exe
+daec54b8ca059f9196c388811cd8ea0ad9fbff3c61f678f14bccd55f78ea3924  HyperBoostXInstaller.exe
 ```
 
 Checksum manifests:
 
 - `SHA256SUMS.txt`
-- `SHA256SUMS_v2.10.0-beta.1.txt`
+- `SHA256SUMS_2.10.0.txt`
 
 ## Decision
 
-Automated source/package gates passed. The candidate can be used for controlled beta/owner lab validation.
-
-Stable release remains blocked until installed runtime, admin rollback, hardware matrix, signing, and owner release approval are complete.
-
-
-
-
-
+`2.10.0` is approved as a local stable unsigned build by the completed source/package/install/runtime gates. It remains unsigned until the owner provides signing material.

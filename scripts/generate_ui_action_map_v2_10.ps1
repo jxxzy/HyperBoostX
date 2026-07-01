@@ -271,7 +271,11 @@ $lines += "- Every menu has at least six active buttons."
 $lines += "- Big menus have at least ten active buttons."
 $lines += "- Mutating actions are preview/confirmation/safety-guard gated."
 $lines += "- Former roadmap/guidance surfaces now land on real local-safe boundary handlers such as local license state, plugin manifest validation, and RGB conflict detection."
-$lines += "- The stable label for v2.10.0 remains blocked until installed runtime, admin rollback, hardware matrix, and code signing gates pass."
+if ($root.channel -eq "Stable") {
+    $lines += "- Stable label is allowed only with attached installed-runtime, admin rollback or owner waiver, hardware matrix, checksum, and unsigned-release evidence."
+} else {
+    $lines += "- The stable label for v2.10.0 remains blocked until installed runtime, admin rollback, hardware matrix, and code signing gates pass."
+}
 
 $lines | Set-Content -LiteralPath $DocsPath -Encoding UTF8
 

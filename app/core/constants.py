@@ -13,7 +13,7 @@ def _resolve_backend_port() -> int:
     return port if 1024 <= port <= 65535 else 5000
 
 APP_NAME = "HyperBoostX"
-APP_VERSION = "2.10.0-beta.1"
+APP_VERSION = "2.10.0"
 BACKEND_HOST = "127.0.0.1"
 BACKEND_PORT = _resolve_backend_port()
 BACKEND_URL = f"http://{BACKEND_HOST}:{BACKEND_PORT}"

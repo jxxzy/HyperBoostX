@@ -1,7 +1,19 @@
 import json
+from pathlib import Path
 
 from app.backend_server import HyperBoostBackendServer
 from services.product_features import ProcessAnalyzerService, RestoreService
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+def _expected_version():
+    return (REPO_ROOT / "VERSION").read_text(encoding="utf-8").strip()
+
+
+def _expected_channel(version):
+    return "Beta" if "-" in version else "Stable"
 
 
 def test_background_pressure_excludes_idle_process_and_normalizes_cpu(monkeypatch):
@@ -423,9 +435,11 @@ POST /api/logs/export {}
         assert payload["status"] in {"success", "partial", "blocked", "error", "preview"}, (method, path, payload)
 
 
-def test_release_readiness_and_update_contract_are_beta_until_lab(monkeypatch, tmp_path):
+def test_release_readiness_and_update_contract_follow_runtime_channel(monkeypatch, tmp_path):
     monkeypatch.setenv("HYPERBOOSTX_PORTABLE_HOME", str(tmp_path))
     monkeypatch.delenv("HYPERBOOSTX_SESSION_TOKEN", raising=False)
+    expected_version = _expected_version()
+    expected_channel = _expected_channel(expected_version)
 
     server = HyperBoostBackendServer()
     client = server.app.test_client()
@@ -435,15 +449,21 @@ def test_release_readiness_and_update_contract_are_beta_until_lab(monkeypatch, t
     master = client.get("/api/master-test/status").get_json()
 
     for payload in (readiness, update, master):
-        assert payload["channel"] == "Beta"
-        assert payload["stable"] is False
-        assert payload["manual_lab_required"] is True
-        assert "installed_runtime_verification" in payload["blocking_gates"]
-        assert "hardware_matrix_lab" in payload["blocking_gates"]
+        assert payload["channel"] == expected_channel
+        expected_stable = expected_channel == "Stable"
+        assert payload["stable"] is expected_stable
+        assert payload["manual_lab_required"] is (not expected_stable)
+        if expected_stable:
+            assert payload["status"] == "stable_ready_unsigned"
+            assert payload["blocking_gates"] == []
+            assert payload["code_signing_status"] == "SKIPPED_BY_OWNER_NO_CERT"
+        else:
+            assert "installed_runtime_verification" in payload["blocking_gates"]
+            assert "hardware_matrix_lab" in payload["blocking_gates"]
 
-    assert readiness["status"] == "beta_ready"
-    assert update["beta_ready"] is True
-    assert master["release_ready"] is False
+    assert readiness["status"] in {"beta_ready", "stable_candidate", "stable_candidate_requires_lab", "stable_ready", "stable_ready_unsigned"}
+    assert update["current_version"] == expected_version
+    assert master["release_ready"] is (expected_channel == "Stable")
 
 
 def test_streaming_legacy_toolkit_is_exposed(monkeypatch, tmp_path):

@@ -176,8 +176,8 @@ try {
     }
 
     if ($IncludeInstaller -and -not $SkipInstall) {
-        Invoke-GateStep "Installed runtime verification" "powershell -ExecutionPolicy Bypass -File .\scripts\verify_installed_runtime.ps1" {
-            powershell -NoProfile -ExecutionPolicy Bypass -File ".\scripts\verify_installed_runtime.ps1"
+        Invoke-GateStep "Installed runtime verification" "powershell -ExecutionPolicy Bypass -File .\scripts\verify_installed_runtime.ps1 -ExpectedVersion $expectedVersion -BackendPort 5000 -LaunchInstalledApp -StopAfterProbe" {
+            powershell -NoProfile -ExecutionPolicy Bypass -File ".\scripts\verify_installed_runtime.ps1" -ExpectedVersion $expectedVersion -BackendPort 5000 -LaunchInstalledApp -StopAfterProbe
             if ($LASTEXITCODE -ne 0) { throw "Installed runtime verification failed." }
         }
     }

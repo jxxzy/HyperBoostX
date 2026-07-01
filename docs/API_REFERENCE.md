@@ -1,10 +1,10 @@
-# HyperBoostX v2.0.1 Working API Reference
+# HyperBoostX v2.10.0 Stable API Reference
 
 Base URL: `http://127.0.0.1:5000`
 
 The backend is local-only. Mutating endpoints require `X-HyperBoostX-Session` when `HYPERBOOSTX_SESSION_TOKEN` is present. All reports, logs, crash exports, and action logs apply privacy redaction for tokens, usernames, and sensitive local paths.
 
-This document describes the current v2.0.1 working tree. The public v2.0.0 release routes remain supported; v2.1 compatibility aliases are exposed for the restored WPF sidebar and future clients. Preview/read-only/blocked responses are intentional safety states, not release claims for destructive automation.
+This document describes the current v2.10.0 stable unsigned backend contract. Existing v2 route shapes remain supported; v2.1 compatibility aliases are exposed for the restored WPF sidebar and future clients. Preview/read-only/blocked responses are intentional safety states, not release claims for destructive automation.
 
 ## Standard v2.1 Envelope
 
@@ -33,13 +33,13 @@ Compatibility aliases return this envelope shape:
 `GET /api/health`
 
 ```json
-{"status":"ok","version":"2.0.1","local_only":true,"session_token_required":false}
+{"status":"ok","version":"2.10.0","local_only":true,"session_token_required":false}
 ```
 
 `GET /api/version`
 
 ```json
-{"name":"HyperBoostX","version":"2.0.1","release":"HyperBoostX v2.0.1 Working Build"}
+{"name":"HyperBoostX","version":"2.10.0","release":"HyperBoostX v2.10.0 Stable","channel":"Stable","stable":true}
 ```
 
 ## Existing Core APIs

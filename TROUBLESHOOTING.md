@@ -13,7 +13,7 @@ Unknown GPU fallback is safe. HyperBoostX will avoid vendor-specific changes and
 
 ## SmartScreen Or Unknown Publisher
 
-Unsigned builds may show Unknown Publisher or SmartScreen. Download only from the official GitHub Release and verify SHA256 before installing.
+v2.10.0 is stable unsigned because no owner code-signing certificate/PFX was supplied. Windows may show Unknown Publisher or SmartScreen. Verify `SHA256SUMS.txt` before installing.
 
 ## AI Advisor Looks Conservative
 
@@ -25,4 +25,4 @@ Crash reports are local and redacted. They are not uploaded automatically. Revie
 
 ## Restore
 
-Use Restore & Backup or restore-session endpoints to inspect metadata. Safe Mode / Recovery Mode is roadmap; v2.0.0 keeps restore metadata and undo visibility as the supported recovery path.
+Use Restore & Backup or restore-session endpoints to inspect metadata. v2.10.0 keeps restore metadata, preview, undo visibility, and guarded rollback routes as the supported recovery path.

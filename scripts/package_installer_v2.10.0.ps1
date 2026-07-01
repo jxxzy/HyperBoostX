@@ -4,7 +4,11 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "== Package HyperBoostX v2.10.0 beta installer =="
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$packageVersion = (Get-Content -LiteralPath (Join-Path $repoRoot "VERSION") -Raw).Trim()
+$versionedHashFile = "SHA256SUMS_$packageVersion.txt"
+
+Write-Host "== Package HyperBoostX $packageVersion installer =="
 
 if (-not $SkipBuild) {
     powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build_release_v2.10.0.ps1 -SkipTests | Out-Host
@@ -42,7 +46,7 @@ foreach ($candidate in $hashCandidates) {
 }
 
 if ($hashLines.Count -gt 0) {
-    $hashLines | Set-Content -LiteralPath "SHA256SUMS_v2.10.0-beta.1.txt" -Encoding ASCII
+    $hashLines | Set-Content -LiteralPath $versionedHashFile -Encoding ASCII
     $hashLines | Set-Content -LiteralPath "SHA256SUMS.txt" -Encoding ASCII
 }
 

@@ -1,19 +1,19 @@
 ﻿{
-    "generated_at":  "2026-06-30T21:07:24.8845083Z",
+    "generated_at":  "2026-07-01T08:46:04.3051132Z",
     "repo_root":  "F:\\BOOSTER BY MR.4NONY",
-    "expected_version":  "2.10.0-beta.1",
+    "expected_version":  "2.10.0",
     "expected_windows_version":  "2.10.0.0",
     "checks":  [
                    {
                        "name":  "backend APP_VERSION",
-                       "expected":  "2.10.0-beta.1",
-                       "actual":  "2.10.0-beta.1",
+                       "expected":  "2.10.0",
+                       "actual":  "2.10.0",
                        "ok":  true
                    },
                    {
                        "name":  "WPF Version",
-                       "expected":  "2.10.0-beta.1",
-                       "actual":  "2.10.0-beta.1",
+                       "expected":  "2.10.0",
+                       "actual":  "2.10.0",
                        "ok":  true
                    },
                    {
@@ -24,14 +24,14 @@
                    },
                    {
                        "name":  "WPF InformationalVersion",
-                       "expected":  "2.10.0-beta.1",
-                       "actual":  "2.10.0-beta.1",
+                       "expected":  "2.10.0",
+                       "actual":  "2.10.0",
                        "ok":  true
                    },
                    {
                        "name":  "Launcher Version",
-                       "expected":  "2.10.0-beta.1",
-                       "actual":  "2.10.0-beta.1",
+                       "expected":  "2.10.0",
+                       "actual":  "2.10.0",
                        "ok":  true
                    },
                    {
@@ -42,14 +42,14 @@
                    },
                    {
                        "name":  "Launcher InformationalVersion",
-                       "expected":  "2.10.0-beta.1",
-                       "actual":  "2.10.0-beta.1",
+                       "expected":  "2.10.0",
+                       "actual":  "2.10.0",
                        "ok":  true
                    },
                    {
                        "name":  "Installer DisplayVersion",
-                       "expected":  "2.10.0-beta.1",
-                       "actual":  "2.10.0-beta.1",
+                       "expected":  "2.10.0",
+                       "actual":  "2.10.0",
                        "ok":  true
                    },
                    {
@@ -60,8 +60,8 @@
                    },
                    {
                        "name":  "Installer resource ProductVersion",
-                       "expected":  "2.10.0-beta.1",
-                       "actual":  "2.10.0-beta.1",
+                       "expected":  "2.10.0",
+                       "actual":  "2.10.0",
                        "ok":  true
                    }
                ],

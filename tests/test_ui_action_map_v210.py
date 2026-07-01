@@ -7,12 +7,17 @@ from app.backend_server import HyperBoostBackendServer
 REPO_ROOT = Path(__file__).resolve().parents[1]
 ACTION_MAP = REPO_ROOT / "wpf" / "Data" / "ui_action_map_v2_10.json"
 ACTION_DOC = REPO_ROOT / "docs" / "UI_ACTION_MAP_v2.10.0.md"
+VERSION_FILE = REPO_ROOT / "VERSION"
 NAVIGATION_VM = REPO_ROOT / "wpf" / "ViewModels" / "MainWindowViewModel.cs"
 MAIN_WINDOW = REPO_ROOT / "wpf" / "MainWindow.xaml.cs"
 
 
 def _load_map():
     return json.loads(ACTION_MAP.read_text(encoding="utf-8-sig"))
+
+
+def _expected_version():
+    return VERSION_FILE.read_text(encoding="utf-8").strip()
 
 
 def _route_lookup(app):
@@ -30,8 +35,9 @@ def _path_without_query(path):
 def test_ui_action_map_button_density_and_states():
     payload = _load_map()
     menus = payload["menus"]
-    assert payload["app_version"] == "2.10.0-beta.1"
-    assert payload["channel"] == "Beta"
+    expected_version = _expected_version()
+    assert payload["app_version"] == expected_version
+    assert payload["channel"] == ("Beta" if "-" in expected_version else "Stable")
     assert len(menus) >= 60
     assert payload["summary"]["total_buttons"] >= 360
     assert payload["summary"]["total_active_buttons"] == payload["summary"]["total_buttons"]

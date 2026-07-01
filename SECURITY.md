@@ -1,8 +1,6 @@
 # Security Policy
 
-Current public stable baseline: `HyperBoostX v1.3.0 Stable`
-
-The v2.x line is a development preview until full validation is complete. Security boundaries below apply to both stable and preview lines.
+Current stable release: `HyperBoostX v2.10.0 Stable Unsigned`
 
 ## Local Backend
 
@@ -28,7 +26,7 @@ HyperBoostX blocks:
 
 ## AI Restrictions
 
-The v1.4 AI Performance Advisor is a local deterministic diagnosis engine. It may suggest allowlisted safe action IDs, but it does not execute shell commands, bypass Safety Guard, or apply actions without approval.
+Advisor flows are local deterministic diagnosis and planning surfaces. They may suggest allowlisted safe action IDs, but they do not execute shell commands, bypass Safety Guard, or apply actions without approval.
 
 ## Protected Processes
 
@@ -40,11 +38,13 @@ Crash reports, action logs, exported reports, and diagnostics redact API keys, A
 
 ## Telemetry
 
-Telemetry is off by default. v1.4 includes settings fields for future anonymous usage opt-in, but no online telemetry is sent silently.
+Telemetry is off by default. No online telemetry is sent silently.
 
 ## Driver And Installer Safety
 
-HyperBoostX does not auto-download drivers, does not silently install third-party software, and does not claim official NVIDIA/AMD/Intel partnership. Unsigned installer builds must be documented with Unknown Publisher and SmartScreen guidance.
+HyperBoostX does not auto-download drivers, does not silently install third-party software, and does not claim official NVIDIA/AMD/Intel partnership.
+
+The v2.10.0 installer is unsigned because code signing is `SKIPPED_BY_OWNER_NO_CERT`. Distribute it with checksum and Unknown Publisher / SmartScreen guidance.
 
 ## Reporting Issues
 
