@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class BenchmarkLabViewModel : CyberPageViewModel
+    public sealed class BenchmarkLabViewModel : PlacementPageViewModel
     {
         public BenchmarkLabViewModel() : base("Benchmark Lab", "Manual FPS, CSV import, local history, and frametime report foundation.")
         {

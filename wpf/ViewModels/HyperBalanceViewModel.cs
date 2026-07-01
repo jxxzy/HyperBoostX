@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class HyperBalanceViewModel : CyberPageViewModel
+    public sealed class HyperBalanceViewModel : PlacementPageViewModel
     {
         public HyperBalanceViewModel() : base("HyperBalance", "Smart balance between foreground game, streaming apps, and protected processes.")
         {

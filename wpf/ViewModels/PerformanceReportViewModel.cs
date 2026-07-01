@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class PerformanceReportViewModel : CyberPageViewModel
+    public sealed class PerformanceReportViewModel : PlacementPageViewModel
     {
         public PerformanceReportViewModel() : base("Performance Report", "Before/after local counters with export and no FPS guarantees.")
         {

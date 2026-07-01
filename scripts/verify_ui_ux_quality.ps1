@@ -52,8 +52,11 @@ foreach ($key in $navKeys) {
     }
     if (Test-Path -LiteralPath $xamlPath) {
         $viewRaw = Get-Content -LiteralPath $xamlPath -Raw
-        if ($viewRaw.Length -lt 120 -or ($viewRaw -notmatch '<views:CyberPageChrome' -and $viewRaw -notmatch '<Button\b|<ItemsControl\b|<TextBox\b|<CheckBox\b')) {
+        if ($viewRaw.Length -lt 120 -or ($viewRaw -notmatch '<views:PlacementPageChrome' -and $viewRaw -notmatch '<Button\b|<ItemsControl\b|<TextBox\b|<CheckBox\b')) {
             Add-Failure "Route '$key' appears empty or non-interactive: $viewName.xaml"
+        }
+        if ($viewRaw -match '<views:CyberPageChrome') {
+            Add-Failure "Route '$key' still uses generic CyberPageChrome wrapper: $viewName.xaml"
         }
     }
 }

@@ -19,7 +19,84 @@ namespace HyperBoostX.ViewModels
         private string _accentColor = "Cyan";
         private string _toastMessage = "Cyber UI loaded";
         private string _searchText = "";
+        private readonly List<NavigationItemViewModel> _allNavigationItems;
         private List<NavigationItemViewModel> _runtimeNavigationItems = new();
+
+        private static readonly IReadOnlyList<string> BeginnerNavigationKeys = new[]
+        {
+            "Dashboard",
+            "OneClickBoost",
+            "AutoGamingMode",
+            "AIPerformanceAdvisor",
+            "PerformanceBoost",
+            "StartupManager",
+            "BackgroundApps",
+            "Cleanup",
+            "Storage",
+            "GpuCenter",
+            "GamingBooster",
+            "StreamingCenter",
+            "CreatorMode",
+            "NetworkBooster",
+            "DnsLatencyTools",
+            "PrivacyCenter",
+            "SecurityHealth",
+            "AppsManager",
+            "TweaksCenter",
+            "WindowsFeatures",
+            "UpdateControl",
+            "RepairTools",
+            "DriverUpdateCenter",
+            "AppUninstaller",
+            "RestoreBackup",
+            "Settings",
+            "About"
+        };
+
+        private static readonly IReadOnlyList<string> AdvancedNavigationKeys = BeginnerNavigationKeys
+            .Concat(new[]
+            {
+                "SmartScan",
+                "HyperBoostScore",
+                "CpuTurboDiagnostic",
+                "CpuRamOptimizer",
+                "HyperBalance",
+                "ProcessAnalyzer",
+                "DriverRecommendation",
+                "OverlayConflictDetector",
+                "GameLibrary",
+                "GameProfiles",
+                "AdvancedMicMixer",
+                "WebcamStudio",
+                "CameraTracking",
+                "NetworkOptimization",
+                "NetworkTools",
+                "SystemRealityGuard",
+                "LcdPerformanceGuard",
+                "DefenderScanGuard",
+                "SecurityRealityAudit",
+                "ProtectedApps",
+                "AdvancedTweaks",
+                "WindowsServices",
+                "PowerOptimization",
+                "VisualEffects",
+                "MsiSafeOptimizer",
+                "RestorePointManager",
+                "Reports",
+                "PerformanceHistory",
+                "PerformanceReport",
+                "ScheduledAutomation",
+                "TaskRuleSystem",
+                "UtilitiesTools",
+                "BenchmarkLab",
+                "ReleaseReadiness",
+                "FeatureAudit",
+                "MasterTestEngine",
+                "FeatureAuditMatrix",
+                "KnowledgeBase"
+            })
+            .Distinct()
+            .ToList();
 
         public ObservableCollection<NavigationItemViewModel> NavigationItems { get; } = new()
         {
@@ -108,6 +185,12 @@ namespace HyperBoostX.ViewModels
             new NavigationItemViewModel { Key = "About", Label = "About App", Glyph = "AB", Group = "About" }
         };
 
+        public MainWindowViewModel()
+        {
+            _allNavigationItems = NavigationItems.ToList();
+            _runtimeNavigationItems = _allNavigationItems;
+        }
+
         public string PageTitle { get => _pageTitle; set => SetProperty(ref _pageTitle, value); }
         public string PageSubtitle { get => _pageSubtitle; set => SetProperty(ref _pageSubtitle, value); }
         public string BackendStatus { get => _backendStatus; set => SetProperty(ref _backendStatus, value); }
@@ -133,24 +216,29 @@ namespace HyperBoostX.ViewModels
         public void ApplyFeatureVisibility()
         {
             var snapshot = FeatureVisibilityService.Current;
-            RuntimeMode = snapshot.Mode == HyperBoostAppMode.Stable
-                ? $"Stable ({snapshot.StableVisibleFeatures} real features)"
-                : $"Dev ({snapshot.TotalFeatures} features)";
+            var source = _allNavigationItems.Count > 0 ? _allNavigationItems : NavigationItems.ToList();
+            var modeLabel = string.IsNullOrWhiteSpace(CurrentMode) ? "Beginner" : CurrentMode.Trim();
 
-            foreach (var item in NavigationItems)
+            foreach (var item in source)
                 item.Status = FeatureVisibilityService.GetStatus(item.Key);
 
-            var visible = NavigationItems
+            var visible = source
                 .Where(item => FeatureVisibilityService.IsVisible(item.Key))
                 .ToList();
 
             if (snapshot.Mode != HyperBoostAppMode.Stable || !snapshot.BlockNonRealStableUi)
-                visible = NavigationItems.ToList();
+                visible = source.ToList();
+
+            visible = ApplyExperienceModeFilter(visible, modeLabel);
+
+            RuntimeMode = snapshot.Mode == HyperBoostAppMode.Stable
+                ? $"Stable / {modeLabel} ({visible.Count} visible)"
+                : $"Dev / {modeLabel} ({visible.Count} visible)";
 
             _runtimeNavigationItems = visible;
             ApplySearchFilter();
             ToastMessage = snapshot.Mode == HyperBoostAppMode.Stable
-                ? $"{snapshot.HiddenFromStable} non-real beta/dev features hidden from Stable UI"
+                ? $"{modeLabel} sidebar ready: {visible.Count} stable-real page(s), {snapshot.HiddenFromStable} non-real beta/dev feature(s) hidden"
                 : "DEV_MODE shows experimental features for internal audit";
         }
 
@@ -171,6 +259,28 @@ namespace HyperBoostX.ViewModels
 
             if (NavigationItems.All(item => !item.IsActive) && NavigationItems.Count > 0)
                 NavigationItems[0].IsActive = true;
+        }
+
+        private static List<NavigationItemViewModel> ApplyExperienceModeFilter(
+            IReadOnlyList<NavigationItemViewModel> visible,
+            string modeLabel)
+        {
+            if (modeLabel.Contains("Expert", System.StringComparison.OrdinalIgnoreCase))
+                return visible.ToList();
+
+            var allowedKeys = modeLabel.Contains("Advanced", System.StringComparison.OrdinalIgnoreCase)
+                ? AdvancedNavigationKeys
+                : BeginnerNavigationKeys;
+
+            var byKey = visible.ToDictionary(item => item.Key, System.StringComparer.OrdinalIgnoreCase);
+            var ordered = new List<NavigationItemViewModel>();
+            foreach (var key in allowedKeys)
+            {
+                if (byKey.TryGetValue(key, out var item))
+                    ordered.Add(item);
+            }
+
+            return ordered;
         }
 
         private static bool Contains(string value, string query)

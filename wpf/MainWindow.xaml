@@ -3,10 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:scm="clr-namespace:System.Windows.Data;assembly=PresentationFramework"
         Title="HyperBoostX - Safe AI Windows Gaming Optimizer"
-        Height="900"
-        Width="1440"
-        MinHeight="760"
-        MinWidth="1180"
+        Height="860"
+        Width="1360"
+        MinHeight="680"
+        MinWidth="980"
         Background="{StaticResource Brush.Background.Main}"
         Foreground="{StaticResource Brush.Text.Primary}"
         ResizeMode="CanResize"
@@ -23,20 +23,20 @@
 
     <Grid Background="{StaticResource Brush.Background.Main}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="292"/>
+            <ColumnDefinition Width="264"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0" Background="{StaticResource Brush.Background.Sidebar}" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="0,0,1,0">
             <DockPanel LastChildFill="True">
-                <Border DockPanel.Dock="Top" Padding="22,22,20,18" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="0,0,0,1">
+                <Border DockPanel.Dock="Top" Padding="18,18,16,14" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="0,0,0,1">
                     <StackPanel>
-                        <TextBlock Text="HyperBoostX" FontSize="24" FontWeight="Black" Foreground="{StaticResource Brush.Accent.Primary}"/>
+                        <TextBlock Text="HyperBoostX" FontSize="22" FontWeight="Black" Foreground="{StaticResource Brush.Accent.Primary}"/>
                         <TextBlock Text="SAFE AI GAMING OPTIMIZER" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource Brush.Text.Muted}" Margin="0,6,0,0"/>
                         <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                  ToolTip="Search visible features"
                                  Margin="0,14,0,0"
-                                 Height="34"
+                                 Height="32"
                                  Padding="10,6"
                                  Background="#121A2A"
                                  BorderBrush="{StaticResource Brush.Border.Subtle}"
@@ -61,11 +61,6 @@
                                 <Ellipse.RenderTransform>
                                     <ScaleTransform ScaleX="1" ScaleY="1"/>
                                 </Ellipse.RenderTransform>
-                                <Ellipse.Triggers>
-                                    <EventTrigger RoutedEvent="Loaded">
-                                        <BeginStoryboard Storyboard="{StaticResource CyberPulseStoryboard}"/>
-                                    </EventTrigger>
-                                </Ellipse.Triggers>
                             </Ellipse>
                             <StackPanel Grid.Column="1">
                                 <TextBlock Text="{Binding BackendBadge}" FontWeight="Bold" FontSize="11" Foreground="{StaticResource Brush.Text.Primary}"/>
@@ -153,7 +148,7 @@
                 </Grid>
             </Border>
 
-            <Grid Grid.Row="1" Margin="28,24,28,0">
+            <Grid Grid.Row="1" Margin="22,20,22,0">
                 <ContentControl x:Name="PageHost" Focusable="False" Opacity="1">
                     <ContentControl.RenderTransform>
                         <TranslateTransform X="0" Y="0"/>

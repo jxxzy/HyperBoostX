@@ -10,17 +10,18 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="NavBorder" Background="{TemplateBinding Background}" CornerRadius="12" Padding="{TemplateBinding Padding}">
+                    <Border x:Name="NavBorder" Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}" BorderBrush="Transparent" BorderThickness="1">
                         <ContentPresenter/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="NavBorder" Property="Background" Value="#1F1A3A"/>
+                            <Setter TargetName="NavBorder" Property="Background" Value="#111D2B"/>
+                            <Setter TargetName="NavBorder" Property="BorderBrush" Value="{StaticResource Brush.Border.Subtle}"/>
                             <Setter Property="Foreground" Value="{StaticResource Brush.Text.Primary}"/>
                         </Trigger>
                         <Trigger Property="Tag" Value="Active">
-                            <Setter TargetName="NavBorder" Property="Background" Value="{StaticResource Brush.Gradient.Cyber}"/>
-                            <Setter TargetName="NavBorder" Property="Effect" Value="{StaticResource Shadow.Glow}"/>
+                            <Setter TargetName="NavBorder" Property="Background" Value="#123047"/>
+                            <Setter TargetName="NavBorder" Property="BorderBrush" Value="{StaticResource Brush.Accent.Primary}"/>
                             <Setter Property="Foreground" Value="White"/>
                         </Trigger>
                     </ControlTemplate.Triggers>

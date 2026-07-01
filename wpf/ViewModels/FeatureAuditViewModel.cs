@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class FeatureAuditViewModel : CyberPageViewModel
+    public sealed class FeatureAuditViewModel : PlacementPageViewModel
     {
         public FeatureAuditViewModel() : base("Feature Audit", "Read-only release health, docs sync, and Safety Guard checks.")
         {

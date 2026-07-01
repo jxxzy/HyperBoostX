@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class PerformanceHistoryViewModel : CyberPageViewModel
+    public sealed class PerformanceHistoryViewModel : PlacementPageViewModel
     {
         public PerformanceHistoryViewModel() : base("Performance History", "Track scan history, before/after timeline, and local score trends.")
         {

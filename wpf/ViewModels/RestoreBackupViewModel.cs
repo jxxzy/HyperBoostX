@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class RestoreBackupViewModel : CyberPageViewModel
+    public sealed class RestoreBackupViewModel : PlacementPageViewModel
     {
         public RestoreBackupViewModel() : base("Restore & Backup", "Restore sessions, integrity check, export, and rollback guidance.")
         {

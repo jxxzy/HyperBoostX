@@ -1,10 +1,10 @@
 {
-    "generated_at":  "2026-07-01T11:27:39.1173507Z",
+    "generated_at":  "2026-07-01T17:11:07.1943256Z",
     "expected_version":  "2.10.0",
     "is_admin":  true,
     "launch_installed_app":  true,
     "stop_after_probe":  true,
-    "backend_probe_timeout_seconds":  35,
+    "backend_probe_timeout_seconds":  60,
     "requested_backend_port":  5000,
     "registry_entries":  {
                              "root":  "HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
@@ -62,7 +62,7 @@
                                 "error":  null
                             },
     "launch_process":  {
-                           "id":  22000,
+                           "id":  13012,
                            "has_exited":  true
                        },
     "launch_error":  null,
@@ -165,10 +165,10 @@
                                                                  "<INSTALL_DIR>\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
                                                                  "<INSTALL_DIR>\\runtime\\backend\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
                                                                  "<INSTALL_DIR>\\runtime\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\_MEI276442\\services\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\_MEI276442\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\_MEI276442\\services\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\_MEI276442\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\_MEI259242\\services\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\_MEI259242\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\_MEI259242\\services\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\_MEI259242\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
                                                                  "C:\\Users\\<USER>\\AppData\\Local\\Temp\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
                                                                  "C:\\Users\\<USER>\\AppData\\Local\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
                                                              ],
@@ -30981,25 +30981,25 @@
     "processes_before_stop":  [
                                   {
                                       "name":  "HyperBoostX",
-                                      "id":  14836,
-                                      "path":  "<INSTALL_DIR>\\runtime\\wpf\\HyperBoostX.exe",
-                                      "from_install":  true
-                                  },
-                                  {
-                                      "name":  "HyperBoostX",
-                                      "id":  22000,
+                                      "id":  13012,
                                       "path":  "<INSTALL_DIR>\\HyperBoostX.exe",
                                       "from_install":  true
                                   },
                                   {
+                                      "name":  "HyperBoostX",
+                                      "id":  16924,
+                                      "path":  "<INSTALL_DIR>\\runtime\\wpf\\HyperBoostX.exe",
+                                      "from_install":  true
+                                  },
+                                  {
                                       "name":  "hyperboost_backend",
-                                      "id":  27640,
+                                      "id":  6548,
                                       "path":  "<INSTALL_DIR>\\runtime\\backend\\hyperboost_backend.exe",
                                       "from_install":  true
                                   },
                                   {
                                       "name":  "hyperboost_backend",
-                                      "id":  27644,
+                                      "id":  25924,
                                       "path":  "<INSTALL_DIR>\\runtime\\backend\\hyperboost_backend.exe",
                                       "from_install":  true
                                   }
@@ -31007,25 +31007,25 @@
     "stopped_processes":  [
                               {
                                   "name":  "HyperBoostX",
-                                  "id":  14836,
-                                  "path":  "<INSTALL_DIR>\\runtime\\wpf\\HyperBoostX.exe",
-                                  "from_install":  true
-                              },
-                              {
-                                  "name":  "HyperBoostX",
-                                  "id":  22000,
+                                  "id":  13012,
                                   "path":  "<INSTALL_DIR>\\HyperBoostX.exe",
                                   "from_install":  true
                               },
                               {
+                                  "name":  "HyperBoostX",
+                                  "id":  16924,
+                                  "path":  "<INSTALL_DIR>\\runtime\\wpf\\HyperBoostX.exe",
+                                  "from_install":  true
+                              },
+                              {
                                   "name":  "hyperboost_backend",
-                                  "id":  27640,
+                                  "id":  6548,
                                   "path":  "<INSTALL_DIR>\\runtime\\backend\\hyperboost_backend.exe",
                                   "from_install":  true
                               },
                               {
                                   "name":  "hyperboost_backend",
-                                  "id":  27644,
+                                  "id":  25924,
                                   "path":  "<INSTALL_DIR>\\runtime\\backend\\hyperboost_backend.exe",
                                   "from_install":  true
                               }
@@ -31230,7 +31230,7 @@
                    {
                        "name":  "legacy active runtime not detected",
                        "ok":  true,
-                       "evidence":  "[{\"name\":\"HyperBoostX\",\"id\":14836,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\wpf\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"HyperBoostX\",\"id\":22000,\"path\":\"<INSTALL_DIR>\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":27640,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":27644,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true}]"
+                       "evidence":  "[{\"name\":\"HyperBoostX\",\"id\":13012,\"path\":\"<INSTALL_DIR>\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"HyperBoostX\",\"id\":16924,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\wpf\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":6548,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":25924,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true}]"
                    }
                ],
     "ok":  true

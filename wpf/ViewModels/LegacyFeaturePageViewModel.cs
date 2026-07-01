@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class LegacyFeaturePageViewModel : CyberPageViewModel
+    public sealed class LegacyFeaturePageViewModel : PlacementPageViewModel
     {
         public LegacyFeaturePageViewModel(
             string featureKey,

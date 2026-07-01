@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class ProcessAnalyzerViewModel : CyberPageViewModel
+    public sealed class ProcessAnalyzerViewModel : PlacementPageViewModel
     {
         public ProcessAnalyzerViewModel() : base("Process Analyzer", "Read-only pressure view for CPU, RAM, startup, and heavy apps.")
         {

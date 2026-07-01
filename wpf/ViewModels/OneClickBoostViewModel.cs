@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class OneClickBoostViewModel : CyberPageViewModel
+    public sealed class OneClickBoostViewModel : PlacementPageViewModel
     {
         public OneClickBoostViewModel() : base("One Click Boost", "Plan-first safe boost with approval, report, and undo visibility.")
         {

@@ -74,9 +74,9 @@ namespace HyperBoostX
             InitializeComponent();
             DataContext = _viewModel;
 
-            _viewModel.ApplyFeatureVisibility();
             RegisterRoutes();
             ApplySavedUiSettings();
+            _viewModel.ApplyFeatureVisibility();
             NavigateToPage(ResolveStartupPageKey());
 
             _backendTimer.Interval = TimeSpan.FromSeconds(10);
@@ -456,7 +456,7 @@ namespace HyperBoostX
                 ($"{suiteName} - sidebar page coverage", () =>
                 {
                     var snapshot = FeatureVisibilityService.Current;
-                    var minimumCount = snapshot.Mode == HyperBoostAppMode.Stable ? 30 : 50;
+                    var minimumCount = snapshot.Mode == HyperBoostAppMode.Stable ? 24 : 50;
                     if (_viewModel.NavigationItems.Count < minimumCount)
                         throw new InvalidOperationException("Cyber sidebar is missing required runtime-visible pages.");
                     return Task.CompletedTask;

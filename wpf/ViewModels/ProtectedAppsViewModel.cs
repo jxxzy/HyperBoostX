@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class ProtectedAppsViewModel : CyberPageViewModel
+    public sealed class ProtectedAppsViewModel : PlacementPageViewModel
     {
         public ProtectedAppsViewModel() : base("Protected Apps", "Anti-cheat, security, driver, audio, and network safety boundaries.")
         {

@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace HyperBoostX.ViewModels
 {
-    public sealed class AboutViewModel : CyberPageViewModel
+    public sealed class AboutViewModel : PlacementPageViewModel
     {
         public AboutViewModel() : base("About HyperBoostX", "Safe AI Windows Gaming Optimizer, local-first and restore-aware.")
         {

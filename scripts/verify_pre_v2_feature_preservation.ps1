@@ -67,9 +67,9 @@ foreach ($view in $requiredViews) {
 $requiredDocs = @(
     'docs/LEGACY_FEATURE_MATRIX.md',
     'docs/REGRESSION_AUDIT_FROM_V1.md',
-    'FEATURE_MATRIX.md',
-    'QA_RESULTS.md',
-    'RELEASE_NOTES_NEXT.md'
+    'docs/FEATURE_MATRIX.md',
+    'docs/QA_RESULTS.md',
+    'docs/release-notes/RELEASE_NOTES_NEXT.md'
 )
 
 foreach ($doc in $requiredDocs) {

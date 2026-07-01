@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class SettingsViewModel : CyberPageViewModel
+    public sealed class SettingsViewModel : PlacementPageViewModel
     {
         private bool _enableAnimations = true;
         private bool _reduceMotion;

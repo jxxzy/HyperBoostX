@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class CreatorModeViewModel : CyberPageViewModel
+    public sealed class CreatorModeViewModel : PlacementPageViewModel
     {
         public CreatorModeViewModel() : base("Creator Mode", "RAM, disk, GPU, and background app guidance for editing and rendering.")
         {

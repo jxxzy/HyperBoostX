@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class StartupManagerViewModel : CyberPageViewModel
+    public sealed class StartupManagerViewModel : PlacementPageViewModel
     {
         public StartupManagerViewModel() : base("Startup Manager", "Preview, approve, and restore startup changes safely.")
         {

@@ -33,7 +33,7 @@ namespace HyperBoostX.ViewModels
             new CyberMetricViewModel { Title = "Restore", Value = "No changes", Detail = "Restore sessions appear after approved actions", Score = 80, Glyph = "RST" },
             new CyberMetricViewModel { Title = "Backend", Value = "Checking", Detail = "127.0.0.1 local API", Score = 50, Glyph = "API" },
             new CyberMetricViewModel { Title = "Safety Guard", Value = "Active", Detail = "Blocks unsafe actions", Score = 100, Glyph = "SAFE" },
-            new CyberMetricViewModel { Title = "Release", Value = "Beta", Detail = "Stable waits for installer/admin/hardware/signing gates", Score = 80, Glyph = "BETA" }
+            new CyberMetricViewModel { Title = "Release", Value = "2.10.0", Detail = "Stable source and local gates; signing remains documented separately", Score = 90, Glyph = "REL" }
         };
 
         public string BackendStatus

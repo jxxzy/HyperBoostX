@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class GamingEssentialsViewModel : CyberPageViewModel
+    public sealed class GamingEssentialsViewModel : PlacementPageViewModel
     {
         public GamingEssentialsViewModel() : base("Gaming Essentials", "Official-source helper for runtimes, launchers, OBS, and safe setup checks.")
         {

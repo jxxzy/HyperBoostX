@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class StreamingCenterViewModel : CyberPageViewModel
+    public sealed class StreamingCenterViewModel : PlacementPageViewModel
     {
         public StreamingCenterViewModel() : base("Streaming Center", "OBS, Discord, Broadcast, voice tools, network, and background pressure checks.")
         {

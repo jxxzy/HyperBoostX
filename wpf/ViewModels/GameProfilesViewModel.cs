@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class GameProfilesViewModel : CyberPageViewModel
+    public sealed class GameProfilesViewModel : PlacementPageViewModel
     {
         public GameProfilesViewModel() : base("Game Profiles", "Local game database, safe profile previews, and restore metadata.")
         {

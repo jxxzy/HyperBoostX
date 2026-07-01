@@ -1,18 +1,11 @@
 {
-    "generated_at":  "2026-07-01T11:09:20.9357371Z",
+    "generated_at":  "2026-07-01T17:11:07.5700927Z",
     "expected_version":  "2.10.0",
     "backend_port":  5000,
     "installer_path":  "<REPO_ROOT>\\HyperBoostXInstaller.exe",
     "is_admin":  true,
     "old_registry_entries":  {
-                                 "root":  "HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
-                                 "key":  "HyperBoostX",
-                                 "DisplayName":  "HyperBoostX",
-                                 "DisplayVersion":  "2.10.0",
-                                 "Publisher":  "HyperBoostX / jxxzy",
-                                 "InstallLocation":  "<INSTALL_DIR>",
-                                 "UninstallString":  "\"<INSTALL_DIR>\\Uninstall.exe\"",
-                                 "QuietUninstallString":  "\"<INSTALL_DIR>\\Uninstall.exe\" /S"
+
                              },
     "new_registry_entries":  {
                                  "root":  "HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
@@ -39,7 +32,7 @@
                   {
                       "name":  "record old installed version",
                       "ok":  true,
-                      "detail":  "2.10.0 at <INSTALL_DIR>"
+                      "detail":  "No previous registry entry found."
                   },
                   {
                       "name":  "stop existing HyperBoostX processes",
@@ -49,7 +42,7 @@
                   {
                       "name":  "uninstall previous HyperBoostX",
                       "ok":  true,
-                      "detail":  "2.10.0 via registry uninstall command"
+                      "detail":  "No previous install found."
                   },
                   {
                       "name":  "old registry entry removed",
@@ -184,7 +177,7 @@
                   {
                       "name":  "launch installed HyperBoostX",
                       "ok":  true,
-                      "detail":  "pid=21156"
+                      "detail":  "pid=16000"
                   },
                   {
                       "name":  "backend health on port 5000",
@@ -244,7 +237,7 @@
                   {
                       "name":  "WPF installed smoke",
                       "ok":  true,
-                      "detail":  "[{\"name\":\"HyperBoostX\",\"id\":10244,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\wpf\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"HyperBoostX\",\"id\":21156,\"path\":\"<INSTALL_DIR>\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":12080,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":27288,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true}]"
+                      "detail":  "[{\"name\":\"HyperBoostX\",\"id\":16000,\"path\":\"<INSTALL_DIR>\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":16884,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":20376,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true}]"
                   },
                   {
                       "name":  "token sync inferred",
@@ -254,7 +247,7 @@
                   {
                       "name":  "close installed app",
                       "ok":  true,
-                      "detail":  "[{\"name\":\"HyperBoostX\",\"id\":10244,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\wpf\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"HyperBoostX\",\"id\":21156,\"path\":\"<INSTALL_DIR>\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":12080,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":27288,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true}]"
+                      "detail":  "[{\"name\":\"HyperBoostX\",\"id\":16000,\"path\":\"<INSTALL_DIR>\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":16884,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":20376,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true}]"
                   },
                   {
                       "name":  "no orphan installed processes",

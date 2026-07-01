@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class KnowledgeBaseViewModel : CyberPageViewModel
+    public sealed class KnowledgeBaseViewModel : PlacementPageViewModel
     {
         public KnowledgeBaseViewModel() : base("Knowledge Base", "Beginner-friendly explanations for DLSS, FSR, XeSS, VRR, Reflex, AFMF, and more.")
         {

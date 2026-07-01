@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class GpuCenterViewModel : CyberPageViewModel
+    public sealed class GpuCenterViewModel : PlacementPageViewModel
     {
         public GpuCenterViewModel() : base("GPU Center", "Vendor-aware NVIDIA, AMD, Intel, Microsoft Basic, and unknown fallback guidance.")
         {

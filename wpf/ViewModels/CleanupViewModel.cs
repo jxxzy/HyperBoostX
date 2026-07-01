@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class CleanupViewModel : CyberPageViewModel
+    public sealed class CleanupViewModel : PlacementPageViewModel
     {
         public CleanupViewModel() : base("Cleanup", "Safe temp cleanup preview without touching personal files.")
         {

@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class NetworkToolsViewModel : CyberPageViewModel
+    public sealed class NetworkToolsViewModel : PlacementPageViewModel
     {
         public NetworkToolsViewModel() : base("Network Tools", "DNS, ping, diagnostics, and admin-aware network actions.")
         {

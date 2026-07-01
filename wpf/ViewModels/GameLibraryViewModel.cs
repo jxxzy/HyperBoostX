@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class GameLibraryViewModel : CyberPageViewModel
+    public sealed class GameLibraryViewModel : PlacementPageViewModel
     {
         public GameLibraryViewModel() : base("Game Library", "Steam, Epic, Xbox, Battle.net, EA, Ubisoft, and Riot discovery foundation.")
         {

@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class AIPerformanceAdvisorViewModel : CyberPageViewModel
+    public sealed class AIPerformanceAdvisorViewModel : PlacementPageViewModel
     {
         public AIPerformanceAdvisorViewModel() : base("AI Performance Advisor", "Local diagnosis for bottlenecks, stutter, overlays, startup, and GPU pressure.")
         {

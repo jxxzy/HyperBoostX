@@ -1,6 +1,6 @@
 namespace HyperBoostX.ViewModels
 {
-    public sealed class AutoGamingModeViewModel : CyberPageViewModel
+    public sealed class AutoGamingModeViewModel : PlacementPageViewModel
     {
         public AutoGamingModeViewModel() : base("Auto Gaming Mode", "Detect games, apply safe profile metadata, and auto-restore after close.")
         {

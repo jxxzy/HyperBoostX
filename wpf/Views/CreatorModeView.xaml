@@ -6,5 +6,5 @@
     <UserControl.DataContext>
         <vm:CreatorModeViewModel/>
     </UserControl.DataContext>
-    <views:CyberPageChrome/>
+    <views:PlacementPageChrome/>
 </UserControl>

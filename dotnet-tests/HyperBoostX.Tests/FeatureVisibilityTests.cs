@@ -14,7 +14,7 @@ public sealed class FeatureVisibilityCollection
 public sealed class FeatureVisibilityTests
 {
     [Fact]
-    public void StableMode_ShowsAllRealSidebarFeatures()
+    public void StableMode_DefaultBeginnerSidebarShowsSafeBaseline()
     {
         WithMode("stable", () =>
         {
@@ -23,12 +23,33 @@ public sealed class FeatureVisibilityTests
 
             Assert.Contains(vm.NavigationItems, item => item.Key == "Dashboard");
             Assert.Contains(vm.NavigationItems, item => item.Key == "OneClickBoost");
+            Assert.Contains(vm.NavigationItems, item => item.Key == "GpuCenter");
+            Assert.Contains(vm.NavigationItems, item => item.Key == "RestoreBackup");
+            Assert.DoesNotContain(vm.NavigationItems, item => item.Key == "PluginMarketplace");
+            Assert.DoesNotContain(vm.NavigationItems, item => item.Key == "CloudSyncLicense");
+            Assert.DoesNotContain(vm.NavigationItems, item => item.Key == "RgbSoftwareDetector");
+            Assert.DoesNotContain(vm.NavigationItems, item => item.Status != "Real");
+            Assert.InRange(vm.NavigationItems.Count, 24, 30);
+            Assert.Contains("Stable", vm.RuntimeMode);
+            Assert.Contains("Beginner", vm.RuntimeMode);
+        });
+    }
+
+    [Fact]
+    public void StableMode_ExpertPreviewShowsAllRealSidebarFeatures()
+    {
+        WithMode("stable", () =>
+        {
+            var vm = new MainWindowViewModel { CurrentMode = "Expert Preview" };
+            vm.ApplyFeatureVisibility();
+
+            Assert.Contains(vm.NavigationItems, item => item.Key == "Dashboard");
             Assert.Contains(vm.NavigationItems, item => item.Key == "PluginMarketplace");
             Assert.Contains(vm.NavigationItems, item => item.Key == "CloudSyncLicense");
             Assert.Contains(vm.NavigationItems, item => item.Key == "RgbSoftwareDetector");
             Assert.DoesNotContain(vm.NavigationItems, item => item.Status != "Real");
             Assert.True(vm.NavigationItems.Count >= 60);
-            Assert.Contains("Stable", vm.RuntimeMode);
+            Assert.Contains("Expert", vm.RuntimeMode);
         });
     }
 
@@ -38,6 +59,7 @@ public sealed class FeatureVisibilityTests
         WithMode("dev", () =>
         {
             var vm = new MainWindowViewModel();
+            vm.CurrentMode = "Expert Preview";
             vm.ApplyFeatureVisibility();
 
             Assert.Contains(vm.NavigationItems, item => item.Key == "PluginMarketplace");
