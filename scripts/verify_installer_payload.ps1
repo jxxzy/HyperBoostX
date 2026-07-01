@@ -11,6 +11,8 @@ if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
     $RepoRoot = (Resolve-Path (Join-Path $ScriptDir "..")).Path
 }
 
+. (Join-Path $RepoRoot "scripts\lib\HyperBoostXReleaseContract.ps1")
+
 $expectedVersion = (Get-Content -LiteralPath (Join-Path $RepoRoot "VERSION") -Raw).Trim()
 $installerPath = Join-Path $RepoRoot "HyperBoostXInstaller.exe"
 $nsiPath = Join-Path $RepoRoot "HyperBoostXInstaller.nsi"
@@ -39,6 +41,8 @@ Add-Check "NSIS writes QuietUninstallString" ($nsiText -match "QuietUninstallStr
 Add-Check "NSIS writes owner publisher" ($nsiText -match 'Publisher"\s+"HyperBoostX / jxxzy"') "publisher metadata"
 Add-Check "NSIS creates Start Menu shortcut" ($nsiText -match "SMPROGRAMS") "Start Menu shortcut"
 Add-Check "NSIS creates desktop shortcut" ($nsiText -match "DESKTOP") "desktop shortcut"
+Add-Check "NSIS installs WPF runtime recursively" ($nsiText -match 'File /r "release\\package\\wpf\\\*"') 'File /r "release\package\wpf\*"'
+Add-Check "NSIS installed action map target path" ($nsiText -match '\$INSTDIR\\runtime\\wpf') '$INSTDIR\runtime\wpf\Data\ui_action_map_v2_10.json'
 
 if (Test-Path -LiteralPath $installerPath) {
     $hash = Get-FileHash -LiteralPath $installerPath -Algorithm SHA256
@@ -60,11 +64,23 @@ if ((Test-Path -LiteralPath $hashFile) -and (Test-Path -LiteralPath $installerPa
     Add-Check "checksum file includes current installer hash" ($hashText -match [regex]::Escape($currentHash)) $currentHash
 }
 
+$sourceActionMap = Join-Path $RepoRoot "wpf\Data\ui_action_map_v2_10.json"
+$packageActionMap = Join-Path $RepoRoot "release\package\wpf\Data\ui_action_map_v2_10.json"
+foreach ($result in @(
+    (Test-HyperBoostXActionMapContract -ActionMapPath $sourceActionMap -ExpectedVersion $expectedVersion -NamePrefix "source action map"),
+    (Test-HyperBoostXActionMapContract -ActionMapPath $packageActionMap -ExpectedVersion $expectedVersion -NamePrefix "package action map")
+)) {
+    foreach ($check in $result.checks) {
+        Add-Check $check.name $check.ok $check.evidence
+    }
+}
+
 $report = [pscustomobject]@{
     generated_at = (Get-Date).ToUniversalTime().ToString("o")
     repo_root = $RepoRoot
     expected_version = $expectedVersion
     installer_path = $installerPath
+    action_map_contract = Get-HyperBoostXReleaseContract
     checks = $checks
     ok = -not ($checks | Where-Object { -not $_.ok })
 }
@@ -85,6 +101,7 @@ foreach ($check in $checks) {
     $lines += "| $($check.name) | $status | $evidence |"
 }
 $lines | Set-Content -LiteralPath $mdPath -Encoding UTF8
+& powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\redact_release_evidence.ps1") -RepoRoot $RepoRoot -Paths $jsonPath,$mdPath | Out-Null
 
 Write-Host "Installer payload report: $jsonPath"
 if (-not $report.ok) { exit 1 }

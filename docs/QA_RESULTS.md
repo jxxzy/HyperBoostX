@@ -1,7 +1,7 @@
 # QA Results - HyperBoostX v2.10.0
 
 Date: 2026-07-01
-Branch: `feature/hyperboostx-v2-release`
+Branch: `main`
 Decision: `STABLE_READY_UNSIGNED`
 
 ## Final Gate Results
@@ -22,7 +22,9 @@ Decision: `STABLE_READY_UNSIGNED`
 | PowerShell syntax | PASS | Full QA PSParser scan passed. |
 | Installer rebuild | PASS | `HyperBoostXInstaller.exe` rebuilt. |
 | Installed runtime verification | PASS | `docs/runtime-audit/owner_admin_stable_gate_report.json`. |
+| Installed feature registry | PASS | Stable runtime must expose 72 features, 596 buttons, 0 non-real stable-visible entries. |
 | Silent uninstall/reinstall | PASS | Owner admin stable gate. |
+| Public evidence redaction | PASS | `scripts/verify_public_evidence_redaction.ps1`. |
 
 ## Metrics
 
@@ -36,11 +38,14 @@ Decision: `STABLE_READY_UNSIGNED`
 | Unique UI endpoints used | 165 |
 | Backend API route rules | 365 |
 | Unique backend API paths | 361 |
+| Stable visible features | 72 |
+| Stable visible buttons | 596 |
+| Non-real visible in stable | 0 |
 
 ## Artifact
 
 ```text
-daec54b8ca059f9196c388811cd8ea0ad9fbff3c61f678f14bccd55f78ea3924  HyperBoostXInstaller.exe
+3956493b2f9586a13c436a52560dab2def9476d2e38a0f02891bee0a1b084d89  HyperBoostXInstaller.exe
 ```
 
 ## Known Limitations

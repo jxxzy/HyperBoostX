@@ -1,4 +1,10 @@
-﻿# HyperBoostX v2.10.0-beta.1
+﻿# ARCHIVED HISTORICAL BETA DOCUMENT - NOT CURRENT RELEASE STATUS
+
+This document is retained only as historical v2.10.0-beta evidence. The current public release status is HyperBoostX v2.10.0 Stable Unsigned.
+
+---
+
+# HyperBoostX v2.10.0-beta.1
 
 > Public release policy: HyperBoostX v1.3.0 is the current recommended public stable baseline. The 2.10.0-beta.1 runtime is a Beta development build and must not be promoted as stable until installed runtime, admin rollback, hardware matrix, code signing, checksum, and smoke gates pass.
 
@@ -19,6 +25,7 @@
 - Plugin marketplace is local catalog/manifest validation only; unsigned arbitrary code execution is blocked.
 - Driver recommendation does not auto-download or auto-install drivers.
 - Stable release requires installed runtime, admin rollback, hardware lab, signing, checksum, and smoke evidence.
+
 
 
 

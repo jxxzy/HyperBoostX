@@ -37,6 +37,7 @@ $statusText = if ($exitCode -eq 0) { "PASS" } else { "FAIL" }
     ($output -join "`n"),
     '```'
 ) | Set-Content -LiteralPath $mdPath -Encoding UTF8
+& powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\redact_release_evidence.ps1") -RepoRoot $RepoRoot -Paths $jsonPath,$mdPath | Out-Null
 
 Write-Host "Backend route report: $jsonPath"
 if ($exitCode -ne 0) { exit $exitCode }

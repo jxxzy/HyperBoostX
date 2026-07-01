@@ -1,6 +1,6 @@
-﻿{
-    "generated_at":  "2026-07-01T08:50:40.8229272Z",
-    "repo_root":  "F:\\BOOSTER BY MR.4NONY",
+{
+    "generated_at":  "2026-07-01T11:27:39.4928507Z",
+    "repo_root":  "<REPO_ROOT>",
     "version":  "2.10.0",
     "release_channel":  "Stable",
     "status":  "PASS",
@@ -25,12 +25,12 @@
                     {
                         "name":  "Environment info",
                         "status":  "PASS",
-                        "evidence":  "Completed in 3.8s"
+                        "evidence":  "Completed in 3.64s"
                     },
                     {
                         "name":  "Git info",
                         "status":  "PASS",
-                        "evidence":  "Completed in 0.13s"
+                        "evidence":  "Completed in 0.14s"
                     },
                     {
                         "name":  "Secret scan",
@@ -40,42 +40,42 @@
                     {
                         "name":  "Version sync",
                         "status":  "PASS",
-                        "evidence":  "Completed in 0.25s"
+                        "evidence":  "Completed in 0.5s"
                     },
                     {
                         "name":  "PowerShell syntax",
                         "status":  "PASS",
-                        "evidence":  "Completed in 0.17s"
+                        "evidence":  "Completed in 0.16s"
                     },
                     {
                         "name":  ".NET restore/build/test Release",
                         "status":  "PASS",
-                        "evidence":  "Completed in 23.86s"
+                        "evidence":  "Completed in 24.08s"
                     },
                     {
                         "name":  "Python pytest",
                         "status":  "PASS",
-                        "evidence":  "Completed in 85.76s"
+                        "evidence":  "Completed in 87.12s"
                     },
                     {
                         "name":  "Backend route contract",
                         "status":  "PASS",
-                        "evidence":  "Completed in 67.83s"
+                        "evidence":  "Completed in 66.66s"
                     },
                     {
                         "name":  "WPF UI/UX quality",
                         "status":  "PASS",
-                        "evidence":  "Completed in 0.56s"
+                        "evidence":  "Completed in 0.58s"
                     },
                     {
                         "name":  "Real usability",
                         "status":  "PASS",
-                        "evidence":  "Completed in 92.2s"
+                        "evidence":  "Completed in 90.39s"
                     },
                     {
                         "name":  "Release artifact contents",
                         "status":  "PASS",
-                        "evidence":  "Completed in 0.28s"
+                        "evidence":  "Completed in 0.74s"
                     },
                     {
                         "name":  "Docs existence",
@@ -85,7 +85,7 @@
                     {
                         "name":  "Installed runtime verification",
                         "status":  "PASS",
-                        "evidence":  "Completed in 5.77s"
+                        "evidence":  "Completed in 6.53s"
                     }
                 ]
 }

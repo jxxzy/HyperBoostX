@@ -1,18 +1,20 @@
-﻿# Migration v2.10.0
+# Migration v2.10.0
 
-> Public release policy: HyperBoostX v1.3.0 is the current recommended public stable baseline. The 2.10.0-beta.1 runtime is a Beta development build and must not be promoted as stable until installed runtime, admin rollback, hardware matrix, code signing, checksum, and smoke gates pass.
+Status: `STABLE_READY_UNSIGNED`
 
-Generated: 2026-06-28 01.16.15 +07:00
+Current public release: HyperBoostX v2.10.0 Stable Unsigned.
+
+Generated: 2026-07-01
 
 ## Scope
 
-v2.10.0-beta.1 keeps the WPF shell + local Flask backend + launcher token model. Migration work is about preserving local user data and making v2 routes/UI auditable, not rewriting architecture.
+v2.10.0 keeps the WPF shell, local Flask backend, packaged launcher, and launcher/backend token model. Migration work preserves local user data while making UI actions, backend routes, reports, and restore visibility auditable.
 
 ## Data Locations
 
-- Default data root: %LocalAppData%\HyperBoost X.
-- Portable mode: HYPERBOOSTX_PORTABLE_HOME.
-- Must preserve config, reports, backups, profiles, sessions, diagnostics, action logs, and UI settings.
+- Default data root: `%LocalAppData%\HyperBoost X`.
+- Portable mode: `HYPERBOOSTX_PORTABLE_HOME`.
+- Preserve config, reports, backups, profiles, sessions, diagnostics, action logs, and UI settings.
 
 ## Required Migration Behavior
 
@@ -20,16 +22,15 @@ v2.10.0-beta.1 keeps the WPF shell + local Flask backend + launcher token model.
 - Old restore sessions must remain visible or be clearly marked unreadable without crashing.
 - Local reports must remain exportable and redacted.
 - Session-token mismatch must show a restart/retry message, not a generic crash.
-- Runtime VERSION may be v2 beta while public README stable remains v1.3.0.
+- Installed runtime must report version `2.10.0`.
+- Installed runtime must expose 72 stable-visible menus and 596 stable-visible buttons.
 
 ## Upgrade Smoke
 
 | Path | Status |
 | --- | --- |
-| v1.3.0 to v2.10 beta | Manual lab required |
-| v1.4.x to v2.10 beta | Manual lab required |
-| v2.0.x to v2.10 beta | Source/package work in progress |
-| Fresh install | Requires admin installer lab |
-| Reinstall | Requires admin installer lab |
-| Silent uninstall | Requires admin installer lab |
-
+| Fresh install | PASS in owner/admin gate evidence |
+| Reinstall | PASS in owner/admin gate evidence |
+| Silent uninstall | PASS in owner/admin gate evidence |
+| Silent reinstall | PASS in owner/admin gate evidence |
+| v1.x/v2.x user data preservation | Supported by installer policy; additional external hardware/user-data matrix recommended |

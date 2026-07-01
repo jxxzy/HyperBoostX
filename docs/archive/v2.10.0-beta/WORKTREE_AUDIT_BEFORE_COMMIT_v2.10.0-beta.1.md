@@ -1,3 +1,9 @@
+﻿# ARCHIVED HISTORICAL BETA DOCUMENT - NOT CURRENT RELEASE STATUS
+
+This document is retained only as historical v2.10.0-beta evidence. The current public release status is HyperBoostX v2.10.0 Stable Unsigned.
+
+---
+
 # Worktree Audit Before Commit v2.10.0-beta.1
 
 Generated: 2026-07-01 03:36 +07:00
@@ -26,3 +32,4 @@ Reasons:
 - Stopped stale PowerShell processes that were clearly launched by timed-out `runtime_verifier.ps1` and packaging runs.
 - Stopped lingering `dotnet` MSBuild/VBCS helper processes from QA.
 - Confirmed no `HyperBoostX.exe`, `HyperBoostLauncher.exe`, `hyperboost_backend.exe`, `python.exe`, `dotnet.exe`, or `makensis.exe` runtime/build process remained after cleanup.
+

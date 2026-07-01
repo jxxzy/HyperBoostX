@@ -146,11 +146,17 @@ def test_stable_mode_feature_registry_exposes_only_real_features(monkeypatch, tm
     assert payload["mode"] == "stable"
     assert payload["counts"]["total_original_features"] == expected_total
     assert payload["counts"]["stable_visible_features"] == expected_total
+    assert payload["counts"]["stable_visible_buttons"] == _load_map()["summary"]["total_buttons"]
+    assert payload["counts"]["total_unique_endpoints_used"] == _load_map()["summary"]["total_unique_endpoints_used"]
     assert payload["counts"]["non_real_visible_in_stable"] == 0
     assert payload["counts"]["hidden_from_stable"] == 0
+    assert payload["source_found"] is True
+    assert payload["expected_contract"]["expected_stable_menus"] == 72
+    assert payload["expected_contract"]["expected_stable_buttons"] == 596
 
     stable = client.get("/api/features/stable-visible").get_json()
     non_real = client.get("/api/features/non-real").get_json()
+    health = client.get("/api/health").get_json()
     stable_keys = {item["key"] for item in stable["items"]}
     non_real_keys = {item["key"] for item in non_real["items"]}
 
@@ -165,3 +171,7 @@ def test_stable_mode_feature_registry_exposes_only_real_features(monkeypatch, tm
     assert "DefenderScanGuard" in stable_keys
     assert non_real["count"] == 0
     assert not non_real_keys
+    assert health["feature_registry_status"]["stable_ui_ok"] is True
+    assert health["feature_registry_status"]["action_map_found"] is True
+    assert health["feature_registry_status"]["stable_visible_features"] == 72
+    assert health["feature_registry_status"]["stable_visible_buttons"] == 596

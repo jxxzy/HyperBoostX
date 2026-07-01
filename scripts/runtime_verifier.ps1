@@ -15,6 +15,9 @@ $ScriptDir = if (-not [string]::IsNullOrWhiteSpace($PSScriptRoot)) { $PSScriptRo
 if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
     $RepoRoot = (Resolve-Path (Join-Path $ScriptDir "..")).Path
 }
+
+. (Join-Path $RepoRoot "scripts\lib\HyperBoostXReleaseContract.ps1")
+
 function Write-Stage {
     param([string]$Name)
     Write-Host "[runtime_verifier] $Name"
@@ -262,6 +265,7 @@ $installLocation = if ($primaryRegistry -and $primaryRegistry.InstallLocation) {
 $launcherPath = Join-Path $installLocation "HyperBoostX.exe"
 $wpfPath = Join-Path $installLocation "runtime\wpf\HyperBoostX.exe"
 $backendPath = Join-Path $installLocation "runtime\backend\hyperboost_backend.exe"
+$installedActionMapPath = Join-Path $installLocation "runtime\wpf\Data\ui_action_map_v2_10.json"
 
 $desktopPaths = @(
     (Join-Path ([Environment]::GetFolderPath("Desktop")) "HyperBoostX.lnk"),
@@ -301,11 +305,20 @@ if (Test-Path -LiteralPath $launcherLog) {
 
 $healthVersion = $null
 $sessionTokenRequired = $false
+$featureAudit = $null
+$featureStableVisible = $null
+$featureNonReal = $null
 if ($backend.found -and $backend.health -and $backend.health.data) {
     try { $sessionTokenRequired = [bool]$backend.health.data.session_token_required } catch { $sessionTokenRequired = $false }
 }
 if ($backend.found -and $backend.version -and $backend.version.data) {
     try { $healthVersion = [string]$backend.version.data.version } catch { $healthVersion = $null }
+}
+if ($backend.found) {
+    Write-Stage "probing feature registry endpoints"
+    $featureAudit = Invoke-JsonEndpoint "$($backend.base_url)/api/features/audit" 3
+    $featureStableVisible = Invoke-JsonEndpoint "$($backend.base_url)/api/features/stable-visible" 3
+    $featureNonReal = Invoke-JsonEndpoint "$($backend.base_url)/api/features/non-real" 3
 }
 
 $wpfRunningFromInstall = @($processesBeforeStop | Where-Object { $_.name -eq "HyperBoostX" -and $_.from_install }).Count -gt 0
@@ -335,6 +348,40 @@ Add-Check "desktop shortcut exists" (@($desktopShortcuts | Where-Object { $_.exi
 Add-Check "start menu shortcut exists" $startShortcut.exists ($startShortcut | ConvertTo-Json -Compress -Depth 4)
 Add-Check "backend health works" ($backend.found -and $backend.health.ok) ($(if ($backend.found) { $backend.base_url } else { "not found" }))
 Add-Check "backend version matches source" ($healthVersion -eq $ExpectedVersion) ($(if ($healthVersion) { $healthVersion } else { "missing" }))
+Add-Check "installed action map exists" (Test-Path -LiteralPath $installedActionMapPath) $installedActionMapPath
+foreach ($check in (Test-HyperBoostXActionMapContract -ActionMapPath $installedActionMapPath -ExpectedVersion $ExpectedVersion -NamePrefix "installed action map").checks) {
+    Add-Check $check.name $check.ok $check.evidence
+}
+Add-Check "feature audit endpoint works" ($featureAudit -and $featureAudit.ok) ($(if ($featureAudit) { $featureAudit.uri } else { "not called" }))
+Add-Check "feature stable-visible endpoint works" ($featureStableVisible -and $featureStableVisible.ok) ($(if ($featureStableVisible) { $featureStableVisible.uri } else { "not called" }))
+Add-Check "feature non-real endpoint works" ($featureNonReal -and $featureNonReal.ok) ($(if ($featureNonReal) { $featureNonReal.uri } else { "not called" }))
+if ($featureAudit -and $featureAudit.ok -and $featureAudit.data) {
+    $auditCounts = $featureAudit.data.counts
+    $contract = Get-HyperBoostXReleaseContract
+    Add-Check "feature audit stable_ui_ok true" ([bool]$featureAudit.data.ok -eq $true) ($(if ($featureAudit.data.errors) { ($featureAudit.data.errors -join "; ") } else { "ok=$($featureAudit.data.ok)" }))
+    Add-Check "feature audit stable_visible_features is 72" ([int]$auditCounts.stable_visible_features -eq $contract.ExpectedStableMenus) "actual=$($auditCounts.stable_visible_features); expected=$($contract.ExpectedStableMenus)"
+    Add-Check "feature audit stable_visible_buttons is 596" ([int]$auditCounts.stable_visible_buttons -eq $contract.ExpectedStableButtons) "actual=$($auditCounts.stable_visible_buttons); expected=$($contract.ExpectedStableButtons)"
+    Add-Check "feature audit non_real_visible_in_stable is 0" ([int]$auditCounts.non_real_visible_in_stable -eq $contract.ExpectedNonRealVisibleInStable) "actual=$($auditCounts.non_real_visible_in_stable); expected=$($contract.ExpectedNonRealVisibleInStable)"
+}
+else {
+    Add-Check "feature audit stable_ui_ok true" $false "feature audit endpoint unavailable"
+    Add-Check "feature audit stable_visible_features is 72" $false "feature audit endpoint unavailable"
+    Add-Check "feature audit stable_visible_buttons is 596" $false "feature audit endpoint unavailable"
+    Add-Check "feature audit non_real_visible_in_stable is 0" $false "feature audit endpoint unavailable"
+}
+if ($featureStableVisible -and $featureStableVisible.ok -and $featureStableVisible.data) {
+    $contract = Get-HyperBoostXReleaseContract
+    Add-Check "stable-visible count is 72" ([int]$featureStableVisible.data.count -eq $contract.ExpectedStableMenus) "actual=$($featureStableVisible.data.count); expected=$($contract.ExpectedStableMenus)"
+}
+else {
+    Add-Check "stable-visible count is 72" $false "stable-visible endpoint unavailable"
+}
+if ($featureNonReal -and $featureNonReal.ok -and $featureNonReal.data) {
+    Add-Check "non-real count is 0" ([int]$featureNonReal.data.count -eq 0) "actual=$($featureNonReal.data.count); expected=0"
+}
+else {
+    Add-Check "non-real count is 0" $false "non-real endpoint unavailable"
+}
 Add-Check "WPF installed smoke" ($LaunchInstalledApp -and $wpfRunningFromInstall) ($(if ($LaunchInstalledApp) { "wpf_running_from_install=$wpfRunningFromInstall launch_error=$launchError" } else { "not launched" }))
 Add-Check "token sync" ($tokenSyncEvidence -eq "INFERRED_FROM_LAUNCHER_ENV_AND_TOKEN_REQUIRED_HEALTH") $tokenSyncEvidence
 Add-Check "no orphan process" ($StopAfterProbe -and $orphanOk) ($(if ($StopAfterProbe) { ($processesAfterStop | ConvertTo-Json -Compress -Depth 4) } else { "not tested without -StopAfterProbe" }))
@@ -354,12 +401,16 @@ $report = [ordered]@{
     launcher_path = $launcherPath
     wpf_path = $wpfPath
     backend_path = $backendPath
+    installed_action_map_path = $installedActionMapPath
     desktop_shortcuts = $desktopShortcuts
     start_menu_shortcut = $startShortcut
     launch_process = if ($launchProcess) { [pscustomobject]@{ id = $launchProcess.Id; has_exited = $launchProcess.HasExited } } else { $null }
     launch_error = $launchError
     backend = $backend
     backend_version = $healthVersion
+    feature_audit = $featureAudit
+    feature_stable_visible = $featureStableVisible
+    feature_non_real = $featureNonReal
     session_token_required = $sessionTokenRequired
     token_sync_status = $tokenSyncEvidence
     processes_before_stop = $processesBeforeStop
@@ -391,6 +442,7 @@ foreach ($check in $checks) {
     $lines += "| $($check.name) | $status | $evidence |"
 }
 $lines | Set-Content -LiteralPath $mdPath -Encoding UTF8
+& powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\redact_release_evidence.ps1") -RepoRoot $RepoRoot -Paths $jsonPath,$mdPath | Out-Null
 
 Write-Host "Installed runtime report: $jsonPath"
 if (-not $report.ok) { exit 1 }

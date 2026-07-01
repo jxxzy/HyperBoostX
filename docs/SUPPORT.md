@@ -1,6 +1,6 @@
 # Support
 
-HyperBoostX v2.0.0 is a local Windows gaming optimizer. Support should focus on Safety Guard behavior, restore/undo access, installer issues, backend health, GPU detection, AI Advisor diagnosis, and crash diagnostics.
+HyperBoostX v2.10.0 Stable Unsigned is a local Windows gaming optimizer/control center. Support should focus on Safety Guard behavior, restore/undo access, installer issues, backend health, GPU detection, AI Advisor diagnosis, and crash diagnostics.
 
 ## Before Opening An Issue
 

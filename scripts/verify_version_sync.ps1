@@ -84,6 +84,7 @@ foreach ($check in $checks) {
     $md += "- $status - $($check.name): $($check.actual)"
 }
 $md | Set-Content -LiteralPath $mdPath -Encoding UTF8
+& powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\redact_release_evidence.ps1") -RepoRoot $RepoRoot -Paths $jsonPath,$mdPath | Out-Null
 
 Write-Host "Version sync report: $jsonPath"
 if (-not $report.ok) { exit 1 }

@@ -18,7 +18,7 @@ Installer payload verification passed after rebuilding the stable package.
 ## Installer SHA256
 
 ```text
-daec54b8ca059f9196c388811cd8ea0ad9fbff3c61f678f14bccd55f78ea3924  HyperBoostXInstaller.exe
+3956493b2f9586a13c436a52560dab2def9476d2e38a0f02891bee0a1b084d89  HyperBoostXInstaller.exe
 ```
 
 Code signing status: `SKIPPED_BY_OWNER_NO_CERT`.

@@ -1,7 +1,7 @@
-﻿{
+{
     "generated_at":  "2026-06-30T20:31:29.4033416Z",
-    "repo_root":  "F:\\BOOSTER BY MR.4NONY",
-    "installer_path":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe",
+    "repo_root":  "<REPO_ROOT>",
+    "installer_path":  "<REPO_ROOT>\\HyperBoostXInstaller.exe",
     "execute":  false,
     "dry_run":  true,
     "local_appdata_backup":  null,
@@ -9,7 +9,7 @@
                   {
                       "name":  "installer exists",
                       "ok":  true,
-                      "detail":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe"
+                      "detail":  "<REPO_ROOT>\\HyperBoostXInstaller.exe"
                   },
                   {
                       "name":  "destructive clean install skipped",

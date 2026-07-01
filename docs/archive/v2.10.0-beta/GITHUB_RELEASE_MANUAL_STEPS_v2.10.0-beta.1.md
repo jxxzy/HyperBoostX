@@ -1,3 +1,9 @@
+﻿# ARCHIVED HISTORICAL BETA DOCUMENT - NOT CURRENT RELEASE STATUS
+
+This document is retained only as historical v2.10.0-beta evidence. The current public release status is HyperBoostX v2.10.0 Stable Unsigned.
+
+---
+
 # GitHub Release Manual Steps v2.10.0-beta.1
 
 Do not create a public stable release until owner lab gates pass.
@@ -40,4 +46,5 @@ git tag v2.10.0-beta.1
 ## Public Stable Rule
 
 Do not use `v2.10.0 stable` or `production ready` unless install lab, runtime, hardware matrix, UI scaling, secret scan, checksums, and owner release approval all pass.
+
 

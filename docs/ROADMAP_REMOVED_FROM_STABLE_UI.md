@@ -1,6 +1,6 @@
 # Former Roadmap Converted To Real-Safe Boundaries
 
-Status: DONE for v2.10.0-beta.1 source/route contract.
+Status: DONE for v2.10.0 Stable Unsigned source/route contract.
 
 The following entries no longer appear as Roadmap-only features in the action map:
 

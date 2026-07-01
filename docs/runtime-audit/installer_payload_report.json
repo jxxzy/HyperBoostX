@@ -1,8 +1,14 @@
-﻿{
-    "generated_at":  "2026-07-01T08:30:11.4219477Z",
-    "repo_root":  "F:\\BOOSTER BY MR.4NONY",
+{
+    "generated_at":  "2026-07-01T11:08:43.3029403Z",
+    "repo_root":  "<REPO_ROOT>",
     "expected_version":  "2.10.0",
-    "installer_path":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe",
+    "installer_path":  "<REPO_ROOT>\\HyperBoostXInstaller.exe",
+    "action_map_contract":  {
+                                "ExpectedStableMenus":  72,
+                                "ExpectedStableButtons":  596,
+                                "ExpectedUniqueUiEndpoints":  165,
+                                "ExpectedNonRealVisibleInStable":  0
+                            },
     "checks":  [
                    {
                        "name":  "version sync script passed",
@@ -17,7 +23,7 @@
                    {
                        "name":  "NSIS file exists",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.nsi"
+                       "evidence":  "<REPO_ROOT>\\HyperBoostXInstaller.nsi"
                    },
                    {
                        "name":  "NSIS DisplayVersion uses current version",
@@ -50,24 +56,194 @@
                        "evidence":  "desktop shortcut"
                    },
                    {
+                       "name":  "NSIS installs WPF runtime recursively",
+                       "ok":  true,
+                       "evidence":  "File /r \"release\\package\\wpf\\*\""
+                   },
+                   {
+                       "name":  "NSIS installed action map target path",
+                       "ok":  true,
+                       "evidence":  "$INSTDIR\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
+                   },
+                   {
                        "name":  "installer exists",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe"
+                       "evidence":  "<REPO_ROOT>\\HyperBoostXInstaller.exe"
                    },
                    {
                        "name":  "installer hash available",
                        "ok":  true,
-                       "evidence":  "daec54b8ca059f9196c388811cd8ea0ad9fbff3c61f678f14bccd55f78ea3924"
+                       "evidence":  "3956493b2f9586a13c436a52560dab2def9476d2e38a0f02891bee0a1b084d89"
                    },
                    {
                        "name":  "v2.10 checksum file exists",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\SHA256SUMS_2.10.0.txt"
+                       "evidence":  "<REPO_ROOT>\\docs\\release\\checksums\\SHA256SUMS_2.10.0.txt"
                    },
                    {
                        "name":  "checksum file includes current installer hash",
                        "ok":  true,
-                       "evidence":  "daec54b8ca059f9196c388811cd8ea0ad9fbff3c61f678f14bccd55f78ea3924"
+                       "evidence":  "3956493b2f9586a13c436a52560dab2def9476d2e38a0f02891bee0a1b084d89"
+                   },
+                   {
+                       "name":  "source action map exists",
+                       "ok":  true,
+                       "evidence":  "<REPO_ROOT>\\wpf\\Data\\ui_action_map_v2_10.json"
+                   },
+                   {
+                       "name":  "source action map JSON parses",
+                       "ok":  true,
+                       "evidence":  "<REPO_ROOT>\\wpf\\Data\\ui_action_map_v2_10.json"
+                   },
+                   {
+                       "name":  "source action map app_version matches VERSION",
+                       "ok":  true,
+                       "evidence":  "actual=2.10.0; expected=2.10.0"
+                   },
+                   {
+                       "name":  "source action map channel matches VERSION",
+                       "ok":  true,
+                       "evidence":  "actual=Stable; expected=Stable"
+                   },
+                   {
+                       "name":  "source action map summary total_menus",
+                       "ok":  true,
+                       "evidence":  "actual=72; expected=72"
+                   },
+                   {
+                       "name":  "source action map summary total_buttons",
+                       "ok":  true,
+                       "evidence":  "actual=596; expected=596"
+                   },
+                   {
+                       "name":  "source action map summary total_active_buttons",
+                       "ok":  true,
+                       "evidence":  "actual=596; expected=596"
+                   },
+                   {
+                       "name":  "source action map summary total_partial_or_roadmap_buttons",
+                       "ok":  true,
+                       "evidence":  "actual=0; expected=0"
+                   },
+                   {
+                       "name":  "source action map summary total_unique_endpoints_used",
+                       "ok":  true,
+                       "evidence":  "actual=165; expected=165"
+                   },
+                   {
+                       "name":  "source action map menus length",
+                       "ok":  true,
+                       "evidence":  "actual=72; expected=72"
+                   },
+                   {
+                       "name":  "source action map computed button count",
+                       "ok":  true,
+                       "evidence":  "actual=596; expected=596"
+                   },
+                   {
+                       "name":  "source action map computed unique endpoint count",
+                       "ok":  true,
+                       "evidence":  "actual=165; expected=165"
+                   },
+                   {
+                       "name":  "source action map all menus are Real",
+                       "ok":  true,
+                       "evidence":  "non_real_menus=0"
+                   },
+                   {
+                       "name":  "source action map all actions are Real",
+                       "ok":  true,
+                       "evidence":  "non_real_actions=0"
+                   },
+                   {
+                       "name":  "source action map all action paths start with /api/",
+                       "ok":  true,
+                       "evidence":  "bad_paths=0"
+                   },
+                   {
+                       "name":  "source action map non-GET actions have safety_guard",
+                       "ok":  true,
+                       "evidence":  "unguarded_mutations=0"
+                   },
+                   {
+                       "name":  "package action map exists",
+                       "ok":  true,
+                       "evidence":  "<REPO_ROOT>\\release\\package\\wpf\\Data\\ui_action_map_v2_10.json"
+                   },
+                   {
+                       "name":  "package action map JSON parses",
+                       "ok":  true,
+                       "evidence":  "<REPO_ROOT>\\release\\package\\wpf\\Data\\ui_action_map_v2_10.json"
+                   },
+                   {
+                       "name":  "package action map app_version matches VERSION",
+                       "ok":  true,
+                       "evidence":  "actual=2.10.0; expected=2.10.0"
+                   },
+                   {
+                       "name":  "package action map channel matches VERSION",
+                       "ok":  true,
+                       "evidence":  "actual=Stable; expected=Stable"
+                   },
+                   {
+                       "name":  "package action map summary total_menus",
+                       "ok":  true,
+                       "evidence":  "actual=72; expected=72"
+                   },
+                   {
+                       "name":  "package action map summary total_buttons",
+                       "ok":  true,
+                       "evidence":  "actual=596; expected=596"
+                   },
+                   {
+                       "name":  "package action map summary total_active_buttons",
+                       "ok":  true,
+                       "evidence":  "actual=596; expected=596"
+                   },
+                   {
+                       "name":  "package action map summary total_partial_or_roadmap_buttons",
+                       "ok":  true,
+                       "evidence":  "actual=0; expected=0"
+                   },
+                   {
+                       "name":  "package action map summary total_unique_endpoints_used",
+                       "ok":  true,
+                       "evidence":  "actual=165; expected=165"
+                   },
+                   {
+                       "name":  "package action map menus length",
+                       "ok":  true,
+                       "evidence":  "actual=72; expected=72"
+                   },
+                   {
+                       "name":  "package action map computed button count",
+                       "ok":  true,
+                       "evidence":  "actual=596; expected=596"
+                   },
+                   {
+                       "name":  "package action map computed unique endpoint count",
+                       "ok":  true,
+                       "evidence":  "actual=165; expected=165"
+                   },
+                   {
+                       "name":  "package action map all menus are Real",
+                       "ok":  true,
+                       "evidence":  "non_real_menus=0"
+                   },
+                   {
+                       "name":  "package action map all actions are Real",
+                       "ok":  true,
+                       "evidence":  "non_real_actions=0"
+                   },
+                   {
+                       "name":  "package action map all action paths start with /api/",
+                       "ok":  true,
+                       "evidence":  "bad_paths=0"
+                   },
+                   {
+                       "name":  "package action map non-GET actions have safety_guard",
+                       "ok":  true,
+                       "evidence":  "unguarded_mutations=0"
                    }
                ],
     "ok":  true

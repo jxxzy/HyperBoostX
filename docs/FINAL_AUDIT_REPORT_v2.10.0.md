@@ -15,6 +15,9 @@ Decision: `STABLE_READY_UNSIGNED`
 | Unique UI endpoints used | 165 |
 | Backend API route rules | 365 |
 | Unique backend API paths | 361 |
+| Stable visible features | 72 |
+| Stable visible buttons | 596 |
+| Non-real visible in stable | 0 |
 | Python tests passed | 72 |
 | .NET tests passed | 38 |
 | Real feature entries | 72 |
@@ -54,6 +57,9 @@ Mutating and risky actions remain protected by preview, explicit approval, admin
 | WPF UI/UX quality | PASS |
 | Real usability | PASS |
 | Release artifact contents | PASS |
+| Package action map contract | PASS |
+| Runtime feature registry contract | PASS |
+| Public evidence redaction | PASS |
 | Secret scan | PASS |
 | PowerShell syntax | PASS |
 | Installer rebuild | PASS |
@@ -64,13 +70,16 @@ Mutating and risky actions remain protected by preview, explicit approval, admin
 
 - Registry DisplayVersion: `2.10.0`.
 - Publisher: `HyperBoostX / jxxzy`.
-- Launcher installed: `C:\Program Files\HyperBoostX\HyperBoostX.exe`.
-- WPF runtime installed: `C:\Program Files\HyperBoostX\runtime\wpf\HyperBoostX.exe`.
-- Backend runtime installed: `C:\Program Files\HyperBoostX\runtime\backend\hyperboost_backend.exe`.
+- Launcher installed: `<INSTALL_DIR>\HyperBoostX.exe`.
+- WPF runtime installed: `<INSTALL_DIR>\runtime\wpf\HyperBoostX.exe`.
+- Backend runtime installed: `<INSTALL_DIR>\runtime\backend\hyperboost_backend.exe`.
 - Desktop shortcut: PASS.
 - Start Menu shortcut: PASS.
 - Backend `/api/health`: PASS.
 - Backend `/api/version`: PASS, `2.10.0`.
+- Backend `/api/features/audit`: PASS, stable-visible features `72`, stable-visible buttons `596`, non-real stable-visible `0`.
+- Backend `/api/features/stable-visible`: PASS, count `72`.
+- Backend `/api/features/non-real`: PASS, count `0`.
 - WPF installed smoke: PASS.
 - Token sync: PASS.
 - No orphan process: PASS.
@@ -82,7 +91,7 @@ Mutating and risky actions remain protected by preview, explicit approval, admin
 Installer SHA256:
 
 ```text
-daec54b8ca059f9196c388811cd8ea0ad9fbff3c61f678f14bccd55f78ea3924  HyperBoostXInstaller.exe
+3956493b2f9586a13c436a52560dab2def9476d2e38a0f02891bee0a1b084d89  HyperBoostXInstaller.exe
 ```
 
 Artifact manifests:
@@ -98,7 +107,7 @@ Artifact manifests:
 - Code signing is `SKIPPED_BY_OWNER_NO_CERT`; no owner certificate/PFX was available.
 - External hardware matrix should still be expanded beyond this machine.
 - OS-level admin apply/rollback remains guarded and limited to supported flows.
-- GitHub tag/release publication depends on owner repository approval and credentials.
+- Signed distribution remains blocked until owner signing material is supplied.
 
 ## Release Decision
 

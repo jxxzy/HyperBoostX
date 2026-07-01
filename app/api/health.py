@@ -83,8 +83,14 @@ def health_check():
             "session_token_required": bool(os.environ.get("HYPERBOOSTX_SESSION_TOKEN", "").strip()),
             "feature_registry_status": {
                 "stable_ui_ok": feature_audit.get("ok", False),
+                "action_map_found": feature_audit.get("source_found", False),
+                "action_map_source": feature_audit.get("source"),
                 "stable_visible_features": feature_audit.get("counts", {}).get("stable_visible_features", 0),
+                "stable_visible_buttons": feature_audit.get("counts", {}).get("stable_visible_buttons", 0),
                 "non_real_visible_in_stable": feature_audit.get("counts", {}).get("non_real_visible_in_stable", 0),
+                "expected": feature_audit.get("expected_contract", {}),
+                "warnings": feature_audit.get("warnings", []),
+                "errors": feature_audit.get("errors", []),
             },
         })
     except Exception as e:
@@ -109,5 +115,3 @@ def version_check():
 def release_readiness():
     """Return explicit release-channel and remaining gate status."""
     return jsonify(_release_readiness())
-
-

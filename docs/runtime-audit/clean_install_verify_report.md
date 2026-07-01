@@ -1,9 +1,9 @@
-﻿# HyperBoostX Clean Install Verification
+# HyperBoostX Clean Install Verification
 
 Status: PASS
-Installer: F:\BOOSTER BY MR.4NONY\HyperBoostXInstaller.exe
+Installer: <REPO_ROOT>\HyperBoostXInstaller.exe
 
 | Step | Status | Detail |
 | --- | --- | --- |
-| installer exists | PASS | F:\BOOSTER BY MR.4NONY\HyperBoostXInstaller.exe |
+| installer exists | PASS | <REPO_ROOT>\HyperBoostXInstaller.exe |
 | destructive clean install skipped | PASS | Run from an elevated shell with -Execute to stop processes, uninstall, back up LocalAppData, install, launch, and run runtime verifiers. |

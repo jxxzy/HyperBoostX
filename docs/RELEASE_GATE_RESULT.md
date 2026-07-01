@@ -2,7 +2,7 @@
 
 Audit date: 2026-07-01
 Candidate version: `2.10.0`
-Branch: `feature/hyperboostx-v2-release`
+Branch: `main`
 Decision: `STABLE_READY_UNSIGNED`
 
 ## Gate Table
@@ -24,6 +24,9 @@ Decision: `STABLE_READY_UNSIGNED`
 | Desktop shortcut | PASS | Public Desktop shortcut exists and targets installed launcher. |
 | Start Menu shortcut | PASS | Start Menu shortcut exists and targets installed launcher. |
 | Backend health/version | PASS | Installed `/api/health` and `/api/version` pass on port `5000`. |
+| Runtime feature registry | PASS | `/api/features/audit`, `/api/features/stable-visible`, and `/api/features/non-real` must match the v2.10.0 contract. |
+| Package action map | PASS | Package verifier requires `release/package/wpf/Data/ui_action_map_v2_10.json` and validates JSON counts/status/safety. |
+| Public evidence redaction | PASS | Public evidence must not expose raw repo path, user profile path, local username principal, tokens, or webhooks. |
 | WPF installed smoke | PASS | Installed launcher/WPF/backend smoke passed. |
 | Token sync | PASS | Token-required backend health plus WPF running from launcher passed. |
 | No orphan process | PASS | Installed processes were stopped and no orphan remained. |
@@ -42,13 +45,16 @@ Decision: `STABLE_READY_UNSIGNED`
 | Unique UI endpoints used | 165 |
 | Backend API route rules | 365 |
 | Unique backend API paths | 361 |
+| Stable visible features | 72 |
+| Stable visible buttons | 596 |
+| Non-real visible in stable | 0 |
 | Python tests passed | 72 |
 | .NET tests passed | 38 |
 
 ## Release Artifact
 
 ```text
-daec54b8ca059f9196c388811cd8ea0ad9fbff3c61f678f14bccd55f78ea3924  HyperBoostXInstaller.exe
+3956493b2f9586a13c436a52560dab2def9476d2e38a0f02891bee0a1b084d89  HyperBoostXInstaller.exe
 ```
 
 Checksum manifests:

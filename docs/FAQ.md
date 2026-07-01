@@ -10,11 +10,11 @@ No. HyperBoostX does not force-disable Windows Defender, does not permanently di
 
 ## Does it support AMD Radeon?
 
-Yes. v2.0.0 supports AMD Radeon/RX/Vega and AMD integrated graphics detection with safe recommendations.
+Yes. v2.10.0 supports AMD Radeon/RX/Vega and AMD integrated graphics detection with safe recommendations.
 
 ## Does it support Intel Arc or iGPU?
 
-Yes. v2.0.0 supports Intel Arc, Intel Iris Xe, Intel UHD, and iGPU safe fallback recommendations.
+Yes. v2.10.0 supports Intel Arc, Intel Iris Xe, Intel UHD, and iGPU safe fallback recommendations.
 
 ## What if my GPU is unknown?
 
@@ -26,12 +26,12 @@ No. It shows local current-driver data and official-source guidance only. It doe
 
 ## Why does Windows show Unknown Publisher?
 
-The v2.0.0 installer may be unsigned if no code signing certificate is available. Windows may show Unknown Publisher or SmartScreen until a signed release is available. Download only from the official GitHub Release and verify SHA256.
+The v2.10.0 installer is unsigned because no owner code-signing certificate/PFX was supplied. Windows may show Unknown Publisher or SmartScreen. Download only from the official GitHub Release and verify SHA256.
 
 ## Is telemetry enabled?
 
-No. Anonymous Usage is off by default, and v2.0.0 does not silently upload telemetry.
+No. Anonymous Usage is off by default, and v2.10.0 does not silently upload telemetry.
 
 ## Is there a paid license?
 
-No. No v2.0.0 feature is locked behind a license. Licensing is roadmap-only.
+No. No v2.10.0 feature is locked behind a license. Licensing remains local boundary state/roadmap-only, not a production license server.

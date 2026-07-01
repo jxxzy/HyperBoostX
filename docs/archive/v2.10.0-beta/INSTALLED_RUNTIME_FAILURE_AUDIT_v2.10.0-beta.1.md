@@ -1,3 +1,9 @@
+﻿# ARCHIVED HISTORICAL BETA DOCUMENT - NOT CURRENT RELEASE STATUS
+
+This document is retained only as historical v2.10.0-beta evidence. The current public release status is HyperBoostX v2.10.0 Stable Unsigned.
+
+---
+
 # Installed Runtime Failure Audit v2.10.0-beta.1
 
 Generated: 2026-07-01 03:36 +07:00
@@ -36,4 +42,5 @@ Then verify:
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\runtime_verifier.ps1 -LaunchInstalledApp -StopAfterProbe
 ```
+
 

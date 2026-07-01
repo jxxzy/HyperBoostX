@@ -1,3 +1,9 @@
+﻿# ARCHIVED HISTORICAL BETA DOCUMENT - NOT CURRENT RELEASE STATUS
+
+This document is retained only as historical v2.10.0-beta evidence. The current public release status is HyperBoostX v2.10.0 Stable Unsigned.
+
+---
+
 # Hardware Matrix v2.10.0-beta.1
 
 Generated: 2026-07-01 03:36 +07:00
@@ -23,4 +29,5 @@ Generated: 2026-07-01 03:36 +07:00
 | Protected process action blocked | PASS_SOURCE | Safety guard tests cover blocked process/LCD/vendor actions |
 
 Public stable is blocked until the NOT_TESTED rows are resolved or explicitly accepted by owner as known limitations.
+
 

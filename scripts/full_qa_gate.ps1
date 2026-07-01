@@ -228,6 +228,7 @@ try {
         $lines += "| $($result.name) | $($result.status) | $($result.evidence -replace '\|','/') |"
     }
     $lines | Set-Content -LiteralPath $mdPath -Encoding UTF8
+    powershell -NoProfile -ExecutionPolicy Bypass -File ".\scripts\redact_release_evidence.ps1" -RepoRoot $repoRoot -Paths $jsonPath,$mdPath | Out-Null
 
     Write-Log "Summary JSON: $jsonPath"
     Write-Log "Summary Markdown: $mdPath"

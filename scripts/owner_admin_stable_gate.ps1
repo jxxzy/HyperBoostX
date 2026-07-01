@@ -20,6 +20,8 @@ if ([string]::IsNullOrWhiteSpace($ExpectedVersion)) {
     $ExpectedVersion = (Get-Content -LiteralPath (Join-Path $RepoRoot "VERSION") -Raw).Trim()
 }
 
+. (Join-Path $RepoRoot "scripts\lib\HyperBoostXReleaseContract.ps1")
+
 $outDir = Join-Path $RepoRoot "docs\runtime-audit"
 $docsDir = Join-Path $RepoRoot "docs"
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
@@ -258,6 +260,7 @@ function Write-ReportsAndExit {
         $lines += "| $($step.name) | $status | $detail |"
     }
     $lines | Set-Content -LiteralPath $mdPath -Encoding UTF8
+    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\redact_release_evidence.ps1") -RepoRoot $RepoRoot -Paths $jsonPath,$mdPath | Out-Null
     Write-Host "Owner admin stable gate report: $jsonPath"
     Write-Host "Owner admin stable gate docs: $mdPath"
     exit $ExitCode
@@ -308,12 +311,17 @@ $installLocation = if ($primary -and $primary.InstallLocation) { $primary.Instal
 $launcherPath = Join-Path $installLocation "HyperBoostX.exe"
 $wpfPath = Join-Path $installLocation "runtime\wpf\HyperBoostX.exe"
 $backendPath = Join-Path $installLocation "runtime\backend\hyperboost_backend.exe"
+$installedActionMapPath = Join-Path $installLocation "runtime\wpf\Data\ui_action_map_v2_10.json"
 
 Add-Step "registry DisplayVersion matches expected" ($primary -and $primary.DisplayVersion -eq $ExpectedVersion) ($(if ($primary) { $primary.DisplayVersion } else { "missing" }))
 Add-Step "registry Publisher recorded" ($primary -and -not [string]::IsNullOrWhiteSpace($primary.Publisher)) ($(if ($primary) { $primary.Publisher } else { "missing" }))
 Add-Step "launcher installed" (Test-Path -LiteralPath $launcherPath) $launcherPath
 Add-Step "WPF runtime installed" (Test-Path -LiteralPath $wpfPath) $wpfPath
 Add-Step "backend runtime installed" (Test-Path -LiteralPath $backendPath) $backendPath
+Add-Step "installed action map present" (Test-Path -LiteralPath $installedActionMapPath) $installedActionMapPath
+foreach ($check in (Test-HyperBoostXActionMapContract -ActionMapPath $installedActionMapPath -ExpectedVersion $ExpectedVersion -NamePrefix "installed action map").checks) {
+    Add-Step $check.name $check.ok $check.evidence
+}
 
 $desktopShortcuts = @(
     (Join-Path ([Environment]::GetFolderPath("Desktop")) "HyperBoostX.lnk"),
@@ -356,6 +364,26 @@ $runningAfterLaunch = Get-HyperBoostProcesses -InstallLocation $installLocation
 $wpfRunning = @($runningAfterLaunch | Where-Object { $_.name -eq "HyperBoostX" -and $_.from_install }).Count -gt 0
 Add-Step "backend health on port $BackendPort" ($backend.ok -and $backend.health.ok) ($(if ($backend.health) { $backend.health | ConvertTo-Json -Compress -Depth 5 } else { "missing" }))
 Add-Step "backend version matches expected" ($versionValue -eq $ExpectedVersion) ($(if ($versionValue) { $versionValue } else { "missing" }))
+$featureAudit = Invoke-JsonEndpoint -Uri "http://127.0.0.1:$BackendPort/api/features/audit" -Timeout 4
+$featureStableVisible = Invoke-JsonEndpoint -Uri "http://127.0.0.1:$BackendPort/api/features/stable-visible" -Timeout 4
+$featureNonReal = Invoke-JsonEndpoint -Uri "http://127.0.0.1:$BackendPort/api/features/non-real" -Timeout 4
+$contract = Get-HyperBoostXReleaseContract
+Add-Step "feature audit endpoint works" ($featureAudit.ok) ($(if ($featureAudit.ok) { $featureAudit.uri } else { $featureAudit.error }))
+Add-Step "feature stable-visible endpoint works" ($featureStableVisible.ok) ($(if ($featureStableVisible.ok) { $featureStableVisible.uri } else { $featureStableVisible.error }))
+Add-Step "feature non-real endpoint works" ($featureNonReal.ok) ($(if ($featureNonReal.ok) { $featureNonReal.uri } else { $featureNonReal.error }))
+if ($featureAudit.ok -and $featureAudit.data) {
+    Add-Step "feature audit stable_ui_ok true" ([bool]$featureAudit.data.ok -eq $true) ($(if ($featureAudit.data.errors) { ($featureAudit.data.errors -join "; ") } else { "ok=$($featureAudit.data.ok)" }))
+    Add-Step "feature audit stable_visible_features is 72" ([int]$featureAudit.data.counts.stable_visible_features -eq $contract.ExpectedStableMenus) "actual=$($featureAudit.data.counts.stable_visible_features); expected=$($contract.ExpectedStableMenus)"
+    Add-Step "feature audit stable_visible_buttons is 596" ([int]$featureAudit.data.counts.stable_visible_buttons -eq $contract.ExpectedStableButtons) "actual=$($featureAudit.data.counts.stable_visible_buttons); expected=$($contract.ExpectedStableButtons)"
+    Add-Step "feature audit non_real_visible_in_stable is 0" ([int]$featureAudit.data.counts.non_real_visible_in_stable -eq 0) "actual=$($featureAudit.data.counts.non_real_visible_in_stable); expected=0"
+} else {
+    Add-Step "feature audit stable_ui_ok true" $false "feature audit endpoint unavailable"
+    Add-Step "feature audit stable_visible_features is 72" $false "feature audit endpoint unavailable"
+    Add-Step "feature audit stable_visible_buttons is 596" $false "feature audit endpoint unavailable"
+    Add-Step "feature audit non_real_visible_in_stable is 0" $false "feature audit endpoint unavailable"
+}
+Add-Step "stable-visible count is 72" ($featureStableVisible.ok -and [int]$featureStableVisible.data.count -eq $contract.ExpectedStableMenus) ($(if ($featureStableVisible.ok) { "actual=$($featureStableVisible.data.count); expected=$($contract.ExpectedStableMenus)" } else { "stable-visible endpoint unavailable" }))
+Add-Step "non-real count is 0" ($featureNonReal.ok -and [int]$featureNonReal.data.count -eq 0) ($(if ($featureNonReal.ok) { "actual=$($featureNonReal.data.count); expected=0" } else { "non-real endpoint unavailable" }))
 Add-Step "WPF installed smoke" $wpfRunning ($runningAfterLaunch | ConvertTo-Json -Compress -Depth 5)
 Add-Step "token sync inferred" ($sessionTokenRequired -and $wpfRunning) "session_token_required=$sessionTokenRequired; wpf_running=$wpfRunning"
 

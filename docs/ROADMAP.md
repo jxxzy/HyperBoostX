@@ -31,7 +31,7 @@ Implemented or prototyped in the v2 development branch:
 - Local crash report export with redaction improvements and optional manual share flow. Crash reports are not uploaded automatically.
 - local crash report export with redaction remains a required trust feature for every release.
 
-## v2.0.0 Vision 2026-2027
+## v2.10.0+ Vision 2026-2027
 
 - Plugin SDK for third-party developers.
 - Official plugin marketplace.
@@ -43,10 +43,10 @@ Implemented or prototyped in the v2 development branch:
 - HyperBoostX Cloud for optional profiles, reports, and settings sync.
 - Optional professional license server, activation, lifetime plan, and admin dashboard.
 
-## Roadmap-Only In v2.0.0
+## Roadmap-Only In v2.10.0
 
 - RGB control is not implemented. v1.4 detects RGB apps only.
 - Global benchmark comparison is not implemented without a verified dataset.
 - Plugin SDK/marketplace is not active. v1.4 exposes a local registry foundation only.
 - Cloud sync is not implemented.
-- License activation is not implemented in v2.0.0. No v2.0.0 feature is locked behind a license.
+- License activation is not implemented as a production server in v2.10.0. No v2.10.0 feature is locked behind a license.

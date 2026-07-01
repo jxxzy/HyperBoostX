@@ -1,6 +1,6 @@
-﻿# Threat Model v2.10.0
+# Threat Model v2.10.0
 
-> Public release policy: HyperBoostX v1.3.0 is the current recommended public stable baseline. The 2.10.0-beta.1 runtime is a Beta development build and must not be promoted as stable until installed runtime, admin rollback, hardware matrix, code signing, checksum, and smoke gates pass.
+> Current release policy: HyperBoostX v2.10.0 is the stable unsigned public release. Code signing remains `SKIPPED_BY_OWNER_NO_CERT`; no signed-release claim is made.
 
 ## Primary Assets
 
@@ -20,9 +20,8 @@
 | Token or username leaks into reports | Crash/report redaction tests and docs require redacted output |
 | Feature overclaim | README and action map require Real-only public feature status |
 | Expert mode bypasses safety | Explicit policy: expert mode never bypasses Safety Guard |
-| Signed/unsigned confusion | Code signing readiness is documented; unsigned beta must stay labeled |
+| Signed/unsigned confusion | Code signing readiness is documented; v2.10.0 is labeled Stable Unsigned |
 
 ## Release Security Gate
 
-Stable is NO-GO until token rejection, route coverage, destructive-action blocking, report redaction, installer install/uninstall, admin rollback, hardware matrix, and signing/checksum evidence are present.
-
+Stable unsigned gate requires token rejection, route coverage, destructive-action blocking, report redaction, installer install/uninstall, feature-registry counts, and checksum evidence. Signed release remains blocked until owner signing material is supplied.

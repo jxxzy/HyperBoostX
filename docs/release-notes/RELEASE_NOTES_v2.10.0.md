@@ -11,6 +11,8 @@ Status: `STABLE_READY_UNSIGNED`
 - Passed owner admin stable gate against the installed artifact.
 - Confirmed registry `DisplayVersion=2.10.0`.
 - Confirmed installed backend `/api/health` and `/api/version`.
+- Confirmed installed feature registry via `/api/features/audit`, `/api/features/stable-visible`, and `/api/features/non-real`.
+- Confirmed stable-visible feature count `72`, stable-visible button count `596`, and non-real stable-visible count `0`.
 - Confirmed Desktop and Start Menu shortcuts.
 - Confirmed WPF installed smoke, token sync, no orphan process, silent uninstall, and silent reinstall.
 - Cleaned release readiness API so installed stable runtime reports `stable_ready_unsigned`.
@@ -34,7 +36,7 @@ Code signing is `SKIPPED_BY_OWNER_NO_CERT`. Windows SmartScreen may warn because
 Verify SHA256 before installing:
 
 ```text
-daec54b8ca059f9196c388811cd8ea0ad9fbff3c61f678f14bccd55f78ea3924  HyperBoostXInstaller.exe
+3956493b2f9586a13c436a52560dab2def9476d2e38a0f02891bee0a1b084d89  HyperBoostXInstaller.exe
 ```
 
 ## Known Limitations

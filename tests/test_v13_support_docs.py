@@ -10,21 +10,21 @@ def read_text(relative_path: str) -> str:
 
 def test_support_docs_faq_and_roadmap_exist_with_required_sections():
     required_files = [
-        "SUPPORT.md",
-        "BUG_REPORT_TEMPLATE.md",
-        "FEATURE_REQUEST_TEMPLATE.md",
-        "TROUBLESHOOTING.md",
-        "FAQ.md",
-        "ROADMAP.md",
+        "docs/SUPPORT.md",
+        "docs/templates/BUG_REPORT_TEMPLATE.md",
+        "docs/templates/FEATURE_REQUEST_TEMPLATE.md",
+        "docs/TROUBLESHOOTING.md",
+        "docs/FAQ.md",
+        "docs/ROADMAP.md",
     ]
 
     for relative_path in required_files:
         assert (ROOT / relative_path).exists(), relative_path
 
-    support = read_text("SUPPORT.md")
-    faq = read_text("FAQ.md")
-    roadmap = read_text("ROADMAP.md")
-    troubleshooting = read_text("TROUBLESHOOTING.md")
+    support = read_text("docs/SUPPORT.md")
+    faq = read_text("docs/FAQ.md")
+    roadmap = read_text("docs/ROADMAP.md")
+    troubleshooting = read_text("docs/TROUBLESHOOTING.md")
 
     for field in ["Version:", "Windows:", "CPU:", "RAM:", "GPU:", "Issue:", "Steps before error:", "Screenshot:", "Logs if available:"]:
         assert field in support
@@ -37,8 +37,8 @@ def test_support_docs_faq_and_roadmap_exist_with_required_sections():
     assert "Safe Mode / Recovery Mode" in roadmap
     assert "App Integrity Check" in roadmap
     assert "local crash report export with redaction" in roadmap
-    assert "License activation is not implemented in v2.0.0" in roadmap
-    assert "v2.0.0" in roadmap
+    assert "License activation is not implemented" in roadmap
+    assert "v2.10.0" in roadmap
     assert "not uploaded automatically" in troubleshooting
 
 

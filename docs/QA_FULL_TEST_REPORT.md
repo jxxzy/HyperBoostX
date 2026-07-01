@@ -11,7 +11,7 @@ HyperBoostX source, WPF/API parity, backend route contract, UI static smoke, Rel
 
 ## 2. Environment
 
-- User: `desktop-6kfio3g\jxxzy`
+- User: `<LOCAL_USER>`
 - Elevation: non-elevated Medium Mandatory Level; Administrators group is deny-only.
 - OS: Windows 10 Pro, version 2009, build 26200, x64.
 - PowerShell: 5.1.26100.8737.
@@ -24,7 +24,7 @@ HyperBoostX source, WPF/API parity, backend route contract, UI static smoke, Rel
 
 ## 3. Repo / Commit / Version
 
-- Repo path: `F:\BOOSTER BY MR.4NONY`
+- Repo path: `<REPO_ROOT>`
 - Branch: `feature/hyperboostx-v2-release`
 - Working tree: dirty with source/docs/package fixes.
 - Source version: `2.0.1` in `VERSION`, `app/core/constants.py`, WPF csproj, installer NSIS.

@@ -1,3 +1,9 @@
+﻿# ARCHIVED HISTORICAL BETA DOCUMENT - NOT CURRENT RELEASE STATUS
+
+This document is retained only as historical v2.10.0-beta evidence. The current public release status is HyperBoostX v2.10.0 Stable Unsigned.
+
+---
+
 # HyperBoostX v2.10.0-beta.1 Release Notes
 
 Status: `SOURCE_BETA_READY`, `PUBLIC_STABLE_BLOCKED`
@@ -27,3 +33,4 @@ Status: `SOURCE_BETA_READY`, `PUBLIC_STABLE_BLOCKED`
 - Installed backend health/version did not pass in the runtime audit.
 - Fresh elevated install/reinstall/silent install/silent uninstall was not run.
 - Code signing is `SKIPPED_BY_OWNER_NO_CERT`.
+

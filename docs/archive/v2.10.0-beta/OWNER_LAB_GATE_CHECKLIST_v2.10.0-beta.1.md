@@ -1,3 +1,9 @@
+﻿# ARCHIVED HISTORICAL BETA DOCUMENT - NOT CURRENT RELEASE STATUS
+
+This document is retained only as historical v2.10.0-beta evidence. The current public release status is HyperBoostX v2.10.0 Stable Unsigned.
+
+---
+
 # Owner Lab Gate Checklist v2.10.0-beta.1
 
 This checklist is required before promoting beyond `SOURCE_BETA_READY`.
@@ -51,4 +57,5 @@ Required pass conditions:
 ## Promotion Rule
 
 Only after all gates pass may the owner mark a local lab build as `OWNER_LAB_STABLE_CANDIDATE`. Public stable still requires owner decision on unsigned distribution and release process.
+
 

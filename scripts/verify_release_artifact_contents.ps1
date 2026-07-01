@@ -5,6 +5,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+. (Join-Path $PSScriptRoot "lib\HyperBoostXReleaseContract.ps1")
+
 if ([string]::IsNullOrWhiteSpace($PackageRoot)) {
     $PackageRoot = Join-Path $RepoRoot "release\package"
 }
@@ -37,7 +39,9 @@ $requiredPackagePaths = @(
     "launcher\HyperBoostLauncher.exe",
     "backend\hyperboost_backend.exe",
     "wpf\HyperBoostX.exe",
-    "wpf\HyperBoostX.dll"
+    "wpf\HyperBoostX.dll",
+    "wpf\Data",
+    "wpf\Data\ui_action_map_v2_10.json"
 )
 
 $checks = New-Object System.Collections.Generic.List[object]
@@ -69,12 +73,24 @@ foreach ($artifact in @(
 $legacyEntry = Join-Path $PackageRoot "app\main.py"
 $checks.Add([pscustomobject]@{ name = "package does not expose legacy Python UI entrypoint as app launcher"; ok = -not (Test-Path -LiteralPath $legacyEntry); evidence = $legacyEntry })
 
+$sourceActionMap = Join-Path $RepoRoot "wpf\Data\ui_action_map_v2_10.json"
+$packageActionMap = Join-Path $PackageRoot "wpf\Data\ui_action_map_v2_10.json"
+foreach ($result in @(
+    (Test-HyperBoostXActionMapContract -ActionMapPath $sourceActionMap -ExpectedVersion $expectedVersion -NamePrefix "source action map"),
+    (Test-HyperBoostXActionMapContract -ActionMapPath $packageActionMap -ExpectedVersion $expectedVersion -NamePrefix "package action map")
+)) {
+    foreach ($check in $result.checks) {
+        $checks.Add($check)
+    }
+}
+
 $report = [pscustomobject]@{
     generated_at = (Get-Date).ToUniversalTime().ToString("o")
     repo_root = $RepoRoot
     package_root = $PackageRoot
     expected_version = $expectedVersion
     expected_windows_version = $expectedWindowsVersion
+    action_map_contract = Get-HyperBoostXReleaseContract
     checks = $checks
     ok = -not ($checks | Where-Object { -not $_.ok })
 }
@@ -91,6 +107,7 @@ foreach ($check in $checks) {
     $md += "- $status - $($check.name)"
 }
 $md | Set-Content -LiteralPath $mdPath -Encoding UTF8
+& powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\redact_release_evidence.ps1") -RepoRoot $RepoRoot -Paths $jsonPath,$mdPath | Out-Null
 
 Write-Host "Release artifact report: $jsonPath"
 if (-not $report.ok) { exit 1 }

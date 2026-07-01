@@ -1,3 +1,9 @@
+﻿# ARCHIVED HISTORICAL BETA DOCUMENT - NOT CURRENT RELEASE STATUS
+
+This document is retained only as historical v2.10.0-beta evidence. The current public release status is HyperBoostX v2.10.0 Stable Unsigned.
+
+---
+
 # Current Repo Snapshot Final
 
 Generated: 2026-07-01 03:36 +07:00
@@ -32,3 +38,4 @@ Generated: 2026-07-01 03:36 +07:00
 - `release/app/HyperBoostX.exe`
 - `release/app/runtime/backend/hyperboost_backend.exe`
 - `release/app/runtime/wpf/HyperBoostX.exe`
+

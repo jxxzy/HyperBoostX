@@ -1,25 +1,31 @@
-﻿# Owner Handoff v2.10.0
+# Owner Handoff v2.10.0
 
-> Public release policy: HyperBoostX v1.3.0 is the current recommended public stable baseline. The 2.10.0-beta.1 runtime is a Beta development build and must not be promoted as stable until installed runtime, admin rollback, hardware matrix, code signing, checksum, and smoke gates pass.
+Status: `STABLE_READY_UNSIGNED`
+
+Current public release: HyperBoostX v2.10.0 Stable Unsigned.
 
 ## What Is Ready
 
-- Runtime version/channel is beta-aware.
-- UI action map covers 72 menus and 596 buttons.
-- Action map routes are automated-test covered.
-- README public status now points normal users to v1.3.0 stable.
-- v2.10 beta docs and gate scripts are present.
+- VERSION is `2.10.0`.
+- GitHub Release `v2.10.0` is published.
+- README points users to v2.10.0 Stable Unsigned.
+- UI action map covers 72 menus and 596 active actions.
+- Stable action map has 0 partial/roadmap/guidance buttons.
+- Runtime verifier now fails if the installed feature registry exposes 0 menus or any count below the release contract.
+- Package verifier now requires `wpf\Data\ui_action_map_v2_10.json`.
+- Public runtime evidence must pass redaction before commit.
+- Code signing remains skipped because no owner certificate/PFX was supplied.
 
-## Owner Must Run Before Stable
+## Owner Responsibilities
 
-1. Install generated build as administrator.
-2. Run installed runtime verifier.
-3. Run admin apply/rollback lab.
-4. Run hardware matrix.
-5. Provide code-signing certificate/PFX.
-6. Generate signed artifacts and SHA256.
-7. Confirm release notes and GitHub Release assets.
+1. Keep release artifacts and checksums aligned when rebuilding.
+2. Do not call the installer signed until real signing material is supplied and verified.
+3. Expand hardware lab coverage beyond this machine over time.
+4. Close obsolete draft PR #1 or rebase only the useful patches into small fresh PRs.
+5. Keep Safety Guard non-bypassable in Beginner, Advanced, and Expert modes.
 
-Stable status: NO-GO until those gates pass.
+## Decision
 
+Stable status: `STABLE_READY_UNSIGNED`.
 
+This is not a signed release. It is a stable unsigned public release with explicit SmartScreen/Unknown Publisher guidance.
