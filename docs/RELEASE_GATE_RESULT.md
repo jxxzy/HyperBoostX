@@ -1,6 +1,6 @@
 # Release Gate Result
 
-Audit date: 2026-07-01
+Audit date: 2026-07-02
 Candidate version: `2.10.0`
 Branch: `main`
 Decision: `STABLE_READY_UNSIGNED`
@@ -12,7 +12,7 @@ Decision: `STABLE_READY_UNSIGNED`
 | Version sync | PASS | `docs/runtime-audit/version_sync_report.json`, expected `2.10.0`, Windows file version `2.10.0.0`. |
 | Secret scan | PASS | Full QA realistic token/webhook/private-key scan passed. |
 | PowerShell syntax | PASS | Full QA PSParser scan passed. |
-| .NET Release build/test | PASS | `38 passed`. |
+| .NET Release build/test | PASS | `39 passed`. |
 | Python pytest | PASS | `72 passed`. |
 | Backend route contract | PASS | `docs/runtime-audit/backend_routes_report.json`. |
 | WPF UI/UX quality | PASS | Button handler, placeholder guard, and UI quality verifier passed. |
@@ -31,6 +31,8 @@ Decision: `STABLE_READY_UNSIGNED`
 | Token sync | PASS | Token-required backend health plus WPF running from launcher passed. |
 | No orphan process | PASS | Installed processes were stopped and no orphan remained. |
 | Silent uninstall/reinstall | PASS | Owner admin stable gate passed both. |
+| Installed screenshot evidence | PASS | `docs/runtime-audit/installed_screenshot_report.json` captured Dashboard, Performance, GPU Center, Streaming Center, Settings, and About from the installed app. |
+| Final stable release gate | PASS | `docs/runtime-audit/final_stable_release_gate_report.json` reports `FINAL_STABLE_PASS`. |
 | Code signing | SKIPPED_BY_OWNER_NO_CERT | No owner certificate/PFX was supplied; unsigned distribution requires checksum verification. |
 
 ## Current Metrics
@@ -43,18 +45,18 @@ Decision: `STABLE_READY_UNSIGNED`
 | Partial/roadmap/guidance buttons | 0 |
 | Guarded destructive buttons | 20 |
 | Unique UI endpoints used | 165 |
-| Backend API route rules | 365 |
-| Unique backend API paths | 361 |
+| Backend Flask routes | 366 |
+| Backend route methods | 384 |
 | Stable visible features | 72 |
 | Stable visible buttons | 596 |
 | Non-real visible in stable | 0 |
 | Python tests passed | 72 |
-| .NET tests passed | 38 |
+| .NET tests passed | 39 |
 
 ## Release Artifact
 
 ```text
-3956493b2f9586a13c436a52560dab2def9476d2e38a0f02891bee0a1b084d89  HyperBoostXInstaller.exe
+8960200b125dbf9a2e12a77a1c7cabfdc386dbf0628ca066acc6be1c7b88b4f4  HyperBoostXInstaller.exe
 ```
 
 Checksum manifests:

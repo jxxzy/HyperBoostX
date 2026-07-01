@@ -1,6 +1,6 @@
 # Final Audit Report v2.10.0
 
-Audit date: 2026-07-01
+Audit date: 2026-07-02
 Decision: `STABLE_READY_UNSIGNED`
 
 ## Final Counts
@@ -13,13 +13,13 @@ Decision: `STABLE_READY_UNSIGNED`
 | Partial/roadmap/guidance buttons | 0 |
 | Guarded destructive buttons | 20 |
 | Unique UI endpoints used | 165 |
-| Backend API route rules | 365 |
-| Unique backend API paths | 361 |
+| Backend Flask routes | 366 |
+| Backend route methods | 384 |
 | Stable visible features | 72 |
 | Stable visible buttons | 596 |
 | Non-real visible in stable | 0 |
 | Python tests passed | 72 |
-| .NET tests passed | 38 |
+| .NET tests passed | 39 |
 | Real feature entries | 72 |
 | Preview-only stable action entries | 0 |
 | Roadmap stable action entries | 0 |
@@ -51,7 +51,7 @@ Mutating and risky actions remain protected by preview, explicit approval, admin
 | --- | --- |
 | Full QA gate | PASS |
 | Python tests | PASS, `72 passed` |
-| .NET Debug/Release tests | PASS, `38 passed` |
+| .NET Release tests | PASS, `39 passed` |
 | Solution build | PASS, `0 Warning(s), 0 Error(s)` |
 | Backend route contract | PASS |
 | WPF UI/UX quality | PASS |
@@ -65,6 +65,8 @@ Mutating and risky actions remain protected by preview, explicit approval, admin
 | Installer rebuild | PASS |
 | Owner admin stable gate | PASS |
 | Installed runtime verifier | PASS |
+| Installed screenshot evidence | PASS |
+| Final stable release gate | PASS, `FINAL_STABLE_PASS` |
 
 ## Installed Runtime Evidence
 
@@ -91,7 +93,7 @@ Mutating and risky actions remain protected by preview, explicit approval, admin
 Installer SHA256:
 
 ```text
-3956493b2f9586a13c436a52560dab2def9476d2e38a0f02891bee0a1b084d89  HyperBoostXInstaller.exe
+8960200b125dbf9a2e12a77a1c7cabfdc386dbf0628ca066acc6be1c7b88b4f4  HyperBoostXInstaller.exe
 ```
 
 Artifact manifests:
@@ -101,6 +103,8 @@ Artifact manifests:
 - `docs/runtime-audit/release_artifact_contents_report.json`
 - `docs/runtime-audit/owner_admin_stable_gate_report.json`
 - `docs/runtime-audit/full_qa_summary.json`
+- `docs/runtime-audit/final_stable_release_gate_report.json`
+- `docs/runtime-audit/installed_screenshot_report.json`
 
 ## Known Limitations
 

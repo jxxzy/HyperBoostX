@@ -1,91 +1,69 @@
-{
-    "generated_at":  "2026-07-01T11:27:39.4928507Z",
-    "repo_root":  "<REPO_ROOT>",
+﻿{
+    "generated_at":  "2026-07-01T19:41:08.3204818Z",
+    "repo_root":  "\u003cREPO_ROOT\u003e",
     "version":  "2.10.0",
-    "release_channel":  "Stable",
-    "status":  "PASS",
+    "release_channel":  "Stable Unsigned",
+    "status":  "FINAL_STABLE_PASS",
     "include_installer":  true,
     "skip_install":  false,
-    "commands":  [
-                     "whoami; whoami /groups; dotnet --info; python --version; node --version; npm --version; git --version",
-                     "git status --short; git branch --show-current; git log -1 --oneline",
-                     "realistic token/webhook regex scan over source/docs/scripts/tests",
-                     "powershell -ExecutionPolicy Bypass -File .\\scripts\\verify_version_sync.ps1",
-                     "PSParser tokenize all source scripts",
-                     "dotnet restore HyperBoostX.sln; dotnet build HyperBoostX.sln -c Release; dotnet test dotnet-tests\\HyperBoostX.Tests\\HyperBoostX.Tests.csproj -c Release",
-                     "app\\venv\\Scripts\\python.exe -m pytest -q tests",
-                     "powershell -ExecutionPolicy Bypass -File .\\scripts\\verify_backend_routes.ps1",
-                     "powershell -ExecutionPolicy Bypass -File .\\scripts\\verify_ui_ux_quality.ps1",
-                     "powershell -ExecutionPolicy Bypass -File .\\scripts\\verify_real_usability.ps1",
-                     "powershell -ExecutionPolicy Bypass -File .\\scripts\\verify_release_artifact_contents.ps1",
-                     "check required final QA report docs",
-                     "powershell -ExecutionPolicy Bypass -File .\\scripts\\verify_installed_runtime.ps1 -ExpectedVersion 2.10.0 -BackendPort 5000 -LaunchInstalledApp -StopAfterProbe"
-                 ],
-    "results":  [
-                    {
-                        "name":  "Environment info",
-                        "status":  "PASS",
-                        "evidence":  "Completed in 3.64s"
-                    },
-                    {
-                        "name":  "Git info",
-                        "status":  "PASS",
-                        "evidence":  "Completed in 0.14s"
-                    },
-                    {
-                        "name":  "Secret scan",
-                        "status":  "PASS",
-                        "evidence":  "Completed in 0.81s"
-                    },
-                    {
-                        "name":  "Version sync",
-                        "status":  "PASS",
-                        "evidence":  "Completed in 0.5s"
-                    },
-                    {
-                        "name":  "PowerShell syntax",
-                        "status":  "PASS",
-                        "evidence":  "Completed in 0.16s"
-                    },
-                    {
-                        "name":  ".NET restore/build/test Release",
-                        "status":  "PASS",
-                        "evidence":  "Completed in 24.08s"
-                    },
-                    {
-                        "name":  "Python pytest",
-                        "status":  "PASS",
-                        "evidence":  "Completed in 87.12s"
-                    },
-                    {
-                        "name":  "Backend route contract",
-                        "status":  "PASS",
-                        "evidence":  "Completed in 66.66s"
-                    },
-                    {
-                        "name":  "WPF UI/UX quality",
-                        "status":  "PASS",
-                        "evidence":  "Completed in 0.58s"
-                    },
-                    {
-                        "name":  "Real usability",
-                        "status":  "PASS",
-                        "evidence":  "Completed in 90.39s"
-                    },
-                    {
-                        "name":  "Release artifact contents",
-                        "status":  "PASS",
-                        "evidence":  "Completed in 0.74s"
-                    },
-                    {
-                        "name":  "Docs existence",
-                        "status":  "PASS",
-                        "evidence":  "Completed in 0s"
-                    },
-                    {
-                        "name":  "Installed runtime verification",
-                        "status":  "PASS",
-                        "evidence":  "Completed in 6.53s"
-                    }
-                ]
+    "commit":  "46f6289571b89f3c9688c0832a7a76d0ab94b05f",
+    "tests":  {
+                  "dotnet_build":  "PASS, 0 warnings, 0 errors",
+                  "dotnet_tests":  "PASS, 39 passed",
+                  "python_pytest":  "PASS, 72 passed",
+                  "automated_test_cases_passed":  111
+              },
+    "gates":  [
+                  {
+                      "name":  "UI release gate",
+                      "status":  "PASS",
+                      "evidence":  "docs/UI_RELEASE_GATE_v2.10.0.md"
+                  },
+                  {
+                      "name":  "Owner admin stable gate",
+                      "status":  "PASS",
+                      "evidence":  "docs/OWNER_ADMIN_STABLE_GATE_RESULT_v2.10.0.md"
+                  },
+                  {
+                      "name":  "Installer runtime gate",
+                      "status":  "PASS",
+                      "evidence":  "docs/INSTALLER_STABLE_GATE_v2.10.0.md"
+                  },
+                  {
+                      "name":  "Installed screenshot evidence",
+                      "status":  "PASS",
+                      "evidence":  "docs/SCREENSHOT_REVIEW_v2.10.0.md"
+                  },
+                  {
+                      "name":  "Final stable release gate",
+                      "status":  "PASS",
+                      "evidence":  "docs/STABLE_RELEASE_AUDIT_v2.10.0.md"
+                  }
+              ],
+    "metrics":  {
+                    "total_menus":  72,
+                    "total_buttons":  596,
+                    "total_active_buttons":  596,
+                    "total_partial_or_roadmap_buttons":  0,
+                    "total_guarded_destructive_buttons":  20,
+                    "total_unique_ui_endpoints_used":  165,
+                    "total_backend_flask_routes":  366,
+                    "total_backend_route_methods":  384,
+                    "stable_visible_real_feature_menus":  72,
+                    "stable_visible_preview_only_menus":  0,
+                    "stable_visible_roadmap_menus":  0
+                },
+    "artifact":  {
+                     "installer":  "HyperBoostXInstaller.exe",
+                     "sha256":  "8960200b125dbf9a2e12a77a1c7cabfdc386dbf0628ca066acc6be1c7b88b4f4",
+                     "checksums":  [
+                                       "docs/release/checksums/SHA256SUMS.txt",
+                                       "docs/release/checksums/SHA256SUMS_2.10.0.txt"
+                                   ]
+                 },
+    "known_limitations":  [
+                              "Stable installer is unsigned until an owner certificate/PFX is provided.",
+                              "No guaranteed FPS increase, ping reduction, or universal driver fix is claimed.",
+                              "Cloud, marketplace, RGB lighting, license, and driver installation claims remain bounded to actual local route-backed behavior."
+                          ]
 }

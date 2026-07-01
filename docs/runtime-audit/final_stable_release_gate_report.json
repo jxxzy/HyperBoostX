@@ -1,5 +1,5 @@
 ﻿{
-    "generated_at":  "2026-07-01T19:36:40.6163869Z",
+    "generated_at":  "2026-07-01T19:41:29.3840486Z",
     "expected_version":  "2.10.0",
     "final_status":  "FINAL_STABLE_PASS",
     "checks":  [
@@ -7,13 +7,13 @@
                        "name":  "version consistency",
                        "status":  "PASS",
                        "exit_code":  0,
-                       "duration_ms":  622
+                       "duration_ms":  673
                    },
                    {
                        "name":  "UI release gate",
                        "status":  "PASS",
                        "exit_code":  0,
-                       "duration_ms":  3016
+                       "duration_ms":  2992
                    },
                    {
                        "name":  "no template UI regression",
@@ -25,31 +25,31 @@
                        "name":  "UI page body markers",
                        "status":  "PASS",
                        "exit_code":  0,
-                       "duration_ms":  210
+                       "duration_ms":  195
                    },
                    {
                        "name":  "UI button labels",
                        "status":  "PASS",
                        "exit_code":  0,
-                       "duration_ms":  293
+                       "duration_ms":  303
                    },
                    {
                        "name":  "no placement notes",
                        "status":  "PASS",
                        "exit_code":  0,
-                       "duration_ms":  193
+                       "duration_ms":  194
                    },
                    {
                        "name":  "release docs consistency",
                        "status":  "PASS",
                        "exit_code":  0,
-                       "duration_ms":  1960
+                       "duration_ms":  1966
                    },
                    {
                        "name":  "installer runtime evidence",
                        "status":  "PASS",
                        "exit_code":  0,
-                       "duration_ms":  1308
+                       "duration_ms":  1268
                    }
                ]
 }
