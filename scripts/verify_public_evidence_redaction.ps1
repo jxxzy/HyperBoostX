@@ -24,6 +24,8 @@ $patterns = [ordered]@{
     "raw repo path" = 'F:\\\\?BOOSTER|F:\\BOOSTER'
     "raw user profile" = 'C:\\\\?Users\\\\?jxxzy|C:\\Users\\jxxzy'
     "raw OneDrive desktop" = 'OneDrive\\\\?Desktop|OneDrive\\Desktop'
+    "raw install path" = 'C:(?:\\{1,4})Program Files(?:\\{1,4})HyperBoostX'
+    "raw start menu path" = 'C:(?:\\{1,4})ProgramData(?:\\{1,4})Microsoft(?:\\{1,4})Windows(?:\\{1,4})Start Menu'
     "raw local user principal" = '(?i)desktop-[a-z0-9-]+\\jxxzy'
     "GitHub token" = 'ghp_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}'
     "OpenAI/API secret" = 'sk-[A-Za-z0-9_-]{20,}|(?i)\b(api[_-]?key|secret|license[_-]?key)"?\s*[:=]\s*"[^"\r\n]{8,}"'

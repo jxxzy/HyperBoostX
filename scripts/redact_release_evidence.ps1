@@ -47,6 +47,13 @@ function ConvertTo-RedactedEvidenceText {
         $redacted = $redacted.Replace($key, $literalReplacements[$key])
     }
 
+    $redacted = [regex]::Replace($redacted, 'F:(?:\\{1,4})BOOSTER BY MR\.4NONY', '<REPO_ROOT>')
+    $redacted = [regex]::Replace($redacted, 'C:(?:\\{1,4})Users(?:\\{1,4})jxxzy(?:\\{1,4})OneDrive(?:\\{1,4})Desktop', '<USER_DESKTOP>')
+    $redacted = [regex]::Replace($redacted, 'C:(?:\\{1,4})Users(?:\\{1,4})Public(?:\\{1,4})Desktop', '<PUBLIC_DESKTOP>')
+    $redacted = [regex]::Replace($redacted, 'C:(?:\\{1,4})Program Files(?:\\{1,4})HyperBoostX', '<INSTALL_DIR>')
+    $redacted = [regex]::Replace($redacted, 'C:(?:\\{1,4})ProgramData(?:\\{1,4})Microsoft(?:\\{1,4})Windows(?:\\{1,4})Start Menu', '<START_MENU>')
+    $redacted = [regex]::Replace($redacted, 'OneDrive(?:\\{1,4})Desktop', '<USER_DESKTOP>')
+
     $redacted = [regex]::Replace($redacted, 'C:\\Users\\[^\\\r\n"''\]\}]+', 'C:\Users\<USER>')
     $redacted = [regex]::Replace($redacted, 'C:\\\\Users\\\\[^\\\r\n"''\]\}]+', 'C:\\Users\\<USER>')
     $redacted = [regex]::Replace($redacted, '(?i)https://discord(?:app)?\.com/api/webhooks/[0-9]+/[A-Za-z0-9_-]+', '<REDACTED_WEBHOOK>')
@@ -66,13 +73,14 @@ if ($Paths.Count -eq 0) {
 }
 
 $changed = @()
+$utf8NoBom = [System.Text.UTF8Encoding]::new($false)
 foreach ($path in $Paths | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique) {
     $fullPath = if ([System.IO.Path]::IsPathRooted($path)) { $path } else { Join-Path $RepoRoot $path }
     if (-not (Test-Path -LiteralPath $fullPath)) { continue }
     $before = Get-Content -LiteralPath $fullPath -Raw
     $after = ConvertTo-RedactedEvidenceText -Text $before
     if ($after -ne $before) {
-        Set-Content -LiteralPath $fullPath -Value $after -Encoding UTF8
+        [System.IO.File]::WriteAllText($fullPath, $after.TrimEnd("`r", "`n") + "`r`n", $utf8NoBom)
         $changed += $fullPath
     }
 }
