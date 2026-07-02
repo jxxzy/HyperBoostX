@@ -1,8 +1,6 @@
-using System.Windows.Controls;
-
-namespace HyperBoostX.Views
+﻿namespace HyperBoostX.Views
 {
-    public partial class AIPerformanceAdvisorView : UserControl
+    public partial class AIPerformanceAdvisorView : PlacementActionPageBase
     {
         public AIPerformanceAdvisorView() => InitializeComponent();
     }

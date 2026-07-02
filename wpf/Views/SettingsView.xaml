@@ -2,6 +2,8 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:HyperBoostX.ViewModels"
+             AutomationProperties.AutomationId="CoreFeaturePage_Settings"
+             Tag="CORE_UI:Settings"
              Loaded="SettingsView_Loaded">
     <UserControl.DataContext>
         <vm:SettingsViewModel/>

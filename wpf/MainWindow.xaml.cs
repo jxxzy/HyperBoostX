@@ -150,6 +150,21 @@ namespace HyperBoostX
         private void RegisterRoutes()
         {
             _navigationService.Register("Dashboard", () => new DashboardView());
+            _navigationService.Register("PerformanceBoost", () => new PerformanceBoostView());
+            _navigationService.Register("BackgroundApps", () => new BackgroundAppsView());
+            _navigationService.Register("Storage", () => new StorageView());
+            _navigationService.Register("GamingBooster", () => new GamingBoosterView());
+            _navigationService.Register("NetworkBooster", () => new NetworkBoosterView());
+            _navigationService.Register("DnsLatencyTools", () => new DnsLatencyToolsView());
+            _navigationService.Register("PrivacyCenter", () => new PrivacyCenterView());
+            _navigationService.Register("SecurityHealth", () => new SecurityHealthView());
+            _navigationService.Register("AppsManager", () => new AppsManagerView());
+            _navigationService.Register("TweaksCenter", () => new TweaksCenterView());
+            _navigationService.Register("WindowsFeatures", () => new WindowsFeaturesView());
+            _navigationService.Register("UpdateControl", () => new UpdateControlView());
+            _navigationService.Register("RepairTools", () => new RepairToolsView());
+            _navigationService.Register("DriverUpdateCenter", () => new DriverUpdateCenterView());
+            _navigationService.Register("AppUninstaller", () => new AppUninstallerView());
             _navigationService.Register("AIPerformanceAdvisor", () => new AIPerformanceAdvisorView());
             _navigationService.Register("AutoGamingMode", () => new AutoGamingModeView());
             _navigationService.Register("GameLibrary", () => new GameLibraryView());
@@ -258,7 +273,7 @@ namespace HyperBoostX
             string secondMetricDetail,
             params string[] recommendations)
         {
-            _navigationService.Register(key, () => new LegacyFeatureView(new LegacyFeaturePageViewModel(
+            _navigationService.RegisterIfMissing(key, () => new LegacyFeatureView(new LegacyFeaturePageViewModel(
                 key,
                 title,
                 subtitle,

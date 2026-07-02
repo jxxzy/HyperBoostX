@@ -1,4 +1,4 @@
-<div align="center">
+﻿<div align="center">
 
 <img src="https://capsule-render.vercel.app/api?type=waving&height=220&color=0:020617,45:0f172a,100:16a34a&text=HyperBoostX&fontColor=ffffff&fontSize=56&fontAlignY=38&desc=Safe%20Local%20Windows%20PC%20Control%20Center&descAlignY=58&animation=fadeIn" alt="HyperBoostX banner" />
 
@@ -65,7 +65,7 @@ HyperBoostXInstaller.exe
 Current installer SHA256:
 
 ```text
-3956493b2f9586a13c436a52560dab2def9476d2e38a0f02891bee0a1b084d89  HyperBoostXInstaller.exe
+e0846546df9f62cb8a6a0d42d1d9d8cfc7dbb835632f47177c64bb931d8b9609  HyperBoostXInstaller.exe
 ```
 
 Verify with PowerShell:
@@ -99,7 +99,7 @@ HyperBoostX is not a one-click miracle booster. It is a local-first Windows opti
 | Unique backend API paths | 361 |
 | Guarded destructive buttons | 20 |
 | Python tests | 72 passed |
-| .NET tests | 38 passed |
+| .NET tests | 39 passed |
 
 Installed runtime verification must confirm the feature registry exposes:
 
@@ -212,7 +212,7 @@ dotnet test dotnet-tests\HyperBoostX.Tests\HyperBoostX.Tests.csproj -c Release
 Minimum expected local test result:
 
 - Python: 72 passed
-- .NET: 38 passed
+- .NET: 39 passed
 
 Stable installed gates must verify:
 
@@ -351,3 +351,5 @@ HyperBoostX is not official NVIDIA, AMD, Intel, Microsoft, MSI, ASUS, Corsair, o
 **Safe first. Fast when possible. Honest always.**
 
 </div>
+
+

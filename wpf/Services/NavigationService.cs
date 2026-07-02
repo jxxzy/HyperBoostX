@@ -10,6 +10,14 @@ namespace HyperBoostX.Services
 
         public void Register(string key, Func<UserControl> factory) => _routes[key] = factory;
 
+        public void RegisterIfMissing(string key, Func<UserControl> factory)
+        {
+            if (!_routes.ContainsKey(key))
+                _routes[key] = factory;
+        }
+
+        public bool HasRoute(string key) => _routes.ContainsKey(key);
+
         public UserControl Navigate(string key)
         {
             if (_routes.TryGetValue(key, out var factory))

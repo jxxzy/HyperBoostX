@@ -1,8 +1,6 @@
-using System.Windows.Controls;
-
-namespace HyperBoostX.Views
+﻿namespace HyperBoostX.Views
 {
-    public partial class StartupManagerView : UserControl
+    public partial class StartupManagerView : PlacementActionPageBase
     {
         public StartupManagerView() => InitializeComponent();
     }

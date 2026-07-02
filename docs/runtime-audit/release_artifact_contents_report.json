@@ -1,7 +1,7 @@
-{
-    "generated_at":  "2026-07-01T17:08:48.5038876Z",
-    "repo_root":  "<REPO_ROOT>",
-    "package_root":  "<REPO_ROOT>\\release\\package",
+﻿{
+    "generated_at":  "2026-07-02T08:46:48.6656305Z",
+    "repo_root":  "F:\\BOOSTER BY MR.4NONY",
+    "package_root":  "F:\\BOOSTER BY MR.4NONY\\release\\package",
     "expected_version":  "2.10.0",
     "expected_windows_version":  "2.10.0.0",
     "action_map_contract":  {
@@ -14,77 +14,77 @@
                    {
                        "name":  "source contains wpf\\Views\\DashboardView.xaml",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\wpf\\Views\\DashboardView.xaml"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\DashboardView.xaml"
                    },
                    {
                        "name":  "source contains wpf\\Views\\FeatureAuditView.xaml",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\wpf\\Views\\FeatureAuditView.xaml"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\FeatureAuditView.xaml"
                    },
                    {
                        "name":  "source contains wpf\\Themes\\CyberTheme.xaml",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\wpf\\Themes\\CyberTheme.xaml"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Themes\\CyberTheme.xaml"
                    },
                    {
                        "name":  "source contains wpf\\Themes\\AccentColors.xaml",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\wpf\\Themes\\AccentColors.xaml"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Themes\\AccentColors.xaml"
                    },
                    {
                        "name":  "source contains wpf\\Styles\\Buttons.xaml",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\wpf\\Styles\\Buttons.xaml"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Styles\\Buttons.xaml"
                    },
                    {
                        "name":  "source contains wpf\\Styles\\Sidebar.xaml",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\wpf\\Styles\\Sidebar.xaml"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Styles\\Sidebar.xaml"
                    },
                    {
                        "name":  "source contains app\\backend_server.py",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\app\\backend_server.py"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\app\\backend_server.py"
                    },
                    {
                        "name":  "source contains launcher\\Program.cs",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\launcher\\Program.cs"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\launcher\\Program.cs"
                    },
                    {
                        "name":  "package contains launcher\\HyperBoostLauncher.exe",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\release\\package\\launcher\\HyperBoostLauncher.exe"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\launcher\\HyperBoostLauncher.exe"
                    },
                    {
                        "name":  "package contains backend\\hyperboost_backend.exe",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\release\\package\\backend\\hyperboost_backend.exe"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\backend\\hyperboost_backend.exe"
                    },
                    {
                        "name":  "package contains wpf\\HyperBoostX.exe",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\release\\package\\wpf\\HyperBoostX.exe"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\wpf\\HyperBoostX.exe"
                    },
                    {
                        "name":  "package contains wpf\\HyperBoostX.dll",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\release\\package\\wpf\\HyperBoostX.dll"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\wpf\\HyperBoostX.dll"
                    },
                    {
                        "name":  "package contains wpf\\Data",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\release\\package\\wpf\\Data"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\wpf\\Data"
                    },
                    {
                        "name":  "package contains wpf\\Data\\ui_action_map_v2_10.json",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\release\\package\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "installer exists",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\HyperBoostXInstaller.exe"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe"
                    },
                    {
                        "name":  "launcher file version matches 2.10.0.0",
@@ -99,17 +99,17 @@
                    {
                        "name":  "package does not expose legacy Python UI entrypoint as app launcher",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\release\\package\\app\\main.py"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\app\\main.py"
                    },
                    {
                        "name":  "source action map exists",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "source action map JSON parses",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "source action map app_version matches VERSION",
@@ -184,12 +184,12 @@
                    {
                        "name":  "package action map exists",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\release\\package\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "package action map JSON parses",
                        "ok":  true,
-                       "evidence":  "<REPO_ROOT>\\release\\package\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "package action map app_version matches VERSION",

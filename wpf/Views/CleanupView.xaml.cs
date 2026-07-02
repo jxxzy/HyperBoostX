@@ -1,8 +1,6 @@
-using System.Windows.Controls;
-
-namespace HyperBoostX.Views
+﻿namespace HyperBoostX.Views
 {
-    public partial class CleanupView : UserControl
+    public partial class CleanupView : PlacementActionPageBase
     {
         public CleanupView() => InitializeComponent();
     }

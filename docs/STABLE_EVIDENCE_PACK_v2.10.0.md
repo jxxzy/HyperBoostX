@@ -1,6 +1,6 @@
-# Stable Evidence Pack v2.10.0
+﻿# Stable Evidence Pack v2.10.0
 
-Generated: 2026-07-02 02:31:00 +07:00
+Generated: 2026-07-02 15.54.00 +07:00
 
 ## Evidence Files
 
@@ -20,14 +20,42 @@ Generated: 2026-07-02 02:31:00 +07:00
 
 ## Installed Screenshots
 
-| Page | Screenshot |
-| --- | --- |
-| Dashboard | `docs/screenshots/v2.10.0-final/dashboard.png` |
-| Performance | `docs/screenshots/v2.10.0-final/performance.png` |
-| GPU Center | `docs/screenshots/v2.10.0-final/gpu-center.png` |
-| Streaming Center | `docs/screenshots/v2.10.0-final/streaming-center.png` |
-| Settings | `docs/screenshots/v2.10.0-final/settings.png` |
-| About | `docs/screenshots/v2.10.0-final/about.png` |
+| Page | Screenshot | Bytes |
+| --- | --- | ---: |
+| Dashboard | `docs\screenshots\v2.10.0-final\dashboard.png` | 103323 |
+| Dashboard | `docs\screenshots\v2.10.0-final\dashboard-after-scroll.png` | 109003 |
+| Performance | `docs\screenshots\v2.10.0-final\performance.png` | 105790 |
+| Startup | `docs\screenshots\v2.10.0-final\startup.png` | 102720 |
+| Background Apps | `docs\screenshots\v2.10.0-final\background-apps.png` | 103885 |
+| Cleanup | `docs\screenshots\v2.10.0-final\cleanup.png` | 103103 |
+| Storage | `docs\screenshots\v2.10.0-final\storage.png` | 103064 |
+| One Click Boost | `docs\screenshots\v2.10.0-final\one-click-boost.png` | 101278 |
+| Gaming Mode | `docs\screenshots\v2.10.0-final\gaming-mode.png` | 103823 |
+| Smart Recommendation / AI Hub | `docs\screenshots\v2.10.0-final\smart-recommendation.png` | 104458 |
+| GPU Center | `docs\screenshots\v2.10.0-final\gpu-center.png` | 108895 |
+| Gaming Booster | `docs\screenshots\v2.10.0-final\gaming-booster.png` | 103243 |
+| Streaming Center | `docs\screenshots\v2.10.0-final\streaming-center.png` | 116518 |
+| Creator Mode | `docs\screenshots\v2.10.0-final\creator-mode.png` | 103747 |
+| Network Booster | `docs\screenshots\v2.10.0-final\network-booster.png` | 105659 |
+| DNS & Latency Tools | `docs\screenshots\v2.10.0-final\dns-latency-tools.png` | 104655 |
+| Privacy Center | `docs\screenshots\v2.10.0-final\privacy-center.png` | 106386 |
+| Security & Health | `docs\screenshots\v2.10.0-final\security-health.png` | 107852 |
+| Apps Manager | `docs\screenshots\v2.10.0-final\apps-manager.png` | 104055 |
+| Tweaks Center | `docs\screenshots\v2.10.0-final\tweaks-center.png` | 106898 |
+| Windows Features | `docs\screenshots\v2.10.0-final\windows-features.png` | 106122 |
+| Update Control | `docs\screenshots\v2.10.0-final\update-control.png` | 108271 |
+| Repair Tools | `docs\screenshots\v2.10.0-final\repair-tools.png` | 105445 |
+| Driver & Update Center | `docs\screenshots\v2.10.0-final\driver-update-center.png` | 107575 |
+| App Uninstaller | `docs\screenshots\v2.10.0-final\app-uninstaller.png` | 104548 |
+| Restore & Backup | `docs\screenshots\v2.10.0-final\restore-backup.png` | 105853 |
+| App Settings | `docs\screenshots\v2.10.0-final\settings.png` | 93822 |
+| About App | `docs\screenshots\v2.10.0-final\about.png` | 112061 |
+
+## Installer SHA256
+
+```text
+e0846546df9f62cb8a6a0d42d1d9d8cfc7dbb835632f47177c64bb931d8b9609  HyperBoostXInstaller.exe
+```
 
 ## Final Decision
 

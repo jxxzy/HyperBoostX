@@ -1,8 +1,6 @@
-using System.Windows.Controls;
-
-namespace HyperBoostX.Views
+﻿namespace HyperBoostX.Views
 {
-    public partial class OneClickBoostView : UserControl
+    public partial class OneClickBoostView : PlacementActionPageBase
     {
         public OneClickBoostView() => InitializeComponent();
     }

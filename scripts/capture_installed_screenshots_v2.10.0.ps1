@@ -143,9 +143,31 @@ function Capture-Window {
 
 $pages = @(
     @{ file = "dashboard.png"; label = "Dashboard"; requireClick = $false },
+    @{ file = "dashboard-after-scroll.png"; label = "Dashboard"; requireClick = $true; scrollAfterClick = $true },
     @{ file = "performance.png"; label = "Performance"; requireClick = $true },
+    @{ file = "startup.png"; label = "Startup"; requireClick = $true },
+    @{ file = "background-apps.png"; label = "Background Apps"; requireClick = $true },
+    @{ file = "cleanup.png"; label = "Cleanup"; requireClick = $true },
+    @{ file = "storage.png"; label = "Storage"; requireClick = $true },
+    @{ file = "one-click-boost.png"; label = "One Click Boost"; requireClick = $true },
+    @{ file = "gaming-mode.png"; label = "Gaming Mode"; requireClick = $true },
+    @{ file = "smart-recommendation.png"; label = "Smart Recommendation / AI Hub"; requireClick = $true },
     @{ file = "gpu-center.png"; label = "GPU Center"; requireClick = $true },
+    @{ file = "gaming-booster.png"; label = "Gaming Booster"; requireClick = $true },
     @{ file = "streaming-center.png"; label = "Streaming Center"; requireClick = $true },
+    @{ file = "creator-mode.png"; label = "Creator Mode"; requireClick = $true },
+    @{ file = "network-booster.png"; label = "Network Booster"; requireClick = $true },
+    @{ file = "dns-latency-tools.png"; label = "DNS & Latency Tools"; requireClick = $true },
+    @{ file = "privacy-center.png"; label = "Privacy Center"; requireClick = $true },
+    @{ file = "security-health.png"; label = "Security & Health"; requireClick = $true },
+    @{ file = "apps-manager.png"; label = "Apps Manager"; requireClick = $true },
+    @{ file = "tweaks-center.png"; label = "Tweaks Center"; requireClick = $true },
+    @{ file = "windows-features.png"; label = "Windows Features"; requireClick = $true },
+    @{ file = "update-control.png"; label = "Update Control"; requireClick = $true },
+    @{ file = "repair-tools.png"; label = "Repair Tools"; requireClick = $true },
+    @{ file = "driver-update-center.png"; label = "Driver & Update Center"; requireClick = $true },
+    @{ file = "app-uninstaller.png"; label = "App Uninstaller"; requireClick = $true },
+    @{ file = "restore-backup.png"; label = "Restore & Backup"; requireClick = $true },
     @{ file = "settings.png"; label = "App Settings"; requireClick = $true },
     @{ file = "about.png"; label = "About App"; requireClick = $true }
 )
@@ -163,6 +185,12 @@ try {
         $clicked = $true
         if ($page.requireClick) {
             $clicked = Invoke-NavButton -WindowHandle $handle -Label $page.label
+        }
+        if ($clicked -and $page.scrollAfterClick) {
+            [HbxNativeWindow]::SetForegroundWindow($handle) | Out-Null
+            Start-Sleep -Milliseconds 300
+            [System.Windows.Forms.SendKeys]::SendWait("{PGDN}")
+            Start-Sleep -Milliseconds 800
         }
         $targetPath = Join-Path $screenshotDir $page.file
         if ($clicked) {

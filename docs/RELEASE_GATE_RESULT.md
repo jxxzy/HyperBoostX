@@ -1,4 +1,4 @@
-# Release Gate Result
+﻿# Release Gate Result
 
 Audit date: 2026-07-02
 Candidate version: `2.10.0`
@@ -31,7 +31,7 @@ Decision: `STABLE_READY_UNSIGNED`
 | Token sync | PASS | Token-required backend health plus WPF running from launcher passed. |
 | No orphan process | PASS | Installed processes were stopped and no orphan remained. |
 | Silent uninstall/reinstall | PASS | Owner admin stable gate passed both. |
-| Installed screenshot evidence | PASS | `docs/runtime-audit/installed_screenshot_report.json` captured Dashboard, Performance, GPU Center, Streaming Center, Settings, and About from the installed app. |
+| Installed screenshot evidence | PASS | `docs/runtime-audit/installed_screenshot_report.json` captured all 27 core pages plus Dashboard after-scroll from the installed app. |
 | Final stable release gate | PASS | `docs/runtime-audit/final_stable_release_gate_report.json` reports `FINAL_STABLE_PASS`. |
 | Code signing | SKIPPED_BY_OWNER_NO_CERT | No owner certificate/PFX was supplied; unsigned distribution requires checksum verification. |
 
@@ -56,7 +56,7 @@ Decision: `STABLE_READY_UNSIGNED`
 ## Release Artifact
 
 ```text
-8960200b125dbf9a2e12a77a1c7cabfdc386dbf0628ca066acc6be1c7b88b4f4  HyperBoostXInstaller.exe
+e0846546df9f62cb8a6a0d42d1d9d8cfc7dbb835632f47177c64bb931d8b9609  HyperBoostXInstaller.exe
 ```
 
 Checksum manifests:
@@ -67,3 +67,4 @@ Checksum manifests:
 ## Decision
 
 `2.10.0` is approved as a local stable unsigned build by the completed source/package/install/runtime gates. It remains unsigned until the owner provides signing material.
+

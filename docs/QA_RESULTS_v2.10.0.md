@@ -1,6 +1,6 @@
-# QA Results v2.10.0
+﻿# QA Results v2.10.0
 
-Status date: 2026-07-01
+Status date: 2026-07-02
 Decision: `STABLE_READY_UNSIGNED`
 
 ## Automated Results
@@ -9,8 +9,8 @@ Decision: `STABLE_READY_UNSIGNED`
 | --- | --- | --- |
 | Full QA gate | PASS | `docs/runtime-audit/full_qa_summary.json`. |
 | Python tests | PASS | `72 passed` across final full test/gate runs. |
-| .NET Debug tests | PASS | `38 passed`. |
-| .NET Release build/test | PASS | `38 passed`. |
+| .NET Debug tests | PASS | `39 passed`. |
+| .NET Release build/test | PASS | `39 passed`. |
 | Solution build | PASS | `0 Warning(s), 0 Error(s)`. |
 | Runtime route contract | PASS | `tests/test_runtime_route_contract.py`; route verifier passed. |
 | UI action map contract | PASS | `tests/test_ui_action_map_v210.py`. |
@@ -43,3 +43,4 @@ Decision: `STABLE_READY_UNSIGNED`
 The source tree, automated tests, route map, UI command map, package contents, installer build, and installed runtime gate are green for a stable unsigned release.
 
 Remaining non-blocking limitations are documented: unsigned installer, external hardware matrix expansion, and guarded OS-level rollback scope.
+

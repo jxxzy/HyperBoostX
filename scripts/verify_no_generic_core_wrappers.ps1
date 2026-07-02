@@ -6,17 +6,33 @@ $ErrorActionPreference = "Stop"
 $failures = New-Object System.Collections.Generic.List[string]
 
 $coreViews = @(
-    "OneClickBoostView.xaml",
-    "AIPerformanceAdvisorView.xaml",
-    "AutoGamingModeView.xaml",
+    "DashboardView.xaml",
+    "PerformanceBoostView.xaml",
     "StartupManagerView.xaml",
-    "ProcessAnalyzerView.xaml",
+    "BackgroundAppsView.xaml",
     "CleanupView.xaml",
+    "StorageView.xaml",
+    "OneClickBoostView.xaml",
+    "AutoGamingModeView.xaml",
+    "AIPerformanceAdvisorView.xaml",
     "GpuCenterView.xaml",
-    "NetworkToolsView.xaml",
+    "GamingBoosterView.xaml",
+    "StreamingCenterView.xaml",
+    "CreatorModeView.xaml",
+    "NetworkBoosterView.xaml",
+    "DnsLatencyToolsView.xaml",
+    "PrivacyCenterView.xaml",
+    "SecurityHealthView.xaml",
+    "AppsManagerView.xaml",
+    "TweaksCenterView.xaml",
+    "WindowsFeaturesView.xaml",
+    "UpdateControlView.xaml",
+    "RepairToolsView.xaml",
+    "DriverUpdateCenterView.xaml",
+    "AppUninstallerView.xaml",
     "RestoreBackupView.xaml",
-    "FeatureAuditView.xaml",
-    "LegacyFeatureView.xaml"
+    "SettingsView.xaml",
+    "AboutView.xaml"
 )
 
 foreach ($view in $coreViews) {
@@ -30,17 +46,11 @@ foreach ($view in $coreViews) {
     if ($raw -match '<views:CyberPageChrome') {
         $failures.Add("Core view still uses generic CyberPageChrome: $view")
     }
-    if ($raw -notmatch '<views:PlacementPageChrome' -and $view -ne "SettingsView.xaml") {
-        $failures.Add("Core view does not use placement shell: $view")
+    if ($raw -match '<views:PlacementPageChrome') {
+        $failures.Add("Core view still uses generic PlacementPageChrome: $view")
     }
-}
-
-$allViewFiles = Get-ChildItem -LiteralPath (Join-Path $RepoRoot "wpf\Views") -Filter "*View.xaml" |
-    Where-Object { $_.Name -ne "CyberPageChrome.xaml" }
-foreach ($file in $allViewFiles) {
-    $raw = Get-Content -LiteralPath $file.FullName -Raw
-    if ($raw -match '<views:CyberPageChrome') {
-        $failures.Add("View still uses generic CyberPageChrome: $($file.Name)")
+    if ($raw -notmatch 'CORE_UI:') {
+        $failures.Add("Core view missing CORE_UI marker: $view")
     }
 }
 

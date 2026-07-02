@@ -1,8 +1,6 @@
-using System.Windows.Controls;
-
-namespace HyperBoostX.Views
+﻿namespace HyperBoostX.Views
 {
-    public partial class AutoGamingModeView : UserControl
+    public partial class AutoGamingModeView : PlacementActionPageBase
     {
         public AutoGamingModeView() => InitializeComponent();
     }

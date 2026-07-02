@@ -1,4 +1,4 @@
-# HyperBoostX v2.10.0 Stable Release Notes
+﻿# HyperBoostX v2.10.0 Stable Release Notes
 
 Release date: 2026-07-02
 Status: `STABLE_READY_UNSIGNED`
@@ -43,7 +43,7 @@ Code signing is `SKIPPED_BY_OWNER_NO_CERT`. Windows SmartScreen may warn because
 Verify SHA256 before installing:
 
 ```text
-8960200b125dbf9a2e12a77a1c7cabfdc386dbf0628ca066acc6be1c7b88b4f4  HyperBoostXInstaller.exe
+e0846546df9f62cb8a6a0d42d1d9d8cfc7dbb835632f47177c64bb931d8b9609  HyperBoostXInstaller.exe
 ```
 
 ## Known Limitations
@@ -51,3 +51,4 @@ Verify SHA256 before installing:
 - External hardware matrix should still be expanded beyond this machine.
 - OS-level admin apply/rollback remains guarded and limited to supported flows.
 - Full RGB device lighting control, production cloud sync, production license server, and automatic driver installation are not claimed.
+

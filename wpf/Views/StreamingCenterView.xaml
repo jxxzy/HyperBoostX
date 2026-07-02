@@ -1,7 +1,9 @@
 <UserControl x:Class="HyperBoostX.Views.StreamingCenterView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="clr-namespace:HyperBoostX.ViewModels">
+             xmlns:vm="clr-namespace:HyperBoostX.ViewModels"
+             AutomationProperties.AutomationId="CoreFeaturePage_StreamingCenter"
+             Tag="CORE_UI:StreamingCenter">
     <UserControl.DataContext>
         <vm:StreamingCenterViewModel/>
     </UserControl.DataContext>

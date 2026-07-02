@@ -1,8 +1,6 @@
-using System.Windows.Controls;
-
-namespace HyperBoostX.Views
+﻿namespace HyperBoostX.Views
 {
-    public partial class RestoreBackupView : UserControl
+    public partial class RestoreBackupView : PlacementActionPageBase
     {
         public RestoreBackupView() => InitializeComponent();
     }

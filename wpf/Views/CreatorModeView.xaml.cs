@@ -1,8 +1,6 @@
-using System.Windows.Controls;
-
-namespace HyperBoostX.Views
+﻿namespace HyperBoostX.Views
 {
-    public partial class CreatorModeView : UserControl
+    public partial class CreatorModeView : PlacementActionPageBase
     {
         public CreatorModeView() => InitializeComponent();
     }

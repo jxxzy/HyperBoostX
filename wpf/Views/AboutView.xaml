@@ -1,7 +1,9 @@
 <UserControl x:Class="HyperBoostX.Views.AboutView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="clr-namespace:HyperBoostX.ViewModels">
+             xmlns:vm="clr-namespace:HyperBoostX.ViewModels"
+             AutomationProperties.AutomationId="CoreFeaturePage_About"
+             Tag="CORE_UI:About">
     <UserControl.DataContext>
         <vm:AboutViewModel/>
     </UserControl.DataContext>

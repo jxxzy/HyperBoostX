@@ -1,5 +1,5 @@
 ﻿{
-    "generated_at":  "2026-07-01T19:41:29.3840486Z",
+    "generated_at":  "2026-07-02T08:58:13.1994442Z",
     "expected_version":  "2.10.0",
     "final_status":  "FINAL_STABLE_PASS",
     "checks":  [
@@ -7,49 +7,49 @@
                        "name":  "version consistency",
                        "status":  "PASS",
                        "exit_code":  0,
-                       "duration_ms":  673
+                       "duration_ms":  632
                    },
                    {
                        "name":  "UI release gate",
                        "status":  "PASS",
                        "exit_code":  0,
-                       "duration_ms":  2992
+                       "duration_ms":  3191
                    },
                    {
                        "name":  "no template UI regression",
                        "status":  "PASS",
                        "exit_code":  0,
-                       "duration_ms":  207
+                       "duration_ms":  250
                    },
                    {
                        "name":  "UI page body markers",
                        "status":  "PASS",
                        "exit_code":  0,
-                       "duration_ms":  195
+                       "duration_ms":  219
                    },
                    {
                        "name":  "UI button labels",
                        "status":  "PASS",
                        "exit_code":  0,
-                       "duration_ms":  303
+                       "duration_ms":  320
                    },
                    {
                        "name":  "no placement notes",
                        "status":  "PASS",
                        "exit_code":  0,
-                       "duration_ms":  194
+                       "duration_ms":  192
                    },
                    {
                        "name":  "release docs consistency",
                        "status":  "PASS",
                        "exit_code":  0,
-                       "duration_ms":  1966
+                       "duration_ms":  2482
                    },
                    {
                        "name":  "installer runtime evidence",
                        "status":  "PASS",
                        "exit_code":  0,
-                       "duration_ms":  1268
+                       "duration_ms":  1292
                    }
                ]
 }

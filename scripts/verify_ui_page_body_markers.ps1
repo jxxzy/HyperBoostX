@@ -51,6 +51,44 @@ Assert-Contains "wpf\Views\AboutView.xaml" @(
     "Technical Details"
 )
 
+$corePageFiles = @{
+    Dashboard = "DashboardView"
+    PerformanceBoost = "PerformanceBoostView"
+    StartupManager = "StartupManagerView"
+    BackgroundApps = "BackgroundAppsView"
+    Cleanup = "CleanupView"
+    Storage = "StorageView"
+    OneClickBoost = "OneClickBoostView"
+    AutoGamingMode = "AutoGamingModeView"
+    AIPerformanceAdvisor = "AIPerformanceAdvisorView"
+    GpuCenter = "GpuCenterView"
+    GamingBooster = "GamingBoosterView"
+    StreamingCenter = "StreamingCenterView"
+    CreatorMode = "CreatorModeView"
+    NetworkBooster = "NetworkBoosterView"
+    DnsLatencyTools = "DnsLatencyToolsView"
+    PrivacyCenter = "PrivacyCenterView"
+    SecurityHealth = "SecurityHealthView"
+    AppsManager = "AppsManagerView"
+    TweaksCenter = "TweaksCenterView"
+    WindowsFeatures = "WindowsFeaturesView"
+    UpdateControl = "UpdateControlView"
+    RepairTools = "RepairToolsView"
+    DriverUpdateCenter = "DriverUpdateCenterView"
+    AppUninstaller = "AppUninstallerView"
+    RestoreBackup = "RestoreBackupView"
+    Settings = "SettingsView"
+    About = "AboutView"
+}
+
+foreach ($entry in $corePageFiles.GetEnumerator()) {
+    $path = "wpf\Views\$($entry.Value).xaml"
+    Assert-Contains $path @(
+        "CORE_UI:$($entry.Key)",
+        "CoreFeaturePage_$($entry.Key)"
+    )
+}
+
 Assert-Contains "wpf\Views\PlacementPageChrome.xaml" @(
     "PlacementSections",
     "PrimaryPlacementActions",
@@ -79,4 +117,3 @@ if ($failures.Count -gt 0) {
 }
 
 Write-Host "PASS: UI page body marker verification" -ForegroundColor Green
-

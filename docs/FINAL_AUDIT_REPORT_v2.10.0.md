@@ -1,4 +1,4 @@
-# Final Audit Report v2.10.0
+﻿# Final Audit Report v2.10.0
 
 Audit date: 2026-07-02
 Decision: `STABLE_READY_UNSIGNED`
@@ -93,7 +93,7 @@ Mutating and risky actions remain protected by preview, explicit approval, admin
 Installer SHA256:
 
 ```text
-8960200b125dbf9a2e12a77a1c7cabfdc386dbf0628ca066acc6be1c7b88b4f4  HyperBoostXInstaller.exe
+e0846546df9f62cb8a6a0d42d1d9d8cfc7dbb835632f47177c64bb931d8b9609  HyperBoostXInstaller.exe
 ```
 
 Artifact manifests:
@@ -116,3 +116,4 @@ Artifact manifests:
 ## Release Decision
 
 `2.10.0` is usable as a stable unsigned local release artifact. It should be distributed with the checksum and unsigned-installer notice.
+
