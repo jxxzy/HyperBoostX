@@ -1,4 +1,4 @@
-﻿# HyperBoostX v2.10.0 UI Content Placement Audit
+# HyperBoostX v2.10.0 UI Content Placement Audit
 
 Generated: 2026-07-02 15.54.00 +07:00
 
@@ -8,10 +8,10 @@ Status: FINAL_STABLE_PASS
 
 - All 27 Beginner core pages now have dedicated source-level page bodies and `CORE_UI:<key>` markers.
 - The 23 generated feature pages use `PlacementActionPageBase` only for shared backend button handling; their body content is page-specific.
-- Advanced Details retains Raw JSON output for Expert diagnostics while Beginner copy stays readable.
+- Advanced Details retains redacted raw JSON output for Expert diagnostics while Beginner copy stays readable.
 - Dashboard, Streaming Center, Settings, and About remain purpose-built custom pages.
 - Legacy fallback routes use `RegisterIfMissing`, so fallback pages cannot overwrite stable core routes.
-- Installed evidence includes 28 screenshots captured from the installed app: 27 core pages plus Dashboard after-scroll.
+- Installed evidence includes 29 screenshots captured from the installed app: 28 core pages plus Dashboard after-scroll.
 
 ## Core Page Placement Status
 

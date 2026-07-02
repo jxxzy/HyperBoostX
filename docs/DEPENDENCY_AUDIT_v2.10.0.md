@@ -1,6 +1,10 @@
-# Dependency Audit v2.10.0
+﻿# Dependency Audit v2.10.0
 
-> Current release policy: HyperBoostX v2.10.0 is the Stable Unsigned public release. Code signing remains `SKIPPED_BY_OWNER_NO_CERT`; external hardware matrix expansion is recommended.
+Status: `STABLE_READY_UNSIGNED`
+
+Current public release: HyperBoostX v2.10.0 Stable Unsigned. Code signing remains SKIPPED_BY_OWNER_NO_CERT, so this generator must not claim signed artifacts.
+
+Generated: 2026-07-03 02.57.27 +07:00
 
 ## Runtime Dependencies
 
@@ -15,11 +19,5 @@
 - No dependency may bypass Safety Guard.
 - No dependency may upload telemetry silently.
 - No bundled third-party driver installers.
-- No plugin marketplace execution until signed/trusted plugin policy exists.
+- No unsigned plugin execution path is treated as production marketplace behavior.
 
-## Required Before Stable
-
-- Regenerate SBOM.
-- Verify packaged dependency versions.
-- Run secret scan.
-- Confirm installer ships the expected WPF/backend runtime files.

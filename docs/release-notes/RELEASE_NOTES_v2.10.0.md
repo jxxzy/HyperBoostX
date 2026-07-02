@@ -1,4 +1,4 @@
-﻿# HyperBoostX v2.10.0 Stable Release Notes
+# HyperBoostX v2.10.0 Stable Release Notes
 
 Release date: 2026-07-02
 Status: `STABLE_READY_UNSIGNED`
@@ -19,17 +19,17 @@ Status: `STABLE_READY_UNSIGNED`
 - Confirmed registry `DisplayVersion=2.10.0`.
 - Confirmed installed backend `/api/health` and `/api/version`.
 - Confirmed installed feature registry via `/api/features/audit`, `/api/features/stable-visible`, and `/api/features/non-real`.
-- Confirmed stable-visible feature count `72`, stable-visible button count `596`, and non-real stable-visible count `0`.
+- Confirmed stable-visible feature count `73`, stable-visible button count `606`, and non-real stable-visible count `0`.
 - Confirmed Desktop and Start Menu shortcuts.
 - Confirmed WPF installed smoke, token sync, no orphan process, silent uninstall, and silent reinstall.
 - Cleaned release readiness API so installed stable runtime reports `stable_ready_unsigned`.
 
 ## Feature Surface
 
-- 72 menus.
-- 596 active buttons/actions.
+- 73 menus.
+- 606 active buttons/actions.
 - 0 stable action-map buttons marked partial/roadmap/guidance.
-- 165 unique UI endpoints.
+- 167 unique UI endpoints.
 - 366 backend Flask routes and 384 backend route methods.
 
 ## Safety

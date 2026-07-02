@@ -13,6 +13,13 @@ namespace HyperBoostX.ViewModels
         public ObservableCollection<string> Items { get; } = new();
     }
 
+    public sealed class WorkflowStepViewModel
+    {
+        public string Step { get; init; } = "01";
+        public string Title { get; init; } = "Inspect";
+        public string Detail { get; init; } = "Load local evidence before reviewing changes.";
+    }
+
     public sealed class PlacementPageSpec
     {
         public string Key { get; init; } = "Dashboard";
@@ -21,14 +28,14 @@ namespace HyperBoostX.ViewModels
         public string ResultIntro { get; init; } = "No action has run yet. Results will appear here after the local backend returns data.";
         public string SafetyNote { get; init; } = "Safety Guard remains active in every mode. Preview, confirmation, restore metadata, and reporting stay required for mutating flows.";
         public string RestoreNote { get; init; } = "Restore evidence is kept close to apply/history actions so changes remain reversible where supported.";
-        public string StateTitle { get; init; } = "Current Snapshot";
-        public string WorkspaceTitle { get; init; } = "Tool Workspace";
-        public string ActionTitle { get; init; } = "Safe Actions";
-        public string ActionHint { get; init; } = "Start with scan or review. Apply actions stay confirmation-gated by the backend session and Safety Guard.";
-        public string SecondaryActionTitle { get; init; } = "Reports & History";
-        public string ResultTitle { get; init; } = "Activity & Output";
-        public string SafetyTitle { get; init; } = "Safety Boundaries";
-        public string RecommendationsTitle { get; init; } = "Recommendations";
+        public string StateTitle { get; init; } = "Operational Snapshot";
+        public string WorkspaceTitle { get; init; } = "Feature Workspace";
+        public string ActionTitle { get; init; } = "Operational Runbook";
+        public string ActionHint { get; init; } = "Inspect local evidence first, review the safe scope, then use guarded actions only when the report and restore path are visible.";
+        public string SecondaryActionTitle { get; init; } = "Evidence Actions";
+        public string ResultTitle { get; init; } = "Audit Console";
+        public string SafetyTitle { get; init; } = "Safety Boundary";
+        public string RecommendationsTitle { get; init; } = "Usage Notes";
         public IReadOnlyList<PlacementSectionViewModel> Sections { get; init; } = Array.Empty<PlacementSectionViewModel>();
         public IReadOnlyDictionary<string, string> ActionLabels { get; init; } = new Dictionary<string, string>();
         public IReadOnlySet<string> HiddenActionKinds { get; init; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -57,20 +64,21 @@ namespace HyperBoostX.ViewModels
         public string EmptyState { get; private set; } = "";
         public string SafetyNote { get; private set; } = "";
         public string RestoreNote { get; private set; } = "";
-        public string StateTitle { get; private set; } = "Current Snapshot";
-        public string WorkspaceTitle { get; private set; } = "Tool Workspace";
-        public string ActionTitle { get; private set; } = "Safe Actions";
+        public string StateTitle { get; private set; } = "Operational Snapshot";
+        public string WorkspaceTitle { get; private set; } = "Feature Workspace";
+        public string ActionTitle { get; private set; } = "Operational Runbook";
         public string ActionHint { get; private set; } = "";
-        public string SecondaryActionTitle { get; private set; } = "Reports & History";
-        public string ResultTitle { get; private set; } = "Activity & Output";
-        public string SafetyTitle { get; private set; } = "Safety Boundaries";
-        public string RecommendationsTitle { get; private set; } = "Recommendations";
+        public string SecondaryActionTitle { get; private set; } = "Evidence Actions";
+        public string ResultTitle { get; private set; } = "Audit Console";
+        public string SafetyTitle { get; private set; } = "Safety Boundary";
+        public string RecommendationsTitle { get; private set; } = "Usage Notes";
         public string ResultSummary { get => _resultSummary; set => SetProperty(ref _resultSummary, value); }
         public ObservableCollection<PlacementSectionViewModel> PlacementSections { get; } = new();
         public ObservableCollection<FeatureActionViewModel> PrimaryPlacementActions { get; } = new();
         public ObservableCollection<FeatureActionViewModel> SecondaryPlacementActions { get; } = new();
         public ObservableCollection<FeatureActionViewModel> RestorePlacementActions { get; } = new();
         public ObservableCollection<string> AdvancedRouteLines { get; } = new();
+        public ObservableCollection<WorkflowStepViewModel> WorkflowSteps { get; } = new();
 
         private void ConfigurePlacement(string featureKey)
         {
@@ -88,8 +96,8 @@ namespace HyperBoostX.ViewModels
             SafetyTitle = spec.SafetyTitle;
             RecommendationsTitle = spec.RecommendationsTitle;
             ResultSummary = spec.ResultIntro;
-            LiveResultTitle = "Technical Details";
-            LiveResult = "Technical route output appears here after a user action. Beginner screens keep the readable summary above.";
+            LiveResultTitle = "Advanced Details";
+            LiveResult = "Redacted backend detail appears here after a user action. The readable result above stays the primary view.";
 
             PlacementSections.Clear();
             foreach (var section in spec.Sections)
@@ -99,6 +107,9 @@ namespace HyperBoostX.ViewModels
             SecondaryPlacementActions.Clear();
             RestorePlacementActions.Clear();
             AdvancedRouteLines.Clear();
+            WorkflowSteps.Clear();
+            foreach (var step in BuildWorkflowSteps(spec))
+                WorkflowSteps.Add(step);
 
             foreach (var action in FeatureActions.Select(action => CloneAction(action, spec)))
             {
@@ -172,6 +183,31 @@ namespace HyperBoostX.ViewModels
             return clone;
         }
 
+        private static IEnumerable<WorkflowStepViewModel> BuildWorkflowSteps(PlacementPageSpec spec)
+        {
+            var sections = spec.Sections.ToList();
+            yield return new WorkflowStepViewModel
+            {
+                Step = "01",
+                Title = sections.Count > 0 ? $"Inspect {sections[0].Title}" : "Inspect Evidence",
+                Detail = sections.Count > 0 ? sections[0].Description : spec.EmptyState
+            };
+
+            yield return new WorkflowStepViewModel
+            {
+                Step = "02",
+                Title = sections.Count > 1 ? $"Review {sections[1].Title}" : "Review Scope",
+                Detail = sections.Count > 1 ? sections[1].Description : spec.ActionHint
+            };
+
+            yield return new WorkflowStepViewModel
+            {
+                Step = "03",
+                Title = sections.Count > 2 ? $"Recover {sections[2].Title}" : "Recover Safely",
+                Detail = sections.Count > 2 ? sections[2].Description : spec.RestoreNote
+            };
+        }
+
         private static string BuildActionLabel(FeatureActionViewModel action, PlacementPageSpec spec)
         {
             var kind = GetActionKind(action);
@@ -180,13 +216,13 @@ namespace HyperBoostX.ViewModels
 
             return kind switch
             {
-                "primary" => "Load Local Status",
-                "preview" => "Review Safe Plan",
-                "apply" => "Apply Approved Changes",
-                "restore" => "Restore Previous Changes",
-                "export" => "Export Report",
-                "log" => "Action History",
-                "help" => "Safety Guide",
+                "primary" => "Open Feature Status",
+                "preview" => "Review Evidence Plan",
+                "apply" => "Apply Reviewed Selection",
+                "restore" => "Restore Recorded Change",
+                "export" => "Export Redacted Report",
+                "log" => "Open Action History",
+                "help" => "Open Safety Guide",
                 _ => action.Label
             };
         }
@@ -302,7 +338,7 @@ namespace HyperBoostX.ViewModels
                 "Blocked: arbitrary AI shell commands, unsafe services, security disables, and protected-process kills.",
                 "Last boost can be restored through the supported undo/session flow after an approved boost.",
                 "Boost Plan",
-                Actions(("primary", "Preview Boost Plan"), ("preview", "Review Safe Actions"), ("apply", "Start Safe Boost"), ("restore", "Restore Last Boost"), ("export", "Export Boost Report")),
+                Actions(("primary", "Preview Boost Plan"), ("preview", "Review Approved Boost Scope"), ("apply", "Start Safe Boost"), ("restore", "Restore Last Boost"), ("export", "Export Boost Report")),
                 Hidden(),
                 Section("Boost Mode Selector", "Choose a safe scope before any apply action.", "Safe", "Balanced", "Before Gaming", "Custom"),
                 Section("Custom Checklist", "Custom boost is a checklist of guarded categories, not a raw command runner.", "Performance", "Background", "Cleanup", "Network", "Visual", "Update control", "Security safe"),
@@ -346,6 +382,19 @@ namespace HyperBoostX.ViewModels
                 Section("Vendor Detection", "GPU data is read from local backend evidence where available.", "NVIDIA / AMD / Intel / Microsoft Basic", "Model", "Driver status", "VRAM usage"),
                 Section("Overlay & Vendor Apps", "Overlay and RGB/vendor app status are guidance-only unless a safe backend route exists.", "Overlay status", "RGB/vendor app status", "Temperature if available"),
                 Section("Driver Center Handoff", "Driver updates are manual OEM/vendor handoffs.", "Open Driver Center", "Official source reminder", "No silent install")),
+
+            ["HardwareVendorCenter"] = Page(
+                "Analyze OEM/vendor utilities, RGB/LCD helpers, overlays, startup entries, and service pressure without breaking required hardware controls.",
+                "Vendor App Analyzer has not scanned yet. Run vendor analysis to classify utilities before changing startup or services.",
+                "Vendor output will show detected utilities, protected roles, safe recommendations, MSI submodule status, and report history.",
+                "Blocked: fan/RGB/LCD control breaks, firmware/BIOS edits, driver-service disables, silent uninstall, and blind vendor-service kill.",
+                "Vendor changes remain preview-first and restore-aware; required display, fan, audio, and hardware-control utilities stay protected.",
+                "Vendor App Analyzer",
+                Actions(("primary", "Scan Vendor Utilities"), ("preview", "Build Vendor Safe Plan"), ("apply", "Apply Selected Vendor Changes"), ("restore", "Restore Vendor Startup State"), ("export", "Export Vendor Report"), ("help", "Open Vendor Safety Guide")),
+                Hidden(),
+                Section("Vendor Inventory", "Detects known OEM/vendor tools and labels them by role before guidance is shown.", "MSI Center / Dragon Center", "ASUS Armoury Crate", "Gigabyte Control Center", "Lenovo / Dell / HP / Acer tools"),
+                Section("Service & Startup Roles", "Classifies each item so required controls are not treated like generic background noise.", "Required hardware control", "Optional startup item", "RGB/LCD/display helper", "Overlay or monitoring"),
+                Section("MSI Safe Optimizer Submodule", "MSI-specific guidance stays inside Vendor Center or Advanced mode and never disables fan/RGB/driver services blindly.", "MSI Center status", "Mystic Light / Nahimic", "Afterburner / RTSS", "TRCC / KANALI / HiMOS protection")),
 
             ["GamingBooster"] = Page(
                 "Analyze gaming setup, choose a real game/profile, run targeted boost, and keep restore one step away.",
@@ -558,25 +607,26 @@ namespace HyperBoostX.ViewModels
             {
                 Key = key,
                 Purpose = string.IsNullOrWhiteSpace(subtitle)
-                    ? "Load local status, review safe guidance, and use guarded actions only where supported."
+                    ? "Load local evidence, inspect the feature scope, and use guarded actions only where supported."
                     : subtitle,
                 EmptyState = $"{title} has not loaded local evidence yet. Use the first action to load status.",
-                ResultIntro = $"{title} output will appear here after a backend action returns.",
+                ResultIntro = $"{title} output will appear here after a backend action returns. Sensitive values are redacted in advanced detail.",
                 SafetyNote = BuildSafetyNote(key),
                 RestoreNote = BuildRestoreNote(key),
                 WorkspaceTitle = $"{title} Workspace",
                 Sections = new[]
                 {
-                    ToSection(Section("Status", "Local evidence and readable guidance appear here.", "Status", "Warnings", "Supported actions")),
-                    ToSection(Section("Reports", "History and export actions stay separate from mutating flows.", "Action history", "Export report", "Restore evidence where supported"))
+                    ToSection(Section("Status Evidence", "Local status, warnings, and supported actions are listed before any recommendation is trusted.", "Local status", "Warnings", "Supported actions")),
+                    ToSection(Section("Review Scope", "Reports, history, restore evidence, and handoffs stay separate from mutating flows.", "Action history", "Redacted report export", "Restore evidence where supported")),
+                    ToSection(Section("Safety Boundary", "Blocked actions remain visible so Expert mode cannot bypass Safety Guard.", "Blocked risky actions", "Admin requirements", "Manual handoff when needed"))
                 },
                 ActionLabels = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
-                    ["primary"] = "Load Local Status",
-                    ["preview"] = "Review Safe Plan",
-                    ["apply"] = "Apply Approved Changes",
-                    ["restore"] = "Restore Previous Changes",
-                    ["export"] = "Export Report"
+                    ["primary"] = "Open Feature Status",
+                    ["preview"] = "Review Evidence Plan",
+                    ["apply"] = "Apply Reviewed Selection",
+                    ["restore"] = "Restore Recorded Change",
+                    ["export"] = "Export Redacted Report"
                 },
                 HiddenActionKinds = new HashSet<string>(DefaultHiddenKinds, StringComparer.OrdinalIgnoreCase)
             };

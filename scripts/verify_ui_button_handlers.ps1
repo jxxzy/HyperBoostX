@@ -14,7 +14,7 @@ $placementXaml = Get-Content -LiteralPath (Join-Path $RepoRoot "wpf\Views\Placem
 $placementCode = Get-Content -LiteralPath (Join-Path $RepoRoot "wpf\Views\PlacementPageChrome.xaml.cs") -Raw
 $actionCatalog = Get-Content -LiteralPath (Join-Path $RepoRoot "wpf\ViewModels\FeatureActionCatalog.cs") -Raw
 
-foreach ($token in @("RunPlacementAction_Click", "PrimaryPlacementActions", "SecondaryPlacementActions", "RestorePlacementActions", "Technical Details")) {
+foreach ($token in @("RunPlacementAction_Click", "HeroPrimaryActionItems", "PrimaryPlacementActions", "SecondaryPlacementActions", "RestorePlacementActions", "Advanced Details")) {
     if ($placementXaml -notmatch [regex]::Escape($token) -and $placementCode -notmatch [regex]::Escape($token)) {
         $failures.Add("Placement button/action surface missing token: $token")
     }

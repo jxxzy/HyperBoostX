@@ -359,22 +359,22 @@ if ($featureAudit -and $featureAudit.ok -and $featureAudit.data) {
     $auditCounts = $featureAudit.data.counts
     $contract = Get-HyperBoostXReleaseContract
     Add-Check "feature audit stable_ui_ok true" ([bool]$featureAudit.data.ok -eq $true) ($(if ($featureAudit.data.errors) { ($featureAudit.data.errors -join "; ") } else { "ok=$($featureAudit.data.ok)" }))
-    Add-Check "feature audit stable_visible_features is 72" ([int]$auditCounts.stable_visible_features -eq $contract.ExpectedStableMenus) "actual=$($auditCounts.stable_visible_features); expected=$($contract.ExpectedStableMenus)"
-    Add-Check "feature audit stable_visible_buttons is 596" ([int]$auditCounts.stable_visible_buttons -eq $contract.ExpectedStableButtons) "actual=$($auditCounts.stable_visible_buttons); expected=$($contract.ExpectedStableButtons)"
+    Add-Check "feature audit stable_visible_features matches contract" ([int]$auditCounts.stable_visible_features -eq $contract.ExpectedStableMenus) "actual=$($auditCounts.stable_visible_features); expected=$($contract.ExpectedStableMenus)"
+    Add-Check "feature audit stable_visible_buttons matches contract" ([int]$auditCounts.stable_visible_buttons -eq $contract.ExpectedStableButtons) "actual=$($auditCounts.stable_visible_buttons); expected=$($contract.ExpectedStableButtons)"
     Add-Check "feature audit non_real_visible_in_stable is 0" ([int]$auditCounts.non_real_visible_in_stable -eq $contract.ExpectedNonRealVisibleInStable) "actual=$($auditCounts.non_real_visible_in_stable); expected=$($contract.ExpectedNonRealVisibleInStable)"
 }
 else {
     Add-Check "feature audit stable_ui_ok true" $false "feature audit endpoint unavailable"
-    Add-Check "feature audit stable_visible_features is 72" $false "feature audit endpoint unavailable"
-    Add-Check "feature audit stable_visible_buttons is 596" $false "feature audit endpoint unavailable"
+    Add-Check "feature audit stable_visible_features matches contract" $false "feature audit endpoint unavailable"
+    Add-Check "feature audit stable_visible_buttons matches contract" $false "feature audit endpoint unavailable"
     Add-Check "feature audit non_real_visible_in_stable is 0" $false "feature audit endpoint unavailable"
 }
 if ($featureStableVisible -and $featureStableVisible.ok -and $featureStableVisible.data) {
     $contract = Get-HyperBoostXReleaseContract
-    Add-Check "stable-visible count is 72" ([int]$featureStableVisible.data.count -eq $contract.ExpectedStableMenus) "actual=$($featureStableVisible.data.count); expected=$($contract.ExpectedStableMenus)"
+    Add-Check "stable-visible count matches contract" ([int]$featureStableVisible.data.count -eq $contract.ExpectedStableMenus) "actual=$($featureStableVisible.data.count); expected=$($contract.ExpectedStableMenus)"
 }
 else {
-    Add-Check "stable-visible count is 72" $false "stable-visible endpoint unavailable"
+    Add-Check "stable-visible count matches contract" $false "stable-visible endpoint unavailable"
 }
 if ($featureNonReal -and $featureNonReal.ok -and $featureNonReal.data) {
     Add-Check "non-real count is 0" ([int]$featureNonReal.data.count -eq 0) "actual=$($featureNonReal.data.count); expected=0"

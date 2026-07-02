@@ -1,14 +1,14 @@
-# Migration v2.10.0
+﻿# Migration v2.10.0
 
 Status: `STABLE_READY_UNSIGNED`
 
-Current public release: HyperBoostX v2.10.0 Stable Unsigned.
+Current public release: HyperBoostX v2.10.0 Stable Unsigned. Code signing remains SKIPPED_BY_OWNER_NO_CERT, so this generator must not claim signed artifacts.
 
-Generated: 2026-07-01
+Generated: 2026-07-03 02.57.27 +07:00
 
 ## Scope
 
-v2.10.0 keeps the WPF shell, local Flask backend, packaged launcher, and launcher/backend token model. Migration work preserves local user data while making UI actions, backend routes, reports, and restore visibility auditable.
+HyperBoostX v2.10 keeps the WPF shell, local Flask backend, packaged launcher, and launcher/backend token model. Migration work preserves local user data while keeping UI actions, backend routes, reports, and restore visibility auditable.
 
 ## Data Locations
 
@@ -18,12 +18,12 @@ v2.10.0 keeps the WPF shell, local Flask backend, packaged launcher, and launche
 
 ## Required Migration Behavior
 
-- Corrupt JSON must be backed up and replaced with safe defaults.
-- Old restore sessions must remain visible or be clearly marked unreadable without crashing.
-- Local reports must remain exportable and redacted.
-- Session-token mismatch must show a restart/retry message, not a generic crash.
+- Corrupt JSON is backed up and replaced with safe defaults.
+- Old restore sessions remain visible or are clearly marked unreadable without crashing.
+- Local reports remain exportable and redacted.
+- Session-token mismatch shows restart/retry guidance.
 - Installed runtime must report version `2.10.0`.
-- Installed runtime must expose 72 stable-visible menus and 596 stable-visible buttons.
+- Stable runtime must expose 73 menus and 606 mapped buttons.
 
 ## Upgrade Smoke
 
@@ -33,4 +33,5 @@ v2.10.0 keeps the WPF shell, local Flask backend, packaged launcher, and launche
 | Reinstall | PASS in owner/admin gate evidence |
 | Silent uninstall | PASS in owner/admin gate evidence |
 | Silent reinstall | PASS in owner/admin gate evidence |
-| v1.x/v2.x user data preservation | Supported by installer policy; additional external hardware/user-data matrix recommended |
+| User data preservation | Supported by local-first data policy; broader external user-data matrix remains recommended |
+

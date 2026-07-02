@@ -19,7 +19,7 @@ foreach ($token in @("BeginnerNavigationKeys", "AdvancedNavigationKeys", "ApplyE
 $beginnerRequired = @(
     "Dashboard","OneClickBoost","AutoGamingMode","AIPerformanceAdvisor","PerformanceBoost",
     "StartupManager","BackgroundApps","Cleanup","Storage","GpuCenter","GamingBooster",
-    "StreamingCenter","CreatorMode","NetworkBooster","DnsLatencyTools","PrivacyCenter",
+    "HardwareVendorCenter","StreamingCenter","CreatorMode","NetworkBooster","DnsLatencyTools","PrivacyCenter",
     "SecurityHealth","AppsManager","TweaksCenter","WindowsFeatures","UpdateControl",
     "RepairTools","DriverUpdateCenter","AppUninstaller","RestoreBackup","Settings","About"
 )

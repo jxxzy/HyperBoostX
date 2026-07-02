@@ -42,7 +42,7 @@ namespace HyperBoostX.Views
             page.IsBusy = true;
             SetActionButtonsEnabled(false);
             page.Status = $"Running {action.Label}...";
-            page.LiveResultTitle = "Technical Details";
+            page.LiveResultTitle = "Advanced Details";
             page.LiveResult = $"Calling {NormalizeMethod(action.Method)} {NormalizePath(action.Path)}...";
             page.LastUpdated = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             if (page is PlacementPageViewModel placement)
@@ -61,7 +61,7 @@ namespace HyperBoostX.Views
                 page.LiveResult = BuildReadableRaw(action, token);
                 page.LastUpdated = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 if (page is PlacementPageViewModel placementPage)
-                    placementPage.ResultSummary = BuildSummary(token, fallback: $"{action.Label} completed. Review Technical Details for the raw backend payload.");
+                    placementPage.ResultSummary = BuildSummary(token, fallback: $"{action.Label} completed. Review Advanced Details for the raw backend payload.");
                 UpdateMetricsFromResult(page, token, action);
             }
             catch (Exception ex)
@@ -144,7 +144,7 @@ namespace HyperBoostX.Views
 
         private static string BuildFriendlyError(string actionName, Exception ex)
         {
-            var message = ex.Message ?? string.Empty;
+            var message = SensitiveTextRedactor.Redact(ex.Message ?? string.Empty);
             if (message.Contains("401", StringComparison.OrdinalIgnoreCase) || message.Contains("Unauthorized local session", StringComparison.OrdinalIgnoreCase))
                 return $"{actionName} was rejected by the local session guard. Relaunch HyperBoostX through HyperBoostX.exe so WPF and backend share the same token.";
             if (message.Contains("refused", StringComparison.OrdinalIgnoreCase) || message.Contains("No connection", StringComparison.OrdinalIgnoreCase))
@@ -199,14 +199,14 @@ namespace HyperBoostX.Views
         private static string BuildSafetyStatusDetail(JObject obj)
         {
             if (obj["blocked_reasons"] is JArray blockedReasons && blockedReasons.Count > 0)
-                return blockedReasons[0]?.ToString() ?? string.Empty;
+                return SensitiveTextRedactor.Redact(blockedReasons[0]?.ToString() ?? string.Empty);
 
             var message = obj.Value<string>("message");
             if (!string.IsNullOrWhiteSpace(message))
-                return message;
+                return SensitiveTextRedactor.Redact(message);
 
             var reason = obj.Value<string>("reason");
-            return reason ?? string.Empty;
+            return SensitiveTextRedactor.Redact(reason ?? string.Empty);
         }
 
         private static bool ContainsTrueFlag(JToken token, string key)
@@ -224,11 +224,11 @@ namespace HyperBoostX.Views
 
         private static string BuildReadableRaw(FeatureActionViewModel action, JToken token)
         {
-            var body = token.ToString(Formatting.Indented);
+            var body = SensitiveTextRedactor.Redact(token.ToString(Formatting.Indented));
             if (body.Length > 14000)
                 body = body[..14000] + "\n... output truncated in UI ...";
 
-            return $"{action.Label}\n{NormalizeMethod(action.Method)} {NormalizePath(action.Path)}\n{DateTime.Now:yyyy-MM-dd HH:mm:ss}\n\nRaw JSON\n{body}";
+            return $"{action.Label}\n{NormalizeMethod(action.Method)} {NormalizePath(action.Path)}\n{DateTime.Now:yyyy-MM-dd HH:mm:ss}\n\nRaw JSON (redacted)\n{body}";
         }
 
         private static string BuildSummary(JToken token, string fallback)
@@ -259,7 +259,7 @@ namespace HyperBoostX.Views
         {
             var value = obj[key];
             if (value != null && value.Type != JTokenType.Object && value.Type != JTokenType.Array)
-                lines.Add($"- {key}: {value}");
+                lines.Add($"- {key}: {SensitiveTextRedactor.Redact(value.ToString())}");
         }
 
         private static void AddCount(ICollection<string> lines, JObject obj, string key)

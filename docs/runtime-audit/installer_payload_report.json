@@ -1,12 +1,12 @@
-﻿{
-    "generated_at":  "2026-07-02T11:36:52.9419480Z",
-    "repo_root":  "F:\\BOOSTER BY MR.4NONY",
+{
+    "generated_at":  "2026-07-02T20:00:06.6850245Z",
+    "repo_root":  "<REPO_ROOT>",
     "expected_version":  "2.10.0",
-    "installer_path":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe",
+    "installer_path":  "<REPO_ROOT>\\HyperBoostXInstaller.exe",
     "action_map_contract":  {
-                                "ExpectedStableMenus":  72,
-                                "ExpectedStableButtons":  596,
-                                "ExpectedUniqueUiEndpoints":  165,
+                                "ExpectedStableMenus":  73,
+                                "ExpectedStableButtons":  606,
+                                "ExpectedUniqueUiEndpoints":  167,
                                 "ExpectedNonRealVisibleInStable":  0
                             },
     "checks":  [
@@ -23,7 +23,7 @@
                    {
                        "name":  "NSIS file exists",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.nsi"
+                       "evidence":  "<REPO_ROOT>\\HyperBoostXInstaller.nsi"
                    },
                    {
                        "name":  "NSIS DisplayVersion uses current version",
@@ -68,32 +68,32 @@
                    {
                        "name":  "installer exists",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe"
+                       "evidence":  "<REPO_ROOT>\\HyperBoostXInstaller.exe"
                    },
                    {
                        "name":  "installer hash available",
                        "ok":  true,
-                       "evidence":  "d83b62aea35323e21bc81584821180c16433b34136e6853c3d5e992e518ca05f"
+                       "evidence":  "da445c1dbdeb608ab3958e9c1922599585798a6bf1f46a65d3aa22fb02b92ad0"
                    },
                    {
                        "name":  "v2.10 checksum file exists",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\docs\\release\\checksums\\SHA256SUMS_2.10.0.txt"
+                       "evidence":  "<REPO_ROOT>\\docs\\release\\checksums\\SHA256SUMS_2.10.0.txt"
                    },
                    {
                        "name":  "checksum file includes current installer hash",
                        "ok":  true,
-                       "evidence":  "d83b62aea35323e21bc81584821180c16433b34136e6853c3d5e992e518ca05f"
+                       "evidence":  "da445c1dbdeb608ab3958e9c1922599585798a6bf1f46a65d3aa22fb02b92ad0"
                    },
                    {
                        "name":  "source action map exists",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "<REPO_ROOT>\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "source action map JSON parses",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "<REPO_ROOT>\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "source action map app_version matches VERSION",
@@ -108,17 +108,17 @@
                    {
                        "name":  "source action map summary total_menus",
                        "ok":  true,
-                       "evidence":  "actual=72; expected=72"
+                       "evidence":  "actual=73; expected=73"
                    },
                    {
                        "name":  "source action map summary total_buttons",
                        "ok":  true,
-                       "evidence":  "actual=596; expected=596"
+                       "evidence":  "actual=606; expected=606"
                    },
                    {
                        "name":  "source action map summary total_active_buttons",
                        "ok":  true,
-                       "evidence":  "actual=596; expected=596"
+                       "evidence":  "actual=606; expected=606"
                    },
                    {
                        "name":  "source action map summary total_partial_or_roadmap_buttons",
@@ -128,22 +128,22 @@
                    {
                        "name":  "source action map summary total_unique_endpoints_used",
                        "ok":  true,
-                       "evidence":  "actual=165; expected=165"
+                       "evidence":  "actual=167; expected=167"
                    },
                    {
                        "name":  "source action map menus length",
                        "ok":  true,
-                       "evidence":  "actual=72; expected=72"
+                       "evidence":  "actual=73; expected=73"
                    },
                    {
                        "name":  "source action map computed button count",
                        "ok":  true,
-                       "evidence":  "actual=596; expected=596"
+                       "evidence":  "actual=606; expected=606"
                    },
                    {
                        "name":  "source action map computed unique endpoint count",
                        "ok":  true,
-                       "evidence":  "actual=165; expected=165"
+                       "evidence":  "actual=167; expected=167"
                    },
                    {
                        "name":  "source action map all menus are Real",
@@ -168,12 +168,12 @@
                    {
                        "name":  "package action map exists",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "<REPO_ROOT>\\release\\package\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "package action map JSON parses",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "<REPO_ROOT>\\release\\package\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "package action map app_version matches VERSION",
@@ -188,17 +188,17 @@
                    {
                        "name":  "package action map summary total_menus",
                        "ok":  true,
-                       "evidence":  "actual=72; expected=72"
+                       "evidence":  "actual=73; expected=73"
                    },
                    {
                        "name":  "package action map summary total_buttons",
                        "ok":  true,
-                       "evidence":  "actual=596; expected=596"
+                       "evidence":  "actual=606; expected=606"
                    },
                    {
                        "name":  "package action map summary total_active_buttons",
                        "ok":  true,
-                       "evidence":  "actual=596; expected=596"
+                       "evidence":  "actual=606; expected=606"
                    },
                    {
                        "name":  "package action map summary total_partial_or_roadmap_buttons",
@@ -208,22 +208,22 @@
                    {
                        "name":  "package action map summary total_unique_endpoints_used",
                        "ok":  true,
-                       "evidence":  "actual=165; expected=165"
+                       "evidence":  "actual=167; expected=167"
                    },
                    {
                        "name":  "package action map menus length",
                        "ok":  true,
-                       "evidence":  "actual=72; expected=72"
+                       "evidence":  "actual=73; expected=73"
                    },
                    {
                        "name":  "package action map computed button count",
                        "ok":  true,
-                       "evidence":  "actual=596; expected=596"
+                       "evidence":  "actual=606; expected=606"
                    },
                    {
                        "name":  "package action map computed unique endpoint count",
                        "ok":  true,
-                       "evidence":  "actual=165; expected=165"
+                       "evidence":  "actual=167; expected=167"
                    },
                    {
                        "name":  "package action map all menus are Real",

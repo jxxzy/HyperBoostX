@@ -2,7 +2,7 @@
 
 Version: 2.10.0
 Channel: Stable
-Generated: 2026-07-02 01.59.34 +07:00
+Generated: 2026-07-03 02.57.28 +07:00
 
 This map is the v2.10.0 source of truth for WPF menu buttons. All visible v2.10 actions are classified Real; risky operations still return Safety Guard blocks when unsafe or not approved.
 
@@ -10,12 +10,12 @@ This map is the v2.10.0 source of truth for WPF menu buttons. All visible v2.10 
 
 | Metric | Count |
 |---|---:|
-| Total menus | 72 |
-| Total buttons | 596 |
-| Active buttons | 596 |
+| Total menus | 73 |
+| Total buttons | 606 |
+| Active buttons | 606 |
 | Partial/roadmap/guidance buttons | 0 |
-| Guarded destructive buttons | 20 |
-| Unique endpoints used by UI | 165 |
+| Guarded destructive buttons | 21 |
+| Unique endpoints used by UI | 167 |
 
 ## Button Map
 
@@ -211,6 +211,16 @@ This map is the v2.10.0 source of truth for WPF menu buttons. All visible v2.10 
 | GPU Center | Release Readiness | GpuCenterReadinessCommand | GET | /api/release/readiness | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
 | GPU Center | Feature Audit Status | GpuCenterAuditCommand | GET | /api/feature-audit/status | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
 | GPU Center | Safety Help | GpuCenterHelpCommand | GET | /api/kb/search?q=safety | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
+| Hardware Vendor Center | Run Hardware Vendor Center | HardwareVendorCenterPrimaryCommand | GET | /api/hardware/vendors | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
+| Hardware Vendor Center | Preview Hardware Vendor Center | HardwareVendorCenterPreviewCommand | GET | /api/hardware/profile | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
+| Hardware Vendor Center | Apply Approved Hardware Vendor Center | HardwareVendorCenterApplyCommand | POST | /api/protection/evaluate-action | False | True | True | True | tests/test_ui_action_map_v210.py | Real |
+| Hardware Vendor Center | Restore Hardware Vendor Center | HardwareVendorCenterRestoreCommand | GET | /api/protection/processes | False | False | True | True | tests/test_ui_action_map_v210.py | Real |
+| Hardware Vendor Center | Export Hardware Vendor Center | HardwareVendorCenterExportCommand | POST | /api/reports/export | False | True | True | True | tests/test_ui_action_map_v210.py | Real |
+| Hardware Vendor Center | Refresh Backend | HardwareVendorCenterRefreshCommand | GET | /api/health | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
+| Hardware Vendor Center | Open Action Log | HardwareVendorCenterLogCommand | GET | /api/action-log | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
+| Hardware Vendor Center | Release Readiness | HardwareVendorCenterReadinessCommand | GET | /api/release/readiness | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
+| Hardware Vendor Center | Feature Audit Status | HardwareVendorCenterAuditCommand | GET | /api/feature-audit/status | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
+| Hardware Vendor Center | Safety Help | HardwareVendorCenterHelpCommand | GET | /api/kb/search?q=safety | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
 | Driver Recommendation | Run Driver Recommendation | DriverRecommendationPrimaryCommand | GET | /api/drivers/recommendation | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
 | Driver Recommendation | Preview Driver Recommendation | DriverRecommendationPreviewCommand | GET | /api/gpu/vendor-guide | False | False | True | False | tests/test_ui_action_map_v210.py | Real |
 | Driver Recommendation | Apply Approved Driver Recommendation | DriverRecommendationApplyCommand | POST | /api/protection/evaluate-action | True | True | True | True | tests/test_ui_action_map_v210.py | Real |

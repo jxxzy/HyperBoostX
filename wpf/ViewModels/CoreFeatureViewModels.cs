@@ -27,6 +27,15 @@
         }
     }
 
+    public sealed class HardwareVendorCenterViewModel : PlacementPageViewModel
+    {
+        public HardwareVendorCenterViewModel() : base("HardwareVendorCenter", "Hardware Vendor Center", "Analyze OEM/vendor utilities, overlays, RGB/LCD helpers, and startup/service pressure without breaking required controls.", "Vendor utility inventory", "Run Vendor App Analyzer before changing startup or services.", "MSI Safe Optimizer remains an Advanced submodule with review-first controls.")
+        {
+            Metrics.Add(new CyberMetricViewModel { Title = "Vendor", Value = "Ready", Detail = "Load local evidence first", Score = 80, Glyph = "HA" });
+            Metrics.Add(new CyberMetricViewModel { Title = "Protection", Value = "Guarded", Detail = "Safety Guard active", Score = 100, Glyph = "SG" });
+        }
+    }
+
     public sealed class GamingBoosterViewModel : PlacementPageViewModel
     {
         public GamingBoosterViewModel() : base("GamingBooster", "Gaming Booster", "Build an instant gaming plan through safe boost endpoints and real game context.", "Detected game", "Do not apply a boost unless a real game is selected or detected.", "Chrome and browsers are not games by default.")

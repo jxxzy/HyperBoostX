@@ -1,8 +1,8 @@
-﻿# HyperBoostX Release Artifact Contents
+# HyperBoostX Release Artifact Contents
 
 Version: 2.10.0
 Windows file version: 2.10.0.0
-Package root: F:\BOOSTER BY MR.4NONY\release\package
+Package root: <REPO_ROOT>\release\package
 
 - PASS - source contains wpf\Views\DashboardView.xaml
 - PASS - source contains wpf\Views\FeatureAuditView.xaml

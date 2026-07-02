@@ -14,7 +14,11 @@ $checks = @(
     "verify_ui_no_placement_notes.ps1",
     "verify_ui_button_labels.ps1",
     "verify_no_template_ui_regression.ps1",
-    "verify_ui_page_body_markers.ps1"
+    "verify_ui_sensitive_redaction.ps1",
+    "verify_gpu_vendor_neutrality.ps1",
+    "verify_vendor_center_contract.ps1",
+    "verify_ui_page_body_markers.ps1",
+    "verify_ui_menu_content_coverage.ps1"
 )
 
 $results = New-Object System.Collections.Generic.List[object]

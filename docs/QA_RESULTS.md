@@ -10,7 +10,7 @@ Decision: `STABLE_READY_UNSIGNED`
 | --- | --- | --- |
 | Full QA gate | PASS | `docs/runtime-audit/full_qa_summary.json`. |
 | Python tests | PASS | `72 passed`. |
-| .NET tests | PASS | `38 passed`. |
+| .NET tests | PASS | `39 passed`. |
 | Solution build | PASS | `0 Warning(s), 0 Error(s)`. |
 | Release build/test | PASS | Full QA Release build/test passed. |
 | Backend route contract | PASS | `docs/runtime-audit/backend_routes_report.json`. |
@@ -22,7 +22,7 @@ Decision: `STABLE_READY_UNSIGNED`
 | PowerShell syntax | PASS | Full QA PSParser scan passed. |
 | Installer rebuild | PASS | `HyperBoostXInstaller.exe` rebuilt. |
 | Installed runtime verification | PASS | `docs/runtime-audit/owner_admin_stable_gate_report.json`. |
-| Installed feature registry | PASS | Stable runtime must expose 72 features, 596 buttons, 0 non-real stable-visible entries. |
+| Installed feature registry | PASS | Stable runtime must expose 73 features, 606 buttons, 0 non-real stable-visible entries. |
 | Silent uninstall/reinstall | PASS | Owner admin stable gate. |
 | Public evidence redaction | PASS | `scripts/verify_public_evidence_redaction.ps1`. |
 
@@ -30,16 +30,16 @@ Decision: `STABLE_READY_UNSIGNED`
 
 | Metric | Count |
 | --- | ---: |
-| Total menu | 72 |
-| Total buttons | 596 |
-| Active buttons | 596 |
+| Total menu | 73 |
+| Total buttons | 606 |
+| Active buttons | 606 |
 | Partial/roadmap/guidance buttons | 0 |
-| Guarded destructive buttons | 20 |
-| Unique UI endpoints used | 165 |
+| Guarded destructive buttons | 21 |
+| Unique UI endpoints used | 167 |
 | Backend API route rules | 365 |
 | Unique backend API paths | 361 |
-| Stable visible features | 72 |
-| Stable visible buttons | 596 |
+| Stable visible features | 73 |
+| Stable visible buttons | 606 |
 | Non-real visible in stable | 0 |
 
 ## Artifact

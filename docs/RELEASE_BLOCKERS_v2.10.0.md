@@ -13,7 +13,7 @@ No active P0/P1 blocker remains after the final audit run.
 | Installed app still showed old Dashboard UI after source changes | Rebuilt installer, reran owner admin stable gate, and refreshed installed-app screenshots. |
 | Installer runtime gate could pass stale evidence | Gate now checks installer freshness against release inputs, owner evidence freshness against installer timestamp, and screenshot freshness against owner gate timestamp. |
 | Dashboard showed fake scan rings/template support panels | Dashboard rebuilt around live hardware snapshot, Smart Scan results, recommendations, and activity. |
-| Stable pages showed template placement notes | Core placement chrome now uses purpose-specific content with Technical Details and no visible Placement Notes. |
+| Stable pages showed template-style notes | Core placement chrome now uses purpose-specific content with Technical Details and no visible generic placement text. |
 | Settings and About looked like generic placement pages | Both pages rebuilt as purpose-specific views. |
 | Dark UI controls fell back to bright Windows controls | Added shared dark ComboBox and ScrollBar styles. |
 

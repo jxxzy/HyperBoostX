@@ -36,7 +36,7 @@
                 <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,14,14">
                     <StackPanel>
                         <TextBlock Text="Release Status" FontSize="18" FontWeight="Bold"/>
-                        <TextBlock Text="Version and package facts are kept short here. Full technical details are collapsed below." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
+                        <TextBlock Text="Version and package facts are kept short here. Full advanced details are collapsed below." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
                         <UniformGrid Columns="2">
                             <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="12" Margin="0,0,10,10">
                                 <StackPanel>
@@ -158,7 +158,7 @@
             </Grid>
 
             <Border Style="{StaticResource CyberCardStyle}">
-                <Expander Header="Technical Details" Foreground="{StaticResource Brush.Text.Primary}" IsExpanded="False">
+                <Expander Header="Advanced Details" Foreground="{StaticResource Brush.Text.Primary}" IsExpanded="False">
                     <StackPanel Margin="0,12,0,0">
                         <TextBlock Text="{Binding BuildHashFull, StringFormat=Build hash: {0}}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" FontFamily="Consolas"/>
                         <TextBlock Text="Local API status, package SHA256, install path, config path, and raw diagnostics belong in reports/gates, not the first-view About page." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,8,0,0"/>

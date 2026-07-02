@@ -186,7 +186,7 @@
             </UniformGrid>
 
             <Border Style="{StaticResource CyberCardStyle}">
-                <Expander Header="Technical Details" Foreground="{StaticResource Brush.Text.Primary}" IsExpanded="False">
+                <Expander Header="Advanced Details" Foreground="{StaticResource Brush.Text.Primary}" IsExpanded="False">
                     <StackPanel Margin="0,12,0,0">
                         <TextBlock Text="Settings path: %LocalAppData%\HyperBoost X\ui_settings.json" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" FontFamily="Consolas"/>
                         <TextBlock Text="Backend config, raw settings JSON, and debug state are kept here instead of the main beginner UI." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,8,0,0"/>

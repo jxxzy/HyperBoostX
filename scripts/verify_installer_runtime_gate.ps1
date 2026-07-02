@@ -140,6 +140,7 @@ if ($reportCandidates.Count -eq 0) {
         "gaming-mode.png",
         "smart-recommendation.png",
         "gpu-center.png",
+        "hardware-vendor-center.png",
         "gaming-booster.png",
         "streaming-center.png",
         "creator-mode.png",
@@ -201,6 +202,8 @@ foreach ($check in $checks) {
     $lines += "| $($check.name) | $checkStatus | $detail |"
 }
 $lines | Set-Content -LiteralPath $mdPath -Encoding UTF8
+
+& powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\redact_release_evidence.ps1") -RepoRoot $RepoRoot -Paths $jsonPath,$mdPath | Out-Null
 
 Write-Host "Installer runtime gate docs: $mdPath"
 if ($status -eq "PASS") {

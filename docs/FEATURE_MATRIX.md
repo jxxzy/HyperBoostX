@@ -8,12 +8,12 @@ Release status: `STABLE_READY_UNSIGNED`
 
 | Metric | Count |
 | --- | ---: |
-| Menus | 72 |
-| Buttons/actions | 596 |
-| Active buttons/actions | 596 |
+| Menus | 73 |
+| Buttons/actions | 606 |
+| Active buttons/actions | 606 |
 | Partial/roadmap/guidance buttons | 0 |
-| Guarded destructive buttons | 20 |
-| Unique UI endpoints used | 165 |
+| Guarded destructive buttons | 21 |
+| Unique UI endpoints used | 167 |
 | Backend API route rules | 365 |
 | Unique backend API paths | 361 |
 

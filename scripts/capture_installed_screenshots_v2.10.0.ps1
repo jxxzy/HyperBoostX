@@ -159,6 +159,7 @@ $pages = @(
     @{ file = "gaming-mode.png"; label = "Gaming Mode"; requireClick = $true },
     @{ file = "smart-recommendation.png"; label = "Smart Recommendation"; requireClick = $true },
     @{ file = "gpu-center.png"; label = "GPU Center"; requireClick = $true },
+    @{ file = "hardware-vendor-center.png"; label = "Hardware Vendor Center"; requireClick = $true },
     @{ file = "gaming-booster.png"; label = "Gaming Booster"; requireClick = $true },
     @{ file = "streaming-center.png"; label = "Streaming Center"; requireClick = $true },
     @{ file = "creator-mode.png"; label = "Creator Mode"; requireClick = $true },
@@ -270,6 +271,8 @@ $lines += "- Capture uses a temporary Beginner evidence profile and restores the
 $lines += "- Dashboard evidence must show Live Hardware Snapshot and Smart Scan Results, with no fake score rings or template placement panels."
 $lines += "- Settings and About are purpose-built pages, not generic placement templates."
 $lines | Set-Content -LiteralPath $mdPath -Encoding UTF8
+
+& powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "scripts\redact_release_evidence.ps1") -RepoRoot $RepoRoot -Paths $jsonPath,$mdPath | Out-Null
 
 Write-Host "Installed screenshot report: $jsonPath"
 Write-Host "Screenshot review docs: $mdPath"

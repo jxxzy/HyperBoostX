@@ -16,18 +16,18 @@ Current public release: HyperBoostX v2.10.0 Stable Unsigned.
 
 | Metric | Count |
 | --- | ---: |
-| Action-map menus | 72 |
-| Stable-visible features | 72 |
+| Action-map menus | 73 |
+| Stable-visible features | 73 |
 | Hidden from Stable UI | 0 |
 | Non-real visible in Stable UI | 0 |
-| Stable-visible buttons | 596 |
-| Stable action-map buttons | 596 |
+| Stable-visible buttons | 606 |
+| Stable action-map buttons | 606 |
 | Partial/roadmap/guidance buttons | 0 |
-| Unique UI endpoints | 165 |
+| Unique UI endpoints | 167 |
 
 ## Stable Visible Features
 
-All 72 action-map entries are classified Real. The WPF sidebar exposes the user-facing routes, while internal fallback routes remain safety/support infrastructure.
+All 73 action-map entries are classified Real. The WPF sidebar exposes the user-facing routes, while internal fallback routes remain safety/support infrastructure.
 
 ## Boundary-Safe Features
 

@@ -7,7 +7,7 @@ Decision: `STABLE_READY_UNSIGNED`
 ## Complete
 
 - Version metadata is synchronized to `2.10.0` with Windows file version `2.10.0.0`.
-- WPF action map contains 72 menus and 596 active buttons.
+- WPF action map contains 73 menus and 606 active buttons.
 - Stable action-map partial/roadmap/guidance button count is 0.
 - WPF supports runtime mode awareness, sidebar search, and stable action loading.
 - Backend exposes feature registry audit endpoints and release readiness endpoints.

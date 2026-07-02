@@ -373,16 +373,16 @@ Add-Step "feature stable-visible endpoint works" ($featureStableVisible.ok) ($(i
 Add-Step "feature non-real endpoint works" ($featureNonReal.ok) ($(if ($featureNonReal.ok) { $featureNonReal.uri } else { $featureNonReal.error }))
 if ($featureAudit.ok -and $featureAudit.data) {
     Add-Step "feature audit stable_ui_ok true" ([bool]$featureAudit.data.ok -eq $true) ($(if ($featureAudit.data.errors) { ($featureAudit.data.errors -join "; ") } else { "ok=$($featureAudit.data.ok)" }))
-    Add-Step "feature audit stable_visible_features is 72" ([int]$featureAudit.data.counts.stable_visible_features -eq $contract.ExpectedStableMenus) "actual=$($featureAudit.data.counts.stable_visible_features); expected=$($contract.ExpectedStableMenus)"
-    Add-Step "feature audit stable_visible_buttons is 596" ([int]$featureAudit.data.counts.stable_visible_buttons -eq $contract.ExpectedStableButtons) "actual=$($featureAudit.data.counts.stable_visible_buttons); expected=$($contract.ExpectedStableButtons)"
+    Add-Step "feature audit stable_visible_features matches contract" ([int]$featureAudit.data.counts.stable_visible_features -eq $contract.ExpectedStableMenus) "actual=$($featureAudit.data.counts.stable_visible_features); expected=$($contract.ExpectedStableMenus)"
+    Add-Step "feature audit stable_visible_buttons matches contract" ([int]$featureAudit.data.counts.stable_visible_buttons -eq $contract.ExpectedStableButtons) "actual=$($featureAudit.data.counts.stable_visible_buttons); expected=$($contract.ExpectedStableButtons)"
     Add-Step "feature audit non_real_visible_in_stable is 0" ([int]$featureAudit.data.counts.non_real_visible_in_stable -eq 0) "actual=$($featureAudit.data.counts.non_real_visible_in_stable); expected=0"
 } else {
     Add-Step "feature audit stable_ui_ok true" $false "feature audit endpoint unavailable"
-    Add-Step "feature audit stable_visible_features is 72" $false "feature audit endpoint unavailable"
-    Add-Step "feature audit stable_visible_buttons is 596" $false "feature audit endpoint unavailable"
+    Add-Step "feature audit stable_visible_features matches contract" $false "feature audit endpoint unavailable"
+    Add-Step "feature audit stable_visible_buttons matches contract" $false "feature audit endpoint unavailable"
     Add-Step "feature audit non_real_visible_in_stable is 0" $false "feature audit endpoint unavailable"
 }
-Add-Step "stable-visible count is 72" ($featureStableVisible.ok -and [int]$featureStableVisible.data.count -eq $contract.ExpectedStableMenus) ($(if ($featureStableVisible.ok) { "actual=$($featureStableVisible.data.count); expected=$($contract.ExpectedStableMenus)" } else { "stable-visible endpoint unavailable" }))
+Add-Step "stable-visible count matches contract" ($featureStableVisible.ok -and [int]$featureStableVisible.data.count -eq $contract.ExpectedStableMenus) ($(if ($featureStableVisible.ok) { "actual=$($featureStableVisible.data.count); expected=$($contract.ExpectedStableMenus)" } else { "stable-visible endpoint unavailable" }))
 Add-Step "non-real count is 0" ($featureNonReal.ok -and [int]$featureNonReal.data.count -eq 0) ($(if ($featureNonReal.ok) { "actual=$($featureNonReal.data.count); expected=0" } else { "non-real endpoint unavailable" }))
 Add-Step "WPF installed smoke" $wpfRunning ($runningAfterLaunch | ConvertTo-Json -Compress -Depth 5)
 Add-Step "token sync inferred" ($sessionTokenRequired -and $wpfRunning) "session_token_required=$sessionTokenRequired; wpf_running=$wpfRunning"

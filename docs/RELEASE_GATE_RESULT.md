@@ -1,4 +1,4 @@
-﻿# Release Gate Result
+# Release Gate Result
 
 Audit date: 2026-07-02
 Candidate version: `2.10.0`
@@ -31,7 +31,7 @@ Decision: `STABLE_READY_UNSIGNED`
 | Token sync | PASS | Token-required backend health plus WPF running from launcher passed. |
 | No orphan process | PASS | Installed processes were stopped and no orphan remained. |
 | Silent uninstall/reinstall | PASS | Owner admin stable gate passed both. |
-| Installed screenshot evidence | PASS | `docs/runtime-audit/installed_screenshot_report.json` captured all 27 core pages plus Dashboard after-scroll from the installed app. |
+| Installed screenshot evidence | PASS | `docs/runtime-audit/installed_screenshot_report.json` captured all 28 core pages plus Dashboard after-scroll from the installed app. |
 | Final stable release gate | PASS | `docs/runtime-audit/final_stable_release_gate_report.json` reports `FINAL_STABLE_PASS`. |
 | Code signing | SKIPPED_BY_OWNER_NO_CERT | No owner certificate/PFX was supplied; unsigned distribution requires checksum verification. |
 
@@ -39,16 +39,16 @@ Decision: `STABLE_READY_UNSIGNED`
 
 | Metric | Count |
 | --- | ---: |
-| Total menu | 72 |
-| Total buttons | 596 |
-| Active buttons | 596 |
+| Total menu | 73 |
+| Total buttons | 606 |
+| Active buttons | 606 |
 | Partial/roadmap/guidance buttons | 0 |
-| Guarded destructive buttons | 20 |
-| Unique UI endpoints used | 165 |
+| Guarded destructive buttons | 21 |
+| Unique UI endpoints used | 167 |
 | Backend Flask routes | 366 |
 | Backend route methods | 384 |
-| Stable visible features | 72 |
-| Stable visible buttons | 596 |
+| Stable visible features | 73 |
+| Stable visible buttons | 606 |
 | Non-real visible in stable | 0 |
 | Python tests passed | 72 |
 | .NET tests passed | 39 |

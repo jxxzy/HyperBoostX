@@ -118,6 +118,14 @@ catch {
     Add-Failure "Placeholder/fake UI guard failed: $($_.Exception.Message)"
 }
 
+try {
+    & (Join-Path $PSScriptRoot "verify_ui_menu_content_coverage.ps1") -RepoRoot $RepoRoot
+    if (-not $?) { Add-Failure "UI menu content coverage failed." }
+}
+catch {
+    Add-Failure "UI menu content coverage failed: $($_.Exception.Message)"
+}
+
 if ($failures.Count -gt 0) {
     Write-Host "FAIL: UI/UX quality verification" -ForegroundColor Red
     $failures | ForEach-Object { Write-Host "- $_" }

@@ -1,10 +1,10 @@
-﻿{
-    "generated_at":  "2026-07-02T11:37:33.4888969Z",
+{
+    "generated_at":  "2026-07-02T20:10:25.7421191Z",
     "expected_version":  "2.10.0",
     "is_admin":  true,
     "launch_installed_app":  true,
     "stop_after_probe":  true,
-    "backend_probe_timeout_seconds":  60,
+    "backend_probe_timeout_seconds":  35,
     "requested_backend_port":  5000,
     "registry_entries":  {
                              "root":  "HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
@@ -12,9 +12,9 @@
                              "DisplayName":  "HyperBoostX",
                              "DisplayVersion":  "2.10.0",
                              "Publisher":  "HyperBoostX / jxxzy",
-                             "InstallLocation":  "C:\\Program Files\\HyperBoostX",
-                             "UninstallString":  "\"C:\\Program Files\\HyperBoostX\\Uninstall.exe\"",
-                             "QuietUninstallString":  "\"C:\\Program Files\\HyperBoostX\\Uninstall.exe\" /S",
+                             "InstallLocation":  "<INSTALL_DIR>",
+                             "UninstallString":  "\"<INSTALL_DIR>\\Uninstall.exe\"",
+                             "QuietUninstallString":  "\"<INSTALL_DIR>\\Uninstall.exe\" /S",
                              "InstallDate":  null,
                              "EstimatedSize":  null
                          },
@@ -24,20 +24,20 @@
                              "DisplayName":  "HyperBoostX",
                              "DisplayVersion":  "2.10.0",
                              "Publisher":  "HyperBoostX / jxxzy",
-                             "InstallLocation":  "C:\\Program Files\\HyperBoostX",
-                             "UninstallString":  "\"C:\\Program Files\\HyperBoostX\\Uninstall.exe\"",
-                             "QuietUninstallString":  "\"C:\\Program Files\\HyperBoostX\\Uninstall.exe\" /S",
+                             "InstallLocation":  "<INSTALL_DIR>",
+                             "UninstallString":  "\"<INSTALL_DIR>\\Uninstall.exe\"",
+                             "QuietUninstallString":  "\"<INSTALL_DIR>\\Uninstall.exe\" /S",
                              "InstallDate":  null,
                              "EstimatedSize":  null
                          },
-    "install_location":  "C:\\Program Files\\HyperBoostX",
-    "launcher_path":  "C:\\Program Files\\HyperBoostX\\HyperBoostX.exe",
-    "wpf_path":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\HyperBoostX.exe",
-    "backend_path":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe",
-    "installed_action_map_path":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+    "install_location":  "<INSTALL_DIR>",
+    "launcher_path":  "<INSTALL_DIR>\\HyperBoostX.exe",
+    "wpf_path":  "<INSTALL_DIR>\\runtime\\wpf\\HyperBoostX.exe",
+    "backend_path":  "<INSTALL_DIR>\\runtime\\backend\\hyperboost_backend.exe",
+    "installed_action_map_path":  "<INSTALL_DIR>\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
     "desktop_shortcuts":  [
                               {
-                                  "path":  "C:\\Users\\jxxzy\\OneDrive\\Desktop\\HyperBoostX.lnk",
+                                  "path":  "<USER_DESKTOP>\\HyperBoostX.lnk",
                                   "exists":  false,
                                   "target":  null,
                                   "working_directory":  null,
@@ -45,7 +45,7 @@
                                   "error":  null
                               },
                               {
-                                  "path":  "C:\\Users\\Public\\Desktop\\HyperBoostX.lnk",
+                                  "path":  "<PUBLIC_DESKTOP>\\HyperBoostX.lnk",
                                   "exists":  true,
                                   "target":  "exists; target resolution skipped to avoid COM shell hangs",
                                   "working_directory":  null,
@@ -54,7 +54,7 @@
                               }
                           ],
     "start_menu_shortcut":  {
-                                "path":  "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\HyperBoostX\\HyperBoostX.lnk",
+                                "path":  "<START_MENU>\\Programs\\HyperBoostX\\HyperBoostX.lnk",
                                 "exists":  true,
                                 "target":  "exists; target resolution skipped to avoid COM shell hangs",
                                 "working_directory":  null,
@@ -62,7 +62,7 @@
                                 "error":  null
                             },
     "launch_process":  {
-                           "id":  18664,
+                           "id":  24676,
                            "has_exited":  true
                        },
     "launch_error":  null,
@@ -77,20 +77,20 @@
                                                 "backend_mode":  "stable",
                                                 "feature_registry_status":  {
                                                                                 "action_map_found":  true,
-                                                                                "action_map_source":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                                "action_map_source":  "<INSTALL_DIR>\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
                                                                                 "errors":  [
 
                                                                                            ],
                                                                                 "expected":  {
                                                                                                  "expected_non_real_visible_in_stable":  0,
-                                                                                                 "expected_stable_buttons":  596,
-                                                                                                 "expected_stable_menus":  72,
-                                                                                                 "expected_unique_ui_endpoints":  165
+                                                                                                 "expected_stable_buttons":  606,
+                                                                                                 "expected_stable_menus":  73,
+                                                                                                 "expected_unique_ui_endpoints":  167
                                                                                              },
                                                                                 "non_real_visible_in_stable":  0,
                                                                                 "stable_ui_ok":  true,
-                                                                                "stable_visible_buttons":  596,
-                                                                                "stable_visible_features":  72,
+                                                                                "stable_visible_buttons":  606,
+                                                                                "stable_visible_features":  73,
                                                                                 "warnings":  [
 
                                                                                              ]
@@ -124,25 +124,25 @@
                                        "app_version":  "2.10.0",
                                        "channel":  "Stable",
                                        "counts":  {
-                                                      "current_visible_buttons":  596,
-                                                      "current_visible_features":  72,
+                                                      "current_visible_buttons":  606,
+                                                      "current_visible_features":  73,
                                                       "hidden_from_stable":  0,
                                                       "non_real_total":  0,
                                                       "non_real_visible_in_stable":  0,
-                                                      "stable_visible_buttons":  596,
-                                                      "stable_visible_features":  72,
-                                                      "total_buttons":  596,
-                                                      "total_original_features":  72,
-                                                      "total_unique_endpoints_used":  165
+                                                      "stable_visible_buttons":  606,
+                                                      "stable_visible_features":  73,
+                                                      "total_buttons":  606,
+                                                      "total_original_features":  73,
+                                                      "total_unique_endpoints_used":  167
                                                   },
                                        "errors":  [
 
                                                   ],
                                        "expected_contract":  {
                                                                  "expected_non_real_visible_in_stable":  0,
-                                                                 "expected_stable_buttons":  596,
-                                                                 "expected_stable_menus":  72,
-                                                                 "expected_unique_ui_endpoints":  165
+                                                                 "expected_stable_buttons":  606,
+                                                                 "expected_stable_menus":  73,
+                                                                 "expected_unique_ui_endpoints":  167
                                                              },
                                        "hidden_from_stable":  [
 
@@ -158,19 +158,19 @@
                                                       "require_real_features":  true,
                                                       "show_experimental":  false
                                                   },
-                                       "source":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+                                       "source":  "<INSTALL_DIR>\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
                                        "source_candidates":  [
-                                                                 "C:\\Users\\jxxzy\\AppData\\Local\\Temp\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Program Files\\HyperBoostX\\runtime\\backend\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Program Files\\HyperBoostX\\runtime\\backend\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Program Files\\HyperBoostX\\runtime\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Users\\jxxzy\\AppData\\Local\\Temp\\_MEI125242\\services\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Users\\jxxzy\\AppData\\Local\\Temp\\_MEI125242\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Users\\jxxzy\\AppData\\Local\\Temp\\_MEI125242\\services\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Users\\jxxzy\\AppData\\Local\\Temp\\_MEI125242\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Users\\jxxzy\\AppData\\Local\\Temp\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
-                                                                 "C:\\Users\\jxxzy\\AppData\\Local\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
+                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "<INSTALL_DIR>\\runtime\\backend\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "<INSTALL_DIR>\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "<INSTALL_DIR>\\runtime\\backend\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "<INSTALL_DIR>\\runtime\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\_MEI148882\\services\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\_MEI148882\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\_MEI148882\\services\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\_MEI148882\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Users\\<USER>\\AppData\\Local\\Temp\\runtime\\wpf\\Data\\ui_action_map_v2_10.json",
+                                                                 "C:\\Users\\<USER>\\AppData\\Local\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
                                                              ],
                                        "source_found":  true,
                                        "stable_visible":  [
@@ -5062,6 +5062,262 @@
                                                                   "category":  "Gaming \u0026 Creator",
                                                                   "key":  "GpuCenter",
                                                                   "label":  "GPU Center",
+                                                                  "readiness":  "Real",
+                                                                  "real_button_count":  10,
+                                                                  "stable_visible":  true,
+                                                                  "status":  "Real"
+                                                              },
+                                                              {
+                                                                  "actions":  [
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterPrimaryCommand",
+                                                                                      "confirmation_required":  false,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.primary.1",
+                                                                                      "is_destructive":  false,
+                                                                                      "label":  "Run Hardware Vendor Center",
+                                                                                      "loading_state":  "Button disables while GET /api/hardware/vendors is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "GET",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/hardware/vendors",
+                                                                                      "payload":  {
+
+                                                                                                  },
+                                                                                      "preview_required":  false,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  false,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Run Hardware Vendor Center -\u003e GET /api/hardware/vendors"
+                                                                                  },
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterPreviewCommand",
+                                                                                      "confirmation_required":  false,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.preview.2",
+                                                                                      "is_destructive":  false,
+                                                                                      "label":  "Preview Hardware Vendor Center",
+                                                                                      "loading_state":  "Button disables while GET /api/hardware/profile is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "GET",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/hardware/profile",
+                                                                                      "payload":  {
+
+                                                                                                  },
+                                                                                      "preview_required":  false,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  false,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Preview Hardware Vendor Center -\u003e GET /api/hardware/profile"
+                                                                                  },
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterApplyCommand",
+                                                                                      "confirmation_required":  true,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.apply.3",
+                                                                                      "is_destructive":  true,
+                                                                                      "label":  "Apply Approved Hardware Vendor Center",
+                                                                                      "loading_state":  "Button disables while POST /api/protection/evaluate-action is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "POST",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/protection/evaluate-action",
+                                                                                      "payload":  {
+                                                                                                      "action":  "vendor safe plan apply",
+                                                                                                      "target":  "oem vendor utility"
+                                                                                                  },
+                                                                                      "preview_required":  true,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  true,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Apply Approved Hardware Vendor Center -\u003e POST /api/protection/evaluate-action"
+                                                                                  },
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterRestoreCommand",
+                                                                                      "confirmation_required":  false,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.restore.4",
+                                                                                      "is_destructive":  false,
+                                                                                      "label":  "Restore Hardware Vendor Center",
+                                                                                      "loading_state":  "Button disables while GET /api/protection/processes is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "GET",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/protection/processes",
+                                                                                      "payload":  {
+
+                                                                                                  },
+                                                                                      "preview_required":  false,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  true,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Restore Hardware Vendor Center -\u003e GET /api/protection/processes"
+                                                                                  },
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterExportCommand",
+                                                                                      "confirmation_required":  false,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.export.5",
+                                                                                      "is_destructive":  false,
+                                                                                      "label":  "Export Hardware Vendor Center",
+                                                                                      "loading_state":  "Button disables while POST /api/reports/export is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "POST",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/reports/export",
+                                                                                      "payload":  {
+                                                                                                      "format":  "json",
+                                                                                                      "scope":  "hardware_vendor_center"
+                                                                                                  },
+                                                                                      "preview_required":  true,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  true,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Export Hardware Vendor Center -\u003e POST /api/reports/export"
+                                                                                  },
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterRefreshCommand",
+                                                                                      "confirmation_required":  false,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.refresh.6",
+                                                                                      "is_destructive":  false,
+                                                                                      "label":  "Refresh Backend",
+                                                                                      "loading_state":  "Button disables while GET /api/health is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "GET",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/health",
+                                                                                      "payload":  {
+
+                                                                                                  },
+                                                                                      "preview_required":  false,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  false,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Refresh Backend -\u003e GET /api/health"
+                                                                                  },
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterLogCommand",
+                                                                                      "confirmation_required":  false,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.log.7",
+                                                                                      "is_destructive":  false,
+                                                                                      "label":  "Open Action Log",
+                                                                                      "loading_state":  "Button disables while GET /api/action-log is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "GET",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/action-log",
+                                                                                      "payload":  {
+
+                                                                                                  },
+                                                                                      "preview_required":  false,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  false,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Open Action Log -\u003e GET /api/action-log"
+                                                                                  },
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterReadinessCommand",
+                                                                                      "confirmation_required":  false,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.readiness.8",
+                                                                                      "is_destructive":  false,
+                                                                                      "label":  "Release Readiness",
+                                                                                      "loading_state":  "Button disables while GET /api/release/readiness is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "GET",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/release/readiness",
+                                                                                      "payload":  {
+
+                                                                                                  },
+                                                                                      "preview_required":  false,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  false,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Release Readiness -\u003e GET /api/release/readiness"
+                                                                                  },
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterAuditCommand",
+                                                                                      "confirmation_required":  false,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.audit.9",
+                                                                                      "is_destructive":  false,
+                                                                                      "label":  "Feature Audit Status",
+                                                                                      "loading_state":  "Button disables while GET /api/feature-audit/status is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "GET",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/feature-audit/status",
+                                                                                      "payload":  {
+
+                                                                                                  },
+                                                                                      "preview_required":  false,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  false,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Feature Audit Status -\u003e GET /api/feature-audit/status"
+                                                                                  },
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterHelpCommand",
+                                                                                      "confirmation_required":  false,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.help.10",
+                                                                                      "is_destructive":  false,
+                                                                                      "label":  "Safety Help",
+                                                                                      "loading_state":  "Button disables while GET /api/kb/search?q=safety is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "GET",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/kb/search?q=safety",
+                                                                                      "payload":  {
+
+                                                                                                  },
+                                                                                      "preview_required":  false,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  false,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Safety Help -\u003e GET /api/kb/search?q=safety"
+                                                                                  }
+                                                                              ],
+                                                                  "all_actions_real":  true,
+                                                                  "big":  true,
+                                                                  "button_count":  10,
+                                                                  "category":  "Gaming \u0026 Creator",
+                                                                  "key":  "HardwareVendorCenter",
+                                                                  "label":  "Hardware Vendor Center",
                                                                   "readiness":  "Real",
                                                                   "real_button_count":  10,
                                                                   "stable_visible":  true,
@@ -15570,7 +15826,7 @@
                                    "ok":  true,
                                    "error":  null,
                                    "data":  {
-                                                "count":  72,
+                                                "count":  73,
                                                 "items":  [
                                                               {
                                                                   "actions":  [
@@ -20460,6 +20716,262 @@
                                                                   "category":  "Gaming \u0026 Creator",
                                                                   "key":  "GpuCenter",
                                                                   "label":  "GPU Center",
+                                                                  "readiness":  "Real",
+                                                                  "real_button_count":  10,
+                                                                  "stable_visible":  true,
+                                                                  "status":  "Real"
+                                                              },
+                                                              {
+                                                                  "actions":  [
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterPrimaryCommand",
+                                                                                      "confirmation_required":  false,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.primary.1",
+                                                                                      "is_destructive":  false,
+                                                                                      "label":  "Run Hardware Vendor Center",
+                                                                                      "loading_state":  "Button disables while GET /api/hardware/vendors is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "GET",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/hardware/vendors",
+                                                                                      "payload":  {
+
+                                                                                                  },
+                                                                                      "preview_required":  false,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  false,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Run Hardware Vendor Center -\u003e GET /api/hardware/vendors"
+                                                                                  },
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterPreviewCommand",
+                                                                                      "confirmation_required":  false,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.preview.2",
+                                                                                      "is_destructive":  false,
+                                                                                      "label":  "Preview Hardware Vendor Center",
+                                                                                      "loading_state":  "Button disables while GET /api/hardware/profile is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "GET",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/hardware/profile",
+                                                                                      "payload":  {
+
+                                                                                                  },
+                                                                                      "preview_required":  false,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  false,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Preview Hardware Vendor Center -\u003e GET /api/hardware/profile"
+                                                                                  },
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterApplyCommand",
+                                                                                      "confirmation_required":  true,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.apply.3",
+                                                                                      "is_destructive":  true,
+                                                                                      "label":  "Apply Approved Hardware Vendor Center",
+                                                                                      "loading_state":  "Button disables while POST /api/protection/evaluate-action is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "POST",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/protection/evaluate-action",
+                                                                                      "payload":  {
+                                                                                                      "action":  "vendor safe plan apply",
+                                                                                                      "target":  "oem vendor utility"
+                                                                                                  },
+                                                                                      "preview_required":  true,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  true,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Apply Approved Hardware Vendor Center -\u003e POST /api/protection/evaluate-action"
+                                                                                  },
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterRestoreCommand",
+                                                                                      "confirmation_required":  false,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.restore.4",
+                                                                                      "is_destructive":  false,
+                                                                                      "label":  "Restore Hardware Vendor Center",
+                                                                                      "loading_state":  "Button disables while GET /api/protection/processes is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "GET",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/protection/processes",
+                                                                                      "payload":  {
+
+                                                                                                  },
+                                                                                      "preview_required":  false,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  true,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Restore Hardware Vendor Center -\u003e GET /api/protection/processes"
+                                                                                  },
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterExportCommand",
+                                                                                      "confirmation_required":  false,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.export.5",
+                                                                                      "is_destructive":  false,
+                                                                                      "label":  "Export Hardware Vendor Center",
+                                                                                      "loading_state":  "Button disables while POST /api/reports/export is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "POST",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/reports/export",
+                                                                                      "payload":  {
+                                                                                                      "format":  "json",
+                                                                                                      "scope":  "hardware_vendor_center"
+                                                                                                  },
+                                                                                      "preview_required":  true,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  true,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Export Hardware Vendor Center -\u003e POST /api/reports/export"
+                                                                                  },
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterRefreshCommand",
+                                                                                      "confirmation_required":  false,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.refresh.6",
+                                                                                      "is_destructive":  false,
+                                                                                      "label":  "Refresh Backend",
+                                                                                      "loading_state":  "Button disables while GET /api/health is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "GET",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/health",
+                                                                                      "payload":  {
+
+                                                                                                  },
+                                                                                      "preview_required":  false,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  false,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Refresh Backend -\u003e GET /api/health"
+                                                                                  },
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterLogCommand",
+                                                                                      "confirmation_required":  false,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.log.7",
+                                                                                      "is_destructive":  false,
+                                                                                      "label":  "Open Action Log",
+                                                                                      "loading_state":  "Button disables while GET /api/action-log is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "GET",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/action-log",
+                                                                                      "payload":  {
+
+                                                                                                  },
+                                                                                      "preview_required":  false,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  false,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Open Action Log -\u003e GET /api/action-log"
+                                                                                  },
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterReadinessCommand",
+                                                                                      "confirmation_required":  false,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.readiness.8",
+                                                                                      "is_destructive":  false,
+                                                                                      "label":  "Release Readiness",
+                                                                                      "loading_state":  "Button disables while GET /api/release/readiness is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "GET",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/release/readiness",
+                                                                                      "payload":  {
+
+                                                                                                  },
+                                                                                      "preview_required":  false,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  false,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Release Readiness -\u003e GET /api/release/readiness"
+                                                                                  },
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterAuditCommand",
+                                                                                      "confirmation_required":  false,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.audit.9",
+                                                                                      "is_destructive":  false,
+                                                                                      "label":  "Feature Audit Status",
+                                                                                      "loading_state":  "Button disables while GET /api/feature-audit/status is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "GET",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/feature-audit/status",
+                                                                                      "payload":  {
+
+                                                                                                  },
+                                                                                      "preview_required":  false,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  false,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Feature Audit Status -\u003e GET /api/feature-audit/status"
+                                                                                  },
+                                                                                  {
+                                                                                      "command":  "HardwareVendorCenterHelpCommand",
+                                                                                      "confirmation_required":  false,
+                                                                                      "error_state":  "401/404/409/500/local-backend errors are shown as human-friendly safe failure states",
+                                                                                      "id":  "HardwareVendorCenter.help.10",
+                                                                                      "is_destructive":  false,
+                                                                                      "label":  "Safety Help",
+                                                                                      "loading_state":  "Button disables while GET /api/kb/search?q=safety is running",
+                                                                                      "menu_key":  "HardwareVendorCenter",
+                                                                                      "method":  "GET",
+                                                                                      "partial":  false,
+                                                                                      "path":  "/api/kb/search?q=safety",
+                                                                                      "payload":  {
+
+                                                                                                  },
+                                                                                      "preview_required":  false,
+                                                                                      "requires_admin":  false,
+                                                                                      "restore":  false,
+                                                                                      "safety_guard":  true,
+                                                                                      "status":  "Real",
+                                                                                      "success_state":  "Live Result panel shows returned JSON and updates page status",
+                                                                                      "test_coverage":  "tests/test_ui_action_map_v210.py",
+                                                                                      "tooltip":  "Safety Help -\u003e GET /api/kb/search?q=safety"
+                                                                                  }
+                                                                              ],
+                                                                  "all_actions_real":  true,
+                                                                  "big":  true,
+                                                                  "button_count":  10,
+                                                                  "category":  "Gaming \u0026 Creator",
+                                                                  "key":  "HardwareVendorCenter",
+                                                                  "label":  "Hardware Vendor Center",
                                                                   "readiness":  "Real",
                                                                   "real_button_count":  10,
                                                                   "stable_visible":  true,
@@ -30981,52 +31493,52 @@
     "processes_before_stop":  [
                                   {
                                       "name":  "HyperBoostX",
-                                      "id":  18664,
-                                      "path":  "C:\\Program Files\\HyperBoostX\\HyperBoostX.exe",
+                                      "id":  8044,
+                                      "path":  "<INSTALL_DIR>\\runtime\\wpf\\HyperBoostX.exe",
                                       "from_install":  true
                                   },
                                   {
                                       "name":  "HyperBoostX",
-                                      "id":  29872,
-                                      "path":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\HyperBoostX.exe",
+                                      "id":  24676,
+                                      "path":  "<INSTALL_DIR>\\HyperBoostX.exe",
                                       "from_install":  true
                                   },
                                   {
                                       "name":  "hyperboost_backend",
-                                      "id":  12524,
-                                      "path":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe",
+                                      "id":  11468,
+                                      "path":  "<INSTALL_DIR>\\runtime\\backend\\hyperboost_backend.exe",
                                       "from_install":  true
                                   },
                                   {
                                       "name":  "hyperboost_backend",
-                                      "id":  30424,
-                                      "path":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe",
+                                      "id":  14888,
+                                      "path":  "<INSTALL_DIR>\\runtime\\backend\\hyperboost_backend.exe",
                                       "from_install":  true
                                   }
                               ],
     "stopped_processes":  [
                               {
                                   "name":  "HyperBoostX",
-                                  "id":  18664,
-                                  "path":  "C:\\Program Files\\HyperBoostX\\HyperBoostX.exe",
+                                  "id":  8044,
+                                  "path":  "<INSTALL_DIR>\\runtime\\wpf\\HyperBoostX.exe",
                                   "from_install":  true
                               },
                               {
                                   "name":  "HyperBoostX",
-                                  "id":  29872,
-                                  "path":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\HyperBoostX.exe",
+                                  "id":  24676,
+                                  "path":  "<INSTALL_DIR>\\HyperBoostX.exe",
                                   "from_install":  true
                               },
                               {
                                   "name":  "hyperboost_backend",
-                                  "id":  12524,
-                                  "path":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe",
+                                  "id":  11468,
+                                  "path":  "<INSTALL_DIR>\\runtime\\backend\\hyperboost_backend.exe",
                                   "from_install":  true
                               },
                               {
                                   "name":  "hyperboost_backend",
-                                  "id":  30424,
-                                  "path":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe",
+                                  "id":  14888,
+                                  "path":  "<INSTALL_DIR>\\runtime\\backend\\hyperboost_backend.exe",
                                   "from_install":  true
                               }
                           ],
@@ -31040,7 +31552,7 @@
                    {
                        "name":  "registry installed",
                        "ok":  true,
-                       "evidence":  "C:\\Program Files\\HyperBoostX"
+                       "evidence":  "<INSTALL_DIR>"
                    },
                    {
                        "name":  "DisplayVersion matches source",
@@ -31050,27 +31562,27 @@
                    {
                        "name":  "launcher exists",
                        "ok":  true,
-                       "evidence":  "C:\\Program Files\\HyperBoostX\\HyperBoostX.exe"
+                       "evidence":  "<INSTALL_DIR>\\HyperBoostX.exe"
                    },
                    {
                        "name":  "WPF runtime exists",
                        "ok":  true,
-                       "evidence":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\HyperBoostX.exe"
+                       "evidence":  "<INSTALL_DIR>\\runtime\\wpf\\HyperBoostX.exe"
                    },
                    {
                        "name":  "backend runtime exists",
                        "ok":  true,
-                       "evidence":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe"
+                       "evidence":  "<INSTALL_DIR>\\runtime\\backend\\hyperboost_backend.exe"
                    },
                    {
                        "name":  "desktop shortcut exists",
                        "ok":  true,
-                       "evidence":  "[{\"path\":\"C:\\\\Users\\\\jxxzy\\\\OneDrive\\\\Desktop\\\\HyperBoostX.lnk\",\"exists\":false,\"target\":null,\"working_directory\":null,\"icon_location\":null,\"error\":null},{\"path\":\"C:\\\\Users\\\\Public\\\\Desktop\\\\HyperBoostX.lnk\",\"exists\":true,\"target\":\"exists; target resolution skipped to avoid COM shell hangs\",\"working_directory\":null,\"icon_location\":null,\"error\":null}]"
+                       "evidence":  "[{\"path\":\"<USER_DESKTOP>\\\\HyperBoostX.lnk\",\"exists\":false,\"target\":null,\"working_directory\":null,\"icon_location\":null,\"error\":null},{\"path\":\"<PUBLIC_DESKTOP>\\\\HyperBoostX.lnk\",\"exists\":true,\"target\":\"exists; target resolution skipped to avoid COM shell hangs\",\"working_directory\":null,\"icon_location\":null,\"error\":null}]"
                    },
                    {
                        "name":  "start menu shortcut exists",
                        "ok":  true,
-                       "evidence":  "{\"path\":\"C:\\\\ProgramData\\\\Microsoft\\\\Windows\\\\Start Menu\\\\Programs\\\\HyperBoostX\\\\HyperBoostX.lnk\",\"exists\":true,\"target\":\"exists; target resolution skipped to avoid COM shell hangs\",\"working_directory\":null,\"icon_location\":null,\"error\":null}"
+                       "evidence":  "{\"path\":\"<START_MENU>\\\\Programs\\\\HyperBoostX\\\\HyperBoostX.lnk\",\"exists\":true,\"target\":\"exists; target resolution skipped to avoid COM shell hangs\",\"working_directory\":null,\"icon_location\":null,\"error\":null}"
                    },
                    {
                        "name":  "backend health works",
@@ -31085,17 +31597,17 @@
                    {
                        "name":  "installed action map exists",
                        "ok":  true,
-                       "evidence":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "<INSTALL_DIR>\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "installed action map exists",
                        "ok":  true,
-                       "evidence":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "<INSTALL_DIR>\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "installed action map JSON parses",
                        "ok":  true,
-                       "evidence":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "<INSTALL_DIR>\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "installed action map app_version matches VERSION",
@@ -31110,17 +31622,17 @@
                    {
                        "name":  "installed action map summary total_menus",
                        "ok":  true,
-                       "evidence":  "actual=72; expected=72"
+                       "evidence":  "actual=73; expected=73"
                    },
                    {
                        "name":  "installed action map summary total_buttons",
                        "ok":  true,
-                       "evidence":  "actual=596; expected=596"
+                       "evidence":  "actual=606; expected=606"
                    },
                    {
                        "name":  "installed action map summary total_active_buttons",
                        "ok":  true,
-                       "evidence":  "actual=596; expected=596"
+                       "evidence":  "actual=606; expected=606"
                    },
                    {
                        "name":  "installed action map summary total_partial_or_roadmap_buttons",
@@ -31130,22 +31642,22 @@
                    {
                        "name":  "installed action map summary total_unique_endpoints_used",
                        "ok":  true,
-                       "evidence":  "actual=165; expected=165"
+                       "evidence":  "actual=167; expected=167"
                    },
                    {
                        "name":  "installed action map menus length",
                        "ok":  true,
-                       "evidence":  "actual=72; expected=72"
+                       "evidence":  "actual=73; expected=73"
                    },
                    {
                        "name":  "installed action map computed button count",
                        "ok":  true,
-                       "evidence":  "actual=596; expected=596"
+                       "evidence":  "actual=606; expected=606"
                    },
                    {
                        "name":  "installed action map computed unique endpoint count",
                        "ok":  true,
-                       "evidence":  "actual=165; expected=165"
+                       "evidence":  "actual=167; expected=167"
                    },
                    {
                        "name":  "installed action map all menus are Real",
@@ -31188,14 +31700,14 @@
                        "evidence":  "ok=True"
                    },
                    {
-                       "name":  "feature audit stable_visible_features is 72",
+                       "name":  "feature audit stable_visible_features matches contract",
                        "ok":  true,
-                       "evidence":  "actual=72; expected=72"
+                       "evidence":  "actual=73; expected=73"
                    },
                    {
-                       "name":  "feature audit stable_visible_buttons is 596",
+                       "name":  "feature audit stable_visible_buttons matches contract",
                        "ok":  true,
-                       "evidence":  "actual=596; expected=596"
+                       "evidence":  "actual=606; expected=606"
                    },
                    {
                        "name":  "feature audit non_real_visible_in_stable is 0",
@@ -31203,9 +31715,9 @@
                        "evidence":  "actual=0; expected=0"
                    },
                    {
-                       "name":  "stable-visible count is 72",
+                       "name":  "stable-visible count matches contract",
                        "ok":  true,
-                       "evidence":  "actual=72; expected=72"
+                       "evidence":  "actual=73; expected=73"
                    },
                    {
                        "name":  "non-real count is 0",
@@ -31230,7 +31742,7 @@
                    {
                        "name":  "legacy active runtime not detected",
                        "ok":  true,
-                       "evidence":  "[{\"name\":\"HyperBoostX\",\"id\":18664,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"HyperBoostX\",\"id\":29872,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\wpf\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":12524,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":30424,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true}]"
+                       "evidence":  "[{\"name\":\"HyperBoostX\",\"id\":8044,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\wpf\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"HyperBoostX\",\"id\":24676,\"path\":\"<INSTALL_DIR>\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":11468,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":14888,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true}]"
                    }
                ],
     "ok":  true

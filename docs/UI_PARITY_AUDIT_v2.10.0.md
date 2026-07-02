@@ -1,22 +1,25 @@
-# UI Parity Audit v2.10.0
+﻿# UI Parity Audit v2.10.0
 
-> Current release policy: HyperBoostX v2.10.0 is the Stable Unsigned public release. Code signing remains `SKIPPED_BY_OWNER_NO_CERT`; external hardware matrix expansion is recommended.
+Status: `STABLE_READY_UNSIGNED`
+
+Current public release: HyperBoostX v2.10.0 Stable Unsigned. Code signing remains SKIPPED_BY_OWNER_NO_CERT, so this generator must not claim signed artifacts.
+
+Generated: 2026-07-03 02.57.27 +07:00
 
 ## Counts
 
 | Metric | Count |
 | --- | ---: |
-| Menus in UI action map | 72 |
-| Buttons in UI action map | 596 |
+| Menus in UI action map | 73 |
+| Buttons in UI action map | 606 |
+| Active buttons | 606 |
 | Partial/roadmap/guidance buttons | 0 |
-| Unique endpoints used by UI | 165 |
+| Unique endpoints used by UI | 167 |
 
 ## Result
 
-- Every mapped menu has at least 6 active actions.
-- Big menus have at least 10 active actions.
-- WPF CyberPageChrome renders dynamic action-map buttons.
+- Every mapped stable menu has active, route-backed actions.
+- Stable-visible actions are real, local-safe, or explicitly blocked by Safety Guard.
 - Dashboard has direct hero buttons for core user flows.
-- Former roadmap/guidance surfaces route to real local-safe boundary handlers or Safety Guard blocks.
+- Boundary features stay labeled as local-safe boundaries, not full cloud/RGB/plugin marketplace claims.
 
-Source of truth: docs/UI_ACTION_MAP_v2.10.0.md.

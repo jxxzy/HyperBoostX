@@ -18,9 +18,10 @@ BackgroundApps|BackgroundAppsView|BackgroundAppsViewModel|Background Apps|Review
 Cleanup|CleanupView|CleanupViewModel|Cleanup|Scan safe cleanup categories, protect personal folders, then clean only selected approved items.|Cleanup Scope Workspace|Safe cleanup categories|Personal folder protection|Large file review|Cleanup Evidence|Documents, Downloads, Desktop, game saves, project folders, browser sessions, and unreviewed user-file deletion are blocked.|Preview cleanup scope before deleting anything.|Personal files are excluded from default cleanup.|Scope|Documents
 Storage|StorageView|StorageViewModel|Storage|Review drive usage, disk pressure, large files, and cleanup guidance without destructive defaults.|Storage Usage Workspace|Drive usage|Large file review|Storage recommendations|Storage Evidence|Destructive personal-file cleanup and unreviewed duplicate deletion stay blocked.|Use storage scan before cleanup guidance.|Duplicate cleanup remains review-only.|Storage|Cleanup
 OneClickBoost|OneClickBoostView|OneClickBoostViewModel|One Click Boost|Create a mode-based boost plan, review approved actions, and keep undo evidence visible.|Boost Plan Workspace|Boost mode selector|Custom checklist|Undo and report|Boost Evidence|Arbitrary AI shell commands, unsafe services, security disables, and protected-process kills are blocked.|Preview boost plan before starting.|Apply only approved actions.|Safety Guard|Undo
-AutoGamingMode|AutoGamingModeView|AutoGamingModeViewModel|Auto Gaming Mode|Detect supported games, prepare safe profile metadata, and auto-restore after close.|Gaming Session Workspace|Game detection|Profile preview|Auto restore|Gaming Mode Evidence|Browsers and protected processes are not treated as games by default.|Preview safe actions before enabling automation.|Protected processes stay locked while gaming.|Auto Restore|Game Detection
+AutoGamingMode|AutoGamingModeView|AutoGamingModeViewModel|Auto Gaming Mode|Detect supported games, prepare safe profile metadata, and auto-restore after close.|Gaming Session Workspace|Game detection|Profile preview|Auto restore|Gaming Mode Evidence|Browsers and protected processes are not treated as games by default.|Review the gaming profile before enabling automation.|Protected processes stay locked while gaming.|Auto Restore|Game Detection
 AIPerformanceAdvisor|AIPerformanceAdvisorView|AIPerformanceAdvisorViewModel|AI Performance Advisor|Local diagnosis for bottlenecks, stutter, overlays, startup, and GPU pressure.|Local Advisor Workspace|Bottleneck diagnosis|Explainable recommendation|Advanced detail|Advisor Evidence|Recommendations are guidance and never guaranteed FPS claims.|Review GPU-bound and CPU-bound guidance separately.|Use raw details only in Advanced or Expert mode.|Diagnosis|Risk
 GpuCenter|GpuCenterView|GpuCenterViewModel|GPU Center|Detect GPU and driver context, then provide safe vendor guidance without hardware-risk automation.|GPU Guidance Workspace|Detected GPU|VRAM and temperature|Vendor guidance|GPU Evidence|Overclock, undervolt, BIOS edits, forced driver-service changes, and silent driver installs are blocked.|Use official vendor/OEM sources for driver downloads.|Keep GPU services enabled unless the vendor tool says otherwise.|Detected GPU|Driver
+HardwareVendorCenter|HardwareVendorCenterView|HardwareVendorCenterViewModel|Hardware Vendor Center|Analyze OEM/vendor utilities, overlays, RGB/LCD helpers, and startup/service pressure without breaking required controls.|Vendor App Analyzer Workspace|Vendor utility inventory|Service and startup roles|Safe vendor plan|Vendor Evidence|Required fan, RGB, LCD, audio, network, driver, firmware, and hardware-control services are protected.|Run Vendor App Analyzer before changing startup or services.|MSI Safe Optimizer remains an Advanced submodule with review-first controls.|Vendor|Protection
 GamingBooster|GamingBoosterView|GamingBoosterViewModel|Gaming Booster|Build an instant gaming plan through safe boost endpoints and real game context.|Gaming Boost Workspace|Detected game|Safe boost plan|Undo route|Gaming Boost Evidence|Gaming boost is blocked when no real game context or approved plan exists.|Do not apply a boost unless a real game is selected or detected.|Chrome and browsers are not games by default.|Plan|Undo
 CreatorMode|CreatorModeView|CreatorModeViewModel|Creator Mode|Review RAM, disk, GPU, and background app guidance for editing and rendering.|Creator Readiness Workspace|Render pressure|Scratch disk|Export guidance|Creator Evidence|Aggressive cleanup and app stops stay review-only during render/export sessions.|Keep project files and caches on healthy storage.|Avoid cleanup during render or export sessions.|RAM|Disk
 NetworkBooster|NetworkBoosterView|NetworkBoosterViewModel|Network Booster|Run diagnostics, DNS checks, and approval-gated cache actions without fake ping claims.|Network Diagnostics Workspace|Network diagnostics|DNS and latency|Guarded network actions|Network Evidence|Network reset and flush actions require confirmation and human-friendly failure states.|Use DNS and latency tests before changing anything.|No ping-lower guarantee is shown.|Network|Risk
@@ -45,6 +46,10 @@ $template = @'
                                xmlns:vm="clr-namespace:HyperBoostX.ViewModels"
                                AutomationProperties.AutomationId="CoreFeaturePage___KEY__"
                                Tag="CORE_UI:__KEY__">
+    <views:PlacementActionPageBase.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </views:PlacementActionPageBase.Resources>
+
     <views:PlacementActionPageBase.DataContext>
         <vm:__VM__/>
     </views:PlacementActionPageBase.DataContext>
@@ -61,6 +66,18 @@ $template = @'
                         <TextBlock Text="__TITLE__" FontSize="30" FontWeight="Black" TextWrapping="Wrap"/>
                         <TextBlock Text="__SUBTITLE__" FontSize="13" Foreground="{StaticResource Brush.Accent.Primary}" Margin="0,5,0,0" TextWrapping="Wrap" MaxWidth="930"/>
                         <TextBlock Text="{Binding Purpose}" FontSize="13" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,12,0,0" TextWrapping="Wrap" MaxWidth="940"/>
+                        <ItemsControl ItemsSource="{Binding PrimaryPlacementActions}" Margin="0,18,0,0">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding Label}" ToolTip="{Binding Tooltip}" Tag="{Binding}" Click="RunPlacementAction_Click" Style="{StaticResource CyberButtonStyle}" Margin="0,0,10,10" MinWidth="168"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Margin="20,0,0,0">
                         <Border Style="{StaticResource SuccessBadgeStyle}" Margin="0,0,0,10">
@@ -79,27 +96,82 @@ $template = @'
             <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,0,16">
                 <StackPanel>
                     <TextBlock Text="__WORKSPACE__" FontSize="18" FontWeight="Bold"/>
-                    <TextBlock Text="This surface is page-specific, evidence-first, and wired to the local backend action map." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
+                    <TextBlock Text="This page is built around local evidence first, scoped review second, and recovery evidence third. Actions support the workflow instead of replacing it." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
                     <UniformGrid Columns="3">
                         <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="13" Margin="0,0,10,0">
                             <StackPanel>
+                                <TextBlock Text="01 / Evidence" Foreground="{StaticResource Brush.Text.Muted}" FontSize="10" FontWeight="Bold"/>
                                 <TextBlock Text="__MODULE1__" Foreground="{StaticResource Brush.Accent.Primary}" FontWeight="Bold" TextWrapping="Wrap"/>
-                                <TextBlock Text="Uses local evidence before any recommendation is shown." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,7,0,0"/>
+                                <TextBlock Text="Read the local signal here before any recommendation is trusted or acted on." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,7,0,0"/>
                             </StackPanel>
                         </Border>
                         <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="13" Margin="0,0,10,0">
                             <StackPanel>
+                                <TextBlock Text="02 / Scope" Foreground="{StaticResource Brush.Text.Muted}" FontSize="10" FontWeight="Bold"/>
                                 <TextBlock Text="__MODULE2__" Foreground="{StaticResource Brush.Accent.Primary}" FontWeight="Bold" TextWrapping="Wrap"/>
-                                <TextBlock Text="Separates readable beginner copy from advanced raw details." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,7,0,0"/>
+                                <TextBlock Text="Separates reviewed items from protected, manual, guidance-only, and blocked areas." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,7,0,0"/>
                             </StackPanel>
                         </Border>
                         <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="13">
                             <StackPanel>
+                                <TextBlock Text="03 / Recovery" Foreground="{StaticResource Brush.Text.Muted}" FontSize="10" FontWeight="Bold"/>
                                 <TextBlock Text="__MODULE3__" Foreground="{StaticResource Brush.Accent.Primary}" FontWeight="Bold" TextWrapping="Wrap"/>
-                                <TextBlock Text="Keeps preview, approval, report, and restore evidence visible." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,7,0,0"/>
+                                <TextBlock Text="Keeps report, history, undo, and restore expectations visible before a state change." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,7,0,0"/>
                             </StackPanel>
                         </Border>
                     </UniformGrid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,0,16" Visibility="{Binding HasLegacyTools, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="__TITLE__ Toolkit" FontSize="17" FontWeight="Bold"/>
+                            <TextBlock Text="Restored capabilities for this menu are shown with safety status and route evidence, keeping the page grounded in the feature domain." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <Border Grid.Column="1" Style="{StaticResource SuccessBadgeStyle}" Margin="12,0,0,0" VerticalAlignment="Top">
+                            <TextBlock Text="Domain-ready" Foreground="{StaticResource Brush.Status.Success}"/>
+                        </Border>
+                    </Grid>
+
+                    <ItemsControl ItemsSource="{Binding LegacyTools}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="2"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="12" Margin="0,0,10,10">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Category}" Foreground="{StaticResource Brush.Accent.Primary}" FontSize="10" FontWeight="Black" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding Title}" FontWeight="Bold" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                        <Border Grid.Column="1" Style="{StaticResource CyberBadgeStyle}" Margin="10,0,0,0" VerticalAlignment="Top">
+                                            <TextBlock Text="{Binding Safety}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap"/>
+                                        </Border>
+                                        <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Flow}" Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                                        <TextBlock Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding Route}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,8,0,0" FontFamily="Consolas" FontSize="11"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </Border>
 
@@ -110,7 +182,7 @@ $template = @'
                 </Grid.ColumnDefinitions>
                 <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,14,0">
                     <StackPanel>
-                        <TextBlock Text="Current State" FontSize="17" FontWeight="Bold"/>
+                        <TextBlock Text="__METRIC1__ Operational Snapshot" FontSize="17" FontWeight="Bold"/>
                         <TextBlock Text="{Binding EmptyState}" Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,5,0,14"/>
                         <ItemsControl ItemsSource="{Binding Metrics}">
                             <ItemsControl.ItemsPanel>
@@ -132,7 +204,7 @@ $template = @'
                 </Border>
                 <Border Grid.Column="1" Style="{StaticResource CyberCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="Feature Modules" FontSize="17" FontWeight="Bold"/>
+                        <TextBlock Text="__WORKSPACE__ Map" FontSize="17" FontWeight="Bold"/>
                         <ItemsControl ItemsSource="{Binding PlacementSections}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate><UniformGrid Columns="2"/></ItemsPanelTemplate>
@@ -146,7 +218,9 @@ $template = @'
                                             <ItemsControl ItemsSource="{Binding Items}">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
-                                                        <TextBlock Text="{Binding StringFormat=- {0}}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,0,0,5"/>
+                                                        <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,6,6">
+                                                            <TextBlock Text="{Binding}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap"/>
+                                                        </Border>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
@@ -161,25 +235,45 @@ $template = @'
 
             <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,0,16">
                 <StackPanel>
-                    <TextBlock Text="Guided Workflow" FontSize="17" FontWeight="Bold"/>
-                    <TextBlock Text="Start with scan or preview. Apply-style actions stay confirmation-gated by Safety Guard and local session token." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
-                    <ItemsControl ItemsSource="{Binding PrimaryPlacementActions}">
-                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button Content="{Binding Label}" ToolTip="{Binding Tooltip}" Tag="{Binding}" Click="RunPlacementAction_Click" Style="{StaticResource CyberButtonStyle}" Margin="0,0,10,10" MinWidth="168"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <TextBlock Text="Reports, History, and Help" FontSize="14" FontWeight="Bold" Margin="0,10,0,8"/>
-                    <ItemsControl ItemsSource="{Binding SecondaryPlacementActions}">
-                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button Content="{Binding Label}" ToolTip="{Binding Tooltip}" Tag="{Binding}" Click="RunPlacementAction_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10" MinWidth="150"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                    <TextBlock Text="__TITLE__ Runbook" FontSize="17" FontWeight="Bold"/>
+                    <TextBlock Text="Use this sequence in Expert mode: inspect the evidence, compare the review scope, then approve or recover only when the report path is visible." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <UniformGrid Columns="3" Margin="0,0,14,0">
+                            <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="12" Margin="0,0,10,0">
+                                <StackPanel>
+                                    <TextBlock Text="01 Inspect" Foreground="{StaticResource Brush.Accent.Primary}" FontWeight="Bold"/>
+                                    <TextBlock Text="Load __MODULE1__ evidence and keep empty states honest until data exists." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="12" Margin="0,0,10,0">
+                                <StackPanel>
+                                    <TextBlock Text="02 Review" Foreground="{StaticResource Brush.Accent.Primary}" FontWeight="Bold"/>
+                                    <TextBlock Text="Compare __MODULE2__ scope with warnings before approving any action." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="12">
+                                <StackPanel>
+                                    <TextBlock Text="03 Recover" Foreground="{StaticResource Brush.Accent.Primary}" FontWeight="Bold"/>
+                                    <TextBlock Text="Use __MODULE3__ evidence for report, history, and restore decisions." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Evidence Actions" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
+                            <ItemsControl ItemsSource="{Binding SecondaryPlacementActions}">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Content="{Binding Label}" ToolTip="{Binding Tooltip}" Tag="{Binding}" Click="RunPlacementAction_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10" MinWidth="150"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Grid>
                 </StackPanel>
             </Border>
 
@@ -190,12 +284,12 @@ $template = @'
                 </Grid.ColumnDefinitions>
                 <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,14,0">
                     <StackPanel>
-                        <TextBlock Text="__RESULT__" FontSize="17" FontWeight="Bold"/>
+                        <TextBlock Text="__RESULT__ Audit Console" FontSize="17" FontWeight="Bold"/>
                         <TextBlock Text="{Binding ResultSummary}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,10,0,12"/>
                         <Border Style="{StaticResource CyberBadgeStyle}">
                             <TextBlock Text="{Binding Status}" Foreground="{StaticResource Brush.Text.Primary}" TextWrapping="Wrap"/>
                         </Border>
-                        <Expander Header="Technical Details" Foreground="{StaticResource Brush.Text.Primary}" Margin="0,16,0,0" IsExpanded="False">
+                        <Expander Header="Advanced Details" Foreground="{StaticResource Brush.Text.Primary}" Margin="0,16,0,0" IsExpanded="False">
                             <StackPanel Margin="0,10,0,0">
                                 <ItemsControl ItemsSource="{Binding AdvancedRouteLines}" Margin="0,0,0,12">
                                     <ItemsControl.ItemTemplate>
@@ -211,7 +305,7 @@ $template = @'
                 </Border>
                 <Border Grid.Column="1" Style="{StaticResource CyberCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="Safety and Restore" FontSize="17" FontWeight="Bold"/>
+                        <TextBlock Text="Safety Boundary" FontSize="17" FontWeight="Bold"/>
                         <Border Style="{StaticResource WarningBadgeStyle}" Margin="0,10,0,10">
                             <TextBlock Text="__SAFETY__" Foreground="{StaticResource Brush.Status.Warning}" TextWrapping="Wrap"/>
                         </Border>
@@ -230,7 +324,7 @@ $template = @'
 
             <Border Style="{StaticResource CyberCardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Page Recommendations" FontSize="17" FontWeight="Bold"/>
+                    <TextBlock Text="Usage Notes" FontSize="17" FontWeight="Bold"/>
                     <TextBlock Text="- __REC1__" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,10,0,7"/>
                     <TextBlock Text="- __REC2__" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap"/>
                     <ItemsControl ItemsSource="{Binding Recommendations}" Margin="0,10,0,0">

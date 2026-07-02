@@ -1,4 +1,4 @@
-﻿# Stable Mode Audit v2.10.0
+# Stable Mode Audit v2.10.0
 
 Status: PASS for automated Stable UI visibility.
 
@@ -16,10 +16,10 @@ Status: PASS for automated Stable UI visibility.
 | Check | Result |
 | --- | --- |
 | `/api/features/audit` | PASS |
-| Stable-visible features | 72 |
+| Stable-visible features | 73 |
 | Hidden from Stable | 0 |
 | Non-real visible in Stable | 0 |
-| Stable-visible buttons | 596 |
+| Stable-visible buttons | 606 |
 | `tests/test_ui_action_map_v210.py` | PASS |
 | `FeatureVisibilityTests` | PASS |
 

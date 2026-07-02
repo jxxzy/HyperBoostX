@@ -21,6 +21,115 @@ namespace HyperBoostX.ViewModels
                 T("Product", "Feature overview from v1.3", "Full feature list, purpose, architecture, developer, version, update status, donation, and tagline are restored as modern About content.", "Info", "/api/version /api/update/check"),
                 T("Safety", "Release safety notes", "Public wording avoids fake FPS, fake vendor partnership, and unsafe tweak claims.", "Guard", "/api/feature-audit/status"),
             },
+            ["Dashboard"] = new[]
+            {
+                T("Overview", "Live hardware and safety overview", "Dashboard collects CPU, RAM, GPU, VRAM, storage, network, restore, and backend readiness in one first-screen view.", "Read-only", "/api/dashboard/summary"),
+                T("Scan", "Smart Scan entry point", "Smart Scan starts local evidence collection before any boost or cleanup recommendation is shown.", "Preview", "/api/scan/smart"),
+                T("Recovery", "Report and restore visibility", "Before/after reports and restore status stay visible from the first screen.", "Restore", "/api/restore/sessions"),
+            },
+            ["SmartScan"] = new[]
+            {
+                T("Scan", "Unified local scan", "Collects CPU, RAM, storage, GPU, network, startup, overlay, safety, and restore readiness before recommendations appear.", "Read-only", "/api/scan/smart"),
+                T("Evidence", "Bottleneck summary", "Scan output explains pressure without inventing FPS or ping gains.", "Report", "/api/reports/export"),
+                T("Next step", "Create safe plan", "Only scanned evidence can feed preview-first boost or cleanup plans.", "Preview", "/api/boost/plan"),
+            },
+            ["HyperBoostScore"] = new[]
+            {
+                T("Score", "Health and readiness scoring", "Score combines local health, gaming readiness, network, storage, and safety signals as guidance.", "Read-only", "/api/dashboard/summary"),
+                T("Breakdown", "Explainable score cards", "Each score needs a readable reason so users know what to fix first.", "Report", "/api/reports/latest"),
+                T("Boundary", "No performance guarantee", "Scores are diagnostics, not guaranteed FPS or latency promises.", "Info", "/api/feature-audit/status"),
+            },
+            ["CpuRamOptimizer"] = new[]
+            {
+                T("CPU/RAM", "Foreground and memory pressure", "Shows foreground pressure, background load, memory headroom, and safe plan candidates.", "Read-only", "/api/processes/background-pressure"),
+                T("Memory", "Standby and leak guidance", "Memory cleanup stays recommendation/approval-first and never kills protected processes.", "Guard", "/api/protection/evaluate-action"),
+                T("Recovery", "Plan and undo handoff", "Approved memory/performance actions keep report and restore evidence visible.", "Restore", "/api/restore/sessions"),
+            },
+            ["CpuTurboDiagnostic"] = new[]
+            {
+                T("CPU", "Clock and turbo evidence", "Reads base/current clock, load context, power plan, and thermal clues without BIOS automation.", "Diagnostic", "/api/power/status"),
+                T("Checklist", "Power, thermal, MSI, and firmware handoff", "Low-load tests are flagged as invalid and BIOS/voltage edits remain manual.", "Manual", "/api/protection/evaluate-action"),
+                T("Safety", "No OC or undervolt", "HyperBoostX does not overclock, undervolt, or change BIOS/UEFI settings.", "Blocked", "/api/protection/evaluate-action"),
+            },
+            ["DriverRecommendation"] = new[]
+            {
+                T("Driver", "Device and vendor guidance", "Driver status is shown with OEM/vendor handoff and no fabricated latest-version claim.", "Manual", "/api/drivers/recommendation"),
+                T("GPU", "GPU driver context", "GPU model, driver status, and vendor guidance stay linked to GPU Center.", "Read-only", "/api/gpu/status"),
+                T("Install", "No silent installer", "Driver downloads and installs remain manual and official-source oriented.", "Guard", "/api/protection/evaluate-action"),
+            },
+            ["OverlayConflictDetector"] = new[]
+            {
+                T("Overlay", "Launcher and capture overlay scan", "Detects Game Bar, Discord, Steam, vendor overlays, capture tools, and browser overlays.", "Read-only", "/api/overlays/status"),
+                T("Conflict", "Game/stream conflict notes", "Conflicts are guidance; protected apps are not closed automatically.", "Manual", "/api/protection/processes"),
+                T("Report", "Before gaming checklist", "Overlay findings can feed a gaming profile report.", "Report", "/api/reports/export"),
+            },
+            ["RgbSoftwareDetector"] = new[]
+            {
+                T("RGB", "Vendor software detector", "Detects known RGB/control software where available and labels the feature partial.", "Partial", "/api/protection/processes"),
+                T("Boundary", "No RGB control claim", "Lighting, fan, and hardware profile changes stay in vendor apps.", "Roadmap", "/api/feature-audit/status"),
+                T("Safety", "Vendor services protected", "RGB/fan/control services are not disabled blindly because they can be required hardware utilities.", "Guard", "/api/protection/evaluate-action"),
+            },
+            ["SystemRealityGuard"] = new[]
+            {
+                T("Reality", "Evidence-based system scan", "Explains LCD helpers, Defender scans, CPU turbo, MSI Center, and background CPU without panic labels.", "Diagnostic", "/api/processes/background-pressure"),
+                T("Bridge", "Detect and monitor only", "Bridge Mode observes duplicate work and recommends safer handoffs instead of patching vendor binaries.", "Guard", "/api/protection/evaluate-action"),
+                T("Verdict", "Human-readable cause", "The page separates normal vendor behavior from real risky or suspicious findings.", "Report", "/api/reports/export"),
+            },
+            ["LcdPerformanceGuard"] = new[]
+            {
+                T("LCD", "Required LCD app protection", "KANALI, TRCC, HiMOS, USB_LCD, USBLCDNEW, ffmpeg, and monitor helpers are reviewed before action.", "Protected", "/api/protection/processes"),
+                T("Hybrid", "Duplicate-work guidance", "Hybrid guidance can reduce duplicate monitoring only when safe and visible.", "Preview", "/api/protection/evaluate-action"),
+                T("Boundary", "No guaranteed CPU reduction", "LCD helper behavior depends on device/vendor app design and is not force-disabled.", "Info", "/api/reports/export"),
+            },
+            ["DefenderScanGuard"] = new[]
+            {
+                T("Defender", "Scan and CPU context", "Shows Defender activity, scan state, and CPU impact guidance without disabling security.", "Read-only", "/api/security/status"),
+                T("Exclusions", "Specific-only review", "Full-drive, broad user-folder, and anti-cheat/security exclusions remain blocked.", "Guard", "/api/protection/evaluate-action"),
+                T("Safety", "No Defender disable", "Permanent disable, service kill, and MsMpEng termination are blocked.", "Blocked", "/api/protection/evaluate-action"),
+            },
+            ["SecurityRealityAudit"] = new[]
+            {
+                T("Audit", "Evidence classifier", "Reviews WSL, remote access, startup, scheduled tasks, PowerShell, vendor services, and unsigned scripts.", "Read-only", "/api/security/status"),
+                T("Verdict", "Signed versus suspicious", "Microsoft, Intel, OEM, and vendor components are not panic-labeled without evidence.", "Manual", "/api/protection/processes"),
+                T("Boundary", "No auto-delete", "Suspicious AppData/Temp scripts are flagged for review; user files are not deleted automatically.", "Blocked", "/api/protection/evaluate-action"),
+            },
+            ["MsiSafeOptimizer"] = new[]
+            {
+                T("MSI", "MSI Center and companion apps", "Detects MSI utilities and explains when fan, RGB, hardware profile, audio, or network control is required.", "Manual", "/api/protection/processes"),
+                T("Mode", "Silent/Eco guidance", "Performance mode guidance is visible but never disables MSI services blindly.", "Guard", "/api/protection/evaluate-action"),
+                T("Safety", "Required vendor service protection", "Hardware-control services stay protected unless a supported safe route exists.", "Protected", "/api/protection/processes"),
+            },
+            ["HardwareVendorCenter"] = new[]
+            {
+                T("Vendor App Analyzer", "OEM utility inventory", "Detects vendor utilities, overlays, RGB/LCD helpers, hardware monitoring, and startup entries before recommendations appear.", "Read-only", "/api/hardware/vendors"),
+                T("Classification", "Required versus optional roles", "Classifies vendor items as required, optional, protected, display/LCD/RGB, monitoring/logging, overlay, startup-only, or safe-to-review.", "Guard", "/api/security/vendor-services/classify"),
+                T("MSI Submodule", "MSI Safe Optimizer stays nested", "MSI Center, Dragon Center, Afterburner, Mystic Light, Nahimic, TRCC, KANALI, and HiMOS are reviewed without disabling fan, RGB, LCD, driver, BIOS, or firmware controls.", "Protected", "/api/msi/status"),
+                T("Safety", "No blind vendor service changes", "Apply routes remain preview/approval-gated and Safety Guard blocks required hardware-control services.", "Blocked", "/api/protection/evaluate-action"),
+            },
+            ["Reports"] = new[]
+            {
+                T("Reports", "Latest report and before/after evidence", "Collects scan, boost, cleanup, network, GPU, and restore reports in one local-first surface.", "Report", "/api/reports/latest"),
+                T("Export", "Redacted export", "Exports remove tokens, secrets, and sensitive local values before sharing.", "Secret-safe", "/api/reports/export"),
+                T("History", "Action log and restore evidence", "Reports stay linked to action history and restore sessions.", "Restore", "/api/action-log"),
+            },
+            ["ReleaseReadiness"] = new[]
+            {
+                T("Gate", "Stable release gates", "Version sync, route contracts, UI gates, safety checks, docs, checksums, and release artifacts are reviewed.", "Gate", "/api/update/check"),
+                T("Installed runtime", "Installer and smoke evidence", "Stable is blocked until installed WPF/backend/token/runtime checks pass on the target package.", "Manual", "scripts/owner_admin_stable_gate.ps1"),
+                T("Boundary", "Unsigned status honesty", "Unsigned builds can be stable source/runtime candidates, but signing remains separate evidence.", "Info", "/api/feature-audit/status"),
+            },
+            ["PluginMarketplace"] = new[]
+            {
+                T("Marketplace", "Roadmap registry boundary", "Plugin marketplace remains a roadmap/registry concept unless signed packages and trust policy exist.", "Roadmap", "/api/feature-audit/status"),
+                T("Install", "Unsigned plugin install blocked", "No plugin can silently install or execute arbitrary code in Stable.", "Blocked", "/api/protection/evaluate-action"),
+                T("Trust", "Local-first extension rules", "Future plugins need manifest, signature/trust, uninstall, and safety review.", "Policy", "/api/action-log"),
+            },
+            ["CloudSyncLicense"] = new[]
+            {
+                T("Cloud", "Local-first boundary", "No account sync backend is active in v2.10.0 Stable; settings remain local.", "Roadmap", "/api/settings"),
+                T("License", "License boundary", "License checks cannot block local safety, restore, or uninstall flows.", "Boundary", "/api/feature-audit/status"),
+                T("Privacy", "No hidden upload", "Reports and settings stay local unless the user explicitly exports or configures a future sync path.", "Privacy", "/api/product/storage"),
+            },
             ["AIPerformanceAdvisor"] = new[]
             {
                 T("AI", "Ask AI / Fix my PC", "AI produces plan-only suggestions until user approval; shell execution is blocked.", "Approval", "/api/advisor/plan"),
@@ -30,7 +139,7 @@ namespace HyperBoostX.ViewModels
             },
             ["AICenter"] = new[]
             {
-                T("AI", "HyperBoostX Copilot hub", "Central place for smart scan, advisor plan, safe actions, approvals, and action history.", "Approval", "/api/advisor/safe-actions"),
+                T("AI", "HyperBoostX Copilot hub", "Central place for smart scan, advisor plan, reviewed actions, approvals, and action history.", "Approval", "/api/advisor/safe-actions"),
                 T("AI", "Why / why not reasoning", "AI explains blocked actions and maps risky requests to safe alternatives.", "Guard", "/api/protection/evaluate-action"),
                 T("Automation", "Create AI automation", "AI-created automation remains dry-run first and cannot bypass allowlists.", "Dry-run", "/api/automation/preview"),
             },
@@ -56,7 +165,7 @@ namespace HyperBoostX.ViewModels
                 T("Performance", "Activate game boost / work mode / daily mode", "Profiles are preserved as safe plan presets with local diagnostics first.", "Preview", "/api/boost/plan"),
                 T("CPU", "High Performance, Ultimate Performance, Prioritize Foreground App", "v1.3 CPU actions become readable recommendations and guarded power/profile previews.", "Guard", "/api/power/preview /api/processes/background-pressure"),
                 T("CPU", "Set Process Priority, CPU Core Optimization, Disable Power Throttling", "Process-level and core-level tuning remains expert-reviewed; no hidden global mutation is run.", "Expert", "/api/protection/evaluate-action"),
-                T("RAM/Disk", "Clear Standby Memory, Free Unused RAM, Memory Leak Check, Auto RAM Cleanup", "Memory tools are surfaced as diagnostics and advisor-safe actions, while disk cleanup stays preview-first.", "Preview", "/api/processes/background-pressure /api/cleanup/scan"),
+                T("RAM/Disk", "Clear Standby Memory, Free Unused RAM, Memory Leak Check, Auto RAM Cleanup", "Memory tools are surfaced as diagnostics and advisor-approved actions, while disk cleanup stays preview-first.", "Preview", "/api/processes/background-pressure /api/cleanup/scan"),
                 T("Profiles", "Daily Mode / Work Mode / Gaming Mode / Streaming Mode / Extreme Mode / Custom Mode", "The v1.3 profile strip is restored as named presets with preview, report, undo, and reset-to-default flows.", "Preview", "/api/boost/plan"),
                 T("CPU/RAM", "CPU core, priority, RAM cleanup", "Legacy performance controls are mapped to review-only recommendations or guarded actions.", "Guard", "/api/processes/background-pressure"),
                 T("Startup", "Startup impact analysis", "Startup pressure remains integrated with performance recommendations.", "Read-only", "/api/startup/items"),

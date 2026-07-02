@@ -1,8 +1,8 @@
-﻿{
-    "generated_at":  "2026-07-02T11:37:33.8267646Z",
+{
+    "generated_at":  "2026-07-02T20:00:51.4244368Z",
     "expected_version":  "2.10.0",
     "backend_port":  5000,
-    "installer_path":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe",
+    "installer_path":  "<REPO_ROOT>\\HyperBoostXInstaller.exe",
     "is_admin":  true,
     "old_registry_entries":  {
                                  "root":  "HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
@@ -10,9 +10,9 @@
                                  "DisplayName":  "HyperBoostX",
                                  "DisplayVersion":  "2.10.0",
                                  "Publisher":  "HyperBoostX / jxxzy",
-                                 "InstallLocation":  "C:\\Program Files\\HyperBoostX",
-                                 "UninstallString":  "\"C:\\Program Files\\HyperBoostX\\Uninstall.exe\"",
-                                 "QuietUninstallString":  "\"C:\\Program Files\\HyperBoostX\\Uninstall.exe\" /S"
+                                 "InstallLocation":  "<INSTALL_DIR>",
+                                 "UninstallString":  "\"<INSTALL_DIR>\\Uninstall.exe\"",
+                                 "QuietUninstallString":  "\"<INSTALL_DIR>\\Uninstall.exe\" /S"
                              },
     "new_registry_entries":  {
                                  "root":  "HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
@@ -20,9 +20,9 @@
                                  "DisplayName":  "HyperBoostX",
                                  "DisplayVersion":  "2.10.0",
                                  "Publisher":  "HyperBoostX / jxxzy",
-                                 "InstallLocation":  "C:\\Program Files\\HyperBoostX",
-                                 "UninstallString":  "\"C:\\Program Files\\HyperBoostX\\Uninstall.exe\"",
-                                 "QuietUninstallString":  "\"C:\\Program Files\\HyperBoostX\\Uninstall.exe\" /S"
+                                 "InstallLocation":  "<INSTALL_DIR>",
+                                 "UninstallString":  "\"<INSTALL_DIR>\\Uninstall.exe\"",
+                                 "QuietUninstallString":  "\"<INSTALL_DIR>\\Uninstall.exe\" /S"
                              },
     "runtime_verifier_exit":  0,
     "steps":  [
@@ -34,12 +34,12 @@
                   {
                       "name":  "installer exists",
                       "ok":  true,
-                      "detail":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe"
+                      "detail":  "<REPO_ROOT>\\HyperBoostXInstaller.exe"
                   },
                   {
                       "name":  "record old installed version",
                       "ok":  true,
-                      "detail":  "2.10.0 at C:\\Program Files\\HyperBoostX"
+                      "detail":  "2.10.0 at <INSTALL_DIR>"
                   },
                   {
                       "name":  "stop existing HyperBoostX processes",
@@ -59,7 +59,7 @@
                   {
                       "name":  "silent install current installer",
                       "ok":  true,
-                      "detail":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe"
+                      "detail":  "<REPO_ROOT>\\HyperBoostXInstaller.exe"
                   },
                   {
                       "name":  "registry DisplayVersion matches expected",
@@ -74,32 +74,32 @@
                   {
                       "name":  "launcher installed",
                       "ok":  true,
-                      "detail":  "C:\\Program Files\\HyperBoostX\\HyperBoostX.exe"
+                      "detail":  "<INSTALL_DIR>\\HyperBoostX.exe"
                   },
                   {
                       "name":  "WPF runtime installed",
                       "ok":  true,
-                      "detail":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\HyperBoostX.exe"
+                      "detail":  "<INSTALL_DIR>\\runtime\\wpf\\HyperBoostX.exe"
                   },
                   {
                       "name":  "backend runtime installed",
                       "ok":  true,
-                      "detail":  "C:\\Program Files\\HyperBoostX\\runtime\\backend\\hyperboost_backend.exe"
+                      "detail":  "<INSTALL_DIR>\\runtime\\backend\\hyperboost_backend.exe"
                   },
                   {
                       "name":  "installed action map present",
                       "ok":  true,
-                      "detail":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
+                      "detail":  "<INSTALL_DIR>\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
                   },
                   {
                       "name":  "installed action map exists",
                       "ok":  true,
-                      "detail":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
+                      "detail":  "<INSTALL_DIR>\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
                   },
                   {
                       "name":  "installed action map JSON parses",
                       "ok":  true,
-                      "detail":  "C:\\Program Files\\HyperBoostX\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
+                      "detail":  "<INSTALL_DIR>\\runtime\\wpf\\Data\\ui_action_map_v2_10.json"
                   },
                   {
                       "name":  "installed action map app_version matches VERSION",
@@ -114,17 +114,17 @@
                   {
                       "name":  "installed action map summary total_menus",
                       "ok":  true,
-                      "detail":  "actual=72; expected=72"
+                      "detail":  "actual=73; expected=73"
                   },
                   {
                       "name":  "installed action map summary total_buttons",
                       "ok":  true,
-                      "detail":  "actual=596; expected=596"
+                      "detail":  "actual=606; expected=606"
                   },
                   {
                       "name":  "installed action map summary total_active_buttons",
                       "ok":  true,
-                      "detail":  "actual=596; expected=596"
+                      "detail":  "actual=606; expected=606"
                   },
                   {
                       "name":  "installed action map summary total_partial_or_roadmap_buttons",
@@ -134,22 +134,22 @@
                   {
                       "name":  "installed action map summary total_unique_endpoints_used",
                       "ok":  true,
-                      "detail":  "actual=165; expected=165"
+                      "detail":  "actual=167; expected=167"
                   },
                   {
                       "name":  "installed action map menus length",
                       "ok":  true,
-                      "detail":  "actual=72; expected=72"
+                      "detail":  "actual=73; expected=73"
                   },
                   {
                       "name":  "installed action map computed button count",
                       "ok":  true,
-                      "detail":  "actual=596; expected=596"
+                      "detail":  "actual=606; expected=606"
                   },
                   {
                       "name":  "installed action map computed unique endpoint count",
                       "ok":  true,
-                      "detail":  "actual=165; expected=165"
+                      "detail":  "actual=167; expected=167"
                   },
                   {
                       "name":  "installed action map all menus are Real",
@@ -174,22 +174,22 @@
                   {
                       "name":  "desktop shortcut targets launcher",
                       "ok":  true,
-                      "detail":  "[{\"path\":\"C:\\\\Users\\\\jxxzy\\\\OneDrive\\\\Desktop\\\\HyperBoostX.lnk\",\"exists\":false,\"target\":null,\"working_directory\":null,\"icon_location\":null,\"error\":null},{\"path\":\"C:\\\\Users\\\\Public\\\\Desktop\\\\HyperBoostX.lnk\",\"exists\":true,\"target\":\"C:\\\\Program Files\\\\HyperBoostX\\\\HyperBoostX.exe\",\"working_directory\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\backend\",\"icon_location\":\",0\",\"error\":null}]"
+                      "detail":  "[{\"path\":\"<USER_DESKTOP>\\\\HyperBoostX.lnk\",\"exists\":false,\"target\":null,\"working_directory\":null,\"icon_location\":null,\"error\":null},{\"path\":\"<PUBLIC_DESKTOP>\\\\HyperBoostX.lnk\",\"exists\":true,\"target\":\"<INSTALL_DIR>\\\\HyperBoostX.exe\",\"working_directory\":\"<INSTALL_DIR>\\\\runtime\\\\backend\",\"icon_location\":\",0\",\"error\":null}]"
                   },
                   {
                       "name":  "start menu shortcut targets launcher",
                       "ok":  true,
-                      "detail":  "{\"path\":\"C:\\\\ProgramData\\\\Microsoft\\\\Windows\\\\Start Menu\\\\Programs\\\\HyperBoostX\\\\HyperBoostX.lnk\",\"exists\":true,\"target\":\"C:\\\\Program Files\\\\HyperBoostX\\\\HyperBoostX.exe\",\"working_directory\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\backend\",\"icon_location\":\",0\",\"error\":null}"
+                      "detail":  "{\"path\":\"<START_MENU>\\\\Programs\\\\HyperBoostX\\\\HyperBoostX.lnk\",\"exists\":true,\"target\":\"<INSTALL_DIR>\\\\HyperBoostX.exe\",\"working_directory\":\"<INSTALL_DIR>\\\\runtime\\\\backend\",\"icon_location\":\",0\",\"error\":null}"
                   },
                   {
                       "name":  "launch installed HyperBoostX",
                       "ok":  true,
-                      "detail":  "pid=25380"
+                      "detail":  "pid=29392"
                   },
                   {
                       "name":  "backend health on port 5000",
                       "ok":  true,
-                      "detail":  "{\"ok\":true,\"uri\":\"http://127.0.0.1:5000/api/health\",\"error\":null,\"data\":{\"backend_mode\":\"stable\",\"feature_registry_status\":{\"action_map_found\":true,\"action_map_source\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\wpf\\\\Data\\\\ui_action_map_v2_10.json\",\"errors\":[],\"expected\":{\"expected_non_real_visible_in_stable\":0,\"expected_stable_buttons\":596,\"expected_stable_menus\":72,\"expected_unique_ui_endpoints\":165},\"non_real_visible_in_stable\":0,\"stable_ui_ok\":true,\"stable_visible_buttons\":596,\"stable_visible_features\":72,\"warnings\":[]},\"local_only\":true,\"service\":\"HyperBoostX Backend\",\"session_token_required\":true,\"status\":\"ok\",\"version\":\"2.10.0\"}}"
+                      "detail":  "{\"ok\":true,\"uri\":\"http://127.0.0.1:5000/api/health\",\"error\":null,\"data\":{\"backend_mode\":\"stable\",\"feature_registry_status\":{\"action_map_found\":true,\"action_map_source\":\"<INSTALL_DIR>\\\\runtime\\\\wpf\\\\Data\\\\ui_action_map_v2_10.json\",\"errors\":[],\"expected\":{\"expected_non_real_visible_in_stable\":0,\"expected_stable_buttons\":606,\"expected_stable_menus\":73,\"expected_unique_ui_endpoints\":167},\"non_real_visible_in_stable\":0,\"stable_ui_ok\":true,\"stable_visible_buttons\":606,\"stable_visible_features\":73,\"warnings\":[]},\"local_only\":true,\"service\":\"HyperBoostX Backend\",\"session_token_required\":true,\"status\":\"ok\",\"version\":\"2.10.0\"}}"
                   },
                   {
                       "name":  "backend version matches expected",
@@ -217,14 +217,14 @@
                       "detail":  "ok=True"
                   },
                   {
-                      "name":  "feature audit stable_visible_features is 72",
+                      "name":  "feature audit stable_visible_features matches contract",
                       "ok":  true,
-                      "detail":  "actual=72; expected=72"
+                      "detail":  "actual=73; expected=73"
                   },
                   {
-                      "name":  "feature audit stable_visible_buttons is 596",
+                      "name":  "feature audit stable_visible_buttons matches contract",
                       "ok":  true,
-                      "detail":  "actual=596; expected=596"
+                      "detail":  "actual=606; expected=606"
                   },
                   {
                       "name":  "feature audit non_real_visible_in_stable is 0",
@@ -232,9 +232,9 @@
                       "detail":  "actual=0; expected=0"
                   },
                   {
-                      "name":  "stable-visible count is 72",
+                      "name":  "stable-visible count matches contract",
                       "ok":  true,
-                      "detail":  "actual=72; expected=72"
+                      "detail":  "actual=73; expected=73"
                   },
                   {
                       "name":  "non-real count is 0",
@@ -244,7 +244,7 @@
                   {
                       "name":  "WPF installed smoke",
                       "ok":  true,
-                      "detail":  "[{\"name\":\"HyperBoostX\",\"id\":22260,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\wpf\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"HyperBoostX\",\"id\":25380,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":20916,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":29836,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true}]"
+                      "detail":  "[{\"name\":\"HyperBoostX\",\"id\":8660,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\wpf\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"HyperBoostX\",\"id\":29392,\"path\":\"<INSTALL_DIR>\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":1408,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":27584,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true}]"
                   },
                   {
                       "name":  "token sync inferred",
@@ -254,7 +254,7 @@
                   {
                       "name":  "close installed app",
                       "ok":  true,
-                      "detail":  "[{\"name\":\"HyperBoostX\",\"id\":22260,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\wpf\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"HyperBoostX\",\"id\":25380,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":20916,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":29836,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true}]"
+                      "detail":  "[{\"name\":\"HyperBoostX\",\"id\":8660,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\wpf\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"HyperBoostX\",\"id\":29392,\"path\":\"<INSTALL_DIR>\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":1408,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":27584,\"path\":\"<INSTALL_DIR>\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true}]"
                   },
                   {
                       "name":  "no orphan installed processes",
@@ -274,7 +274,7 @@
                   {
                       "name":  "silent reinstall",
                       "ok":  true,
-                      "detail":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe"
+                      "detail":  "<REPO_ROOT>\\HyperBoostXInstaller.exe"
                   },
                   {
                       "name":  "runtime verifier after reinstall",

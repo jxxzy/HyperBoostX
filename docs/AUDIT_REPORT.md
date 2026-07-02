@@ -7,10 +7,10 @@ Decision: `STABLE_READY_UNSIGNED`
 
 The v2.10.0 work promotes HyperBoostX into a real-safe local control center with validated source, package, installer, and installed-runtime gates:
 
-- 72 menus are present in the v2.10 UI action map.
-- 596 buttons/actions are mapped and active.
+- 73 menus are present in the v2.10 UI action map.
+- 606 buttons/actions are mapped and active.
 - 0 stable buttons remain marked partial/roadmap/guidance.
-- 165 unique UI endpoints are referenced by the action map.
+- 167 unique UI endpoints are referenced by the action map.
 - Backend exposes 365 API route rules and 361 unique API paths.
 - Safety Guard remains active for destructive, admin, protected, driver, security, anti-cheat, BIOS/OC/undervolt, and user-file deletion risks.
 
@@ -38,7 +38,7 @@ The v2.10.0 work promotes HyperBoostX into a real-safe local control center with
 - Added stable-aware release readiness status.
 - Added/verified v2.10 feature registry endpoints and stable/dev visibility support.
 - Added real-safe backend handlers for formerly missing UI endpoints.
-- Regenerated the UI action map with 596 active buttons.
+- Regenerated the UI action map with 606 active buttons.
 - Hardened error/route behavior so UI commands do not land on dead routes.
 - Hardened release packaging so fresh local deploy output syncs into `release/package` and `release/app` before NSIS packaging.
 - Rebuilt installer and refreshed checksum manifests.

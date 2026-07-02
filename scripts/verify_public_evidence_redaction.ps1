@@ -15,6 +15,9 @@ foreach ($pattern in @(
     "docs\runtime-audit\*.json",
     "docs\runtime-audit\*.md",
     "docs\OWNER_ADMIN_STABLE_GATE_RESULT_v2.10.0.md",
+    "docs\INSTALLER_STABLE_GATE_v2.10.0.md",
+    "docs\SCREENSHOT_REVIEW_v2.10.0.md",
+    "docs\STABLE_RELEASE_AUDIT_v2.10.0.md",
     "docs\QA_FULL_TEST_REPORT.md"
 )) {
     $scanFiles += @(Get-ChildItem -Path (Join-Path $RepoRoot $pattern) -File -ErrorAction SilentlyContinue)

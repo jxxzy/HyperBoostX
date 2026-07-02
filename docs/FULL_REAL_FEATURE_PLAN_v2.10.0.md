@@ -1,4 +1,4 @@
-﻿# Full Real Feature Plan v2.10.0
+# Full Real Feature Plan v2.10.0
 
 Status: DONE for automated source/route/UI contract. Stable release remains blocked by manual lab gates.
 
@@ -6,7 +6,7 @@ Status: DONE for automated source/route/UI contract. Stable release remains bloc
 
 - Implemented Real-only feature registry.
 - Default mode is Stable.
-- Stable UI exposes 72 Real feature entries from the action map.
+- Stable UI exposes 73 Real feature entries from the action map.
 - Dev mode can still enable internal diagnostics through `HYPERBOOSTX_MODE=dev`.
 - Backend feature registry endpoints expose stable-visible and non-real inventories.
 - Tests prove Stable mode has 0 non-real visible features and 0 non-real action buttons.

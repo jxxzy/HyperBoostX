@@ -8,7 +8,7 @@ Decision: `STABLE_READY_UNSIGNED`
 - [x] Version synchronized to `2.10.0`.
 - [x] Windows file version synchronized to `2.10.0.0`.
 - [x] Backend `/api/version` returns `2.10.0`.
-- [x] WPF action map generated with 72 menus and 596 active actions.
+- [x] WPF action map generated with 73 menus and 606 active actions.
 - [x] Partial/roadmap/guidance action-map count is 0.
 - [x] Backend route contract passed.
 - [x] WPF button handler verifier passed.

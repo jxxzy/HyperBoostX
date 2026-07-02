@@ -1,90 +1,90 @@
-﻿{
-    "generated_at":  "2026-07-02T11:36:52.1091527Z",
-    "repo_root":  "F:\\BOOSTER BY MR.4NONY",
-    "package_root":  "F:\\BOOSTER BY MR.4NONY\\release\\package",
+{
+    "generated_at":  "2026-07-02T20:10:19.0851671Z",
+    "repo_root":  "<REPO_ROOT>",
+    "package_root":  "<REPO_ROOT>\\release\\package",
     "expected_version":  "2.10.0",
     "expected_windows_version":  "2.10.0.0",
     "action_map_contract":  {
-                                "ExpectedStableMenus":  72,
-                                "ExpectedStableButtons":  596,
-                                "ExpectedUniqueUiEndpoints":  165,
+                                "ExpectedStableMenus":  73,
+                                "ExpectedStableButtons":  606,
+                                "ExpectedUniqueUiEndpoints":  167,
                                 "ExpectedNonRealVisibleInStable":  0
                             },
     "checks":  [
                    {
                        "name":  "source contains wpf\\Views\\DashboardView.xaml",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\DashboardView.xaml"
+                       "evidence":  "<REPO_ROOT>\\wpf\\Views\\DashboardView.xaml"
                    },
                    {
                        "name":  "source contains wpf\\Views\\FeatureAuditView.xaml",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\FeatureAuditView.xaml"
+                       "evidence":  "<REPO_ROOT>\\wpf\\Views\\FeatureAuditView.xaml"
                    },
                    {
                        "name":  "source contains wpf\\Themes\\CyberTheme.xaml",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Themes\\CyberTheme.xaml"
+                       "evidence":  "<REPO_ROOT>\\wpf\\Themes\\CyberTheme.xaml"
                    },
                    {
                        "name":  "source contains wpf\\Themes\\AccentColors.xaml",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Themes\\AccentColors.xaml"
+                       "evidence":  "<REPO_ROOT>\\wpf\\Themes\\AccentColors.xaml"
                    },
                    {
                        "name":  "source contains wpf\\Styles\\Buttons.xaml",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Styles\\Buttons.xaml"
+                       "evidence":  "<REPO_ROOT>\\wpf\\Styles\\Buttons.xaml"
                    },
                    {
                        "name":  "source contains wpf\\Styles\\Sidebar.xaml",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Styles\\Sidebar.xaml"
+                       "evidence":  "<REPO_ROOT>\\wpf\\Styles\\Sidebar.xaml"
                    },
                    {
                        "name":  "source contains app\\backend_server.py",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\app\\backend_server.py"
+                       "evidence":  "<REPO_ROOT>\\app\\backend_server.py"
                    },
                    {
                        "name":  "source contains launcher\\Program.cs",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\launcher\\Program.cs"
+                       "evidence":  "<REPO_ROOT>\\launcher\\Program.cs"
                    },
                    {
                        "name":  "package contains launcher\\HyperBoostLauncher.exe",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\launcher\\HyperBoostLauncher.exe"
+                       "evidence":  "<REPO_ROOT>\\release\\package\\launcher\\HyperBoostLauncher.exe"
                    },
                    {
                        "name":  "package contains backend\\hyperboost_backend.exe",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\backend\\hyperboost_backend.exe"
+                       "evidence":  "<REPO_ROOT>\\release\\package\\backend\\hyperboost_backend.exe"
                    },
                    {
                        "name":  "package contains wpf\\HyperBoostX.exe",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\wpf\\HyperBoostX.exe"
+                       "evidence":  "<REPO_ROOT>\\release\\package\\wpf\\HyperBoostX.exe"
                    },
                    {
                        "name":  "package contains wpf\\HyperBoostX.dll",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\wpf\\HyperBoostX.dll"
+                       "evidence":  "<REPO_ROOT>\\release\\package\\wpf\\HyperBoostX.dll"
                    },
                    {
                        "name":  "package contains wpf\\Data",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\wpf\\Data"
+                       "evidence":  "<REPO_ROOT>\\release\\package\\wpf\\Data"
                    },
                    {
                        "name":  "package contains wpf\\Data\\ui_action_map_v2_10.json",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "<REPO_ROOT>\\release\\package\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "installer exists",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe"
+                       "evidence":  "<REPO_ROOT>\\HyperBoostXInstaller.exe"
                    },
                    {
                        "name":  "launcher file version matches 2.10.0.0",
@@ -99,17 +99,17 @@
                    {
                        "name":  "package does not expose legacy Python UI entrypoint as app launcher",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\app\\main.py"
+                       "evidence":  "<REPO_ROOT>\\release\\package\\app\\main.py"
                    },
                    {
                        "name":  "source action map exists",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "<REPO_ROOT>\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "source action map JSON parses",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "<REPO_ROOT>\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "source action map app_version matches VERSION",
@@ -124,17 +124,17 @@
                    {
                        "name":  "source action map summary total_menus",
                        "ok":  true,
-                       "evidence":  "actual=72; expected=72"
+                       "evidence":  "actual=73; expected=73"
                    },
                    {
                        "name":  "source action map summary total_buttons",
                        "ok":  true,
-                       "evidence":  "actual=596; expected=596"
+                       "evidence":  "actual=606; expected=606"
                    },
                    {
                        "name":  "source action map summary total_active_buttons",
                        "ok":  true,
-                       "evidence":  "actual=596; expected=596"
+                       "evidence":  "actual=606; expected=606"
                    },
                    {
                        "name":  "source action map summary total_partial_or_roadmap_buttons",
@@ -144,22 +144,22 @@
                    {
                        "name":  "source action map summary total_unique_endpoints_used",
                        "ok":  true,
-                       "evidence":  "actual=165; expected=165"
+                       "evidence":  "actual=167; expected=167"
                    },
                    {
                        "name":  "source action map menus length",
                        "ok":  true,
-                       "evidence":  "actual=72; expected=72"
+                       "evidence":  "actual=73; expected=73"
                    },
                    {
                        "name":  "source action map computed button count",
                        "ok":  true,
-                       "evidence":  "actual=596; expected=596"
+                       "evidence":  "actual=606; expected=606"
                    },
                    {
                        "name":  "source action map computed unique endpoint count",
                        "ok":  true,
-                       "evidence":  "actual=165; expected=165"
+                       "evidence":  "actual=167; expected=167"
                    },
                    {
                        "name":  "source action map all menus are Real",
@@ -184,12 +184,12 @@
                    {
                        "name":  "package action map exists",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "<REPO_ROOT>\\release\\package\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "package action map JSON parses",
                        "ok":  true,
-                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\release\\package\\wpf\\Data\\ui_action_map_v2_10.json"
+                       "evidence":  "<REPO_ROOT>\\release\\package\\wpf\\Data\\ui_action_map_v2_10.json"
                    },
                    {
                        "name":  "package action map app_version matches VERSION",
@@ -204,17 +204,17 @@
                    {
                        "name":  "package action map summary total_menus",
                        "ok":  true,
-                       "evidence":  "actual=72; expected=72"
+                       "evidence":  "actual=73; expected=73"
                    },
                    {
                        "name":  "package action map summary total_buttons",
                        "ok":  true,
-                       "evidence":  "actual=596; expected=596"
+                       "evidence":  "actual=606; expected=606"
                    },
                    {
                        "name":  "package action map summary total_active_buttons",
                        "ok":  true,
-                       "evidence":  "actual=596; expected=596"
+                       "evidence":  "actual=606; expected=606"
                    },
                    {
                        "name":  "package action map summary total_partial_or_roadmap_buttons",
@@ -224,22 +224,22 @@
                    {
                        "name":  "package action map summary total_unique_endpoints_used",
                        "ok":  true,
-                       "evidence":  "actual=165; expected=165"
+                       "evidence":  "actual=167; expected=167"
                    },
                    {
                        "name":  "package action map menus length",
                        "ok":  true,
-                       "evidence":  "actual=72; expected=72"
+                       "evidence":  "actual=73; expected=73"
                    },
                    {
                        "name":  "package action map computed button count",
                        "ok":  true,
-                       "evidence":  "actual=596; expected=596"
+                       "evidence":  "actual=606; expected=606"
                    },
                    {
                        "name":  "package action map computed unique endpoint count",
                        "ok":  true,
-                       "evidence":  "actual=165; expected=165"
+                       "evidence":  "actual=167; expected=167"
                    },
                    {
                        "name":  "package action map all menus are Real",

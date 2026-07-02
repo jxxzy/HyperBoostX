@@ -37,7 +37,7 @@ Assert-Contains "wpf\Views\SettingsView.xaml" @(
     "Privacy &amp; Local Data",
     "Reports &amp; History",
     "Updates",
-    "Technical Details"
+    "Advanced Details"
 )
 
 Assert-Contains "wpf\Views\AboutView.xaml" @(
@@ -48,7 +48,7 @@ Assert-Contains "wpf\Views\AboutView.xaml" @(
     "Architecture",
     "Developer / Author",
     "Release &amp; Support Actions",
-    "Technical Details"
+    "Advanced Details"
 )
 
 $corePageFiles = @{
@@ -62,6 +62,7 @@ $corePageFiles = @{
     AutoGamingMode = "AutoGamingModeView"
     AIPerformanceAdvisor = "AIPerformanceAdvisorView"
     GpuCenter = "GpuCenterView"
+    HardwareVendorCenter = "HardwareVendorCenterView"
     GamingBooster = "GamingBoosterView"
     StreamingCenter = "StreamingCenterView"
     CreatorMode = "CreatorModeView"
@@ -90,17 +91,22 @@ foreach ($entry in $corePageFiles.GetEnumerator()) {
 }
 
 Assert-Contains "wpf\Views\PlacementPageChrome.xaml" @(
+    "HeroPrimaryActionItems",
+    "Feature Toolkit",
+    "LegacyTools",
+    "WorkflowSteps",
+    "Evidence Actions",
     "PlacementSections",
     "PrimaryPlacementActions",
     "SecondaryPlacementActions",
     "RestorePlacementActions",
-    "Technical Details"
+    "Advanced Details"
 )
 
 $placementVm = Get-Content -LiteralPath (Join-Path $RepoRoot "wpf\ViewModels\PlacementPageViewModel.cs") -Raw
 foreach ($key in @(
     "PerformanceBoost","StartupManager","BackgroundApps","Cleanup","Storage","OneClickBoost",
-    "AutoGamingMode","AIPerformanceAdvisor","GpuCenter","GamingBooster","CreatorMode",
+    "AutoGamingMode","AIPerformanceAdvisor","GpuCenter","HardwareVendorCenter","GamingBooster","CreatorMode",
     "NetworkBooster","DnsLatencyTools","PrivacyCenter","SecurityHealth","AppsManager",
     "TweaksCenter","WindowsFeatures","UpdateControl","RepairTools","DriverUpdateCenter",
     "AppUninstaller","RestoreBackup"

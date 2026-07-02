@@ -36,7 +36,7 @@ if (Test-Path -LiteralPath $matrixPath) {
 
 if (Test-Path -LiteralPath $placementXamlPath) {
     $placementXaml = Get-Content -LiteralPath $placementXamlPath -Raw
-    foreach ($token in @("StateTitle", "WorkspaceTitle", "ActionTitle", "SecondaryActionTitle", "ResultTitle", "SafetyTitle", "RecommendationsTitle", "PlacementSections", "Technical Details")) {
+    foreach ($token in @("StateTitle", "WorkspaceTitle", "ActionTitle", "SecondaryActionTitle", "ResultTitle", "SafetyTitle", "RecommendationsTitle", "PlacementSections", "WorkflowSteps", "LegacyTools", "Feature Toolkit", "Evidence Actions", "Advanced Details")) {
         if ($placementXaml -notmatch [regex]::Escape($token)) {
             $failures.Add("Placement shell missing section: $token")
         }

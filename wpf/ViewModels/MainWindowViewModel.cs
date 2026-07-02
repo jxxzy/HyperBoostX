@@ -34,6 +34,7 @@ namespace HyperBoostX.ViewModels
             "AutoGamingMode",
             "AIPerformanceAdvisor",
             "GpuCenter",
+            "HardwareVendorCenter",
             "GamingBooster",
             "StreamingCenter",
             "CreatorMode",
@@ -120,6 +121,7 @@ namespace HyperBoostX.ViewModels
             new NavigationItemViewModel { Key = "Storage", Label = "Storage", Glyph = "DISK", Group = "Performance" },
 
             new NavigationItemViewModel { Key = "GpuCenter", Label = "GPU Center", Glyph = "GPU", Group = "Gaming & Creator" },
+            new NavigationItemViewModel { Key = "HardwareVendorCenter", Label = "Hardware Vendor Center", Glyph = "HV", Group = "Gaming & Creator" },
             new NavigationItemViewModel { Key = "DriverRecommendation", Label = "Driver Recommendation", Glyph = "DR", Group = "Gaming & Creator" },
             new NavigationItemViewModel { Key = "OverlayConflictDetector", Label = "Overlay Conflict Detector", Glyph = "OC", Group = "Gaming & Creator" },
             new NavigationItemViewModel { Key = "RgbSoftwareDetector", Label = "RGB Software Detector", Glyph = "RGB", Group = "Gaming & Creator" },

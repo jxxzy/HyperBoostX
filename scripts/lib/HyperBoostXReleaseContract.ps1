@@ -1,7 +1,7 @@
 $script:HyperBoostXReleaseContract = [ordered]@{
-    ExpectedStableMenus = 72
-    ExpectedStableButtons = 596
-    ExpectedUniqueUiEndpoints = 165
+    ExpectedStableMenus = 73
+    ExpectedStableButtons = 606
+    ExpectedUniqueUiEndpoints = 167
     ExpectedNonRealVisibleInStable = 0
 }
 

@@ -151,8 +151,8 @@ def test_stable_mode_feature_registry_exposes_only_real_features(monkeypatch, tm
     assert payload["counts"]["non_real_visible_in_stable"] == 0
     assert payload["counts"]["hidden_from_stable"] == 0
     assert payload["source_found"] is True
-    assert payload["expected_contract"]["expected_stable_menus"] == 72
-    assert payload["expected_contract"]["expected_stable_buttons"] == 596
+    assert payload["expected_contract"]["expected_stable_menus"] == 73
+    assert payload["expected_contract"]["expected_stable_buttons"] == 606
 
     stable = client.get("/api/features/stable-visible").get_json()
     non_real = client.get("/api/features/non-real").get_json()
@@ -165,6 +165,7 @@ def test_stable_mode_feature_registry_exposes_only_real_features(monkeypatch, tm
     assert "PluginMarketplace" in stable_keys
     assert "CloudSyncLicense" in stable_keys
     assert "RgbSoftwareDetector" in stable_keys
+    assert "HardwareVendorCenter" in stable_keys
     assert "SystemRealityGuard" in stable_keys
     assert "LcdPerformanceGuard" in stable_keys
     assert "CpuTurboDiagnostic" in stable_keys
@@ -173,5 +174,5 @@ def test_stable_mode_feature_registry_exposes_only_real_features(monkeypatch, tm
     assert not non_real_keys
     assert health["feature_registry_status"]["stable_ui_ok"] is True
     assert health["feature_registry_status"]["action_map_found"] is True
-    assert health["feature_registry_status"]["stable_visible_features"] == 72
-    assert health["feature_registry_status"]["stable_visible_buttons"] == 596
+    assert health["feature_registry_status"]["stable_visible_features"] == 73
+    assert health["feature_registry_status"]["stable_visible_buttons"] == 606

@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
 
 <img src="https://capsule-render.vercel.app/api?type=waving&height=220&color=0:020617,45:0f172a,100:16a34a&text=HyperBoostX&fontColor=ffffff&fontSize=56&fontAlignY=38&desc=Safe%20Local%20Windows%20PC%20Control%20Center&descAlignY=58&animation=fadeIn" alt="HyperBoostX banner" />
 
@@ -91,21 +91,21 @@ HyperBoostX is not a one-click miracle booster. It is a local-first Windows opti
 
 | Metric | Count |
 | --- | ---: |
-| Menus | 72 |
-| Active buttons/actions | 596 |
+| Menus | 73 |
+| Active buttons/actions | 606 |
 | Partial/roadmap/guidance buttons in stable action map | 0 |
-| Unique UI endpoints | 165 |
+| Unique UI endpoints | 167 |
 | Backend API route rules | 365 |
 | Unique backend API paths | 361 |
-| Guarded destructive buttons | 20 |
+| Guarded destructive buttons | 21 |
 | Python tests | 72 passed |
 | .NET tests | 39 passed |
 
 Installed runtime verification must confirm the feature registry exposes:
 
 ```text
-stable_visible_features = 72
-stable_visible_buttons = 596
+stable_visible_features = 73
+stable_visible_buttons = 606
 non_real_visible_in_stable = 0
 ```
 
@@ -145,7 +145,7 @@ HyperBoostX blocks dangerous or irreversible actions, including:
 - GPU, audio, or network driver service disable
 - BIOS/UEFI changes
 - overclock, undervolt, or voltage changes
-- arbitrary AI-generated shell execution
+- arbitrary shell execution
 - destructive cleanup of user documents, downloads, desktop, pictures, videos, music, game saves, or system files
 - protected process kill
 
@@ -291,8 +291,8 @@ This release is unsigned. Verify SHA256 before continuing.
 Feature count mismatch:
 
 ```text
-stable_visible_features must be 72
-stable_visible_buttons must be 596
+stable_visible_features must be 73
+stable_visible_buttons must be 606
 non_real_visible_in_stable must be 0
 ```
 
@@ -309,7 +309,7 @@ If the count is 0, the installed runtime is not reading `ui_action_map_v2_10.jso
 - WPF UI/UX quality gate passes.
 - Real usability gate passes.
 - Package contains `ui_action_map_v2_10.json`.
-- Installed runtime reads 72 menus and 596 actions.
+- Installed runtime reads 73 menus and 606 actions.
 - Public runtime evidence is redacted.
 - Secret scan passes.
 - PowerShell syntax scan passes.

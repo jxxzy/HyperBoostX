@@ -42,7 +42,7 @@ namespace HyperBoostX.Views
 
         private async void RunApplyAction_Click(object sender, RoutedEventArgs e)
         {
-            if (!ConfirmMutatingAction("Apply approved changes", "Only previously reviewed safe actions should be applied. Restore metadata and Safety Guard remain required."))
+            if (!ConfirmMutatingAction("Apply approved changes", "Only previously reviewed and approved changes should be applied. Restore metadata and Safety Guard remain required."))
                 return;
 
             await RunMappedActionAsync("apply");
@@ -196,7 +196,7 @@ namespace HyperBoostX.Views
 
         private static string BuildFriendlyError(string actionName, Exception ex)
         {
-            var message = ex.Message ?? string.Empty;
+            var message = SensitiveTextRedactor.Redact(ex.Message ?? string.Empty);
             if (message.Contains("401", StringComparison.OrdinalIgnoreCase) || message.Contains("Unauthorized local session", StringComparison.OrdinalIgnoreCase))
                 return $"{actionName} was rejected by the local session guard. Relaunch HyperBoostX through HyperBoostX.exe so the WPF client and backend share the same session token.";
             if (message.Contains("refused", StringComparison.OrdinalIgnoreCase) || message.Contains("No connection", StringComparison.OrdinalIgnoreCase))
@@ -277,7 +277,7 @@ namespace HyperBoostX.Views
                     Post("Process Report Export", "/api/processes/export-report", new { })),
                 ["OneClickBoost"] = (
                     Post("Create Safe Boost Plan", "/api/boost/plan", new { goal = "gaming", mode = "balanced" }),
-                    Get("Review Safe Actions", "/api/advisor/safe-actions"),
+                    Get("Review Approved Plan", "/api/advisor/safe-actions"),
                     Post("Apply Approved Safe Plan", "/api/boost/apply", new { user_approved = true, approved_action_ids = Array.Empty<string>() }),
                     Post("Undo Safe Boost Plan", "/api/boost/undo", new { }),
                     Post("Boost Report Export", "/api/reports/export", new { format = "json" })),
@@ -617,14 +617,14 @@ namespace HyperBoostX.Views
         private static string BuildSafetyStatusDetail(JObject obj)
         {
             if (obj["blocked_reasons"] is JArray blockedReasons && blockedReasons.Count > 0)
-                return blockedReasons[0]?.ToString() ?? string.Empty;
+                return SensitiveTextRedactor.Redact(blockedReasons[0]?.ToString() ?? string.Empty);
 
             var message = obj.Value<string>("message");
             if (!string.IsNullOrWhiteSpace(message))
-                return message;
+                return SensitiveTextRedactor.Redact(message);
 
             var reason = obj.Value<string>("reason");
-            return reason ?? string.Empty;
+            return SensitiveTextRedactor.Redact(reason ?? string.Empty);
         }
 
         private static bool ContainsTrueFlag(JToken token, string key)
@@ -647,12 +647,12 @@ namespace HyperBoostX.Views
         {
             var header = $"{action.Name}\n{action.Method} {action.Path}\n{DateTime.Now:yyyy-MM-dd HH:mm:ss}\n";
             var summary = BuildSummary(token);
-            var body = token.ToString(Formatting.Indented);
+            var body = SensitiveTextRedactor.Redact(token.ToString(Formatting.Indented));
             if (body.Length > 14000)
                 body = body[..14000] + "\n... output truncated in UI ...";
             return string.IsNullOrWhiteSpace(summary)
-                ? $"{header}\n{body}"
-                : $"{header}\nSummary\n{summary}\n\nRaw JSON\n{body}";
+                ? $"{header}\nRaw JSON (redacted)\n{body}"
+                : $"{header}\nSummary\n{summary}\n\nRaw JSON (redacted)\n{body}";
         }
 
         private static string BuildSummary(JToken token)
@@ -680,7 +680,7 @@ namespace HyperBoostX.Views
         {
             var value = obj[key];
             if (value != null && value.Type != JTokenType.Object && value.Type != JTokenType.Array)
-                lines.Add($"- {key}: {value}");
+                lines.Add($"- {key}: {SensitiveTextRedactor.Redact(value.ToString())}");
         }
 
         private static void AddCount(ICollection<string> lines, JObject obj, string key)

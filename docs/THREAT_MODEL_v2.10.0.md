@@ -1,6 +1,10 @@
-# Threat Model v2.10.0
+﻿# Threat Model v2.10.0
 
-> Current release policy: HyperBoostX v2.10.0 is the stable unsigned public release. Code signing remains `SKIPPED_BY_OWNER_NO_CERT`; no signed-release claim is made.
+Status: `STABLE_READY_UNSIGNED`
+
+Current public release: HyperBoostX v2.10.0 Stable Unsigned. Code signing remains SKIPPED_BY_OWNER_NO_CERT, so this generator must not claim signed artifacts.
+
+Generated: 2026-07-03 02.57.27 +07:00
 
 ## Primary Assets
 
@@ -14,14 +18,14 @@
 
 | Threat | Mitigation |
 | --- | --- |
-| Local process calls mutating endpoint | X-HyperBoostX-Session enforced when token is present |
-| UI button calls dead endpoint | tests/test_ui_action_map_v210.py validates action map routes |
-| Risky optimizer action | Safety Guard blocks Defender, permanent Update disable, anti-cheat, driver service, BIOS/OC/undervolt, destructive cleanup |
+| Local process calls mutating endpoint | `X-HyperBoostX-Session` is enforced when a token is configured |
+| UI button calls dead endpoint | Action-map route tests validate UI-used endpoints |
+| Risky optimizer action | Safety Guard blocks Defender/Firewall disable, permanent Windows Update disable, anti-cheat tweaks, driver-service edits, BIOS/OC/undervolt, protected process kills, and unreviewed personal file deletion |
 | Token or username leaks into reports | Crash/report redaction tests and docs require redacted output |
-| Feature overclaim | README and action map require Real-only public feature status |
-| Expert mode bypasses safety | Explicit policy: expert mode never bypasses Safety Guard |
-| Signed/unsigned confusion | Code signing readiness is documented; v2.10.0 is labeled Stable Unsigned |
+| Feature overclaim | Public docs keep local-first, preview-first, restore-aware wording |
+| Expert mode bypasses safety | Expert mode exposes detail only; it does not bypass Safety Guard |
 
 ## Release Security Gate
 
-Stable unsigned gate requires token rejection, route coverage, destructive-action blocking, report redaction, installer install/uninstall, feature-registry counts, and checksum evidence. Signed release remains blocked until owner signing material is supplied.
+Stable unsigned release evidence must include token rejection, route coverage, destructive-action blocking, report redaction, installer install/uninstall, no orphan process, checksums, and explicit unsigned status.
+

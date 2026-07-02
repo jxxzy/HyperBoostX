@@ -74,7 +74,7 @@ Sidebar count: 71
 - PASS - sidebar label: Game Profiles
 - PASS - route registered: GameProfiles
 - PASS - view exists: GameProfiles
-- PASS - sidebar label: Streaming Mode
+- PASS - sidebar label: Streaming Center
 - PASS - route registered: StreamingCenter
 - PASS - view exists: StreamingCenter
 - PASS - sidebar label: Creator Mode
@@ -217,9 +217,13 @@ Sidebar count: 71
 - PASS - view exists: About
 - PASS - dashboard button: Start Smart Scan
 - PASS - dashboard button: One Click Safe Boost
-- PASS - dashboard button: Auto Gaming Mode
+- PASS - dashboard button: Restore / Undo
+- PASS - dashboard button: Gaming Mode
 - PASS - dashboard button: View Last Report
-- PASS - dashboard button: Restore Changes
-- PASS - dashboard button: Refresh Status
+- PASS - dashboard button: Refresh Snapshot
+- PASS - dashboard button: Open Boost Plan
+- PASS - dashboard button: Export Report
+- PASS - dashboard button: Settings
+- PASS - dashboard button: History
 - PASS - no blank or placeholder-only views
-- PASS - v1.3 parity sidebar count >= 50
+- PASS - source sidebar inventory count >= 50
