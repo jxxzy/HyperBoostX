@@ -447,6 +447,7 @@ def test_release_readiness_and_update_contract_follow_runtime_channel(monkeypatc
     readiness = client.get("/api/release/readiness").get_json()
     update = client.get("/api/update/check").get_json()
     master = client.get("/api/master-test/status").get_json()
+    feature_matrix = client.get("/api/feature-audit/matrix").get_json()
 
     for payload in (readiness, update, master):
         assert payload["channel"] == expected_channel
@@ -461,7 +462,13 @@ def test_release_readiness_and_update_contract_follow_runtime_channel(monkeypatc
             assert "installed_runtime_verification" in payload["blocking_gates"]
             assert "hardware_matrix_lab" in payload["blocking_gates"]
 
-    assert readiness["status"] in {"beta_ready", "stable_candidate", "stable_candidate_requires_lab", "stable_ready", "stable_ready_unsigned"}
+    if expected_channel == "Stable":
+        assert readiness["status"] == "stable_ready_unsigned"
+        assert feature_matrix["status"] == "stable_ready_unsigned"
+        assert feature_matrix["release_gate"] == "stable_ready_unsigned"
+    else:
+        assert readiness["status"] == "beta_ready"
+        assert feature_matrix["release_gate"] == "pre_release_manual_validation_required"
     assert update["current_version"] == expected_version
     assert master["release_ready"] is (expected_channel == "Stable")
 

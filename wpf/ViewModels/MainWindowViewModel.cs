@@ -17,7 +17,7 @@ namespace HyperBoostX.ViewModels
         private bool _animationsEnabled = true;
         private bool _reduceMotion;
         private string _accentColor = "Cyan";
-        private string _toastMessage = "Cyber UI loaded";
+        private string _toastMessage = "";
         private string _searchText = "";
         private readonly List<NavigationItemViewModel> _allNavigationItems;
         private List<NavigationItemViewModel> _runtimeNavigationItems = new();
@@ -103,7 +103,7 @@ namespace HyperBoostX.ViewModels
             new NavigationItemViewModel { Key = "OneClickBoost", Label = "One Click Boost", Glyph = "OB", Group = "Quick Access" },
             new NavigationItemViewModel { Key = "AutoGamingMode", Label = "Gaming Mode", Glyph = "GM", Group = "Quick Access" },
             new NavigationItemViewModel { Key = "SmartScan", Label = "Smart Scan", Glyph = "SS", Group = "Quick Access" },
-            new NavigationItemViewModel { Key = "AIPerformanceAdvisor", Label = "Smart Recommendation / AI Hub", Glyph = "SR", Group = "Quick Access" },
+            new NavigationItemViewModel { Key = "AIPerformanceAdvisor", Label = "Smart Recommendation", Glyph = "SR", Group = "Quick Access" },
             new NavigationItemViewModel { Key = "AICenter", Label = "AI Center", Glyph = "AI", Group = "Quick Access" },
             new NavigationItemViewModel { Key = "NvidiaCopilot", Label = "NVIDIA Copilot", Glyph = "NV", Group = "Quick Access" },
 
@@ -237,9 +237,8 @@ namespace HyperBoostX.ViewModels
 
             _runtimeNavigationItems = visible;
             ApplySearchFilter();
-            ToastMessage = snapshot.Mode == HyperBoostAppMode.Stable
-                ? $"{modeLabel} sidebar ready: {visible.Count} stable-real page(s), {snapshot.HiddenFromStable} preview/dev feature(s) hidden"
-                : "DEV_MODE shows experimental features for internal audit";
+            if (snapshot.Mode != HyperBoostAppMode.Stable)
+                ToastMessage = "DEV_MODE shows experimental features for internal audit";
         }
 
         private void ApplySearchFilter()

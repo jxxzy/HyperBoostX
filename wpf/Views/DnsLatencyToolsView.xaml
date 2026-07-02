@@ -21,9 +21,6 @@
                         <TextBlock Text="DNS &amp; Latency Tools" FontSize="30" FontWeight="Black" TextWrapping="Wrap"/>
                         <TextBlock Text="Measure DNS and latency diagnostics, then export evidence-based reports." FontSize="13" Foreground="{StaticResource Brush.Accent.Primary}" Margin="0,5,0,0" TextWrapping="Wrap" MaxWidth="930"/>
                         <TextBlock Text="{Binding Purpose}" FontSize="13" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,12,0,0" TextWrapping="Wrap" MaxWidth="940"/>
-                        <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,16,0,0" HorizontalAlignment="Left">
-                            <TextBlock Text="Core page marker: DnsLatencyTools" Foreground="{StaticResource Brush.Text.Muted}"/>
-                        </Border>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Margin="20,0,0,0">
                         <Border Style="{StaticResource SuccessBadgeStyle}" Margin="0,0,0,10">

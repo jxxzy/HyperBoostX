@@ -44,6 +44,7 @@ $forbiddenTemplateTokens = @(
     "Apply reviewed selection",
     "Result & History",
     "Restore & Safety",
+    "Core page marker:",
     "Beta until installed",
     "beta build must pass",
     "Accent:"

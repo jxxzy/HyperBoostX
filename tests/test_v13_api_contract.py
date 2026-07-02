@@ -34,7 +34,12 @@ def test_health_and_version_match_runtime_version():
     assert version_payload["channel"] == expected_channel
     assert version_payload["stable"] is (expected_channel == "Stable")
     readiness_payload = readiness.get_json()
-    assert readiness_payload["status"] in {"beta_ready", "stable_candidate", "stable_candidate_requires_lab", "stable_ready", "stable_ready_unsigned"}
+    if expected_channel == "Stable":
+        assert readiness_payload["status"] == "stable_ready_unsigned"
+        assert readiness_payload["blocking_gates"] == []
+    else:
+        assert readiness_payload["status"] == "beta_ready"
+        assert "installed_runtime_verification" in readiness_payload["blocking_gates"]
     assert readiness_payload["stable"] is (expected_channel == "Stable")
     assert readiness_payload["manual_lab_required"] is (expected_channel != "Stable")
 

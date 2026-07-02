@@ -1343,12 +1343,13 @@ def master_test_run():
 @handle_errors
 def feature_audit_matrix():
     audit = FeatureAuditService.run()
+    readiness = _release_readiness()
     return jsonify({
-        **_release_readiness(),
+        **readiness,
         "items": audit.get("items", []),
         "audit": audit,
         "v13_parity_doc": "docs/FEATURE_PARITY_v1.3_vs_latest.md",
-        "release_gate": "beta_until_installed_admin_hardware_signing_pass",
+        "release_gate": "stable_ready_unsigned" if readiness.get("stable") else "pre_release_manual_validation_required",
     })
 
 

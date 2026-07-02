@@ -58,7 +58,7 @@ def _release_readiness():
         "hardware_matrix_verified": False,
         "code_signed": False,
         "manual_lab_required": True,
-        "status": "beta_ready" if is_beta else "stable_candidate_requires_lab",
+        "status": "beta_ready",
         "blocking_gates": [
             "installed_runtime_verification",
             "admin_apply_rollback_lab",

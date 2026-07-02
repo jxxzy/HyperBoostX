@@ -1,5 +1,5 @@
 ﻿{
-    "generated_at":  "2026-07-02T09:09:57.6872710Z",
+    "generated_at":  "2026-07-02T11:41:45.9700980Z",
     "expected_version":  "2.10.0",
     "installer_path":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe",
     "status":  "PASS",
@@ -13,13 +13,13 @@
                    {
                        "name":  "installer SHA256 available",
                        "ok":  true,
-                       "detail":  "E0846546DF9F62CB8A6A0D42D1D9D8CFC7DBB835632F47177C64BB931D8B9609",
+                       "detail":  "D83B62AEA35323E21BC81584821180C16433B34136E6853C3D5E992E518CA05F",
                        "severity":  "blocker"
                    },
                    {
                        "name":  "installer newer than release inputs",
                        "ok":  true,
-                       "detail":  "installer_utc=2026-07-02T08:46:28.8024212Z; latest_input_utc=2026-07-02T08:34:27.4732513Z; latest_input=F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\SettingsView.xaml",
+                       "detail":  "installer_utc=2026-07-02T11:36:33.7006203Z; latest_input_utc=2026-07-02T11:35:05.3985720Z; latest_input=F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs",
                        "severity":  "blocker"
                    },
                    {
@@ -31,7 +31,7 @@
                    {
                        "name":  "owner evidence newer than installer",
                        "ok":  true,
-                       "detail":  "report_utc=2026-07-02T08:47:34.2868651Z; installer_utc=2026-07-02T08:46:28.8024212Z",
+                       "detail":  "report_utc=2026-07-02T11:37:33.8267646Z; installer_utc=2026-07-02T11:36:33.7006203Z",
                        "severity":  "blocker"
                    },
                    {
@@ -85,7 +85,7 @@
                    {
                        "name":  "WPF installed smoke",
                        "ok":  true,
-                       "detail":  "[{\"name\":\"HyperBoostX\",\"id\":27164,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":2792,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":25920,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true}]",
+                       "detail":  "[{\"name\":\"HyperBoostX\",\"id\":22260,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\wpf\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"HyperBoostX\",\"id\":25380,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\HyperBoostX.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":20916,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true},{\"name\":\"hyperboost_backend\",\"id\":29836,\"path\":\"C:\\\\Program Files\\\\HyperBoostX\\\\runtime\\\\backend\\\\hyperboost_backend.exe\",\"from_install\":true}]",
                        "severity":  "blocker"
                    },
                    {
@@ -127,7 +127,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: dashboard.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:47:53.0063743Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:37:56.3393184Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -139,7 +139,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: dashboard-after-scroll.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:47:55.7237150Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:37:58.9871656Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -151,7 +151,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: performance.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:47:57.1905499Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:00.4464225Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -163,7 +163,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: startup.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:47:58.6695567Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:01.8996233Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -175,7 +175,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: background-apps.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:00.1421555Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:03.3486474Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -187,7 +187,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: cleanup.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:01.6223619Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:04.8039093Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -199,7 +199,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: storage.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:03.0878163Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:06.2536131Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -211,7 +211,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: one-click-boost.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:04.5413019Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:07.7080656Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -223,7 +223,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: gaming-mode.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:05.9857673Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:09.1628415Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -235,7 +235,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: smart-recommendation.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:07.4342316Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:10.6342989Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -247,7 +247,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: gpu-center.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:08.9009796Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:12.1003428Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -259,7 +259,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: gaming-booster.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:10.3834669Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:13.5736354Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -271,7 +271,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: streaming-center.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:11.8697025Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:15.0424205Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -283,7 +283,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: creator-mode.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:13.3569892Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:16.5080455Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -295,7 +295,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: network-booster.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:14.8388924Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:17.9801526Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -307,7 +307,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: dns-latency-tools.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:16.3248763Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:19.4483613Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -319,7 +319,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: privacy-center.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:17.8202173Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:20.9198767Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -331,7 +331,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: security-health.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:19.3063771Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:22.3867678Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -343,7 +343,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: apps-manager.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:20.8024174Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:23.8523095Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -355,7 +355,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: tweaks-center.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:22.3002161Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:25.3179114Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -367,7 +367,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: windows-features.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:23.8022628Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:26.7884752Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -379,7 +379,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: update-control.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:25.3058873Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:28.2725588Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -391,7 +391,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: repair-tools.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:26.8393437Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:29.7425618Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -403,7 +403,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: driver-update-center.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:28.3557047Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:31.2291128Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -415,7 +415,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: app-uninstaller.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:29.8730097Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:32.7066835Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -427,7 +427,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: restore-backup.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:31.4029992Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:34.1964462Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -439,7 +439,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: settings.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:32.9470808Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:35.6770042Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    },
                    {
@@ -451,7 +451,7 @@
                    {
                        "name":  "installed screenshot newer than owner gate: about.png",
                        "ok":  true,
-                       "detail":  "screenshot_utc=2026-07-02T08:48:34.5037602Z; report_utc=2026-07-02T08:47:34.2868651Z",
+                       "detail":  "screenshot_utc=2026-07-02T11:38:37.1685179Z; report_utc=2026-07-02T11:37:33.8267646Z",
                        "severity":  "blocker"
                    }
                ]

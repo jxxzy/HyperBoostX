@@ -1,5 +1,5 @@
 ﻿{
-    "generated_at":  "2026-07-02T08:46:49.4931460Z",
+    "generated_at":  "2026-07-02T11:36:52.9419480Z",
     "repo_root":  "F:\\BOOSTER BY MR.4NONY",
     "expected_version":  "2.10.0",
     "installer_path":  "F:\\BOOSTER BY MR.4NONY\\HyperBoostXInstaller.exe",
@@ -73,7 +73,7 @@
                    {
                        "name":  "installer hash available",
                        "ok":  true,
-                       "evidence":  "e0846546df9f62cb8a6a0d42d1d9d8cfc7dbb835632f47177c64bb931d8b9609"
+                       "evidence":  "d83b62aea35323e21bc81584821180c16433b34136e6853c3d5e992e518ca05f"
                    },
                    {
                        "name":  "v2.10 checksum file exists",
@@ -83,7 +83,7 @@
                    {
                        "name":  "checksum file includes current installer hash",
                        "ok":  true,
-                       "evidence":  "e0846546df9f62cb8a6a0d42d1d9d8cfc7dbb835632f47177c64bb931d8b9609"
+                       "evidence":  "d83b62aea35323e21bc81584821180c16433b34136e6853c3d5e992e518ca05f"
                    },
                    {
                        "name":  "source action map exists",

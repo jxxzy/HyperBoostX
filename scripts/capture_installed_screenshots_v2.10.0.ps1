@@ -51,6 +51,12 @@ if (-not $launcherPath) {
     throw "Installed HyperBoostX launcher was not found."
 }
 $installDir = Split-Path -Parent $launcherPath
+$uiSettingsPath = Join-Path $env:LOCALAPPDATA "HyperBoost X\config\ui_settings.json"
+$uiSettingsExisted = Test-Path -LiteralPath $uiSettingsPath
+$uiSettingsOriginal = $null
+if ($uiSettingsExisted) {
+    try { $uiSettingsOriginal = Get-Content -LiteralPath $uiSettingsPath -Raw } catch { $uiSettingsOriginal = $null }
+}
 
 function Get-InstalledHyperBoostProcesses {
     $rows = @()
@@ -151,7 +157,7 @@ $pages = @(
     @{ file = "storage.png"; label = "Storage"; requireClick = $true },
     @{ file = "one-click-boost.png"; label = "One Click Boost"; requireClick = $true },
     @{ file = "gaming-mode.png"; label = "Gaming Mode"; requireClick = $true },
-    @{ file = "smart-recommendation.png"; label = "Smart Recommendation / AI Hub"; requireClick = $true },
+    @{ file = "smart-recommendation.png"; label = "Smart Recommendation"; requireClick = $true },
     @{ file = "gpu-center.png"; label = "GPU Center"; requireClick = $true },
     @{ file = "gaming-booster.png"; label = "Gaming Booster"; requireClick = $true },
     @{ file = "streaming-center.png"; label = "Streaming Center"; requireClick = $true },
@@ -176,6 +182,18 @@ $oldPort = $env:HYPERBOOSTX_BACKEND_PORT
 $results = New-Object System.Collections.Generic.List[object]
 try {
     $env:HYPERBOOSTX_BACKEND_PORT = [string]$BackendPort
+    $configDir = Split-Path -Parent $uiSettingsPath
+    New-Item -ItemType Directory -Force -Path $configDir | Out-Null
+    [pscustomobject]@{
+        configSchemaVersion = 2
+        migrationHistory = @("screenshot_evidence_profile", "schema_v2")
+        lastMigrationStatus = "screenshot_evidence_profile"
+        enableAnimations = $true
+        reduceMotion = $false
+        accentColor = "Cyan"
+        mode = "Beginner"
+    } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $uiSettingsPath -Encoding UTF8
+
     Start-Process -FilePath $launcherPath -WorkingDirectory $installDir | Out-Null
     $windowProcess = Wait-HyperBoostWindow -TimeoutSeconds $WaitSeconds
     $handle = $windowProcess.MainWindowHandle
@@ -213,6 +231,11 @@ finally {
     foreach ($proc in Get-InstalledHyperBoostProcesses) {
         try { Stop-Process -Id $proc.Id -Force -ErrorAction Stop } catch { }
     }
+    if ($uiSettingsExisted -and $null -ne $uiSettingsOriginal) {
+        Set-Content -LiteralPath $uiSettingsPath -Value $uiSettingsOriginal -Encoding UTF8
+    } elseif (-not $uiSettingsExisted -and (Test-Path -LiteralPath $uiSettingsPath)) {
+        Remove-Item -LiteralPath $uiSettingsPath -Force -ErrorAction SilentlyContinue
+    }
 }
 
 $ok = -not ($results | Where-Object { -not $_.clicked -or -not $_.exists -or $_.bytes -le 0 })
@@ -243,6 +266,7 @@ foreach ($result in $results) {
 $lines += ""
 $lines += "Review notes:"
 $lines += "- Screenshots are captured from the installed app, not the source tree."
+$lines += "- Capture uses a temporary Beginner evidence profile and restores the previous local UI settings afterward."
 $lines += "- Dashboard evidence must show Live Hardware Snapshot and Smart Scan Results, with no fake score rings or template placement panels."
 $lines += "- Settings and About are purpose-built pages, not generic placement templates."
 $lines | Set-Content -LiteralPath $mdPath -Encoding UTF8

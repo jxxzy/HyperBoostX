@@ -17,9 +17,9 @@ Installer: F:\BOOSTER BY MR.4NONY\HyperBoostXInstaller.exe
 | NSIS installs WPF runtime recursively | PASS | File /r "release\package\wpf\*" |
 | NSIS installed action map target path | PASS | $INSTDIR\runtime\wpf\Data\ui_action_map_v2_10.json |
 | installer exists | PASS | F:\BOOSTER BY MR.4NONY\HyperBoostXInstaller.exe |
-| installer hash available | PASS | e0846546df9f62cb8a6a0d42d1d9d8cfc7dbb835632f47177c64bb931d8b9609 |
+| installer hash available | PASS | d83b62aea35323e21bc81584821180c16433b34136e6853c3d5e992e518ca05f |
 | v2.10 checksum file exists | PASS | F:\BOOSTER BY MR.4NONY\docs\release\checksums\SHA256SUMS_2.10.0.txt |
-| checksum file includes current installer hash | PASS | e0846546df9f62cb8a6a0d42d1d9d8cfc7dbb835632f47177c64bb931d8b9609 |
+| checksum file includes current installer hash | PASS | d83b62aea35323e21bc81584821180c16433b34136e6853c3d5e992e518ca05f |
 | source action map exists | PASS | F:\BOOSTER BY MR.4NONY\wpf\Data\ui_action_map_v2_10.json |
 | source action map JSON parses | PASS | F:\BOOSTER BY MR.4NONY\wpf\Data\ui_action_map_v2_10.json |
 | source action map app_version matches VERSION | PASS | actual=2.10.0; expected=2.10.0 |
