@@ -19,6 +19,7 @@ public sealed class ActionEngine
 {
     private readonly Dictionary<string,ISystemAction> _actions;
     private readonly ConcurrentDictionary<string,(Preview Preview,long Tick)> _previews = new();
+    private readonly object _previewGate = new();
     private readonly Journal _journal;
     private readonly SafetyGuard _safety;
     private readonly string _owner;
@@ -31,9 +32,13 @@ public sealed class ActionEngine
         var action=Get(id); _safety.Check(action,target);
         var before=await action.ReadAsync(target,token); var desired=action.Desired(target,before);
         var preview=new Preview(id,target,before,desired,Guid.NewGuid().ToString("N"),DateTimeOffset.UtcNow,action.Info.Description);
-        foreach(var pair in _previews.Where(p=>Stopwatch.GetElapsedTime(p.Value.Tick)>TimeSpan.FromMinutes(10)).ToArray()) _previews.TryRemove(pair.Key,out _);
-        if (_previews.Count>200) throw new HbxException("HBX-ACTION-0001: Too many outstanding previews.");
-        _previews[preview.Token]=(preview,Stopwatch.GetTimestamp());return preview;
+        lock(_previewGate)
+        {
+            foreach(var pair in _previews.Where(p=>Stopwatch.GetElapsedTime(p.Value.Tick)>TimeSpan.FromMinutes(10)).ToArray()) _previews.TryRemove(pair.Key,out _);
+            if (_previews.Count>=200) throw new HbxException("HBX-ACTION-0001: Too many outstanding previews.");
+            _previews[preview.Token]=(preview,Stopwatch.GetTimestamp());
+        }
+        return preview;
     }
     public async Task<Change> ApplyAsync(string previewToken,bool consent,string? session,CancellationToken token)
     {
@@ -43,6 +48,8 @@ public sealed class ActionEngine
         var p=pending.Preview; var action=Get(p.ActionId); _safety.Check(action,p.Target);
         using var gate=_journal.Acquire(); // Cross-process, covers preview recheck, backup, mutation and verification.
         var current=await action.ReadAsync(p.Target,token);
+        token.ThrowIfCancellationRequested();
+        _safety.Check(action,p.Target); // Recheck after the provider read, while holding the operation lock.
         if(current!=p.Before) throw new HbxException("HBX-ACTION-0004: State changed after preview. Nothing was applied.");
         var c=new Change { ActionId=p.ActionId,Target=p.Target,Before=current,Desired=p.Desired,Owner=_owner,Session=session??Guid.NewGuid().ToString("N") };
         if(current==p.Desired)
@@ -121,15 +128,29 @@ public sealed class ActionEngine
             catch(Exception exception){readError=exception;}
             if(readError is not null)
                 c=c with{Status="RecoveryRequired",Message=$"Rollback was cancelled and the resulting state could not be read: {readError.Message}"};
-            else if(actual==c.Before)
-                c=c with{Status="RolledBack",Observed=actual,CompletedAt=DateTimeOffset.UtcNow,Message="Rollback completed and verified as cancellation was requested."};
+            else if(actual==c.Before||actual is not null&&action.IsRestoreSatisfied(actual,c.Before))
+                c=c with{Status="RolledBack",Observed=actual,CompletedAt=DateTimeOffset.UtcNow,Message=actual==c.Before?"Rollback completed and verified as cancellation was requested.":"Target no longer exists; its process-specific state no longer applies."};
             else if(actual==c.Desired)
                 c=c with{Status="RollbackCancelled",Observed=actual,Message=$"Rollback cancelled before the original state was restored. Retry recovery. {e.Message}"};
             else
                 c=c with{Status="ConflictDetected",Observed=actual,Message="The state changed during rollback. Current state was preserved; inspect before retrying."};
             _journal.Save(c);return c;
         }
-        catch(Exception e){c=c with{Status="RollbackFailed",Message=e.Message};}
+        catch(Exception e)
+        {
+            // A process may exit between identity validation and the restore write, or a provider
+            // may throw after applying the original state. Only a fresh observation can resolve it.
+            try
+            {
+                var actual=await action.ReadAsync(c.Target,CancellationToken.None);
+                var satisfied=actual==c.Before||action.IsRestoreSatisfied(actual,c.Before);
+                c=c with{Status=satisfied?"RolledBack":"RollbackFailed",Observed=actual,
+                    CompletedAt=satisfied?DateTimeOffset.UtcNow:c.CompletedAt,
+                    Message=actual==c.Before?"Original state read back and verified after a provider error.":
+                        satisfied?"Target no longer exists; its process-specific state no longer applies.":e.Message};
+            }
+            catch(Exception readError){c=c with{Status="RecoveryRequired",Message=$"{e.Message} Recovery read-back: {readError.Message}"};}
+        }
         _journal.Save(c);return c;
     }
     public sealed record BoostBatchResult(string Session,string Status,string Message,IReadOnlyList<Change> Changes);

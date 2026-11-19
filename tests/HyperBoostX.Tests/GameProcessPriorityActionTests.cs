@@ -53,6 +53,21 @@ public sealed class GameProcessPriorityActionTests:IDisposable
         Assert.Contains("no longer exists",_journal.Find(applied.Id).Message);
     }
 
+    [Fact]public async Task ProcessExitDuringRollbackWriteResolvesRecoveryWithoutStalePidWrite()
+    {
+        var game=AddGame();var target=new GameProcessPriorityTarget(game.Id,513251,DateTimeOffset.UtcNow.UtcDateTime.Ticks);
+        var provider=new FixtureProvider(game,target);var action=new GameProcessPriorityAction(_games,provider);
+        var engine=Engine(action);var preview=await engine.PreviewAsync(action.Info.Id,Json.Write(target),default);
+        var applied=await engine.ApplyAsync(preview.Token,true,null,default);
+        Assert.Equal("Verified",applied.Status);
+        provider.ExitOnRestore=true;
+        var restored=await engine.RollbackAsync(applied.Id,true,default);
+        Assert.Equal("RolledBack",restored.Status);
+        Assert.Contains("no longer exists",restored.Message);
+        Assert.Equal(1,provider.WriteCount);
+        Assert.False(_journal.Find(applied.Id).NeedsRecovery);
+    }
+
     [Fact]public async Task InvalidProcessIdentityAndUnsupportedExistingPriorityAreRejected()
     {
         var game=AddGame();var target=new GameProcessPriorityTarget(game.Id,513249,DateTimeOffset.UtcNow.UtcDateTime.Ticks);
@@ -133,6 +148,7 @@ public sealed class GameProcessPriorityActionTests:IDisposable
         public ProcessPriorityClass Priority {get;set;}=ProcessPriorityClass.Normal;
         public bool Ended {get;set;}
         public bool RejectWrites {get;set;}
+        public bool ExitOnRestore {get;set;}
         public int WriteCount {get;private set;}
 
         public GameProcessPrioritySnapshot Read(GameProcessPriorityTarget actual,string executable)
@@ -146,6 +162,7 @@ public sealed class GameProcessPriorityActionTests:IDisposable
         {
             ValidateTarget(actual,executable);
             if(Ended)throw new GameProcessEndedException();
+            if(ExitOnRestore&&priority==ProcessPriorityClass.Normal){Ended=true;throw new GameProcessEndedException();}
             WriteCount++;
             if(RejectWrites)throw new HbxException("Fixture rejected the priority write.");
             Priority=priority;

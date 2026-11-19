@@ -62,6 +62,25 @@ public sealed class EngineTests:IDisposable
     private readonly FakeAction _action=new();
     private Journal Store=>new(_root,new TestProtector());
     private ActionEngine Engine(string? block=null)=>new([_action],Store,new SafetyGuard(()=>block),"test-owner");
+    [Fact]public async Task OutstandingPreviewLimitIsStrictAndConsumedPreviewFreesCapacity()
+    {
+        var engine=Engine();
+        var previews=new List<Preview>();
+        for(var i=0;i<200;i++)previews.Add(await engine.PreviewAsync("test","",default));
+        await Assert.ThrowsAsync<HbxException>(()=>engine.PreviewAsync("test","",default));
+        Assert.Equal("Verified",(await engine.ApplyAsync(previews[0].Token,true,null,default)).Status);
+        Assert.NotNull(await engine.PreviewAsync("test","",default));
+    }
+    [Fact]public async Task SafetyGuardIsRecheckedAfterProviderReadBeforeAnyMutation()
+    {
+        string? block=null;
+        var engine=new ActionEngine([_action],Store,new SafetyGuard(()=>block),"test-owner");
+        var preview=await engine.PreviewAsync("test","",default);
+        _action.OnRead=()=>block="New managed-device restriction";
+        await Assert.ThrowsAsync<HbxException>(()=>engine.ApplyAsync(preview.Token,true,null,default));
+        Assert.Equal(0,_action.Writes);
+        Assert.Empty(Store.History());
+    }
     [Fact]public async Task SafeBoostVerifiesBothActionsInOneRecoverableSession()
     {
         var a=new FakeAction("windows.visual.transparency.disable");var b=new FakeAction("gaming.capture.disable");
@@ -335,10 +354,10 @@ public sealed class EngineTests:IDisposable
     private sealed class FakeAction(string id="test"):ISystemAction
     {
         public State State=new(true,"Int","0");public int Writes;public bool IgnoreWrite;public bool ThrowAfterApply;
-        public CancellationTokenSource? CancelSource;public string? CancelAfterWriteValue;
+        public CancellationTokenSource? CancelSource;public string? CancelAfterWriteValue;public Action? OnRead;
         public ActionInfo Info=>new(id,"Test","Test","Test","Test","Low","None","Test");
         public void Validate(string target){if(target!="")throw new HbxException("invalid target");}
-        public Task<State> ReadAsync(string target,CancellationToken token)=>Task.FromResult(State);
+        public Task<State> ReadAsync(string target,CancellationToken token){OnRead?.Invoke();return Task.FromResult(State);}
         public State Desired(string target,State before)=>new(true,"Int","1");
         public Task WriteAsync(string target,State state,CancellationToken token)
         {
