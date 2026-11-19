@@ -124,7 +124,10 @@ public static class FeatureRouteCatalog
 
         Add(RouteSupport.Limited, "Optimize",
             "Registered reversible actions include the current-user visual-effects preset and transparency preferences. The broader reference profile/tweak catalog is not treated as implemented.",
-            "One Click Boost", "Safe Tweak Library", "Advanced Tweaks", "Windows Optimization");
+            "Safe Tweak Library", "Advanced Tweaks", "Windows Optimization");
+        Add(RouteSupport.Limited,"Optimize",
+            "Safe Boost composes explicitly selected transparency and game-capture preferences with per-action review, durable recovery, read-back and compensating rollback. Broad presets and measured gains remain unavailable.",
+            "One Click Boost");
         Add(RouteSupport.Limited, "Dashboard",
             "Memory Guard provides persisted 70-95% notification threshold and 1-60 minute cooldown controls and displays measured system commit usage. It only notifies; it does not purge memory or terminate processes. Process exclusions, commit-pressure recommendations and emergency workload handling are not implemented.",
             "Smart Memory Guard");
@@ -138,7 +141,7 @@ public static class FeatureRouteCatalog
             "Available Windows hardware properties are read; temperature, clocks and vendor sensor data remain unavailable.",
             "CPU Turbo Diagnostics", "Hardware Tuner", "Hardware Inventory");
         Add(RouteSupport.Limited, "GPU",
-            "GPU presence and supported Windows properties may be inspected; real-time utilization, VRAM and thermal vendor telemetry are unavailable.",
+            "GPU identity, driver details and bounded WDDM per-engine/adapter-memory snapshots can be scanned. VRAM capacity, mapped adapter totals and thermal telemetry remain unavailable.",
             "GPU AI Assistant", "GPU Center");
         Add(RouteSupport.Limited, "Gaming",
             "Game Library can launch a registered executable with an approved, reversible profile. Automatic detection, overlays and FPS capture are not implemented.",

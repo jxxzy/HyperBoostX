@@ -68,7 +68,7 @@
   "OneClickUnavailableDetails": "このプロファイルには検証済みアクションプランがありません。変更は適用されません。",
   "OneClickWorkflowTitle": "単一アクションの安全な手順",
   "OneClickWorkflowDescription": "下から登録済みアクションを選びます。対象と変更前後を確認して明示的に承認すると、エンジンがバックアップ、適用、読み戻し検証、復元記録を行います。",
-  "OneClickBatchUnavailable": "複数アクションの自動ブーストはNOT_IMPLEMENTEDです。登録済みアクションを1つ選択してください。「プレビューして適用」を承認するまで変更されません。",
+  "OneClickBatchUnavailable": "選択した設定のみ適用できます。広範なプリセットは未実装です。",
   "ReviewOptimizations": "最適化を確認",
   "RestoreHistory": "復元履歴",
   "Readiness": "準備状況",
@@ -273,5 +273,8 @@
   "CommandPalette": "コマンドパレット",
   "SearchAllModules": "すべてのモジュールを検索",
   "OpenSelectedPage": "選択したページを開く",
-  "Dismiss": "閉じる"
+  "Dismiss": "閉じる",
+  "SafeBoostTransparency": "透明効果を無効にする",
+  "SafeBoostCapture": "Windows ゲームキャプチャ設定を無効にする",
+  "SafeBoostApply": "安全な最適化を確認して適用"
 }

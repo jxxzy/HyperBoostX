@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using HyperBoostX.Core;
+using HyperBoostX.Windows;
 
 namespace HyperBoostX.App;
 
@@ -73,6 +74,8 @@ public sealed partial class ShellViewModel
     private bool MatchesGpuVendor(Fact fact)
     {
         if(_gpuVendorFilter=="auto")return true;
+        // Counter instance names cannot be attributed to a vendor by string matching.
+        if(fact.Source==GpuCounters.EngineClass||fact.Source==GpuCounters.MemoryClass||fact.Name=="GPU counter methodology")return true;
         var vendor=_gpuVendorFilter switch{"nvidia"=>"NVIDIA","amd"=>"AMD","intel"=>"Intel",_=>""};
         return $"{fact.Name} {fact.Value} {fact.Source}".Contains(vendor,StringComparison.OrdinalIgnoreCase);
     }

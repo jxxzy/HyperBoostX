@@ -367,7 +367,9 @@ public sealed class ShellTests
         Assert.False(vm.IsSmartScan);
         Assert.NotEmpty(vm.Actions);
         Assert.All(vm.Actions,action=>Assert.Contains(action,vm.Runtime.Engine.Actions));
-        Assert.Contains("NOT_IMPLEMENTED",vm.Localization["OneClickBatchUnavailable"],StringComparison.Ordinal);
+        Assert.False(vm.SafeBoostCommand.CanExecute(null));
+        vm.BoostTransparency=true;Assert.True(vm.SafeBoostCommand.CanExecute(null));
+        vm.BoostTransparency=false;Assert.False(vm.SafeBoostCommand.CanExecute(null));
     });
     [Fact]public void SmartScanLoadsOnlySavedSmartScanEvidenceAndHistory()=>Run(vm=>
     {
@@ -557,6 +559,13 @@ public sealed class ShellTests
             var task=vm.RunFileAnalysis(default);var frame=new DispatcherFrame();var timer=new DispatcherTimer(DispatcherPriority.Background){Interval=TimeSpan.FromMilliseconds(20)};
             timer.Tick+=(_,_)=>{if(task.IsCompleted){frame.Continue=false;timer.Stop();}};timer.Start();Dispatcher.PushFrame(frame);task.GetAwaiter().GetResult();
             Assert.Single(vm.DuplicateGroups);Assert.Equal(2,vm.LargeFiles.Count);Assert.Empty(vm.FileAnalysisIssues);Assert.Contains("Cakupan lengkap",vm.FileAnalysisStatus);
+            // Pump queued progress callbacks after task completion: they must not
+            // overwrite the final coverage text with an intermediate progress status.
+            var lateFrame=new DispatcherFrame();
+            var lateTimer=new DispatcherTimer(DispatcherPriority.ApplicationIdle){Interval=TimeSpan.FromMilliseconds(150)};
+            lateTimer.Tick+=(_,_)=>{lateTimer.Stop();lateFrame.Continue=false;};
+            lateTimer.Start();Dispatcher.PushFrame(lateFrame);
+            Assert.Contains("Cakupan lengkap",vm.FileAnalysisStatus);
             Assert.Equal(bytes,File.ReadAllBytes(Path.Combine(root,"first.bin")));
         }
         finally{if(Directory.Exists(root))Directory.Delete(root,true);}

@@ -68,7 +68,7 @@
   "OneClickUnavailableDetails": "Não há um plano de ações validado para este perfil. Ele não aplica alterações.",
   "OneClickWorkflowTitle": "Fluxo seguro de ação individual",
   "OneClickWorkflowDescription": "Escolha uma ação registrada abaixo. Revise o destino e os estados anterior e desejado, aprove explicitamente e o mecanismo fará backup, aplicação, leitura de verificação e registro de recuperação.",
-  "OneClickBatchUnavailable": "O boost automático de várias ações é NOT_IMPLEMENTED. Selecione uma ação registrada; nada muda sem confirmar Prévia e aplicar.",
+  "OneClickBatchUnavailable": "Disponível: somente preferências selecionadas; perfis mais amplos ainda não implementados.",
   "ReviewOptimizations": "Revisar otimizações",
   "RestoreHistory": "Histórico de restauração",
   "Readiness": "PRONTIDÃO",
@@ -273,5 +273,8 @@
   "CommandPalette": "Paleta de comandos",
   "SearchAllModules": "Pesquisar todos os módulos",
   "OpenSelectedPage": "Abrir página selecionada",
-  "Dismiss": "Fechar"
+  "Dismiss": "Fechar",
+  "SafeBoostTransparency": "Desativar transparência",
+  "SafeBoostCapture": "Desativar preferência de captura de jogos do Windows",
+  "SafeBoostApply": "Revisar e aplicar otimização segura"
 }

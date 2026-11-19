@@ -68,7 +68,7 @@
   "OneClickUnavailableDetails": "No validated action plan is registered for this profile. It does not apply changes.",
   "OneClickWorkflowTitle": "Single-action safety workflow",
   "OneClickWorkflowDescription": "Choose a registered action below. Review target and before/after state, approve explicitly, then the engine backs up, applies, reads back, and records recovery.",
-  "OneClickBatchUnavailable": "Automatic multi-action boost is NOT_IMPLEMENTED. Select one registered action below; no change occurs until Preview & Apply is confirmed.",
+  "OneClickBatchUnavailable": "Available: explicitly selected preferences only; broader presets remain unimplemented.",
   "ReviewOptimizations": "Review optimizations",
   "RestoreHistory": "Restore history",
   "Readiness": "READINESS",
@@ -273,5 +273,8 @@
   "CommandPalette": "Command palette",
   "SearchAllModules": "Search all modules",
   "OpenSelectedPage": "Open selected page",
-  "Dismiss": "Dismiss"
+  "Dismiss": "Dismiss",
+  "SafeBoostTransparency": "Disable transparency",
+  "SafeBoostCapture": "Disable Windows game capture preference",
+  "SafeBoostApply": "Preview & apply Safe Boost"
 }

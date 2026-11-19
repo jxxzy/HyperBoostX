@@ -68,7 +68,7 @@
   "OneClickUnavailableDetails": "Belum ada rencana aksi tervalidasi untuk profil ini. Profil tidak menerapkan perubahan.",
   "OneClickWorkflowTitle": "Alur keamanan satu aksi",
   "OneClickWorkflowDescription": "Pilih aksi terdaftar di bawah. Tinjau target dan kondisi sebelum/sesudah, setujui secara eksplisit, lalu mesin akan mencadangkan, menerapkan, membaca ulang, dan mencatat pemulihan.",
-  "OneClickBatchUnavailable": "Boost multi-aksi otomatis NOT_IMPLEMENTED. Pilih satu aksi terdaftar; tidak ada perubahan sebelum Pratinjau & Terapkan dikonfirmasi.",
+  "OneClickBatchUnavailable": "Tersedia: hanya preferensi yang dipilih secara eksplisit; profil luas belum lengkap.",
   "ReviewOptimizations": "Tinjau optimasi",
   "RestoreHistory": "Riwayat pemulihan",
   "Readiness": "KESIAPAN",
@@ -273,5 +273,8 @@
   "CommandPalette": "Palet perintah",
   "SearchAllModules": "Cari semua modul",
   "OpenSelectedPage": "Buka halaman terpilih",
-  "Dismiss": "Tutup"
+  "Dismiss": "Tutup",
+  "SafeBoostTransparency": "Nonaktifkan transparansi",
+  "SafeBoostCapture": "Nonaktifkan preferensi perekaman game Windows",
+  "SafeBoostApply": "Pratinjau & terapkan Boost Aman"
 }

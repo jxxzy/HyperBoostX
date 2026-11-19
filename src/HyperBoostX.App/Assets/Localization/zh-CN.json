@@ -68,7 +68,7 @@
   "OneClickUnavailableDetails": "此配置文件没有已验证的操作计划，不会应用更改。",
   "OneClickWorkflowTitle": "单项操作安全流程",
   "OneClickWorkflowDescription": "从下方选择已注册操作。查看目标及更改前后状态并明确批准后，引擎才会备份、应用、回读验证并记录恢复信息。",
-  "OneClickBatchUnavailable": "自动多项加速尚未实现（NOT_IMPLEMENTED）。请选择一项已注册操作；确认“预览并应用”前不会更改系统。",
+  "OneClickBatchUnavailable": "仅支持明确选择的设置；更全面的预设尚未实现。",
   "ReviewOptimizations": "查看优化项",
   "RestoreHistory": "恢复历史记录",
   "Readiness": "就绪状态",
@@ -273,5 +273,8 @@
   "CommandPalette": "命令面板",
   "SearchAllModules": "搜索所有模块",
   "OpenSelectedPage": "打开所选页面",
-  "Dismiss": "关闭"
+  "Dismiss": "关闭",
+  "SafeBoostTransparency": "禁用透明效果",
+  "SafeBoostCapture": "禁用 Windows 游戏捕获首选项",
+  "SafeBoostApply": "预览并应用安全优化"
 }

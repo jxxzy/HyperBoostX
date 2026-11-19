@@ -255,6 +255,10 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
     public bool IsTestCenter=>SurfaceTitle is "Test Center" or "Application Health";
     public bool IsSmartScan=>Title=="Smart Scan";
     public bool IsOneClickBoost=>Title=="One Click Boost";
+    private bool _boostTransparency,_boostCapture;
+    public bool BoostTransparency{get=>_boostTransparency;set{_boostTransparency=value;Notify();CommandManager.InvalidateRequerySuggested();}}
+    public bool BoostCapture{get=>_boostCapture;set{_boostCapture=value;Notify();CommandManager.InvalidateRequerySuggested();}}
+
     public bool IsCpuOptimization=>Title=="CPU Optimization";
     public bool IsFileAnalysis=>Title=="Duplicate & Large Files";
     public bool IsAppLoadOptimizer=>Title=="App Load Optimizer";
@@ -312,6 +316,7 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
     public ICommand ScanCommand{get;}
     public ICommand CancelCommand{get;}
     public ICommand ApplyCommand{get;}
+    public ICommand SafeBoostCommand{get;}
     public ICommand ApplyFindingCommand{get;}
     public ICommand RollbackCommand{get;}
     public ICommand VerifyCommand{get;}
@@ -362,6 +367,7 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
         ScanCommand=new Command(()=>Run(Scan),()=>!Busy&&IsDiagnostic&&RouteBinding.Support!=RouteSupport.Unsupported&&(!IsSmartScan||SmartScanScopes.Any(scope=>scope.IsSupported&&scope.IsSelected)));
         CancelCommand=new Command(()=>_cts?.Cancel(),()=>Busy);
         ApplyCommand=new Command(()=>Run(Apply),()=>!Busy&&RouteBinding.Support!=RouteSupport.Unsupported&&SelectedAction!=null&&(!IsStartup||SelectedStartup!=null)&&(!IsPower||SelectedPlan!=null)&&(!IsCleanup||SelectedCleanup!=null));
+        SafeBoostCommand=new Command(()=>Run(ApplySafeBoost),()=>!Busy&&IsOneClickBoost&&!HasGamingSession&&(BoostTransparency||BoostCapture));
         ApplyFindingCommand=new ParameterCommand(
             parameter=>!Busy&&SurfaceTitle=="Smart Scan"&&parameter is string id&&SmartScanActionIds.Contains(id)&&Runtime.Engine.Actions.Any(action=>action.Id==id),
             parameter=>{if(parameter is string id)ApplySmartScanRecommendation(id);});
@@ -551,15 +557,38 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
     public async Task RunFileAnalysis(CancellationToken token)
     {
         DuplicateGroups.Clear();LargeFiles.Clear();FileAnalysisIssues.Clear();
-        var progress=new Progress<FileAnalysisProgress>(value=>FileAnalysisStatus=$"{value.FilesExamined:N0} file diperiksa · {FileAnalysisFormatting.Size(value.BytesHashed)} di-hash"+(string.IsNullOrWhiteSpace(value.CurrentPath)?"":$" · {value.CurrentPath}"));
-        var threshold=checked(MinimumLargeFileMiB*1024L*1024L);
-        var result=await FileAnalysis.ScanAsync(FileAnalysisRoot,threshold,progress,token);
-        foreach(var group in result.Duplicates)DuplicateGroups.Add(group);
-        foreach(var file in result.LargeFiles)LargeFiles.Add(file);
-        foreach(var issue in result.Issues)FileAnalysisIssues.Add(issue);
-        FileAnalysisStatus=$"Selesai: {result.FilesExamined:N0} file, {result.Duplicates.Count:N0} grup duplikat, {result.LargeFiles.Count:N0} file besar, potensi duplikat {FileAnalysisFormatting.Size(result.Duplicates.Sum(group=>group.PotentialDuplicateBytes))}. "+
-            (result.CoverageComplete?"Cakupan lengkap.":$"Cakupan tidak lengkap: skipped={result.Skipped}, truncated={result.Truncated}, cancelled={result.Cancelled}.");
-        Status="Analisis file selesai. Tidak ada file yang diubah atau dihapus.";
+        var dispatcher=System.Windows.Threading.Dispatcher.CurrentDispatcher;
+        // Progress<T> may deliver queued callbacks after ScanAsync completes. Serialize
+        // both progress and the terminal state on the UI dispatcher; close the reporter
+        // before publishing the final result, including on cancellation or failure.
+        var acceptingProgress=true;
+        var progress=new Progress<FileAnalysisProgress>(value=>
+        {
+            _=dispatcher.InvokeAsync(()=>
+            {
+                if(!acceptingProgress)return;
+                FileAnalysisStatus=$"{value.FilesExamined:N0} file diperiksa · {FileAnalysisFormatting.Size(value.BytesHashed)} di-hash"+(string.IsNullOrWhiteSpace(value.CurrentPath)?"":$" · {value.CurrentPath}");
+            });
+        });
+        try
+        {
+            var threshold=checked(MinimumLargeFileMiB*1024L*1024L);
+            var result=await FileAnalysis.ScanAsync(FileAnalysisRoot,threshold,progress,token);
+            await dispatcher.InvokeAsync(()=>
+            {
+                acceptingProgress=false;
+                foreach(var group in result.Duplicates)DuplicateGroups.Add(group);
+                foreach(var file in result.LargeFiles)LargeFiles.Add(file);
+                foreach(var issue in result.Issues)FileAnalysisIssues.Add(issue);
+                FileAnalysisStatus=$"Selesai: {result.FilesExamined:N0} file, {result.Duplicates.Count:N0} grup duplikat, {result.LargeFiles.Count:N0} file besar, potensi duplikat {FileAnalysisFormatting.Size(result.Duplicates.Sum(group=>group.PotentialDuplicateBytes))}. "+
+                    (result.CoverageComplete?"Cakupan lengkap.":$"Cakupan tidak lengkap: skipped={result.Skipped}, truncated={result.Truncated}, cancelled={result.Cancelled}.");
+                Status="Analisis file selesai. Tidak ada file yang diubah atau dihapus.";
+            });
+        }
+        finally
+        {
+            await dispatcher.InvokeAsync(()=>{acceptingProgress=false;});
+        }
     }
     private void SelectAppLoadExecutable()
     {
@@ -694,6 +723,19 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
     private void RefreshLocalizedOptions()
     {
         foreach(var scope in SmartScanScopes)scope.RefreshLocalization();
+    }
+    private async Task ApplySafeBoost(CancellationToken token)
+    {
+        if(HasGamingSession)throw new HbxException("Restore the active gaming session first.");
+        var ids=ActionEngine.SafeBoostActionIds(BoostTransparency,BoostCapture);
+        var previews=new List<Preview>();
+        foreach(var id in ids)previews.Add(await Task.Run(()=>Runtime.Engine.PreviewAsync(id,"",token),token));
+        if(previews.Count==0)return;
+        var review=string.Join("\n\n",previews.Select(p=>$"{p.Description}\nBefore: {p.Before}\nAfter: {p.Desired}"));
+        if(!Confirm("Perubahan preferensi Windows yang dipilih:\n\n"+review+"\n\nEach action is backed up and read back. On failure the batch attempts conflict-aware recovery. No FPS gain is promised. Apply?","Safe Boost preview"))return;
+        var result=await Task.Run(()=>Runtime.Engine.ApplySafeBoostAsync(previews,true,token),token);
+        Status=$"{result.Status}: {result.Message}";Detail=Json.Write(result);RefreshHistory();
+        Facts.Clear();Findings.Clear();_pageReport=null;Notify(nameof(HasFindings));Notify(nameof(ObservationSummary));
     }
     private async Task Apply(CancellationToken token)
     {
