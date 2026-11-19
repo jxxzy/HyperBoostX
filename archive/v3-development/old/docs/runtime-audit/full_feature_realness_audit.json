@@ -1,0 +1,93 @@
+﻿{
+    "generated_at":  "2026-07-03 21.57.12 +07:00",
+    "status":  "PASS",
+    "release_status":  "OWNER_LAB_RELEASE_CANDIDATE_RUNTIME_BLOCKED",
+    "public_stable":  false,
+    "metrics":  {
+                    "menus":  73,
+                    "buttons":  606,
+                    "active_buttons":  606,
+                    "unique_endpoints":  173,
+                    "partial_or_roadmap_buttons":  0,
+                    "guarded_destructive_buttons":  17,
+                    "mutating_buttons":  150,
+                    "preview_required_buttons":  118,
+                    "restore_boundary_buttons":  183,
+                    "admin_required_buttons":  18
+                },
+    "checks":  [
+                   {
+                       "name":  "action map menu count",
+                       "ok":  true,
+                       "evidence":  "actual=73; expected=73"
+                   },
+                   {
+                       "name":  "action map button count",
+                       "ok":  true,
+                       "evidence":  "actual=606; expected=606"
+                   },
+                   {
+                       "name":  "action map unique endpoints",
+                       "ok":  true,
+                       "evidence":  "actual=173; expected=173"
+                   },
+                   {
+                       "name":  "all menu statuses are Real",
+                       "ok":  true,
+                       "evidence":  "non_real_menus=0"
+                   },
+                   {
+                       "name":  "all action statuses are Real",
+                       "ok":  true,
+                       "evidence":  "non_real_actions=0"
+                   },
+                   {
+                       "name":  "no Default/Fallback menu remains",
+                       "ok":  true,
+                       "evidence":  "menus=0; actions=0"
+                   },
+                   {
+                       "name":  "all menus are visible in WPF navigation",
+                       "ok":  true,
+                       "evidence":  "none"
+                   },
+                   {
+                       "name":  "all menus have WPF routes",
+                       "ok":  true,
+                       "evidence":  "none"
+                   },
+                   {
+                       "name":  "non-GET actions keep Safety Guard",
+                       "ok":  true,
+                       "evidence":  "unguarded_mutations=0"
+                   },
+                   {
+                       "name":  "non-preview mutations require preview state",
+                       "ok":  true,
+                       "evidence":  "missing_preview=0"
+                   },
+                   {
+                       "name":  "apply/restore/destructive actions expose restore boundary",
+                       "ok":  true,
+                       "evidence":  "missing_restore=0"
+                   },
+                   {
+                       "name":  "required owner-lab menus exist",
+                       "ok":  true,
+                       "evidence":  "none"
+                   },
+                   {
+                       "name":  "required real endpoints exist",
+                       "ok":  true,
+                       "evidence":  "none"
+                   },
+                   {
+                       "name":  "non-archive docs have no stale release/fallback claims",
+                       "ok":  true,
+                       "evidence":  "stale_files=0"
+                   }
+               ],
+    "stale_docs":  [
+
+                   ]
+}

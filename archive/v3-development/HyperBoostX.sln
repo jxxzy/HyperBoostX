@@ -1,0 +1,64 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{46487BF1-0FF2-4FD7-A21A-5CE53F02D0EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HyperBoostX.Core", "src\HyperBoostX.Core\HyperBoostX.Core.csproj", "{A442E0DB-E8F2-48EF-A6DC-2E478D059D2F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HyperBoostX.Windows", "src\HyperBoostX.Windows\HyperBoostX.Windows.csproj", "{6D06257A-86C3-4995-97A3-BF20F030F7F9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HyperBoostX.App", "src\HyperBoostX.App\HyperBoostX.App.csproj", "{2E026A5D-BE1C-4AA7-B310-FD3D00792CEA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HyperBoostX.Cli", "src\HyperBoostX.Cli\HyperBoostX.Cli.csproj", "{CD4B902E-FB44-44B8-B679-1AE58BC64131}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HyperBoostX.Worker", "src\HyperBoostX.Worker\HyperBoostX.Worker.csproj", "{8D89DA7D-B246-4D4B-9E92-B14E07CD508E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{EEBE6F93-E4C4-4209-AFE2-4E125C19957A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HyperBoostX.Tests", "tests\HyperBoostX.Tests\HyperBoostX.Tests.csproj", "{AAC67113-6BA0-43D1-9F13-DA42041571D1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A442E0DB-E8F2-48EF-A6DC-2E478D059D2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A442E0DB-E8F2-48EF-A6DC-2E478D059D2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A442E0DB-E8F2-48EF-A6DC-2E478D059D2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A442E0DB-E8F2-48EF-A6DC-2E478D059D2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D06257A-86C3-4995-97A3-BF20F030F7F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D06257A-86C3-4995-97A3-BF20F030F7F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D06257A-86C3-4995-97A3-BF20F030F7F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D06257A-86C3-4995-97A3-BF20F030F7F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E026A5D-BE1C-4AA7-B310-FD3D00792CEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E026A5D-BE1C-4AA7-B310-FD3D00792CEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E026A5D-BE1C-4AA7-B310-FD3D00792CEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E026A5D-BE1C-4AA7-B310-FD3D00792CEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD4B902E-FB44-44B8-B679-1AE58BC64131}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD4B902E-FB44-44B8-B679-1AE58BC64131}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD4B902E-FB44-44B8-B679-1AE58BC64131}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD4B902E-FB44-44B8-B679-1AE58BC64131}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D89DA7D-B246-4D4B-9E92-B14E07CD508E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D89DA7D-B246-4D4B-9E92-B14E07CD508E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D89DA7D-B246-4D4B-9E92-B14E07CD508E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D89DA7D-B246-4D4B-9E92-B14E07CD508E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAC67113-6BA0-43D1-9F13-DA42041571D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAC67113-6BA0-43D1-9F13-DA42041571D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAC67113-6BA0-43D1-9F13-DA42041571D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAC67113-6BA0-43D1-9F13-DA42041571D1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A442E0DB-E8F2-48EF-A6DC-2E478D059D2F} = {46487BF1-0FF2-4FD7-A21A-5CE53F02D0EB}
+		{6D06257A-86C3-4995-97A3-BF20F030F7F9} = {46487BF1-0FF2-4FD7-A21A-5CE53F02D0EB}
+		{2E026A5D-BE1C-4AA7-B310-FD3D00792CEA} = {46487BF1-0FF2-4FD7-A21A-5CE53F02D0EB}
+		{CD4B902E-FB44-44B8-B679-1AE58BC64131} = {46487BF1-0FF2-4FD7-A21A-5CE53F02D0EB}
+		{8D89DA7D-B246-4D4B-9E92-B14E07CD508E} = {46487BF1-0FF2-4FD7-A21A-5CE53F02D0EB}
+		{AAC67113-6BA0-43D1-9F13-DA42041571D1} = {EEBE6F93-E4C4-4209-AFE2-4E125C19957A}
+	EndGlobalSection
+EndGlobal

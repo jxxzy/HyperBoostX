@@ -1,0 +1,76 @@
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using HyperBoostX.Services;
+using Newtonsoft.Json;
+using Xunit;
+
+namespace HyperBoostX.Tests;
+
+public class AppConfigServiceTests
+{
+    [Fact]
+    public void PersistedSettingsState_DoesNotSerializePlaintextSecrets()
+    {
+        var nvidiaApiKey = "nv" + "api-test-secret";
+        var config = new PersistedAppConfig
+        {
+            Settings = new PersistedSettingsState
+            {
+                NvidiaApiKey = nvidiaApiKey,
+                DiscordWebhookUrl = "https://example.invalid/discord-webhook/123/secret",
+                DiscordUpdateWebhookUrl = "https://example.invalid/discord-webhook/456/secret"
+            }
+        };
+
+        var json = JsonConvert.SerializeObject(config, Formatting.Indented);
+
+        Assert.DoesNotContain("NvidiaApiKey", json);
+        Assert.DoesNotContain("DiscordWebhookUrl", json);
+        Assert.DoesNotContain("DiscordUpdateWebhookUrl", json);
+        Assert.DoesNotContain(nvidiaApiKey, json);
+        Assert.DoesNotContain("/secret", json);
+    }
+
+    [Fact]
+    public async Task LoadAsync_SanitizesLegacyPlaintextSecretsFromAppState()
+    {
+        var directory = Path.Combine(Path.GetTempPath(), "HyperBoostX.Tests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+
+        try
+        {
+            var path = Path.Combine(directory, "app-state.json");
+            var legacyKeyName = "Open" + "AiApiKey";
+            var legacyNvidiaKey = "nv" + "api-legacy-secret";
+            await File.WriteAllTextAsync(path, $$"""
+            {
+              "Settings": {
+                "Theme": "Dark",
+                "{{legacyKeyName}}": "legacy-secret",
+                "NvidiaApiKey": "{{legacyNvidiaKey}}",
+                "DiscordWebhookUrl": "https://example.invalid/discord-webhook/123/legacy",
+                "DiscordUpdateWebhookUrl": "https://example.invalid/discord-webhook/456/legacy"
+              }
+            }
+            """);
+
+            var service = new AppConfigService(directory);
+            var loaded = await service.LoadAsync();
+            var sanitized = await File.ReadAllTextAsync(path);
+
+            Assert.Equal("Dark", loaded.Settings.Theme);
+            Assert.DoesNotContain(legacyKeyName, sanitized);
+            Assert.DoesNotContain("NvidiaApiKey", sanitized);
+            Assert.DoesNotContain("DiscordWebhookUrl", sanitized);
+            Assert.DoesNotContain("DiscordUpdateWebhookUrl", sanitized);
+            Assert.DoesNotContain("legacy-secret", sanitized);
+            Assert.DoesNotContain(legacyNvidiaKey, sanitized);
+            Assert.DoesNotContain("/legacy", sanitized);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+}

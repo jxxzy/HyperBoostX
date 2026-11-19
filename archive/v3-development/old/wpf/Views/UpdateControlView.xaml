@@ -1,0 +1,424 @@
+﻿<views:PlacementActionPageBase x:Class="HyperBoostX.Views.UpdateControlView"
+                               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                               xmlns:views="clr-namespace:HyperBoostX.Views"
+                               xmlns:vm="clr-namespace:HyperBoostX.ViewModels"
+                               AutomationProperties.AutomationId="CoreFeaturePage_UpdateControl"
+                               Tag="CORE_UI:UpdateControl">
+    <views:PlacementActionPageBase.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </views:PlacementActionPageBase.Resources>
+
+    <views:PlacementActionPageBase.DataContext>
+        <vm:UpdateControlViewModel/>
+    </views:PlacementActionPageBase.DataContext>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="0,0,18,28">
+            <Border Style="{StaticResource CyberHeroCardStyle}" Margin="0,0,0,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="260"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Update Control" FontSize="30" FontWeight="Black" TextWrapping="Wrap"/>
+                        <TextBlock Text="Show Windows Update status, pending updates, active hours, and temporary guidance without permanent disable." FontSize="13" Foreground="{StaticResource Brush.Accent.Primary}" Margin="0,5,0,0" TextWrapping="Wrap" MaxWidth="930"/>
+                        <TextBlock Text="{Binding Purpose}" FontSize="13" Foreground="{StaticResource Brush.Text.Secondary}" Margin="0,12,0,0" TextWrapping="Wrap" MaxWidth="940"/>
+                        <ItemsControl ItemsSource="{Binding PrimaryPlacementActions}" Margin="0,18,0,0">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding Label}" ToolTip="{Binding Tooltip}" Tag="{Binding}" Click="RunPlacementAction_Click" Style="{StaticResource CyberButtonStyle}" Margin="0,0,10,10" MinWidth="168"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="20,0,0,0">
+                        <Border Style="{StaticResource SuccessBadgeStyle}" Margin="0,0,0,10">
+                            <TextBlock Text="Safety Guard Active" Foreground="{StaticResource Brush.Status.Success}" FontWeight="SemiBold"/>
+                        </Border>
+                        <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,0,10">
+                            <TextBlock Text="{Binding LastUpdated, StringFormat=Updated: {0}}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap"/>
+                        </Border>
+                        <Border Style="{StaticResource CyberBadgeStyle}">
+                            <TextBlock Text="{Binding Status, StringFormat=Status: {0}}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Windows Update Workspace" FontSize="18" FontWeight="Bold"/>
+                    <TextBlock Text="This page is built around local evidence first, scoped review second, and recovery evidence third. Actions support the workflow instead of replacing it." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
+                    <UniformGrid Columns="3">
+                        <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="13" Margin="0,0,10,0">
+                            <StackPanel>
+                                <TextBlock Text="01 / Evidence" Foreground="{StaticResource Brush.Text.Muted}" FontSize="10" FontWeight="Bold"/>
+                                <TextBlock Text="Update status" Foreground="{StaticResource Brush.Accent.Primary}" FontWeight="Bold" TextWrapping="Wrap"/>
+                                <TextBlock Text="Read the local signal here before any recommendation is trusted or acted on." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,7,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="13" Margin="0,0,10,0">
+                            <StackPanel>
+                                <TextBlock Text="02 / Scope" Foreground="{StaticResource Brush.Text.Muted}" FontSize="10" FontWeight="Bold"/>
+                                <TextBlock Text="Temporary guidance" Foreground="{StaticResource Brush.Accent.Primary}" FontWeight="Bold" TextWrapping="Wrap"/>
+                                <TextBlock Text="Separates reviewed items from protected, manual, guidance-only, and blocked areas." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,7,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="13">
+                            <StackPanel>
+                                <TextBlock Text="03 / Recovery" Foreground="{StaticResource Brush.Text.Muted}" FontSize="10" FontWeight="Bold"/>
+                                <TextBlock Text="Windows Update handoff" Foreground="{StaticResource Brush.Accent.Primary}" FontWeight="Bold" TextWrapping="Wrap"/>
+                                <TextBlock Text="Keeps report, history, undo, and restore expectations visible before a state change." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,7,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Page Sections" FontSize="17" FontWeight="Bold"/>
+                    <TabControl Margin="0,12,0,0">
+                        <TabItem Header="Overview">
+                            <TextBlock Text="Belum ada data. Jalankan scan untuk melihat hasil dan rekomendasi. Sedang memindai resource ditampilkan sebagai status saat action berjalan." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="12"/>
+                        </TabItem>
+                        <TabItem Header="Analyze">
+                            <TextBlock Text="Search, filter, sort, column resize, column visibility, row selection, multi-select, virtualization, and export selected are the table UX baseline for this page family." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="12"/>
+                        </TabItem>
+                        <TabItem Header="Recommendations">
+                            <TextBlock Text="Recommendations stay evidence-first and avoid raw debug output in Beginner mode." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="12"/>
+                        </TabItem>
+                        <TabItem Header="Actions">
+                            <TextBlock Text="Preview Action, Apply, Ignore, Protect, Open Report, and Copy Summary are routed through guarded action buttons and confirmation flow." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="12"/>
+                        </TabItem>
+                        <TabItem Header="Results">
+                            <TextBlock Text="Gagal memuat data will be shown as a safe local report state; action failures are saved without exposing secrets." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="12"/>
+                        </TabItem>
+                        <TabItem Header="History">
+                            <TextBlock Text="Action History keeps endpoint, safety, restore, and report evidence near the page." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="12"/>
+                        </TabItem>
+                        <TabItem Header="Advanced">
+                            <TextBlock Text="Raw backend details are visible only as redacted advanced details for Expert and Owner Lab workflows." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="12"/>
+                        </TabItem>
+                    </TabControl>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,0,16" Visibility="{Binding HasLegacyTools, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Update Control Toolkit" FontSize="17" FontWeight="Bold"/>
+                            <TextBlock Text="Native v2.10 capabilities for this menu are shown with safety status and route evidence, keeping the page grounded in the feature domain." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <Border Grid.Column="1" Style="{StaticResource SuccessBadgeStyle}" Margin="12,0,0,0" VerticalAlignment="Top">
+                            <TextBlock Text="Domain-ready" Foreground="{StaticResource Brush.Status.Success}"/>
+                        </Border>
+                    </Grid>
+
+                    <ItemsControl ItemsSource="{Binding LegacyTools}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="2"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="12" Margin="0,0,10,10">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Category}" Foreground="{StaticResource Brush.Accent.Primary}" FontSize="10" FontWeight="Black" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding Title}" FontWeight="Bold" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                        <Border Grid.Column="1" Style="{StaticResource CyberBadgeStyle}" Margin="10,0,0,0" VerticalAlignment="Top">
+                                            <TextBlock Text="{Binding Safety}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap"/>
+                                        </Border>
+                                        <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Flow}" Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                                        <TextBlock Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding Route}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,8,0,0" FontFamily="Consolas" FontSize="11"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,0,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.35*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Margin="0,0,14,0">
+                        <TextBlock Text="Table UX Standard" FontSize="17" FontWeight="Bold"/>
+                        <TextBlock Text="Search, Filter, Sort, Column resize, Column visibility, Row selection, Multi-select, Virtualization, Lazy load, Export selected, and Open detail are required for large lists." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,8,0,12"/>
+                        <UniformGrid Columns="4">
+                            <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,6,6"><TextBlock Text="Name" Foreground="{StaticResource Brush.Text.Secondary}"/></Border>
+                            <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,6,6"><TextBlock Text="Status" Foreground="{StaticResource Brush.Text.Secondary}"/></Border>
+                            <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,6,6"><TextBlock Text="Impact" Foreground="{StaticResource Brush.Text.Secondary}"/></Border>
+                            <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,0,6"><TextBlock Text="Action" Foreground="{StaticResource Brush.Text.Secondary}"/></Border>
+                        </UniformGrid>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Detail Drawer" FontSize="17" FontWeight="Bold"/>
+                        <TextBlock Text="Name, Status, Path/source, Publisher, Risk, Recommendation, Safety explanation, Restore availability, and redacted Expert raw details stay available for selected rows." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,8,0,12"/>
+                        <Border Style="{StaticResource WarningBadgeStyle}">
+                            <TextBlock Text="Action diblokir Safety Guard. Alasan: action ini berisiko mengubah komponen penting Windows." Foreground="{StaticResource Brush.Status.Warning}" TextWrapping="Wrap"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.95*"/>
+                    <ColumnDefinition Width="1.35*"/>
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,14,0">
+                    <StackPanel>
+                        <TextBlock Text="Updates Operational Snapshot" FontSize="17" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding EmptyState}" Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,5,0,14"/>
+                        <ItemsControl ItemsSource="{Binding Metrics}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><UniformGrid Columns="2"/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="12" Margin="0,0,10,10">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Title}" Foreground="{StaticResource Brush.Text.Muted}" FontSize="11" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding Value}" FontSize="20" FontWeight="Black" Margin="0,5,0,2"/>
+                                            <TextBlock Text="{Binding Detail}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource CyberCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Windows Update Workspace Map" FontSize="17" FontWeight="Bold"/>
+                        <ItemsControl ItemsSource="{Binding PlacementSections}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><UniformGrid Columns="2"/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="12" Margin="0,10,10,0">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{StaticResource Brush.Accent.Primary}" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding Description}" Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,8"/>
+                                            <ItemsControl ItemsSource="{Binding Items}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,6,6">
+                                                            <TextBlock Text="{Binding}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap"/>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Update Control Runbook" FontSize="17" FontWeight="Bold"/>
+                    <TextBlock Text="Use this sequence in Expert mode: inspect the evidence, compare the review scope, then approve or recover only when the report path is visible." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,4,0,14"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <UniformGrid Columns="3" Margin="0,0,14,0">
+                            <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="12" Margin="0,0,10,0">
+                                <StackPanel>
+                                    <TextBlock Text="01 Inspect" Foreground="{StaticResource Brush.Accent.Primary}" FontWeight="Bold"/>
+                                    <TextBlock Text="Load Update status evidence and keep empty states honest until data exists." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="12" Margin="0,0,10,0">
+                                <StackPanel>
+                                    <TextBlock Text="02 Review" Foreground="{StaticResource Brush.Accent.Primary}" FontWeight="Bold"/>
+                                    <TextBlock Text="Compare Temporary guidance scope with warnings before approving any action." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#0F1B2B" BorderBrush="{StaticResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{StaticResource CornerRadius.Small}" Padding="12">
+                                <StackPanel>
+                                    <TextBlock Text="03 Recover" Foreground="{StaticResource Brush.Accent.Primary}" FontWeight="Bold"/>
+                                    <TextBlock Text="Use Windows Update handoff evidence for report, history, and restore decisions." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Evidence Actions" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
+                            <ItemsControl ItemsSource="{Binding SecondaryPlacementActions}">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Content="{Binding Label}" ToolTip="{Binding Tooltip}" Tag="{Binding}" Click="RunPlacementAction_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10" MinWidth="150"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.18*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,14,0">
+                    <StackPanel>
+                        <TextBlock Text="AI Insight" FontSize="17" FontWeight="Bold"/>
+                        <TextBlock Text="Universal AI uses the scanned context for Update Control only after local evidence exists. It can explain risk, suggest safe next steps, and map suggestions to known action keys, but it cannot apply changes automatically." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,8,0,12"/>
+                        <WrapPanel>
+                            <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,8,8">
+                                <TextBlock Text="10-Model Audit" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap"/>
+                            </Border>
+                            <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,8,8">
+                                <TextBlock Text="AI Risk Reviewed" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap"/>
+                            </Border>
+                            <Border Style="{StaticResource WarningBadgeStyle}" Margin="0,0,8,8">
+                                <TextBlock Text="No Auto Apply" Foreground="{StaticResource Brush.Status.Warning}" TextWrapping="Wrap"/>
+                            </Border>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource CyberCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="AI Action Boundary" FontSize="17" FontWeight="Bold"/>
+                        <TextBlock Text="Suggested actions must pass Safety Guard, preview, confirmation, and restore/report checks. Unknown action keys, arbitrary shell commands, driver hacks, Defender disablement, and personal-file deletion remain blocked." Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,8,0,12"/>
+                        <Border Style="{StaticResource SuccessBadgeStyle}">
+                            <TextBlock Text="Preview and approval required" Foreground="{StaticResource Brush.Status.Success}" TextWrapping="Wrap"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.18*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource CyberCardStyle}" Margin="0,0,14,0">
+                    <StackPanel>
+                        <TextBlock Text="Update Evidence Audit Console" FontSize="17" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding ResultSummary}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,10,0,12"/>
+                        <Border Style="{StaticResource CyberBadgeStyle}">
+                            <TextBlock Text="{Binding Status}" Foreground="{StaticResource Brush.Text.Primary}" TextWrapping="Wrap"/>
+                        </Border>
+                        <Expander Header="Advanced Details" Foreground="{StaticResource Brush.Text.Primary}" Margin="0,16,0,0" IsExpanded="False">
+                            <StackPanel Margin="0,10,0,0">
+                                <ItemsControl ItemsSource="{Binding AdvancedRouteLines}" Margin="0,0,0,12">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" FontFamily="Consolas" FontSize="11" Margin="0,0,0,3"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBox Text="{Binding LiveResult}" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="165" MaxHeight="320" VerticalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="12" Background="#0B1220" Foreground="{StaticResource Brush.Text.Secondary}" BorderBrush="{StaticResource Brush.Border.Subtle}"/>
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource CyberCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Safety Boundary" FontSize="17" FontWeight="Bold"/>
+                        <Border Style="{StaticResource WarningBadgeStyle}" Margin="0,10,0,10">
+                            <TextBlock Text="Permanently disabling Windows Update, driver service hacks, and security service disables are blocked." Foreground="{StaticResource Brush.Status.Warning}" TextWrapping="Wrap"/>
+                        </Border>
+                        <TextBlock Text="{Binding RestoreNote}" Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,0,0,14"/>
+                        <ItemsControl ItemsSource="{Binding RestorePlacementActions}">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding Label}" ToolTip="{Binding Tooltip}" Tag="{Binding}" Click="RunPlacementAction_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,10,10" MinWidth="150"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Style="{StaticResource CyberCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Usage Notes" FontSize="17" FontWeight="Bold"/>
+                    <TextBlock Text="- Do not permanently disable Windows Update." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="0,10,0,7"/>
+                    <TextBlock Text="- Use Windows Update for final OS-managed decisions." Foreground="{StaticResource Brush.Text.Secondary}" TextWrapping="Wrap"/>
+                    <ItemsControl ItemsSource="{Binding Recommendations}" Margin="0,10,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding StringFormat=- {0}}" Foreground="{StaticResource Brush.Text.Muted}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CyberCardStyle}" Margin="0,16,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <WrapPanel>
+                        <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,8,8">
+                            <TextBlock Text="{Binding LastUpdated, StringFormat=Last scan: {0}}" Foreground="{StaticResource Brush.Text.Secondary}"/>
+                        </Border>
+                        <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,8,8">
+                            <TextBlock Text="{Binding Status, StringFormat=Last action: {0}}" Foreground="{StaticResource Brush.Text.Secondary}"/>
+                        </Border>
+                        <Border Style="{StaticResource SuccessBadgeStyle}" Margin="0,0,8,8">
+                            <TextBlock Text="Safety status: active" Foreground="{StaticResource Brush.Status.Success}"/>
+                        </Border>
+                        <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,8,8">
+                            <TextBlock Text="Restore status: visible" Foreground="{StaticResource Brush.Text.Secondary}"/>
+                        </Border>
+                        <Border Style="{StaticResource CyberBadgeStyle}" Margin="0,0,8,8">
+                            <TextBlock Text="Report status: local-first" Foreground="{StaticResource Brush.Text.Secondary}"/>
+                        </Border>
+                    </WrapPanel>
+                    <WrapPanel Grid.Column="1">
+                        <ItemsControl ItemsSource="{Binding SecondaryPlacementActions}">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding Label}" ToolTip="{Binding Tooltip}" Tag="{Binding}" Click="RunPlacementAction_Click" Style="{StaticResource CyberGhostButtonStyle}" Margin="0,0,8,8" MinWidth="130"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </WrapPanel>
+                </Grid>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</views:PlacementActionPageBase>

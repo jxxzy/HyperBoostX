@@ -1,0 +1,98 @@
+name: Windows CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r app/requirements.txt pytest pyinstaller
+
+      - name: Run backend tests
+        run: |
+          python -m pytest tests -q
+
+      - name: Setup NSIS
+        run: choco install nsis -y
+
+      - name: Restore launcher
+        run: dotnet restore launcher/HyperBoostLauncher.csproj -r win-x64
+
+      - name: Build launcher
+        run: dotnet build launcher/HyperBoostLauncher.csproj -c Release
+
+      - name: Build WPF
+        run: dotnet build wpf/HyperBoostX.csproj -c Release
+
+      - name: Start backend for .NET integration tests
+        shell: powershell
+        run: |
+          $process = Start-Process python -ArgumentList "backend_server.py" -WorkingDirectory "app" -PassThru
+          for ($i = 0; $i -lt 40; $i++) {
+            Start-Sleep -Seconds 1
+            try {
+              $health = Invoke-RestMethod -Uri "http://127.0.0.1:5000/api/health" -TimeoutSec 2
+              if ($health.status -eq "ok") {
+                "Backend ready on PID $($process.Id)"
+                exit 0
+              }
+            } catch {
+              "Waiting for backend..."
+            }
+          }
+          throw "Backend did not become healthy before .NET integration tests."
+
+      - name: Run .NET tests
+        run: dotnet test dotnet-tests/HyperBoostX.Tests/HyperBoostX.Tests.csproj -c Release
+
+      - name: Secret scan
+        shell: powershell
+        run: |
+          $patterns = @(
+            'ghp_[A-Za-z0-9_]{20,}',
+            'github_pat_[A-Za-z0-9_]{20,}',
+            'sk-[A-Za-z0-9]{20,}',
+            'nvapi-[A-Za-z0-9_-]{20,}',
+            'discord\.com/api/webhooks/[0-9]{12,}/[A-Za-z0-9_-]{30,}'
+          )
+          $files = git ls-files
+          foreach ($pattern in $patterns) {
+            $hits = Select-String -Path $files -Pattern $pattern -ErrorAction SilentlyContinue
+            if ($hits) {
+              $hits | ForEach-Object { "$($_.Path):$($_.LineNumber): secret-like pattern $pattern" }
+              throw "Secret scan failed for pattern $pattern"
+            }
+          }
+
+      - name: Build release artifacts
+        shell: powershell
+        run: .\scripts\build_release_ci.ps1
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hyperboostx-installer-artifact
+          path: |
+            HyperBoostXInstaller.exe

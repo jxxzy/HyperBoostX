@@ -1,0 +1,6 @@
+HyperBoostX v1.1.8
+
+Hotfix focus:
+- fixed long-running AUTO FIX / SFC utilities timing out after 45 seconds by using a longer timeout for repair flows
+- reduced in-app notification delay with faster status rendering and immediate processing feedback
+- expanded Full Feature Audit so it covers more of the app, including notification, settings integration, compatibility, and utilities workflow/safety probes

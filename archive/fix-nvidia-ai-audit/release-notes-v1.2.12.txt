@@ -1,0 +1,14 @@
+HyperBoost X v1.2.12
+
+Stable patch release focused on release-update Discord webhook verification.
+
+Changes:
+- Added a dedicated Send Test Update button in Settings for the release-update Discord webhook.
+- Kept Send Test Error scoped to the error/audit webhook so both Discord channels can be tested independently.
+- Verified release-update webhook delivery uses the secure Credential Manager value and does not expose the webhook URL in app-state.
+- Fixed the local runtime deploy script default source path for smoother portable-to-install deployment.
+
+Validation:
+- Update webhook connectivity returned HTTP 204 No Content during local audit.
+- WPF Debug build passed.
+- .NET tests passed.

@@ -1,0 +1,44 @@
+{
+  "tweaks": [
+    {
+      "id": "disable_defender",
+      "name": "Disable Windows Defender",
+      "description": "Disables Windows Defender real-time protection",
+      "category": "Security",
+      "risk_level": "High",
+      "requires_restart": true
+    },
+    {
+      "id": "optimize_visual",
+      "name": "Optimize Visual Effects",
+      "description": "Adjusts visual settings for better performance",
+      "category": "Performance",
+      "risk_level": "Low",
+      "requires_restart": false
+    },
+    {
+      "id": "disable_telemetry",
+      "name": "Disable Telemetry",
+      "description": "Disables Windows telemetry and tracking",
+      "category": "Privacy",
+      "risk_level": "Medium",
+      "requires_restart": false
+    },
+    {
+      "id": "disable_updates",
+      "name": "Disable Auto Updates",
+      "description": "Disables automatic Windows updates",
+      "category": "Maintenance",
+      "risk_level": "High",
+      "requires_restart": true
+    },
+    {
+      "id": "disable_xbox",
+      "name": "Disable Xbox Game Bar",
+      "description": "Disables Xbox Game Bar overlay",
+      "category": "Gaming",
+      "risk_level": "Low",
+      "requires_restart": false
+    }
+  ]
+}

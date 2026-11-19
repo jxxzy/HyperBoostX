@@ -1,0 +1,10 @@
+{
+  "automation": {
+    "status": {
+      "completed": "Completed",
+      "queued": "Queued",
+      "deferred": "Deferred",
+      "waiting": "Waiting for safe window"
+    }
+  }
+}

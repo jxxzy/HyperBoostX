@@ -1,0 +1,40 @@
+﻿# Feature Truth Matrix v2.10.0
+
+Status: `OWNER_LAB_RELEASE_CANDIDATE`
+
+Current v2.10 status: HyperBoostX v2.10.0 Owner Lab / Release Candidate. Public stable remains v1.3.0 until release gates pass.
+
+## Release Truth
+
+- v2.10.0 is the current stable unsigned public release.
+- Code signing is `SKIPPED_BY_OWNER_NO_CERT`; do not claim signed distribution.
+- Stable UI must expose only Real features with real visible actions.
+- Dev/diagnostic mode may expose additional detail, but it must not bypass Safety Guard.
+- No feature may claim guaranteed FPS, guaranteed ping, official vendor partnership, automatic driver installation, full RGB control, production cloud sync, or production license server.
+
+## Counts
+
+| Metric | Count |
+| --- | ---: |
+| Action-map menus | 73 |
+| Stable-visible features | 73 |
+| Hidden from Stable UI | 0 |
+| Non-real visible in Stable UI | 0 |
+| Stable-visible buttons | 606 |
+| Stable action-map buttons | 606 |
+| Partial/roadmap/guidance buttons | 0 |
+| Unique UI endpoints | 170 |
+
+## Stable Visible Features
+
+All 73 action-map entries are classified Real. The WPF sidebar exposes the user-facing routes, while internal fallback routes remain safety/support infrastructure.
+
+## Boundary-Safe Features
+
+RGB software detection, cloud/license boundary state, plugin catalog validation, and driver guidance are valid only as local-safe feature boundaries. They are not claimed as full device lighting control, production cloud sync, paid activation infrastructure, remote plugin execution, or automatic driver installation.
+
+## Rule
+
+Real means the UI action has a command, handler/endpoint, loading/success/error state, test coverage, and Safety Guard behavior. Real does not mean risky system changes are forced or that expert mode can bypass safety.
+
+

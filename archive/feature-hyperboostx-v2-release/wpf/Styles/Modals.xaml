@@ -1,0 +1,11 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style x:Key="CyberModalSurfaceStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush.Surface.Modal}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Brush.Border.Glow}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadius.Modal}"/>
+        <Setter Property="Padding" Value="22"/>
+        <Setter Property="Effect" Value="{StaticResource Shadow.Card}"/>
+    </Style>
+</ResourceDictionary>

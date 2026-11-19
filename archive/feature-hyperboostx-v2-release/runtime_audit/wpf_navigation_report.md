@@ -1,0 +1,225 @@
+﻿# HyperBoostX WPF Navigation Report
+
+Sidebar count: 71
+
+- PASS - sidebar label: One Click Boost
+- PASS - route registered: OneClickBoost
+- PASS - view exists: OneClickBoost
+- PASS - sidebar label: Gaming Mode
+- PASS - route registered: AutoGamingMode
+- PASS - view exists: AutoGamingMode
+- PASS - sidebar label: Smart Scan
+- PASS - route registered: SmartScan
+- PASS - view exists: SmartScan
+- PASS - sidebar label: Smart Recommendation
+- PASS - route registered: AIPerformanceAdvisor
+- PASS - view exists: AIPerformanceAdvisor
+- PASS - sidebar label: AI Center
+- PASS - route registered: AICenter
+- PASS - view exists: AICenter
+- PASS - sidebar label: NVIDIA Copilot
+- PASS - route registered: NvidiaCopilot
+- PASS - view exists: NvidiaCopilot
+- PASS - sidebar label: Dashboard
+- PASS - route registered: Dashboard
+- PASS - view exists: Dashboard
+- PASS - sidebar label: HyperBoost Score
+- PASS - route registered: HyperBoostScore
+- PASS - view exists: HyperBoostScore
+- PASS - sidebar label: Performance
+- PASS - route registered: PerformanceBoost
+- PASS - view exists: PerformanceBoost
+- PASS - sidebar label: CPU Turbo Diagnostic
+- PASS - route registered: CpuTurboDiagnostic
+- PASS - view exists: CpuTurboDiagnostic
+- PASS - sidebar label: CPU/RAM Optimizer
+- PASS - route registered: CpuRamOptimizer
+- PASS - view exists: CpuRamOptimizer
+- PASS - sidebar label: Startup
+- PASS - route registered: StartupManager
+- PASS - view exists: StartupManager
+- PASS - sidebar label: Background Apps
+- PASS - route registered: BackgroundApps
+- PASS - view exists: BackgroundApps
+- PASS - sidebar label: HyperBalance
+- PASS - route registered: HyperBalance
+- PASS - view exists: HyperBalance
+- PASS - sidebar label: Process Analyzer
+- PASS - route registered: ProcessAnalyzer
+- PASS - view exists: ProcessAnalyzer
+- PASS - sidebar label: Cleanup
+- PASS - route registered: Cleanup
+- PASS - view exists: Cleanup
+- PASS - sidebar label: Storage
+- PASS - route registered: Storage
+- PASS - view exists: Storage
+- PASS - sidebar label: GPU Center
+- PASS - route registered: GpuCenter
+- PASS - view exists: GpuCenter
+- PASS - sidebar label: Driver Recommendation
+- PASS - route registered: DriverRecommendation
+- PASS - view exists: DriverRecommendation
+- PASS - sidebar label: Overlay Conflict Detector
+- PASS - route registered: OverlayConflictDetector
+- PASS - view exists: OverlayConflictDetector
+- PASS - sidebar label: RGB Software Detector
+- PASS - route registered: RgbSoftwareDetector
+- PASS - view exists: RgbSoftwareDetector
+- PASS - sidebar label: Gaming Booster
+- PASS - route registered: GamingBooster
+- PASS - view exists: GamingBooster
+- PASS - sidebar label: Game Library
+- PASS - route registered: GameLibrary
+- PASS - view exists: GameLibrary
+- PASS - sidebar label: Game Profiles
+- PASS - route registered: GameProfiles
+- PASS - view exists: GameProfiles
+- PASS - sidebar label: Streaming Mode
+- PASS - route registered: StreamingCenter
+- PASS - view exists: StreamingCenter
+- PASS - sidebar label: Creator Mode
+- PASS - route registered: CreatorMode
+- PASS - view exists: CreatorMode
+- PASS - sidebar label: Voice Meter / Mic Mixer
+- PASS - route registered: AdvancedMicMixer
+- PASS - view exists: AdvancedMicMixer
+- PASS - sidebar label: Webcam Diagnostics
+- PASS - route registered: WebcamStudio
+- PASS - view exists: WebcamStudio
+- PASS - sidebar label: Camera Tracking
+- PASS - route registered: CameraTracking
+- PASS - view exists: CameraTracking
+- PASS - sidebar label: Network Booster
+- PASS - route registered: NetworkBooster
+- PASS - view exists: NetworkBooster
+- PASS - sidebar label: DNS & Latency Tools
+- PASS - route registered: DnsLatencyTools
+- PASS - view exists: DnsLatencyTools
+- PASS - sidebar label: Network Optimization
+- PASS - route registered: NetworkOptimization
+- PASS - view exists: NetworkOptimization
+- PASS - sidebar label: Network Tools
+- PASS - route registered: NetworkTools
+- PASS - view exists: NetworkTools
+- PASS - sidebar label: Privacy Center
+- PASS - route registered: PrivacyCenter
+- PASS - view exists: PrivacyCenter
+- PASS - sidebar label: Security & Health
+- PASS - route registered: SecurityHealth
+- PASS - view exists: SecurityHealth
+- PASS - sidebar label: System Reality Guard
+- PASS - route registered: SystemRealityGuard
+- PASS - view exists: SystemRealityGuard
+- PASS - sidebar label: LCD Performance Guard
+- PASS - route registered: LcdPerformanceGuard
+- PASS - view exists: LcdPerformanceGuard
+- PASS - sidebar label: Defender Scan Guard
+- PASS - route registered: DefenderScanGuard
+- PASS - view exists: DefenderScanGuard
+- PASS - sidebar label: Security Reality Audit
+- PASS - route registered: SecurityRealityAudit
+- PASS - view exists: SecurityRealityAudit
+- PASS - sidebar label: Protected Apps
+- PASS - route registered: ProtectedApps
+- PASS - view exists: ProtectedApps
+- PASS - sidebar label: Apps Manager
+- PASS - route registered: AppsManager
+- PASS - view exists: AppsManager
+- PASS - sidebar label: Tweaks Center
+- PASS - route registered: TweaksCenter
+- PASS - view exists: TweaksCenter
+- PASS - sidebar label: Windows Features
+- PASS - route registered: WindowsFeatures
+- PASS - view exists: WindowsFeatures
+- PASS - sidebar label: Update Control
+- PASS - route registered: UpdateControl
+- PASS - view exists: UpdateControl
+- PASS - sidebar label: Repair Tools
+- PASS - route registered: RepairTools
+- PASS - view exists: RepairTools
+- PASS - sidebar label: Driver & Update Center
+- PASS - route registered: DriverUpdateCenter
+- PASS - view exists: DriverUpdateCenter
+- PASS - sidebar label: App Uninstaller
+- PASS - route registered: AppUninstaller
+- PASS - view exists: AppUninstaller
+- PASS - sidebar label: Gaming Essentials
+- PASS - route registered: GamingEssentials
+- PASS - view exists: GamingEssentials
+- PASS - sidebar label: Advanced Tweaks
+- PASS - route registered: AdvancedTweaks
+- PASS - view exists: AdvancedTweaks
+- PASS - sidebar label: Windows Services
+- PASS - route registered: WindowsServices
+- PASS - view exists: WindowsServices
+- PASS - sidebar label: Power Optimization
+- PASS - route registered: PowerOptimization
+- PASS - view exists: PowerOptimization
+- PASS - sidebar label: Visual Effects
+- PASS - route registered: VisualEffects
+- PASS - view exists: VisualEffects
+- PASS - sidebar label: MSI Safe Optimizer
+- PASS - route registered: MsiSafeOptimizer
+- PASS - view exists: MsiSafeOptimizer
+- PASS - sidebar label: Restore & Backup
+- PASS - route registered: RestoreBackup
+- PASS - view exists: RestoreBackup
+- PASS - sidebar label: Restore Point Manager
+- PASS - route registered: RestorePointManager
+- PASS - view exists: RestorePointManager
+- PASS - sidebar label: Reports
+- PASS - route registered: Reports
+- PASS - view exists: Reports
+- PASS - sidebar label: Performance History
+- PASS - route registered: PerformanceHistory
+- PASS - view exists: PerformanceHistory
+- PASS - sidebar label: Performance Report
+- PASS - route registered: PerformanceReport
+- PASS - view exists: PerformanceReport
+- PASS - sidebar label: Scheduled Automation
+- PASS - route registered: ScheduledAutomation
+- PASS - view exists: ScheduledAutomation
+- PASS - sidebar label: Task & Rule System
+- PASS - route registered: TaskRuleSystem
+- PASS - view exists: TaskRuleSystem
+- PASS - sidebar label: Utilities Tools
+- PASS - route registered: UtilitiesTools
+- PASS - view exists: UtilitiesTools
+- PASS - sidebar label: Benchmark Lab
+- PASS - route registered: BenchmarkLab
+- PASS - view exists: BenchmarkLab
+- PASS - sidebar label: Plugin Marketplace
+- PASS - route registered: PluginMarketplace
+- PASS - view exists: PluginMarketplace
+- PASS - sidebar label: Cloud & License Boundary
+- PASS - route registered: CloudSyncLicense
+- PASS - view exists: CloudSyncLicense
+- PASS - sidebar label: Release Readiness
+- PASS - route registered: ReleaseReadiness
+- PASS - view exists: ReleaseReadiness
+- PASS - sidebar label: Feature Audit
+- PASS - route registered: FeatureAudit
+- PASS - view exists: FeatureAudit
+- PASS - sidebar label: Master Test Engine
+- PASS - route registered: MasterTestEngine
+- PASS - view exists: MasterTestEngine
+- PASS - sidebar label: Feature Audit Matrix
+- PASS - route registered: FeatureAuditMatrix
+- PASS - view exists: FeatureAuditMatrix
+- PASS - sidebar label: Knowledge Base
+- PASS - route registered: KnowledgeBase
+- PASS - view exists: KnowledgeBase
+- PASS - sidebar label: App Settings
+- PASS - route registered: Settings
+- PASS - view exists: Settings
+- PASS - sidebar label: About App
+- PASS - route registered: About
+- PASS - view exists: About
+- PASS - dashboard button: Start Smart Scan
+- PASS - dashboard button: One Click Safe Boost
+- PASS - dashboard button: Auto Gaming Mode
+- PASS - dashboard button: View Last Report
+- PASS - dashboard button: Restore Changes
+- PASS - dashboard button: Refresh Status
+- PASS - no blank or placeholder-only views
+- PASS - v1.3 parity sidebar count >= 50

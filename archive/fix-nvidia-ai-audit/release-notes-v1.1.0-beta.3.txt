@@ -1,0 +1,54 @@
+## HyperBoost X v1.1.0-beta.3
+
+`v1.1.0-beta.3` is a follow-up prerelease focused on the audit and runtime issues that still appeared after `v1.1.0-beta.2`, especially around startup contract mismatches, WPF JSON parsing, and refresh latency.
+
+## Recommended download
+
+For most users, the recommended file is:
+
+- `HyperBoostXInstaller-v1.1.0-beta.3.exe`
+
+Other assets:
+
+- `HyperBoostX-Portable-v1.1.0-beta.3.zip` for portable/manual extraction use
+- `HyperBoostX-Package-v1.1.0-beta.3.zip` for technical packaging or runtime inspection
+- `SHA256SUMS.txt` for checksum verification
+
+## Release focus
+
+- fix runtime crashes still showing up in Smart Recommendation and automation-related audit paths
+- restore startup payload compatibility between backend and WPF audit expectations
+- reduce dashboard and scan latency in real runtime builds
+- publish a cleaner portable/runtime build for local QA and installation refresh
+
+## Highlights
+
+### WPF audit hardening
+
+- fixed fragile `dynamic` JSON parsing used by Smart Recommendation diagnostics
+- fixed automation snapshot parsing that previously triggered `JObject`/`JToken` cast errors
+- hardened security and dashboard stat parsing to tolerate mixed token shapes from backend payloads
+
+### Startup and monitoring contract fixes
+
+- `/api/startup/list` now returns both `items` and `startup_items`
+- monitoring stats now use the correct Windows system drive instead of a generic root path
+- added short-lived GPU and temperature caching to reduce repeated expensive reads during refresh bursts
+
+### Performance and runtime behavior
+
+- reduced dashboard deep-refresh cost by parallelizing process/startup/junk-estimate reads
+- reduced smart scan overhead by running independent backend calls concurrently
+- added safer storage-page fallback behavior instead of letting runtime dependency issues crash the app
+
+### Validation
+
+- `powershell -ExecutionPolicy Bypass -File .\scripts\verify_repo.ps1 -Configuration Debug`
+- `dotnet build wpf\HyperBoostX.csproj`
+- `powershell -ExecutionPolicy Bypass -File .\scripts\build_release_local.ps1 -OutputRoot '.\artifacts\local-deploy-20260408-3'`
+
+## Notes
+
+- this is still a prerelease, not a final stable release
+- installed users should prefer the installer asset if they want the runtime layout refreshed cleanly
+- portable/runtime logs are still written under `%LocalAppData%\HyperBoost X\logs`

@@ -1,0 +1,157 @@
+{
+  "app": {
+    "window_title": "HyperBoost X - WPF Client"
+  },
+  "settings": {
+    "language": {
+      "overview_title": "Language & Localization",
+      "mode_follow_system": "Follow System",
+      "mode_manual": "Manual Selection",
+      "mode_auto_smart": "Auto Smart Detection",
+      "apply": "Apply Language",
+      "follow_system": "Follow System",
+      "auto_detect": "Auto Detect",
+      "open_packs": "Open Language Packs",
+      "export_report": "Export Coverage Report",
+      "applied": "Language updated",
+      "system_mode_applied": "Language mode now follows the system locale.",
+      "auto_mode_applied": "Smart language detection is now active.",
+      "pack_folder_opened": "Language pack folder opened.",
+      "report_exported": "Localization report exported."
+    }
+  },
+  "status": {
+    "backend_connected": "Backend connected",
+    "backend_disconnected": "Backend disconnected"
+  },
+  "page": {
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Core system hub for real-time monitoring, quick boost, recommendation preview, mode control, alerts, and activity log."
+    },
+    "performance": {
+      "title": "Performance Boost",
+      "subtitle": "Direct performance tools for CPU, RAM, disk, startup, network, gaming, and safe restore."
+    },
+    "one_click_boost": {
+      "title": "One Click Boost",
+      "subtitle": "Run safe, balanced, extreme, or custom boost from one fast control panel."
+    },
+    "startup": {
+      "title": "Startup Manager",
+      "subtitle": "Review boot impact and jump into startup controls when the PC feels slow to open."
+    },
+    "smart_recommendation": {
+      "title": "Smart Recommendation",
+      "subtitle": "Auto-scan the system and surface the most relevant optimizations for the current condition."
+    },
+    "cleanup": {
+      "title": "Storage Cleaner",
+      "subtitle": "Free temporary files and run cleanup tools without guessing which step to use first."
+    },
+    "storage": {
+      "title": "Storage",
+      "subtitle": "Read all attached storage, scan drives, inspect breakdown, health, and actions from one page."
+    },
+    "gaming_booster": {
+      "title": "Gaming Booster",
+      "subtitle": "Prepare the system for lower latency and fewer interruptions before launching games."
+    },
+    "streaming_mode": {
+      "title": "Streaming Mode",
+      "subtitle": "Stabilize encoder, upload, CPU, RAM, GPU, and background activity for safer live sessions."
+    },
+    "creator_mode": {
+      "title": "Creator Mode",
+      "subtitle": "Optimize editing, rendering, cache, disk, and focus mode for smoother creator workflows."
+    },
+    "network_booster": {
+      "title": "Network Booster",
+      "subtitle": "Run diagnostics first, then apply DNS and TCP actions with clear feedback."
+    },
+    "dns_latency_tools": {
+      "title": "DNS & Latency Tools",
+      "subtitle": "Diagnose DNS, ping, jitter, packet loss, traceroute, and quick-fix latency in one advanced panel."
+    },
+    "background_apps": {
+      "title": "Background Apps",
+      "subtitle": "See which processes are eating resources so the next cleanup decision is obvious."
+    },
+    "privacy_center": {
+      "title": "Privacy Center",
+      "subtitle": "Reduce telemetry and open the right Windows privacy pages without hunting through settings."
+    },
+    "security_health": {
+      "title": "Security & Health",
+      "subtitle": "See whether the PC is safe and healthy from the perspective of security, temperature, disk, RAM, integrity, and suspicious activity."
+    },
+    "apps_manager": {
+      "title": "Apps Manager",
+      "subtitle": "See, monitor, uninstall, clean up, and optimize apps from one cleaner control panel."
+    },
+    "app_uninstaller": {
+      "title": "App Uninstaller",
+      "subtitle": "Uninstall, analyze, deep-clean residuals, force-remove stubborn apps, and review application impact from one module."
+    },
+    "windows_services": {
+      "title": "Services (Local Machine)",
+      "subtitle": "Database and control center for all local services, complete with status, startup type, resource usage, dependencies, insight, bulk action, and backup restore."
+    },
+    "power_optimization": {
+      "title": "Power Optimization",
+      "subtitle": "Power management brain for dynamic modes, CPU/GPU/disk/network control, thermal-aware tuning, telemetry, rules, and backup power policy."
+    },
+    "visual_effects": {
+      "title": "Visual Effects",
+      "subtitle": "Control UI rendering, animation, transparency, explorer effects, input responsiveness, adaptive visual engine, and visual-setting backup."
+    },
+    "windows_features": {
+      "title": "Windows Features",
+      "subtitle": "Control official Windows features for gaming, development, creator workflows, legacy features, network, security, and optional features."
+    },
+    "update_control": {
+      "title": "Update Control",
+      "subtitle": "Control Windows, driver, app, service, schedule, and background updates so they do not disturb performance."
+    },
+    "repair_tools": {
+      "title": "Repair Tools",
+      "subtitle": "Windows workshop for scanning errors and fixing system, network, services, apps, updates, cache, and backup restore from one panel."
+    },
+    "advanced_tweaks": {
+      "title": "Advanced Tweaks",
+      "subtitle": "Power-user tweaks for registry, services, boot, low-level network, kernel behavior, custom scripts, and backup restore with risk indicators."
+    },
+    "restore_backup": {
+      "title": "Restore & Backup",
+      "subtitle": "Create recovery checkpoints and keep simple snapshots before making bigger changes."
+    },
+    "restore_point_manager": {
+      "title": "Restore Point Manager",
+      "subtitle": "Manage Windows restore points as system-state snapshots for quick rollback, validation, cleanup, and repair engine workflows."
+    },
+    "scheduled_automation": {
+      "title": "Scheduled Automation",
+      "subtitle": "Autonomous automation engine that reads system context, chooses safe actions, defers unsafe tasks, and records decisions."
+    },
+    "utilities_tools": {
+      "title": "Utilities Tools",
+      "subtitle": "Main toolbox for cleanup, diagnostics, repair, network fix, system control, monitoring, workflows, analytics, and autonomous maintenance."
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "The app brain and living rules: UI, automation brain, system control, safety, engine, logging, updates, and HyperBoostX master switches."
+    },
+    "tweaks_center": {
+      "title": "Tweaks Center",
+      "subtitle": "Browse available tweaks with clearer context before applying system-level changes."
+    },
+    "driver_update_center": {
+      "title": "Driver & Update Center",
+      "subtitle": "Inspect current driver inventory and start update checks when hardware acts up."
+    },
+    "about": {
+      "title": "About App",
+      "subtitle": "Project information, runtime overview, and what this build is wired to do."
+    }
+  }
+}

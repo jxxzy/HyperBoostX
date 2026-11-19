@@ -1,0 +1,269 @@
+﻿{
+    "generated_at":  "2026-07-03T14:56:22.2434908Z",
+    "installed_launcher":  "C:\\Program Files\\HyperBoostX\\HyperBoostX.exe",
+    "backend_port":  5000,
+    "ok":  true,
+    "screenshots":  [
+                        {
+                            "file":  "dashboard.png",
+                            "label":  "Dashboard",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\dashboard.png",
+                            "exists":  true,
+                            "bytes":  327364,
+                            "last_write_utc":  "2026-07-03T14:55:38.6249382Z"
+                        },
+                        {
+                            "file":  "dashboard-after-scroll.png",
+                            "label":  "Dashboard",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\dashboard-after-scroll.png",
+                            "exists":  true,
+                            "bytes":  98860,
+                            "last_write_utc":  "2026-07-03T14:55:41.3328186Z"
+                        },
+                        {
+                            "file":  "performance.png",
+                            "label":  "Performance",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\performance.png",
+                            "exists":  true,
+                            "bytes":  94606,
+                            "last_write_utc":  "2026-07-03T14:55:42.8177390Z"
+                        },
+                        {
+                            "file":  "startup.png",
+                            "label":  "Startup",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\startup.png",
+                            "exists":  true,
+                            "bytes":  93866,
+                            "last_write_utc":  "2026-07-03T14:55:44.2889543Z"
+                        },
+                        {
+                            "file":  "background-apps.png",
+                            "label":  "Background Apps",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\background-apps.png",
+                            "exists":  true,
+                            "bytes":  93838,
+                            "last_write_utc":  "2026-07-03T14:55:45.7612397Z"
+                        },
+                        {
+                            "file":  "cleanup.png",
+                            "label":  "Cleanup",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\cleanup.png",
+                            "exists":  true,
+                            "bytes":  92390,
+                            "last_write_utc":  "2026-07-03T14:55:47.2508397Z"
+                        },
+                        {
+                            "file":  "storage.png",
+                            "label":  "Storage",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\storage.png",
+                            "exists":  true,
+                            "bytes":  93276,
+                            "last_write_utc":  "2026-07-03T14:55:48.7426351Z"
+                        },
+                        {
+                            "file":  "one-click-boost.png",
+                            "label":  "One Click Boost",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\one-click-boost.png",
+                            "exists":  true,
+                            "bytes":  93464,
+                            "last_write_utc":  "2026-07-03T14:55:50.1968742Z"
+                        },
+                        {
+                            "file":  "gaming-mode.png",
+                            "label":  "Gaming Mode",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\gaming-mode.png",
+                            "exists":  true,
+                            "bytes":  94150,
+                            "last_write_utc":  "2026-07-03T14:55:51.6628414Z"
+                        },
+                        {
+                            "file":  "smart-recommendation.png",
+                            "label":  "Smart Recommendation",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\smart-recommendation.png",
+                            "exists":  true,
+                            "bytes":  94351,
+                            "last_write_utc":  "2026-07-03T14:55:53.1309512Z"
+                        },
+                        {
+                            "file":  "gpu-center.png",
+                            "label":  "GPU Center",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\gpu-center.png",
+                            "exists":  true,
+                            "bytes":  92943,
+                            "last_write_utc":  "2026-07-03T14:55:54.6157823Z"
+                        },
+                        {
+                            "file":  "hardware-vendor-center.png",
+                            "label":  "Hardware Vendor Center",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\hardware-vendor-center.png",
+                            "exists":  true,
+                            "bytes":  98697,
+                            "last_write_utc":  "2026-07-03T14:55:56.1228911Z"
+                        },
+                        {
+                            "file":  "gaming-booster.png",
+                            "label":  "Gaming Booster",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\gaming-booster.png",
+                            "exists":  true,
+                            "bytes":  94570,
+                            "last_write_utc":  "2026-07-03T14:55:57.6163534Z"
+                        },
+                        {
+                            "file":  "streaming-center.png",
+                            "label":  "Streaming Center",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\streaming-center.png",
+                            "exists":  true,
+                            "bytes":  102037,
+                            "last_write_utc":  "2026-07-03T14:55:59.1115954Z"
+                        },
+                        {
+                            "file":  "creator-mode.png",
+                            "label":  "Creator Mode",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\creator-mode.png",
+                            "exists":  true,
+                            "bytes":  93442,
+                            "last_write_utc":  "2026-07-03T14:56:00.6212286Z"
+                        },
+                        {
+                            "file":  "network-booster.png",
+                            "label":  "Network Booster",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\network-booster.png",
+                            "exists":  true,
+                            "bytes":  95448,
+                            "last_write_utc":  "2026-07-03T14:56:02.1472149Z"
+                        },
+                        {
+                            "file":  "dns-latency-tools.png",
+                            "label":  "DNS \u0026 Latency Tools",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\dns-latency-tools.png",
+                            "exists":  true,
+                            "bytes":  94937,
+                            "last_write_utc":  "2026-07-03T14:56:03.7055870Z"
+                        },
+                        {
+                            "file":  "privacy-center.png",
+                            "label":  "Privacy Center",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\privacy-center.png",
+                            "exists":  true,
+                            "bytes":  95047,
+                            "last_write_utc":  "2026-07-03T14:56:05.2290427Z"
+                        },
+                        {
+                            "file":  "security-health.png",
+                            "label":  "Security \u0026 Health",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\security-health.png",
+                            "exists":  true,
+                            "bytes":  96616,
+                            "last_write_utc":  "2026-07-03T14:56:06.7417594Z"
+                        },
+                        {
+                            "file":  "apps-manager.png",
+                            "label":  "Apps Manager",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\apps-manager.png",
+                            "exists":  true,
+                            "bytes":  95171,
+                            "last_write_utc":  "2026-07-03T14:56:08.2825956Z"
+                        },
+                        {
+                            "file":  "tweaks-center.png",
+                            "label":  "Tweaks Center",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\tweaks-center.png",
+                            "exists":  true,
+                            "bytes":  95663,
+                            "last_write_utc":  "2026-07-03T14:56:09.8205037Z"
+                        },
+                        {
+                            "file":  "windows-features.png",
+                            "label":  "Windows Features",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\windows-features.png",
+                            "exists":  true,
+                            "bytes":  96342,
+                            "last_write_utc":  "2026-07-03T14:56:11.3501147Z"
+                        },
+                        {
+                            "file":  "update-control.png",
+                            "label":  "Update Control",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\update-control.png",
+                            "exists":  true,
+                            "bytes":  96616,
+                            "last_write_utc":  "2026-07-03T14:56:12.8893989Z"
+                        },
+                        {
+                            "file":  "repair-tools.png",
+                            "label":  "Repair Tools",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\repair-tools.png",
+                            "exists":  true,
+                            "bytes":  94807,
+                            "last_write_utc":  "2026-07-03T14:56:14.4262939Z"
+                        },
+                        {
+                            "file":  "driver-update-center.png",
+                            "label":  "Driver \u0026 Update Center",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\driver-update-center.png",
+                            "exists":  true,
+                            "bytes":  96009,
+                            "last_write_utc":  "2026-07-03T14:56:15.9200248Z"
+                        },
+                        {
+                            "file":  "app-uninstaller.png",
+                            "label":  "App Uninstaller",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\app-uninstaller.png",
+                            "exists":  true,
+                            "bytes":  95357,
+                            "last_write_utc":  "2026-07-03T14:56:17.4447819Z"
+                        },
+                        {
+                            "file":  "restore-backup.png",
+                            "label":  "Restore \u0026 Backup",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\restore-backup.png",
+                            "exists":  true,
+                            "bytes":  95741,
+                            "last_write_utc":  "2026-07-03T14:56:18.9974257Z"
+                        },
+                        {
+                            "file":  "settings.png",
+                            "label":  "App Settings",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\settings.png",
+                            "exists":  true,
+                            "bytes":  87390,
+                            "last_write_utc":  "2026-07-03T14:56:20.5833420Z"
+                        },
+                        {
+                            "file":  "about.png",
+                            "label":  "About App",
+                            "clicked":  true,
+                            "path":  "F:\\BOOSTER BY MR.4NONY\\docs\\screenshots\\v2.10.0-final\\about.png",
+                            "exists":  true,
+                            "bytes":  97893,
+                            "last_write_utc":  "2026-07-03T14:56:22.1682743Z"
+                        }
+                    ]
+}

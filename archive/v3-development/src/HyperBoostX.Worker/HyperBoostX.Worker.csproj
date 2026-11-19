@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><AssemblyName>HyperBoostX.Worker</AssemblyName><RootNamespace>HyperBoostX.Worker</RootNamespace></PropertyGroup><ItemGroup><ProjectReference Include="../HyperBoostX.Core/HyperBoostX.Core.csproj"/><ProjectReference Include="../HyperBoostX.Windows/HyperBoostX.Windows.csproj"/></ItemGroup></Project>

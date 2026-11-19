@@ -1,0 +1,13 @@
+{
+  "messages": {
+    "language": {
+      "current": "Bahasa Aplikasi Saat Ini: {language}",
+      "detected": "Bahasa Sistem Terdeteksi: {language}",
+      "coverage": "Cakupan Terjemahan: {coverage}",
+      "fallback": "Bahasa Fallback: {language}",
+      "mode": "Mode Bahasa: {mode}",
+      "restart_notice": "Sebagian perubahan bahasa mungkin baru penuh setelah restart.",
+      "missing_keys_report": "Key yang hilang diekspor ke {path}"
+    }
+  }
+}

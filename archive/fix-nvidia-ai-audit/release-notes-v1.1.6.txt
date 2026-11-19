@@ -1,0 +1,6 @@
+HyperBoostX v1.1.6
+
+Hotfix focus:
+- fixed Discord/log alert severity detection so structured backend WARNING lines stay warnings instead of being escalated to false errors
+- clarified Gaming Mode partial-success messaging when a tweak needs Administrator privileges
+- kept the packaging/runtime fixes from v1.1.5 intact while shipping the alert-classification correction in a clean release

@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><AssemblyName>hbx</AssemblyName></PropertyGroup><ItemGroup><ProjectReference Include="../HyperBoostX.Windows/HyperBoostX.Windows.csproj"/></ItemGroup></Project>

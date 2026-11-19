@@ -1,0 +1,8 @@
+HyperBoostX v1.1.5
+
+Hotfix focus:
+- reduced backend `/api/health` spam during UI refreshes and QA runs by caching health checks in the WPF client
+- normalized backend JSON handling in the WPF client so automation and feature panels consume stable `JToken` payloads
+- switched the WPF desktop release from single-file publish to a full runtime folder to reduce exit-time native teardown and missing-dependency issues
+- updated installer and packaging so the complete WPF runtime folder is shipped in both installer and portable/package outputs
+- synced installer, launcher, backend, and update metadata to `1.1.5`

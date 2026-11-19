@@ -1,0 +1,258 @@
+{
+  "metadata": {
+    "name": "HyperBoostX Triple AI Engine Knowledge Base",
+    "tagline": "Scan. Analyze. Boost. Revert.",
+    "positioning": [
+      "AI Performance Doctor for Gaming PCs",
+      "AI Performance Tuning for NVIDIA RTX PCs",
+      "Optimized for NVIDIA RTX GPUs"
+    ],
+    "branding_guardrails": [
+      "Do not claim Powered by NVIDIA.",
+      "Do not claim Official NVIDIA Partner.",
+      "Do not claim NVIDIA Certified."
+    ]
+  },
+  "tweak_database": [
+    {
+      "tweak_id": "optimize_power",
+      "name": "Set Performance Power Plan",
+      "description": "Switches Windows to a performance-oriented power plan when available.",
+      "category": "performance",
+      "risk_level": "low",
+      "backup_method": "store active power plan GUID",
+      "revert_method": "restore previous power plan GUID",
+      "requires_backup": true,
+      "requires_restore_point": false,
+      "reversible": true,
+      "can_auto_apply": true,
+      "notes": "Can help latency or frame pacing, but FPS gains are not guaranteed."
+    },
+    {
+      "tweak_id": "optimize_visual",
+      "name": "Optimize Windows Visual Effects",
+      "description": "Uses a reversible registry value for simpler visual effects.",
+      "category": "performance",
+      "risk_level": "low",
+      "backup_method": "registry backup JSON",
+      "revert_method": "restore previous registry value",
+      "requires_backup": true,
+      "requires_restore_point": false,
+      "reversible": true,
+      "can_auto_apply": true,
+      "notes": "Low risk and suitable for Safe Boost."
+    },
+    {
+      "tweak_id": "enable_game_mode",
+      "name": "Enable Windows Game Mode",
+      "description": "Enables Windows Game Mode for the current user.",
+      "category": "gaming",
+      "risk_level": "low",
+      "backup_method": "registry backup JSON",
+      "revert_method": "restore previous registry value",
+      "requires_backup": true,
+      "requires_restore_point": false,
+      "reversible": true,
+      "can_auto_apply": true,
+      "notes": "May help Windows prioritize game workloads; results depend on game and system state."
+    },
+    {
+      "tweak_id": "disable_xbox",
+      "name": "Disable Xbox Game Bar Capture Overlay",
+      "description": "Disables GameDVR capture overlay for the current user.",
+      "category": "gaming",
+      "risk_level": "low",
+      "backup_method": "registry backup JSON",
+      "revert_method": "restore previous registry value",
+      "requires_backup": true,
+      "requires_restore_point": false,
+      "reversible": true,
+      "can_auto_apply": true,
+      "notes": "Useful only if overlay/capture is causing stutter."
+    },
+    {
+      "tweak_id": "disable_telemetry",
+      "name": "Reduce Telemetry Policy",
+      "description": "Adjusts telemetry policy values where Windows edition permits it.",
+      "category": "privacy",
+      "risk_level": "medium",
+      "backup_method": "registry backup JSON",
+      "revert_method": "restore previous registry value",
+      "requires_backup": true,
+      "requires_restore_point": true,
+      "reversible": true,
+      "can_auto_apply": true,
+      "notes": "Must be explained clearly and applied only after approval."
+    },
+    {
+      "tweak_id": "disable_defender",
+      "name": "Disable Windows Security Protection",
+      "description": "Attempts to disable Windows Security protection.",
+      "category": "security",
+      "risk_level": "blocked",
+      "backup_method": "not allowed",
+      "revert_method": "not guaranteed",
+      "requires_backup": true,
+      "requires_restore_point": true,
+      "reversible": false,
+      "can_auto_apply": false,
+      "notes": "Blocked by HyperBoostX Safety Guard."
+    },
+    {
+      "tweak_id": "disable_updates",
+      "name": "Disable Windows Update Permanently",
+      "description": "Attempts to disable automatic Windows updates.",
+      "category": "maintenance",
+      "risk_level": "blocked",
+      "backup_method": "not allowed",
+      "revert_method": "not guaranteed",
+      "requires_backup": true,
+      "requires_restore_point": true,
+      "reversible": false,
+      "can_auto_apply": false,
+      "notes": "Blocked by HyperBoostX Safety Guard."
+    }
+  ],
+  "game_setting_database": [
+    {
+      "game": "FiveM",
+      "engine": "RAGE / GTA V modded runtime",
+      "profile": "cpu-and-streaming-sensitive",
+      "dlss_support": false,
+      "reflex_support": false,
+      "frame_generation_support": false,
+      "recommended_low_vram": ["Normal textures", "lower population variety", "cap FPS to stable target"],
+      "recommended_mid_vram": ["High textures if VRAM headroom exists", "reduce extended distance scaling", "cap FPS"],
+      "known_issues": ["server scripts can limit FPS", "frame pacing can drop with heavy background apps"]
+    },
+    {
+      "game": "Valorant",
+      "engine": "Unreal Engine 4",
+      "profile": "latency-sensitive",
+      "dlss_support": false,
+      "reflex_support": true,
+      "frame_generation_support": false,
+      "recommended_low_vram": ["low material quality", "low detail quality", "Reflex On if available"],
+      "recommended_mid_vram": ["medium textures", "Reflex On + Boost if thermals are stable"],
+      "known_issues": ["CPU bottleneck is common at high refresh rates"]
+    },
+    {
+      "game": "Fortnite",
+      "engine": "Unreal Engine 5",
+      "profile": "gpu-and-shader-sensitive",
+      "dlss_support": true,
+      "reflex_support": true,
+      "frame_generation_support": true,
+      "recommended_low_vram": ["Performance Mode or lower textures", "DLSS Balanced if using DX12", "Reflex On"],
+      "recommended_mid_vram": ["DLSS Quality/Balanced", "cap FPS near monitor refresh", "use shader pre-cache where available"],
+      "known_issues": ["shader compilation stutter", "UE5 settings can be VRAM heavy"]
+    },
+    {
+      "game": "CS2",
+      "engine": "Source 2",
+      "profile": "cpu-and-frame-pacing-sensitive",
+      "dlss_support": false,
+      "reflex_support": true,
+      "frame_generation_support": false,
+      "recommended_low_vram": ["lower shadows", "Reflex On", "cap FPS if frame time is unstable"],
+      "recommended_mid_vram": ["medium/high textures if VRAM allows", "Reflex On", "avoid unnecessary overlays"],
+      "known_issues": ["CPU limit at competitive settings", "overlay conflicts can add latency"]
+    }
+  ],
+  "nvidia_setting_database": [
+    {
+      "setting": "NVIDIA Reflex",
+      "recommended_value": "On when supported; On + Boost only if thermals are stable",
+      "use_case": "latency-sensitive competitive games",
+      "risk": "low",
+      "explanation": "Can help reduce render queue latency in supported games.",
+      "revert_method": "set Reflex to Off or default in the game menu"
+    },
+    {
+      "setting": "DLSS",
+      "recommended_value": "Quality for image quality, Balanced for heavier games, Performance for high resolution targets",
+      "use_case": "GPU-bound games on RTX GPUs",
+      "risk": "low",
+      "explanation": "Can improve stability or headroom depending on game and resolution.",
+      "revert_method": "set upscaling to native/off in the game menu"
+    },
+    {
+      "setting": "Frame Generation",
+      "recommended_value": "Use only when base FPS and latency feel stable",
+      "use_case": "single-player or visually rich games on supported RTX GPUs",
+      "risk": "low",
+      "explanation": "Can make motion look smoother but does not replace low-latency tuning.",
+      "revert_method": "disable in the game menu"
+    },
+    {
+      "setting": "V-Sync",
+      "recommended_value": "Usually Off for competitive games; use cap/VRR strategy for smoothness",
+      "use_case": "latency and frame pacing control",
+      "risk": "low",
+      "explanation": "Wrong V-Sync choices can add latency or tearing depending on display setup.",
+      "revert_method": "restore default in game or NVIDIA app/control panel"
+    }
+  ],
+  "safety_policy_database": {
+    "allowed_actions": [
+      "scan_pc",
+      "recommend_settings",
+      "create_backup",
+      "create_restore_point",
+      "cleanup_temp_files",
+      "set_power_plan",
+      "enable_game_mode",
+      "disable_nonessential_startup_with_approval",
+      "revert_changes"
+    ],
+    "warning_actions": [
+      "registry_tweak_reversible",
+      "service_optimization_noncritical",
+      "network_latency_tweak_light"
+    ],
+    "blocked_actions": [
+      "auto_overclock",
+      "auto_undervolt",
+      "voltage_change",
+      "bios_uefi_change",
+      "disable_windows_security",
+      "disable_firewall",
+      "disable_windows_update_permanent",
+      "delete_windows_service_permanent",
+      "irreversible_registry_edit",
+      "guaranteed_fps_claim"
+    ],
+    "backup_requirements": {
+      "low": "backup recommended for applied changes",
+      "medium": "backup required",
+      "high": "manual only with restore point; no auto apply",
+      "blocked": "must not run"
+    }
+  },
+  "error_knowledge_base": [
+    {
+      "error": "low_gpu_usage",
+      "symptoms": ["GPU usage low while FPS is low", "CPU thread usage high", "frame time spikes"],
+      "safe_fixes": ["check power plan", "close heavy background apps", "cap FPS to stable target", "review CPU-heavy settings"],
+      "risky_fixes": ["aggressive service disabling"],
+      "blocked_fixes": ["auto overclock", "voltage changes"]
+    },
+    {
+      "error": "shader_stutter",
+      "symptoms": ["stutter after driver update", "first-match stutter", "disk activity during gameplay"],
+      "safe_fixes": ["allow shader cache rebuild", "clean DirectX shader cache with approval", "keep enough storage free"],
+      "risky_fixes": ["deleting arbitrary driver folders"],
+      "blocked_fixes": ["driver service deletion"]
+    }
+  ],
+  "benchmark_database": [
+    {
+      "hardware_profile": "RTX midrange + 16GB RAM",
+      "game": "Fortnite",
+      "setting": "DLSS Balanced + Reflex On",
+      "average_fps": "internal baseline required",
+      "one_percent_low": "internal baseline required",
+      "notes": "Use as recommendation context only; never claim guaranteed FPS uplift."
+    }
+  ]
+}

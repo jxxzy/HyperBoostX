@@ -1,0 +1,47 @@
+{
+  "ok": false,
+  "test_run_id": "tc_4aa11c19c5",
+  "started_at": "2026-07-03T14:40:29.218816+00:00",
+  "finished_at": "2026-07-03T14:40:29.226486+00:00",
+  "summary": {
+    "status": "fail",
+    "passed": 0,
+    "failed": 1,
+    "total": 1,
+    "last_failed_suite": "full_feature_integrity"
+  },
+  "results": [
+    {
+      "test_run_id": "tc_4aa11c19c5",
+      "suite_id": "full_feature_integrity",
+      "suite_name": "Full Feature Integrity Test",
+      "status": "fail",
+      "ok": false,
+      "message": "Feature integrity gaps remain.",
+      "evidence": {
+        "counts": {
+          "menus": 0,
+          "buttons": 0,
+          "unique_endpoints": 0,
+          "partial_buttons": 0,
+          "guarded_destructive": 0
+        },
+        "gaps": [
+          "menu_count_below_73",
+          "button_count_below_606",
+          "endpoint_count_below_contract"
+        ],
+        "legacy_hits": []
+      },
+      "started_at": "2026-07-03T14:40:29.218993+00:00",
+      "finished_at": "2026-07-03T14:40:29.224397+00:00",
+      "duration_ms": 5
+    }
+  ],
+  "report_paths": {
+    "json": "F:\\BOOSTER BY MR.4NONY\\docs\\runtime-audit\\test-center\\tc_4aa11c19c5.json",
+    "markdown": "F:\\BOOSTER BY MR.4NONY\\docs\\runtime-audit\\test-center\\tc_4aa11c19c5.md",
+    "latest_json": "F:\\BOOSTER BY MR.4NONY\\docs\\runtime-audit\\test-center\\latest.json",
+    "latest_markdown": "F:\\BOOSTER BY MR.4NONY\\docs\\runtime-audit\\test-center\\latest.md"
+  }
+}

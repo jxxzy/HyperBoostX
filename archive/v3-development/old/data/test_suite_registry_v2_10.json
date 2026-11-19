@@ -1,0 +1,34 @@
+{
+  "schema_version": "2.10.0",
+  "runner": "embedded_test_center",
+  "policy": {
+    "arbitrary_command_execution": false,
+    "known_suite_ids_only": true,
+    "mutating_system_changes": false,
+    "discord_send_requires_opt_in": true
+  },
+  "suites": [
+    { "id": "full_owner_lab_gate", "name": "Full Owner Lab Gate", "category": "Owner Lab", "risk": "safe", "tabs": ["Overview", "Suites", "Results", "Reports"] },
+    { "id": "public_candidate_gate", "name": "Full Public Candidate Gate", "category": "Owner Lab", "risk": "safe", "tabs": ["Overview", "Results", "Reports"] },
+    { "id": "full_app_smoke_test", "name": "Full App Smoke Test", "category": "Runtime", "risk": "safe", "tabs": ["Overview", "Results"] },
+    { "id": "full_feature_integrity", "name": "Full Feature Integrity Test", "category": "Coverage", "risk": "safe", "tabs": ["Feature Coverage", "Action Coverage", "Results"] },
+    { "id": "ui_action_map", "name": "UI Action Map Test", "category": "Coverage", "risk": "safe", "tabs": ["Action Coverage", "Results"] },
+    { "id": "backend_endpoint", "name": "Backend Endpoint Test", "category": "Backend", "risk": "safe", "tabs": ["Overview", "Results", "Raw Logs"] },
+    { "id": "safety_guard_runtime", "name": "Safety Guard Runtime", "category": "Safety", "risk": "safe", "tabs": ["Overview", "Results"] },
+    { "id": "restore_backup_runtime", "name": "Restore & Backup Runtime", "category": "Safety", "risk": "safe", "tabs": ["Overview", "Results"] },
+    { "id": "report_generation", "name": "Report Generation", "category": "Reports", "risk": "safe", "tabs": ["Reports", "Results"] },
+    { "id": "action_history", "name": "Action History", "category": "Reports", "risk": "safe", "tabs": ["History", "Results"] },
+    { "id": "lcd_guard_runtime", "name": "LCD Guard", "category": "Hardware", "risk": "safe", "tabs": ["Overview", "Results"] },
+    { "id": "license_center_runtime", "name": "License Center", "category": "License", "risk": "safe", "tabs": ["Overview", "Results"] },
+    { "id": "ai_universal_runtime", "name": "AI Universal", "category": "AI", "risk": "safe", "tabs": ["Overview", "Results"] },
+    { "id": "installer_runtime", "name": "Installer Runtime", "category": "Installer", "risk": "evidence", "tabs": ["Overview", "Reports"] },
+    { "id": "install_reinstall_uninstall_qa", "name": "Reinstall/Uninstall QA", "category": "Installer", "risk": "manual", "tabs": ["Overview", "Reports"] },
+    { "id": "hardware_matrix", "name": "Hardware Matrix", "category": "Hardware", "risk": "evidence", "tabs": ["Overview", "Reports"] },
+    { "id": "long_runtime_stability", "name": "Long Runtime Stability", "category": "Runtime", "risk": "evidence", "tabs": ["Overview", "Reports"] },
+    { "id": "discord_webhook", "name": "Discord Webhook", "category": "Discord", "risk": "safe", "tabs": ["Discord", "Results"] },
+    { "id": "webhook_redaction", "name": "Webhook Redaction", "category": "Discord", "risk": "safe", "tabs": ["Discord", "Results"] },
+    { "id": "webhook_rate_limit", "name": "Webhook Rate Limit", "category": "Discord", "risk": "safe", "tabs": ["Discord", "Results"] },
+    { "id": "no_legacy_label_scan", "name": "No Legacy Label Scan", "category": "UI", "risk": "safe", "tabs": ["Overview", "Results"] },
+    { "id": "ui_properness_gate", "name": "UI Properness Gate", "category": "UI", "risk": "safe", "tabs": ["Overview", "Results", "Reports"] }
+  ]
+}

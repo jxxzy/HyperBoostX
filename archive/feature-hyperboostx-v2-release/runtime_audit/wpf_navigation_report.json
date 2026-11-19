@@ -1,0 +1,1113 @@
+﻿{
+    "generated_at":  "2026-06-30T19:44:06.0436575Z",
+    "repo_root":  "F:\\BOOSTER BY MR.4NONY",
+    "expected_sidebar_count":  71,
+    "checks":  [
+                   {
+                       "name":  "sidebar label: One Click Boost",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: OneClickBoost",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: OneClickBoost",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\OneClickBoostView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Gaming Mode",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: AutoGamingMode",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: AutoGamingMode",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\AutoGamingModeView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Smart Scan",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: SmartScan",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: SmartScan",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Smart Recommendation",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: AIPerformanceAdvisor",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: AIPerformanceAdvisor",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\AIPerformanceAdvisorView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: AI Center",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: AICenter",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: AICenter",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: NVIDIA Copilot",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: NvidiaCopilot",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: NvidiaCopilot",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Dashboard",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: Dashboard",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: Dashboard",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\DashboardView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: HyperBoost Score",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: HyperBoostScore",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: HyperBoostScore",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Performance",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: PerformanceBoost",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: PerformanceBoost",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: CPU Turbo Diagnostic",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: CpuTurboDiagnostic",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: CpuTurboDiagnostic",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: CPU/RAM Optimizer",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: CpuRamOptimizer",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: CpuRamOptimizer",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Startup",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: StartupManager",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: StartupManager",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\StartupManagerView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Background Apps",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: BackgroundApps",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: BackgroundApps",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: HyperBalance",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: HyperBalance",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: HyperBalance",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\HyperBalanceView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Process Analyzer",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: ProcessAnalyzer",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: ProcessAnalyzer",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\ProcessAnalyzerView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Cleanup",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: Cleanup",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: Cleanup",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\CleanupView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Storage",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: Storage",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: Storage",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: GPU Center",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: GpuCenter",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: GpuCenter",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\GpuCenterView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Driver Recommendation",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: DriverRecommendation",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: DriverRecommendation",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Overlay Conflict Detector",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: OverlayConflictDetector",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: OverlayConflictDetector",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: RGB Software Detector",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: RgbSoftwareDetector",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: RgbSoftwareDetector",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Gaming Booster",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: GamingBooster",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: GamingBooster",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Game Library",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: GameLibrary",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: GameLibrary",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\GameLibraryView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Game Profiles",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: GameProfiles",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: GameProfiles",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\GameProfilesView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Streaming Mode",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: StreamingCenter",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: StreamingCenter",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\StreamingCenterView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Creator Mode",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: CreatorMode",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: CreatorMode",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\CreatorModeView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Voice Meter / Mic Mixer",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: AdvancedMicMixer",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: AdvancedMicMixer",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Webcam Diagnostics",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: WebcamStudio",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: WebcamStudio",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Camera Tracking",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: CameraTracking",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: CameraTracking",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Network Booster",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: NetworkBooster",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: NetworkBooster",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: DNS \u0026 Latency Tools",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: DnsLatencyTools",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: DnsLatencyTools",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Network Optimization",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: NetworkOptimization",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: NetworkOptimization",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Network Tools",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: NetworkTools",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: NetworkTools",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\NetworkToolsView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Privacy Center",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: PrivacyCenter",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: PrivacyCenter",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Security \u0026 Health",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: SecurityHealth",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: SecurityHealth",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: System Reality Guard",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: SystemRealityGuard",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: SystemRealityGuard",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: LCD Performance Guard",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: LcdPerformanceGuard",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: LcdPerformanceGuard",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Defender Scan Guard",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: DefenderScanGuard",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: DefenderScanGuard",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Security Reality Audit",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: SecurityRealityAudit",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: SecurityRealityAudit",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Protected Apps",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: ProtectedApps",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: ProtectedApps",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\ProtectedAppsView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Apps Manager",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: AppsManager",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: AppsManager",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Tweaks Center",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: TweaksCenter",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: TweaksCenter",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Windows Features",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: WindowsFeatures",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: WindowsFeatures",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Update Control",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: UpdateControl",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: UpdateControl",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Repair Tools",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: RepairTools",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: RepairTools",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Driver \u0026 Update Center",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: DriverUpdateCenter",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: DriverUpdateCenter",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: App Uninstaller",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: AppUninstaller",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: AppUninstaller",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Gaming Essentials",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: GamingEssentials",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: GamingEssentials",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\GamingEssentialsView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Advanced Tweaks",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: AdvancedTweaks",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: AdvancedTweaks",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Windows Services",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: WindowsServices",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: WindowsServices",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Power Optimization",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: PowerOptimization",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: PowerOptimization",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Visual Effects",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: VisualEffects",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: VisualEffects",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: MSI Safe Optimizer",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: MsiSafeOptimizer",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: MsiSafeOptimizer",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Restore \u0026 Backup",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: RestoreBackup",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: RestoreBackup",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\RestoreBackupView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Restore Point Manager",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: RestorePointManager",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: RestorePointManager",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Reports",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: Reports",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: Reports",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Performance History",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: PerformanceHistory",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: PerformanceHistory",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\PerformanceHistoryView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Performance Report",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: PerformanceReport",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: PerformanceReport",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\PerformanceReportView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Scheduled Automation",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: ScheduledAutomation",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: ScheduledAutomation",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Task \u0026 Rule System",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: TaskRuleSystem",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: TaskRuleSystem",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Utilities Tools",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: UtilitiesTools",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: UtilitiesTools",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Benchmark Lab",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: BenchmarkLab",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: BenchmarkLab",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\BenchmarkLabView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Plugin Marketplace",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: PluginMarketplace",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: PluginMarketplace",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Cloud \u0026 License Boundary",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: CloudSyncLicense",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: CloudSyncLicense",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Release Readiness",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: ReleaseReadiness",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: ReleaseReadiness",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Feature Audit",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: FeatureAudit",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: FeatureAudit",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\FeatureAuditView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Master Test Engine",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: MasterTestEngine",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: MasterTestEngine",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Feature Audit Matrix",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: FeatureAuditMatrix",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: FeatureAuditMatrix",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\LegacyFeatureView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: Knowledge Base",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: KnowledgeBase",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: KnowledgeBase",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\KnowledgeBaseView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: App Settings",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: Settings",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: Settings",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\SettingsView.xaml"
+                   },
+                   {
+                       "name":  "sidebar label: About App",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\ViewModels\\MainWindowViewModel.cs"
+                   },
+                   {
+                       "name":  "route registered: About",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\MainWindow.xaml.cs"
+                   },
+                   {
+                       "name":  "view exists: About",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\AboutView.xaml"
+                   },
+                   {
+                       "name":  "dashboard button: Start Smart Scan",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\DashboardView.xaml"
+                   },
+                   {
+                       "name":  "dashboard button: One Click Safe Boost",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\DashboardView.xaml"
+                   },
+                   {
+                       "name":  "dashboard button: Auto Gaming Mode",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\DashboardView.xaml"
+                   },
+                   {
+                       "name":  "dashboard button: View Last Report",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\DashboardView.xaml"
+                   },
+                   {
+                       "name":  "dashboard button: Restore Changes",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\DashboardView.xaml"
+                   },
+                   {
+                       "name":  "dashboard button: Refresh Status",
+                       "ok":  true,
+                       "evidence":  "F:\\BOOSTER BY MR.4NONY\\wpf\\Views\\DashboardView.xaml"
+                   },
+                   {
+                       "name":  "no blank or placeholder-only views",
+                       "ok":  true,
+                       "evidence":  ""
+                   },
+                   {
+                       "name":  "v1.3 parity sidebar count \u003e= 50",
+                       "ok":  true,
+                       "evidence":  "found 71"
+                   }
+               ],
+    "ok":  true
+}

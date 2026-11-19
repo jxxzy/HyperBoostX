@@ -1,0 +1,13 @@
+{
+  "messages": {
+    "language": {
+      "current": "Current App Language: {language}",
+      "detected": "Detected System Language: {language}",
+      "coverage": "Translation Coverage: {coverage}",
+      "fallback": "Fallback Language: {language}",
+      "mode": "Language Mode: {mode}",
+      "restart_notice": "Some language changes may fully apply after restart.",
+      "missing_keys_report": "Missing keys exported to {path}"
+    }
+  }
+}

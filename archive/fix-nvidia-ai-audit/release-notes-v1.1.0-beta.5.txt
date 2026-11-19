@@ -1,0 +1,24 @@
+## HyperBoost X v1.1.0-beta.5
+
+`v1.1.0-beta.5` is a small prerelease focused on Discord update notifications.
+
+## Highlights
+
+- added Discord notifications when the app detects a newer release
+- added a GitHub Actions workflow that posts to Discord when a GitHub release is published
+- intended as an end-to-end validation release for the new GitHub-to-Discord update path
+
+## Recommended download
+
+- `HyperBoostXInstaller-v1.1.0-beta.5.exe`
+
+Other assets:
+
+- `HyperBoostX-Portable-v1.1.0-beta.5.zip`
+- `HyperBoostX-Package-v1.1.0-beta.5.zip`
+- `SHA256SUMS.txt`
+
+## Notes
+
+- this is still a prerelease
+- publishing this release should trigger the Discord release notification workflow automatically

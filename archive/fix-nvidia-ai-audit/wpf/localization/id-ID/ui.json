@@ -1,0 +1,157 @@
+{
+  "app": {
+    "window_title": "HyperBoost X - Klien WPF"
+  },
+  "settings": {
+    "language": {
+      "overview_title": "Bahasa & Lokalisasi",
+      "mode_follow_system": "Ikuti Sistem",
+      "mode_manual": "Pilih Manual",
+      "mode_auto_smart": "Deteksi Cerdas Otomatis",
+      "apply": "Terapkan Bahasa",
+      "follow_system": "Ikuti Sistem",
+      "auto_detect": "Deteksi Otomatis",
+      "open_packs": "Buka Paket Bahasa",
+      "export_report": "Ekspor Laporan Cakupan",
+      "applied": "Bahasa diperbarui",
+      "system_mode_applied": "Mode bahasa sekarang mengikuti locale sistem.",
+      "auto_mode_applied": "Deteksi bahasa pintar sekarang aktif.",
+      "pack_folder_opened": "Folder paket bahasa dibuka.",
+      "report_exported": "Laporan lokalisasi berhasil diekspor."
+    }
+  },
+  "status": {
+    "backend_connected": "Backend terhubung",
+    "backend_disconnected": "Backend terputus"
+  },
+  "page": {
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Pusat sistem inti untuk monitor real-time, quick boost, preview rekomendasi, kontrol mode, alert, dan activity log."
+    },
+    "performance": {
+      "title": "Boost Performa",
+      "subtitle": "Alat performa langsung untuk CPU, RAM, disk, startup, network, gaming, dan restore aman."
+    },
+    "one_click_boost": {
+      "title": "One Click Boost",
+      "subtitle": "Jalankan boost aman, balanced, extreme, atau custom dari satu panel cepat."
+    },
+    "startup": {
+      "title": "Startup Manager",
+      "subtitle": "Tinjau dampak boot dan masuk langsung ke kontrol startup saat PC terasa lambat dibuka."
+    },
+    "smart_recommendation": {
+      "title": "Rekomendasi Pintar",
+      "subtitle": "Scan otomatis sistem dan tampilkan optimasi paling relevan untuk kondisi saat ini."
+    },
+    "cleanup": {
+      "title": "Pembersih Penyimpanan",
+      "subtitle": "Bersihkan file sementara dan jalankan alat cleanup tanpa menebak langkah yang tepat."
+    },
+    "storage": {
+      "title": "Penyimpanan",
+      "subtitle": "Baca semua storage yang terhubung, scan drive, lihat breakdown, health, dan action dari satu halaman."
+    },
+    "gaming_booster": {
+      "title": "Gaming Booster",
+      "subtitle": "Siapkan sistem untuk latensi lebih rendah dan gangguan lebih sedikit sebelum game dijalankan."
+    },
+    "streaming_mode": {
+      "title": "Mode Streaming",
+      "subtitle": "Stabilkan encoder, upload, CPU, RAM, GPU, dan aktivitas background untuk sesi live yang lebih aman."
+    },
+    "creator_mode": {
+      "title": "Mode Kreator",
+      "subtitle": "Optimalkan editing, rendering, cache, disk, dan focus mode untuk workflow creator yang lebih mulus."
+    },
+    "network_booster": {
+      "title": "Booster Jaringan",
+      "subtitle": "Jalankan diagnosa dulu, lalu terapkan aksi DNS dan TCP dengan feedback yang jelas."
+    },
+    "dns_latency_tools": {
+      "title": "Alat DNS & Latensi",
+      "subtitle": "Diagnosa DNS, ping, jitter, packet loss, traceroute, dan quick-fix latency dalam satu panel lanjutan."
+    },
+    "background_apps": {
+      "title": "Aplikasi Latar",
+      "subtitle": "Lihat proses mana yang memakan resource supaya keputusan cleanup berikutnya lebih jelas."
+    },
+    "privacy_center": {
+      "title": "Pusat Privasi",
+      "subtitle": "Kurangi telemetry dan buka halaman privasi Windows yang tepat tanpa mencari manual."
+    },
+    "security_health": {
+      "title": "Keamanan & Kesehatan",
+      "subtitle": "Lihat apakah PC aman dan sehat dari sisi security, suhu, disk, RAM, integritas, dan aktivitas mencurigakan."
+    },
+    "apps_manager": {
+      "title": "Manajer Aplikasi",
+      "subtitle": "Lihat, monitor, uninstall, cleanup, dan optimalkan aplikasi dari satu panel yang lebih rapi."
+    },
+    "app_uninstaller": {
+      "title": "Pencopot Aplikasi",
+      "subtitle": "Uninstall, analisa, deep-clean sisa, force-remove app bandel, dan review dampak aplikasi dari satu modul."
+    },
+    "windows_services": {
+      "title": "Layanan Windows",
+      "subtitle": "Database dan pusat kontrol semua service lokal, lengkap dengan status, startup type, resource, dependency, insight, bulk action, dan backup restore."
+    },
+    "power_optimization": {
+      "title": "Optimasi Daya",
+      "subtitle": "Otak manajemen daya untuk mode dinamis, kontrol CPU/GPU/disk/network, thermal-aware tuning, telemetry, rules, dan backup power policy."
+    },
+    "visual_effects": {
+      "title": "Efek Visual",
+      "subtitle": "Kontrol rendering UI, animation, transparency, explorer effects, input responsiveness, adaptive visual engine, dan backup visual setting."
+    },
+    "windows_features": {
+      "title": "Fitur Windows",
+      "subtitle": "Kontrol fitur resmi Windows untuk gaming, developer, creator, legacy, network, security, dan optional features."
+    },
+    "update_control": {
+      "title": "Kontrol Update",
+      "subtitle": "Kontrol update Windows, driver, aplikasi, service, schedule, dan background update agar tidak mengganggu performa."
+    },
+    "repair_tools": {
+      "title": "Alat Perbaikan",
+      "subtitle": "Bengkel Windows untuk scan error, memperbaiki system, network, service, app, update, cache, dan backup restore dari satu panel."
+    },
+    "advanced_tweaks": {
+      "title": "Tweaks Lanjutan",
+      "subtitle": "Tweaks power-user untuk registry, service, boot, network low-level, kernel behavior, custom script, dan backup restore dengan indikator risiko."
+    },
+    "restore_backup": {
+      "title": "Restore & Backup",
+      "subtitle": "Buat checkpoint pemulihan dan simpan snapshot sederhana sebelum perubahan besar."
+    },
+    "restore_point_manager": {
+      "title": "Manajer Restore Point",
+      "subtitle": "Kelola restore point Windows sebagai snapshot system state untuk rollback cepat, validator aman, cleanup storage, dan repair engine."
+    },
+    "scheduled_automation": {
+      "title": "Otomasi Terjadwal",
+      "subtitle": "Engine automation mandiri yang membaca konteks sistem, memilih aksi aman, menunda task saat tidak cocok, dan mencatat keputusan."
+    },
+    "utilities_tools": {
+      "title": "Alat Utilitas",
+      "subtitle": "Toolbox utama untuk cleanup, diagnostics, repair, network fix, system control, monitoring, workflow, analytics, dan maintenance mandiri."
+    },
+    "settings": {
+      "title": "Pengaturan",
+      "subtitle": "Otak dan aturan hidup aplikasi: UI, automation brain, system control, safety, engine, logging, update, dan master switch HyperBoostX."
+    },
+    "tweaks_center": {
+      "title": "Pusat Tweaks",
+      "subtitle": "Telusuri tweak yang tersedia dengan konteks yang lebih jelas sebelum menerapkan perubahan tingkat sistem."
+    },
+    "driver_update_center": {
+      "title": "Pusat Driver & Update",
+      "subtitle": "Tinjau inventori driver saat ini dan mulai cek update ketika hardware bermasalah."
+    },
+    "about": {
+      "title": "Tentang Aplikasi",
+      "subtitle": "Informasi proyek, ringkasan runtime, dan apa yang sudah terhubung di build ini."
+    }
+  }
+}
