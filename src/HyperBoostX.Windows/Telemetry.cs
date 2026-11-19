@@ -39,6 +39,7 @@ public sealed class Telemetry
     {
         var memory=new MemoryStatus{Length=(uint)Marshal.SizeOf<MemoryStatus>()};
         if(!GlobalMemoryStatusEx(ref memory))throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
+        if(memory.TotalPhysical==0||memory.AvailablePhysical>memory.TotalPhysical)throw new HbxException("HBX-TELEMETRY-MEMORY: Invalid physical-memory counters.");
         double? usage=null;var cpuAvailability=MeasurementAvailability.Sampling;int? cpuWin32Error=null;
         if(GetSystemTimes(out var idle,out var kernel,out var user))
         {
@@ -80,7 +81,7 @@ public sealed class Telemetry
         try
         {
             var bytes=ConvertCommitPages((ulong)info.CommitTotal,(ulong)info.CommitLimit,(ulong)info.PageSize);
-            return new CommitUsage(bytes.UsedBytes,bytes.LimitBytes);
+            return bytes.LimitBytes==0||bytes.UsedBytes>bytes.LimitBytes?null:new CommitUsage(bytes.UsedBytes,bytes.LimitBytes);
         }
         catch(ArgumentOutOfRangeException){return null;}
         catch(OverflowException){return null;}

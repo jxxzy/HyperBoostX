@@ -12,6 +12,20 @@ namespace HyperBoostX.Tests;
 
 public sealed class IntegrationProviderTests:IDisposable
 {
+    [Fact]public async Task TelemetryReadsPhysicalMemoryAndSecondCpuIntervalFromWindows()
+    {
+        var telemetry=new Telemetry();
+        var first=telemetry.Sample();
+        Assert.True(first.TotalMemory>0);Assert.InRange(first.AvailableMemory,0UL,first.TotalMemory);
+        Assert.InRange(first.MemoryPercent,0,100);
+        Assert.InRange(first.UptimeMilliseconds,0,long.MaxValue);
+        await Task.Delay(250);
+        var second=telemetry.Sample();
+        Assert.Equal(MeasurementAvailability.Available,second.CpuAvailability);
+        Assert.NotNull(second.CpuPercent);Assert.InRange(second.CpuPercent.Value,0,100);
+        Assert.InRange(second.MemoryPercent,0,100);Assert.True(second.ObservedAt>=first.ObservedAt);
+        telemetry.ResetBaseline();Assert.Null(telemetry.Sample().CpuPercent);
+    }
     [Fact]public void CommitPageCountsConvertUsingProviderPageSize()
     {
         var result=Telemetry.ConvertCommitPages(4,10,4096);

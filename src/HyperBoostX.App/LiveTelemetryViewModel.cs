@@ -12,12 +12,19 @@ public sealed partial class ShellViewModel
     private readonly Queue<double> _cpuPoints=new();
     private CancellationTokenSource? _telemetryStop;
     private TelemetrySample? _liveSample;
+    private GpuCounters.LoadSample? _liveGpu;
     private string? _telemetryError;
     private DateTimeOffset _lastMemoryNotice;
     private bool _memoryGuard;
     private int _memoryGuardThresholdPercent=90;
     private int _memoryGuardCooldownMinutes=5;
     public string LiveCpu=>_liveSample?.CpuPercent is {} cpu?$"{cpu:F1}%":Localization[_liveSample?.CpuAvailability==MeasurementAvailability.Unavailable?"Unavailable":"Sampling"];
+    public string LiveGpu=>_liveGpu is {Percent:{} value} sample&&DateTimeOffset.UtcNow-sample.ObservedAt<=TimeSpan.FromSeconds(30)
+        ?$"{value:F0}% · {Localization[AvailabilityKey(sample.Availability)]}"
+        :Localization[_liveGpu is null?"Sampling":"Unavailable"];
+    public string LiveGpuDetail=>_liveGpu is {} sample&&DateTimeOffset.UtcNow-sample.ObservedAt<=TimeSpan.FromSeconds(30)&&sample.Percent.HasValue
+        ?$"{Localization["GpuBusiestEngine"]} · {sample.EngineCount} · {sample.ObservedAt.ToLocalTime():HH:mm:ss}"
+        :Localization["GpuLoadUnavailableDetail"];
     public string LiveMemory=>_liveSample is {} s?$"{(s.TotalMemory-s.AvailableMemory)/1073741824d:F1} / {s.TotalMemory/1073741824d:F1} GiB ({s.MemoryPercent:F1}%)":Localization["Unavailable"];
     public string LiveCommit=>_liveSample is {} sample&&sample.CommitUsedBytes is {} used&&sample.CommitLimitBytes is {} limit
         ?$"{Localization["CommitCharge"]}: {used/1073741824d:F1} / {limit/1073741824d:F1} GiB"
@@ -120,7 +127,31 @@ public sealed partial class ShellViewModel
         Notify(nameof(MemoryGuardThresholdPercent));Notify(nameof(MemoryGuardThresholdText));
         _memoryGuardCooldownMinutes=int.TryParse(Runtime.Journal.GetSetting("memory-guard-cooldown-minutes"),out var cooldown)?Math.Clamp(cooldown,1,60):5;
         Notify(nameof(MemoryGuardCooldownMinutes));Notify(nameof(MemoryGuardCooldownText));
-        _telemetryStop=new CancellationTokenSource();_ = PollTelemetry(_telemetryStop.Token);
+        _telemetryStop=new CancellationTokenSource();_liveGpu=null;Notify(nameof(LiveGpu));Notify(nameof(LiveGpuDetail));_ = PollTelemetry(_telemetryStop.Token);_ = PollGpu(_telemetryStop.Token);
+    }
+    private async Task PollGpu(CancellationToken token)
+    {
+        try
+        {
+            while(!token.IsCancellationRequested)
+            {
+                if(IsDashboard&&!Busy)
+                {
+                    try
+                    {
+                        var sample=await GpuCounters.SampleLoadAsync(token);
+                        token.ThrowIfCancellationRequested();
+                        _liveGpu=sample;
+                    }
+                    catch(OperationCanceledException) when(token.IsCancellationRequested){break;}
+                    catch(Exception){_liveGpu=new(DateTimeOffset.UtcNow,null,MeasurementAvailability.Unavailable,0,0);}
+                    Notify(nameof(LiveGpu));Notify(nameof(LiveGpuDetail));
+                }
+                else if(_liveGpu is not null){_liveGpu=null;Notify(nameof(LiveGpu));Notify(nameof(LiveGpuDetail));}
+                await Task.Delay(TimeSpan.FromSeconds(10),token);
+            }
+        }
+        catch(OperationCanceledException) when(token.IsCancellationRequested){}
     }
     private async Task PollTelemetry(CancellationToken token)
     {
@@ -132,16 +163,16 @@ public sealed partial class ShellViewModel
                 if(!IsDashboard&&!IsCpuOptimization&&!MemoryGuardEnabled){_telemetry.ResetBaseline();continue;}
                 try
                 {
-                    var sample=await Task.Run(_telemetry.Sample,token);_liveSample=sample;_telemetryError=null;
+                    var sample=await Task.Run(_telemetry.Sample,token);token.ThrowIfCancellationRequested();_liveSample=sample;_telemetryError=null;
                     if(sample.CpuPercent is {} cpu){_cpuPoints.Enqueue(cpu);while(_cpuPoints.Count>60)_cpuPoints.Dequeue();CpuChart=new PointCollection(_cpuPoints.Select((v,i)=>new Point(i*5,100-v)));}
                     var observedAt=DateTimeOffset.UtcNow;
                     if(MemoryGuardEnabled&&ShouldNotifyMemoryGuard(sample.MemoryPercent,MemoryGuardThresholdPercent,_lastMemoryNotice,observedAt,MemoryGuardCooldownMinutes))
                     {Status=$"Memory Guard: RAM {sample.MemoryPercent:F1}%. Simpan pekerjaan dan tinjau Processes. Tidak ada proses yang ditutup atau RAM yang dipurge otomatis.";_lastMemoryNotice=observedAt;}
                     if(++ticks%15==0)await Task.Run(()=>Runtime.Documents.Update("telemetry",new List<TelemetrySample>(),items=>items.Append(sample).TakeLast(600).ToList()),token);
-                    foreach(var name in new[]{nameof(LiveCpu),nameof(LiveMemory),nameof(LiveCommit),nameof(LiveStorage),nameof(LiveNetwork),nameof(LiveUptime),nameof(TelemetryStatus),nameof(CpuChart),nameof(HasCpuSamples)})Notify(name);
+                    foreach(var name in new[]{nameof(LiveCpu),nameof(LiveMemory),nameof(LiveCommit),nameof(LiveGpu),nameof(LiveGpuDetail),nameof(LiveStorage),nameof(LiveNetwork),nameof(LiveUptime),nameof(TelemetryStatus),nameof(CpuChart),nameof(HasCpuSamples)})Notify(name);
                 }
                 catch(OperationCanceledException)when(token.IsCancellationRequested){break;}
-                catch(Exception e){_telemetryError=ReportExport.Redact(e.Message);Notify(nameof(TelemetryStatus));}
+                catch(Exception e){_liveSample=null;_telemetry.ResetBaseline();_telemetryError=ReportExport.Redact(e.Message);foreach(var name in new[]{nameof(LiveCpu),nameof(LiveMemory),nameof(LiveCommit),nameof(LiveNetwork),nameof(LiveUptime),nameof(TelemetryStatus)})Notify(name);}
             }
         }
         catch(OperationCanceledException)when(token.IsCancellationRequested){}

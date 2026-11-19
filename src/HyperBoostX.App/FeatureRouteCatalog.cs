@@ -92,7 +92,7 @@ public static class FeatureRouteCatalog
         }
 
         Add(RouteSupport.Implemented, "Dashboard",
-            "Live CPU, physical memory, system-volume usage and network readings are available. GPU sensors and a readiness score are not provided by a validated source; storage health is not inferred from capacity usage.",
+            "Live CPU, physical memory, system-volume usage, network and bounded WDDM busiest-observed-engine readings are available on supported providers. Missing or partial GPU data is explicit. Dashboard readiness and vendor thermal sensors remain unavailable; storage health is not inferred from capacity.",
             "Dashboard");
         Add(RouteSupport.Implemented, "Smart Scan",
             "Runs the local diagnostic centers that are implemented in this build; no Windows setting is changed by a scan.",

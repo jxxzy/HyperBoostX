@@ -168,7 +168,7 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
             Runtime.Journal.SetSetting("language",_language);
             Notify();
             if(wasReady)Status=Localization["ReadyStatus"];
-            foreach(var name in new[]{nameof(RouteStatus),nameof(SafetyStatus),nameof(SafetyDetail),nameof(ActionDescription),nameof(ObservationSummary),nameof(FactDetails),nameof(LiveCpu),nameof(LiveMemory),nameof(LiveNetwork),nameof(LiveUptime),nameof(UptimeText),nameof(TelemetryStatus),nameof(SmartScanResultSummary),nameof(CpuOptimizationSummary),nameof(GpuAdapterSummary),nameof(GpuDriverSummary),nameof(GpuScanSummary)})Notify(name);
+            foreach(var name in new[]{nameof(RouteStatus),nameof(SafetyStatus),nameof(SafetyDetail),nameof(ActionDescription),nameof(ObservationSummary),nameof(FactDetails),nameof(LiveCpu),nameof(LiveMemory),nameof(LiveGpu),nameof(LiveGpuDetail),nameof(LiveNetwork),nameof(LiveUptime),nameof(UptimeText),nameof(TelemetryStatus),nameof(SmartScanResultSummary),nameof(CpuOptimizationSummary),nameof(GpuAdapterSummary),nameof(GpuDriverSummary),nameof(GpuScanSummary)})Notify(name);
         }
     }
     public bool Expert=>Mode=="Expert";

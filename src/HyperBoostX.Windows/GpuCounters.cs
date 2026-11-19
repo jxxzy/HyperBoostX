@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Management;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using HyperBoostX.Core;
 
 namespace HyperBoostX.Windows;
@@ -15,6 +16,68 @@ public static class GpuCounters
     private static readonly SemaphoreSlim Gate=new(1);
     public sealed record EngineSample(string Name,ulong? Percent);
     public sealed record MemorySample(string Name,ulong? DedicatedBytes,ulong? SharedBytes);
+    public sealed record LoadSample(DateTimeOffset ObservedAt,double? Percent,MeasurementAvailability Availability,int EngineCount,int OmittedRows);
+
+    // WDDM exposes per-process counters. Sum only within an identified physical
+    // adapter/engine, then take the busiest observed engine (never sum engines).
+    // Unknown layouts, duplicate process/engine rows, invalid values, and truncation
+    // cannot produce an apparently complete utilization measurement.
+    private static readonly Regex EngineInstance=new(
+        @"^pid_(?<pid>[0-9]+)_luid_(?<hi>0x[0-9a-f]{1,8})_(?<lo>0x[0-9a-f]{1,8})_phys_(?<phys>[0-9]+)_eng_(?<eng>[0-9]+)_engtype_[a-z0-9_]+$",
+        RegexOptions.IgnoreCase|RegexOptions.CultureInvariant,TimeSpan.FromMilliseconds(100));
+
+    public static LoadSample SummarizeLoad(IEnumerable<EngineSample> samples,bool truncated,DateTimeOffset observedAt)
+    {
+        var engines=new Dictionary<(uint High,uint Low,uint Physical,uint Engine),Dictionary<uint,ulong>>();
+        var invalidEngines=new HashSet<(uint,uint,uint,uint)>();var omitted=truncated?1:0;var count=0;
+        foreach(var row in samples)
+        {
+            if(++count>MaximumRows){omitted++;break;}
+            if(!ValidName(row.Name)){omitted++;continue;}
+            var match=EngineInstance.Match(row.Name);
+            if(!match.Success||
+               !uint.TryParse(match.Groups["pid"].Value,out var pid)||
+               !uint.TryParse(match.Groups["hi"].Value.AsSpan(2),NumberStyles.HexNumber,CultureInfo.InvariantCulture,out var hi)||
+               !uint.TryParse(match.Groups["lo"].Value.AsSpan(2),NumberStyles.HexNumber,CultureInfo.InvariantCulture,out var lo)||
+               !uint.TryParse(match.Groups["phys"].Value,out var phys)||
+               !uint.TryParse(match.Groups["eng"].Value,out var eng))
+            {omitted++;continue;}
+            var key=(hi,lo,phys,eng);
+            if(!engines.TryGetValue(key,out var processes))engines[key]=processes=new();
+            if(row.Percent is null or >100||!processes.TryAdd(pid,row.Percent.Value)){invalidEngines.Add(key);omitted++;}
+        }
+        var totals=new List<double>();
+        foreach(var (key,processes) in engines)
+        {
+            if(invalidEngines.Contains(key))continue;
+            var total=processes.Values.Sum(x=>(double)x);
+            if(total>100){omitted++;continue;} // no clamp of inconsistent snapshots
+            totals.Add(total);
+        }
+        if(totals.Count==0)return new(observedAt,null,MeasurementAvailability.Unavailable,0,omitted);
+        return new(observedAt,totals.Max(),omitted==0?MeasurementAvailability.Available:MeasurementAvailability.Limited,totals.Count,omitted);
+    }
+
+    public static async Task<LoadSample> SampleLoadAsync(CancellationToken token)
+    {
+        await Gate.WaitAsync(token);
+        try
+        {
+            return await Task.Run(()=>{
+                var samples=new List<EngineSample>();
+                try
+                {
+                    var truncated=Read(EngineClass,"Name,UtilizationPercentage",row=>
+                        samples.Add(new(row["Name"] as string??"",ReadUInt(row["UtilizationPercentage"]))),token);
+                    return SummarizeLoad(samples,truncated,DateTimeOffset.UtcNow);
+                }
+                catch(Exception e) when(ProviderError(e))
+                {return new LoadSample(DateTimeOffset.UtcNow,null,MeasurementAvailability.Unavailable,0,0);}
+            },token);
+        }
+        finally{Gate.Release();}
+    }
+
 
     public static IReadOnlyList<Fact> DescribeEngines(IEnumerable<EngineSample> samples)
     {
