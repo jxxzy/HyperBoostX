@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-11-18",
+  "sourceOfTruth": "docs/registry/requirement-traceability.json",
+  "nextExecutableDevelopmentTask": "Provision a disposable Windows VM for UAC denial, cross-elevation identity/ACL, worker crash/timeout and a narrowly scoped reversible mutation with verified rollback. Do not run these tests on the owner's host. While VM validation is blocked, continue independent route-specific read-only/reversible providers and prototype parity. Per-Game Profiles auto-apply/live game acceptance, GPU sensors, CPU clock/temperature and broader prototype parity remain open.",
+  "requirements": [
+    {
+      "requirementId": "implementation.ui.smart-scan-one-click-boost",
+      "priority": "P1",
+      "dependencies": [],
+      "implementationStatus": "PARTIAL_VERIFIED",
+      "verificationStatus": "PARTIAL",
+      "remainingWork": "Finish side-by-side prototype parity and the remaining screen/interaction details. Exercise Gaming and Hardware scopes end-to-end. Add only validated privacy/driver providers. Implement, verify and roll back safe One Click batches before enabling multi-action, Low-End, Creator or Custom profiles.",
+      "blockingConditions": [
+        "No validated local privacy-audit or dedicated driver-health provider is registered.",
+        "One Click Boost has no safe multi-action profile plan.",
+        "Side-by-side visual parity against the prototype has not been measured."
+      ],
+      "evidence": [
+        "dotnet test HyperBoostX.sln -c Release --no-restore --nologo passed 244/244.",
+        "scripts/package.ps1 passed 244/244 and rebuilt the self-contained win-x64 desktop, installer and portable ZIP.",
+        "Final published UI smoke passed all 73 routes and verified Smart Scan scope toggles, disabled unsupported Privacy and Drivers scopes, an actual read-only scan (62 observations, 1 optional recommendation), evidence/history, and the One Click action-review panel. Evidence: artifacts/ui-smartscan-final."
+      ],
+      "nextExecutableTask": "Continue side-by-side prototype parity, exercise Gaming and Hardware scopes end-to-end, and only enable validated Privacy/Driver providers or a safe multi-action plan."
+    },
+    {
+      "requirementId": "implementation.ui.cpu-optimization-center",
+      "priority": "P1",
+      "dependencies": [],
+      "implementationStatus": "PARTIAL_VERIFIED",
+      "verificationStatus": "PARTIAL",
+      "remainingWork": "Complete prototype parity for the CPU controls and full processor topology. CPU clock/temperature lack a validated provider; generic process priority, affinity, and processor power-policy actions remain NOT_IMPLEMENTED. The existing per-game priority workflow is available through Game Library.",
+      "blockingConditions": [
+        "No validated CPU clock or temperature sensor provider is available.",
+        "Generic priority, affinity, and processor power-policy actions lack safe typed apply/rollback providers.",
+        "Processor-group and physical-core topology and side-by-side visual parity remain unverified."
+      ],
+      "evidence": [
+        "dotnet test HyperBoostX.sln -c Release --no-restore --nologo passed 245/245.",
+        "scripts/package.ps1 passed 245/245 and rebuilt the desktop, CLI, worker, unsigned setup, portable ZIP, and checksum manifest.",
+        "Published UI smoke passed all 73 routes. CPU Optimization displayed live CPU/RAM telemetry, unavailable clock/temperature states, logical processor count, an alert-only Memory Guard, and a read-only process scan with evidence/history. The host showed 187 observations and no Windows configuration changed. Evidence: artifacts/ui-cpu-optimization-final-03."
+      ],
+      "nextExecutableTask": "Continue UI-first work on Gaming Profiles; return to CPU policy controls only with verified providers, rollback and prototype-parity evidence."
+    },
+    {
+      "requirementId": "implementation.ui.gpu-center",
+      "priority": "P1",
+      "dependencies": [],
+      "implementationStatus": "PARTIAL_VERIFIED",
+      "verificationStatus": "PARTIAL",
+      "remainingWork": "Complete prototype parity and verified provider support. The current page reads Windows-reported adapter names and driver/display properties only; live utilization, VRAM, clock, temperature, vendor health, hybrid-graphics selection and driver updates are unavailable.",
+      "blockingConditions": [
+        "No validated GPU sensor or vendor telemetry provider is registered.",
+        "No typed, reversible provider exists for hybrid graphics or vendor-specific settings.",
+        "AMD/Intel hardware and side-by-side prototype parity were not verified on this host."
+      ],
+      "evidence": [
+        "dotnet test HyperBoostX.sln -c Release --no-restore --nologo passed 246/246.",
+        "scripts/package.ps1 passed 246/246 and rebuilt the win-x64 desktop, unsigned setup, portable ZIP and checksum manifest.",
+        "Packaged UI Automation reached GPU Center, scanned 10 read-only WMI observations, rendered the host NVIDIA adapter and driver version, and verified evidence/history. An earlier package's full smoke stopped at its File Analysis duplicate/large-file fixture assertion. The recovery-copy validation subsequently passed the full 73-route smoke with the matching worker entrypoint staged beside the app.",
+        "The NVIDIA/AMD/Intel filter is a local search over Windows-reported adapter names, not vendor detection or control. VRAM and live telemetry remain N/A rather than inferred."
+      ],
+      "nextExecutableTask": "Continue the remaining UI-first feature surfaces and side-by-side prototype parity. The route-specific Per-Game Profiles workspace is implemented and passed full 73-route UI smoke; do not claim the broader Gaming/Profile requirements complete."
+    },
+    {
+      "requirementId": "implementation.configuration.settings-import-export",
+      "priority": "P1",
+      "dependencies": [
+        "implementation.configuration.schema-validation",
+        "implementation.configuration.transactional-update"
+      ],
+      "implementationStatus": "IMPLEMENTED_VERIFIED",
+      "verificationStatus": "PASS",
+      "remainingWork": "No remaining work for the bounded version-1 preference document. Profile/rule transfer, schema migration and broader configuration conflict handling remain separate requirements.",
+      "blockingConditions": [],
+      "evidence": [
+        "dotnet test HyperBoostX.sln -c Release --no-restore: Passed 103/103",
+        "Published UI Automation passed 73/73 routes and exercised settings export, privacy field allowlist, import cancellation, approved import, and persistence after application restart using isolated data."
+      ],
+      "nextExecutableTask": "None for this bounded requirement."
+    },
+    {
+      "requirementId": "implementation.configuration.reset-defaults",
+      "priority": "P1",
+      "dependencies": [
+        "implementation.configuration.transactional-update"
+      ],
+      "implementationStatus": "IMPLEMENTED_VERIFIED",
+      "verificationStatus": "PASS",
+      "remainingWork": "No remaining work for local application-preference reset; factory reset and broader application-data deletion are distinct requirements and remain out of scope.",
+      "blockingConditions": [],
+      "evidence": [
+        "Reset command is wired and its confirmation states explicitly that Windows settings and recovery history are retained.",
+        "Published UI Automation verified declining reset preserves the changed theme, accepting restores defaults, and the defaults survive application restart in isolated data."
+      ],
+      "nextExecutableTask": "None for this bounded requirement."
+    },
+    {
+      "requirementId": "req.addendum.0043-single-instance-application-management",
+      "priority": "P0",
+      "dependencies": [],
+      "implementationStatus": "IMPLEMENTED_VERIFIED",
+      "verificationStatus": "PASS",
+      "remainingWork": "No remaining work for same-user duplicate launch, activation, original-instance shutdown/relaunch, or distinct isolated data-directory startup covered by the published UI smoke. The secondary test process is stopped by test cleanup.",
+      "blockingConditions": [],
+      "evidence": [
+        "Published UI Automation verified a second launch against the same isolated data directory exits successfully and restores the minimized existing window.",
+        "Published UI Automation verified a distinct isolated data directory launches an independent instance and leaves the original instance running; the isolated secondary process is stopped by test cleanup.",
+        "The original instance then shut down cleanly; startup uses a per-user mutex and a narrow activation event without arbitrary command payloads."
+      ],
+      "nextExecutableTask": "None for the verified single-instance lifecycle."
+    },
+    {
+      "requirementId": "implementation.technical-reference-validation",
+      "priority": "P1",
+      "dependencies": [],
+      "implementationStatus": "PARTIAL_VERIFIED",
+      "verificationStatus": "PARTIAL",
+      "remainingWork": "The supplied 73-menu × 5-reference matrix is a canonical 365-assignment requirement source with 158 distinct URLs. All 49 candidate-direct-link URLs and all 109 source-tagged web-confirmed URLs have limited source-level checks. Complete API signatures/versions, licenses, supported Windows versions, dependencies, provider limitations, and acceptance-evidence validation for every source and assignment before implementation.",
+      "blockingConditions": [
+        "No complete API/license/platform/dependency compatibility review has been completed; current source-level checks are partial and do not establish implementation suitability."
+      ],
+      "evidence": [
+        "scripts/generate_traceability.py imported all 365 assignments and verified 73 route names, five references per menu, unique assignment IDs, and 158 distinct URLs.",
+        "docs/registry/technical-reference-validation.json records 158 limited source-level checks across all distinct URLs, including all 109 web-confirmed references and 49 candidate-direct-link references. Five supplied URLs returned 404; alternate official pages were found for three and two remain unresolved. One vendor URL returned 403. No integration suitability is asserted.",
+        "Reference source tags are recorded as provenance only; they do not establish API, license, platform, or dependency compatibility."
+      ],
+      "nextExecutableTask": "Validate APIs, licenses, platform support, dependencies, provider limitations, and evidence requirements for each of the 365 assignments; document unsupported and unresolved references without inferring compatibility."
+    },
+    {
+      "requirementId": "implementation.application-health.privileged-worker",
+      "priority": "P0",
+      "dependencies": [
+        "Threat model and least-privilege protocol",
+        "Authenticated allowlisted IPC design",
+        "Durable mutation recovery and rollback design"
+      ],
+      "implementationStatus": "PARTIAL_VERIFIED",
+      "verificationStatus": "PARTIAL",
+      "remainingWork": "The separate restricted worker, peer-bound ECDH bootstrap, authenticated allowlisted IPC, bounded framing, typed preview/apply/verify/rollback dispatch, durable ActionEngine integration, encrypted hash-chained worker audit persistence, and native UI UAC flows for apply, verify, and rollback are implemented. Still verify UAC denial, crash, timeout, rollback, audit tampering, and cross-elevation attacks in disposable Windows images.",
+      "blockingConditions": [
+        "No isolated disposable Windows environment is available for privileged mutation, access-denial, crash, and rollback testing.",
+        "Do not add a generic elevated command runner or execute privileged mutations on the user's host."
+      ],
+      "evidence": [
+        "Full test suite passed 231/231, including separate worker process health/shutdown, PID/session/SID peer verification, ECDH session-key agreement, replay/tamper rejection, bounded framing, authenticated response binding, typed payload rejection, production-client cleanup, fixture-backed action approval/state-recheck/read-back/rollback, and worker audit chain verification.",
+        "Published self-contained UI smoke passed 73/73 routes and Test Center using the packaged worker; installer and portable artifacts contain HyperBoostX.Worker.exe and their SHA-256 values match dist/SHA256SUMS.txt.",
+        "Worker allowlist contains health/shutdown plus narrowly typed action.preview/action.apply/action.verify/action.rollback contracts; no generic command or registry endpoint exists. Accepted dispatch decisions persist an encrypted SHA-256-linked audit record containing only a hashed subject identifier.",
+        "Elevated action-history verification now obtains explicit approval and calls the authenticated worker's action.verify endpoint; fixture tests verify worker rejection without approval and successful authorized verification.",
+        "Focused dispatcher/shell tests passed 41/41 and full solution tests passed 227/227 after the UI routing change. No UAC prompt or elevated mutation was run.",
+        "No UAC prompt, elevated action, or Windows mutation was performed on the owner host; worker signature remains NotSigned."
+      ],
+      "nextExecutableTask": "Provision a disposable Windows environment and test UAC denial, cross-elevation identity/ACL behavior, worker crash/timeout, and one narrowly scoped reversible mutation with verified rollback; do not run mutation tests on the user's host."
+    },
+    {
+      "requirementId": "implementation.application-health.safe-repair",
+      "priority": "P1",
+      "dependencies": [
+        "implementation.application-health.privileged-worker",
+        "Recovery and configuration integrity checks"
+      ],
+      "implementationStatus": "UNSUPPORTED",
+      "verificationStatus": "BLOCKED",
+      "remainingWork": "Provide narrowly scoped repair workflows with preview, consent, durable backup, safe cancellation, verification, and rollback; keep unsupported repairs explicit.",
+      "blockingConditions": [
+        "No safe repair handler exists.",
+        "Privileged worker and isolated integration-test environment are not available."
+      ],
+      "evidence": [
+        "Test Center reports safe application repair as UNSUPPORTED and does not attempt a repair."
+      ],
+      "nextExecutableTask": "After authenticated broker and recovery validation exist, define one reversible application-data repair action and test it only in an isolated disposable profile."
+    },
+    {
+      "requirementId": "req.addendum.0267-installer-lifecycle",
+      "priority": "P1",
+      "dependencies": [
+        "Published executable and installer payload"
+      ],
+      "implementationStatus": "NOT_STARTED",
+      "verificationStatus": "NOT RUN",
+      "remainingWork": "Exercise fresh install, upgrade, repair, uninstall, data retention, and interrupted install recovery on disposable Windows images; verify installer signatures when an authorized certificate exists.",
+      "blockingConditions": [
+        "No disposable Windows VM is available.",
+        "Installer is unsigned; no signing certificate or release authorization is available."
+      ],
+      "evidence": [
+        "Self-contained win-x64 executable, installer, portable ZIP, and SHA-256 manifest built; UI smoke passed against the published executable.",
+        "Installer was not run and is not signed."
+      ],
+      "nextExecutableTask": "Provision disposable Windows test images and run the documented non-production installer lifecycle matrix."
+    }
+  ]
+}

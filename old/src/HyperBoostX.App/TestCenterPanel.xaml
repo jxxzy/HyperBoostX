@@ -1,0 +1,21 @@
+<UserControl x:Class="HyperBoostX.App.TestCenterPanel" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <StackPanel Margin="0,0,0,16">
+  <TextBlock Text="{Binding Localization[TestCenterTitle]}" FontSize="20" FontWeight="SemiBold"/>
+  <TextBlock Text="{Binding Localization[TestCenterIntro]}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,14"/>
+  <WrapPanel Margin="0,0,0,10">
+   <Button Content="{Binding Localization[RunSafeTests]}" Command="{Binding RunSafeTestsCommand}" AutomationProperties.AutomationId="RunSafeTestsButton"/>
+   <ComboBox ItemsSource="{Binding TestRuns}" SelectedItem="{Binding SelectedTestRun}" DisplayMemberPath="DisplayName" Width="300" Margin="8,0,0,0" AutomationProperties.Name="{Binding Localization[TestRunHistory]}"/>
+  </WrapPanel>
+  <TextBlock Text="{Binding TestRunSummary}" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,10"/>
+  <DataGrid ItemsSource="{Binding TestResults}" SelectedItem="{Binding SelectedTestResult}" Height="310" AutomationProperties.Name="{Binding Localization[TestResults]}" AutomationProperties.AutomationId="TestResultsGrid">
+   <DataGrid.Columns>
+    <DataGridTextColumn Header="Test ID" Binding="{Binding TestId}" Width="200"/>
+    <DataGridTextColumn Header="{Binding Localization[TestOutcome]}" Binding="{Binding Result}" Width="105"/>
+    <DataGridTextColumn Header="{Binding Localization[TestDuration]}" Binding="{Binding DurationMilliseconds}" Width="115"/>
+    <DataGridTextColumn Header="{Binding Localization[TestEvidence]}" Binding="{Binding Evidence}" Width="*"/>
+   </DataGrid.Columns>
+  </DataGrid>
+  <TextBlock Text="{Binding Localization[TestDetails]}" FontWeight="SemiBold" Margin="0,12,0,6"/>
+  <TextBox Text="{Binding TestResultDetails,Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" MinHeight="76" MaxHeight="180" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="{Binding TestResultDetails}" AutomationProperties.AutomationId="TestResultDetails"/>
+ </StackPanel>
+</UserControl>

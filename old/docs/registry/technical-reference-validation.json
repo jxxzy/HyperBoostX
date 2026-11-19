@@ -1,0 +1,1113 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-11-16",
+  "scope": "Source retrieval and relevance notes only. This ledger does not establish product API compatibility, license acceptance, Windows compatibility, dependency approval, or runtime verification.",
+  "records": [
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/powershell/module/defender/get-mpcomputerstatus",
+      "finalUrl": "https://learn.microsoft.com/en-us/powershell/module/defender/get-mpcomputerstatus?view=windowsserver2025-ps",
+      "title": "Get-MpComputerStatus (Defender)",
+      "result": "OPENED_WITH_REDIRECT",
+      "evidence": "Microsoft Learn page opened. Syntax is Get-MpComputerStatus with optional CimSession, ThrottleLimit, and AsJob parameters. The page identifies the Defender PowerShell module and Windows Server 2025 documentation moniker. Read-only status reporting is relevant; actual Defender/module availability must be detected at runtime."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/winevt/windows-event-log",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/wes/windows-event-log",
+      "title": "Windows Event Log - Win32 apps",
+      "result": "SOURCE_URL_404_ALTERNATE_OPENED",
+      "evidence": "The supplied URL returned 404. The Microsoft Learn /wes/ page opened and states that Windows Event Log supports event providers/consumers and is included beginning with Windows Vista and Windows Server 2008. A specific event API and access requirements still need selection and review."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/setupapi/setupapi",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/api/setupapi/",
+      "title": "Setupapi.h header - Win32 apps",
+      "result": "SOURCE_URL_404_ALTERNATE_OPENED",
+      "evidence": "The supplied URL returned 404. The Microsoft Learn setupapi.h header page opened and indexes SetupAPI functions. It is a broad API catalog; a concrete present-device enumeration API, version requirements, and ownership model have not yet been selected."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/how-it-works",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/how-it-works",
+      "title": "How User Account Control works",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn page opened. It describes standard and administrator tokens and states that applications requiring an administrator token must request user consent. This supports a no-UAC-bypass policy; it is not an implementation API."
+    },
+    {
+      "sourceUrl": "https://www.itl.nist.gov/div898/handbook/",
+      "finalUrl": "https://www.itl.nist.gov/div898/handbook/",
+      "title": "NIST/SEMATECH Engineering Statistics Handbook",
+      "result": "FRAMES_ENTRY_POINT",
+      "evidence": "The supplied entry point returned a frameset compatibility notice. The direct EDA chapter at https://www.itl.nist.gov/div898/handbook/eda/eda.htm opened and describes exploratory data analysis. This is statistical guidance, not a benchmark API or a prescribed scoring rubric."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.notifyicon?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.notifyicon?view=windowsdesktop-11.0",
+      "title": "NotifyIcon Class (System.Windows.Forms)",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn redirected the net-8.0 query to the windowsdesktop-11.0 view with a net-8.0 fallback and lists a windowsdesktop-8.0 moniker. The page identifies System.Windows.Forms.dll and the NotifyIcon class. This confirms documentation coverage, not runtime tray behavior on every supported Windows build."
+    },
+    {
+      "sourceUrl": "https://build.nvidia.com/",
+      "finalUrl": "https://build.nvidia.com/",
+      "title": "NVIDIA API Catalog",
+      "result": "OPENED",
+      "evidence": "The catalog page opened and lists currently presented inference endpoints and models. It does not by itself establish a stable endpoint, model availability, API contract, pricing, data retention, or license for any selected model."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/client-management/mdm/policy-configuration-service-provider",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/client-management/mdm/policy-configuration-service-provider",
+      "title": "Policy CSP",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn page opened and describes user/device MDM policy configuration and read-only result paths for Windows client management. This is enterprise policy infrastructure, not an unrestricted per-user optimization API; individual policy scope and support must be evaluated."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows-hardware/customize/power-settings/configure-processor-power-management-options",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows-hardware/customize/power-settings/configure-processor-power-management-options",
+      "title": "Processor power management options",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn page opened and describes Windows 10 processor power management policy and OEM/provisioning-package customization. It does not establish that runtime changes are safe or supported for arbitrary PCs; no mutation is authorized by this source."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.totalprocessortime?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.totalprocessortime?view=net-11.0",
+      "title": "Process.TotalProcessorTime Property",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened with net-8.0 among the listed monikers and net-11.0 as the default view. This is cumulative process CPU time, not an instantaneous utilization percentage; sampling and normalization methodology remain application responsibilities."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows-hardware/test/wpt/windows-performance-recorder",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows-hardware/test/wpt/windows-performance-recorder",
+      "title": "Windows Performance Recorder",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn page opened and describes WPR as an ETW-based recording tool included in the Windows Assessment and Deployment Kit. This is an external diagnostic tool, not a redistributable runtime dependency or an app measurement API."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getsystempowerstatus",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getsystempowerstatus",
+      "title": "GetSystemPowerStatus function",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn API page opened. It identifies Winbase.h/Windows.h, Kernel32.dll, and Windows XP or later desktop-app support. The function reports current AC/DC and battery status; no battery policy is changed."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powerreadacvalueindex",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadacvalueindex",
+      "title": "PowerReadACValueIndex function",
+      "result": "SOURCE_URL_404_ALTERNATE_OPENED",
+      "evidence": "The supplied URL returned 404. The Microsoft Learn powrprof.h page opened and identifies PowrProf.dll, Windows Vista or later desktop-app support, and a read API for a selected AC power setting index. This does not authorize or verify any write operation."
+    },
+    {
+      "sourceUrl": "https://support.microsoft.com/windows",
+      "finalUrl": "https://support.microsoft.com/en-us/windows/",
+      "title": "Windows help & learning",
+      "result": "OPENED_BROAD_PORTAL",
+      "evidence": "Microsoft Support redirected to the general Windows help portal, which links broad hardware, driver, and settings topics. It is not a graphics-preference API or a hardware compatibility matrix."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.io.filesystemwatcher?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.io.filesystemwatcher?view=net-11.0",
+      "title": "FileSystemWatcher Class",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened with net-8.0 among the listed monikers and net-11.0 as the default view. Watch notifications are not themselves durable transaction/recovery evidence; consumers must account for buffer overflow and missed-event recovery."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.processstartinfo?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.processstartinfo?view=net-11.0",
+      "title": "ProcessStartInfo Class",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened with net-8.0 among the listed monikers and net-11.0 as the default view. ProcessStartInfo can launch processes; it is not permission to execute arbitrary or AI-generated commands."
+    },
+    {
+      "sourceUrl": "https://partner.steamgames.com/doc/sdk/api",
+      "finalUrl": "https://partner.steamgames.com/doc/sdk/api",
+      "title": "Steamworks API overview",
+      "result": "OPENED",
+      "evidence": "Steamworks partner documentation opened. It describes the API as a game integration SDK, requires SDK setup and supports C++ as the official interface; it does not document a general API for discovering or tuning third-party installed games. Partner terms and redistribution rights remain unreviewed."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/uwp/api/windows.management.deployment.packagemanager",
+      "finalUrl": "https://learn.microsoft.com/en-us/uwp/api/windows.management.deployment.packagemanager?view=winrt-28000",
+      "title": "PackageManager Class",
+      "result": "OPENED_WITH_REDIRECT",
+      "evidence": "Microsoft Learn page opened with a redirect to the current WinRT view and lists Windows 10/11 API contract monikers. This API manages application packages; desktop app identity, capability, access and deployment constraints require separate validation."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows-hardware/test/wpt/windows-performance-analyzer",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows-hardware/test/wpt/windows-performance-analyzer",
+      "title": "Windows Performance Analyzer",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn page opened and describes WPA as a Windows Performance Toolkit analysis tool. It is tooling for analyzing traces, not a supported embedded real-time game frametime provider."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.fileversioninfo?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.fileversioninfo?view=net-11.0",
+      "title": "FileVersionInfo Class",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened with net-8.0 among the listed monikers and net-11.0 as the default. File version metadata is available through .NET; it is descriptive metadata and must not be used by itself as signature or trust verification."
+    },
+    {
+      "sourceUrl": "https://www.asus.com/support/",
+      "finalUrl": "https://www.asus.com/support/",
+      "title": "ASUS Official Support",
+      "result": "RAW_HTML_OPENED",
+      "evidence": "The official ASUS support page returned raw HTML identifying the ASUS Global support portal, but content extraction failed. No hardware tuning SDK/API or licensing terms were verified."
+    },
+    {
+      "sourceUrl": "https://www.msi.com/Landing/MSI-Center",
+      "finalUrl": "https://www.msi.com/Landing/MSI-Center",
+      "title": "MSI Center official product",
+      "result": "FETCH_BLOCKED_403",
+      "evidence": "The source fetch returned HTTP 403. This does not establish that the page or product is unavailable. MSI Center APIs, product compatibility, terms, and redistribution are unverified."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.serviceprocess.servicecontroller?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.serviceprocess.servicecontroller?view=net-11.0-pp",
+      "title": "ServiceController Class",
+      "result": "OPENED_WITH_PREVIEW_FALLBACK",
+      "evidence": "Microsoft Learn redirected the net-8.0 query to a net-11.0-pp preview view; the returned monikers did not show a stable net-8.0 target. The current project must use an explicitly pinned and tested package version; service mutations remain unimplemented and require isolated Windows tests."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.eventing.reader.eventlogreader?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.eventing.reader.eventlogreader?view=windowsdesktop-11.0",
+      "title": "EventLogReader Class",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn redirected the net-8.0 query to windowsdesktop-11.0 and lists windowsdesktop-8.0 support. This documents the API class; permissions, channel access, event-query behavior, and package/runtime behavior need separate tests."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows-hardware/test/wpt/",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows-hardware/test/wpt/",
+      "title": "Windows Performance Toolkit",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn page opened and states that Windows Performance Toolkit is included in the Windows Assessment and Deployment Kit. It is optional external test/analysis tooling, not a bundled runtime dependency."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.net.networkinformation.networkinterface?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.net.networkinformation.networkinterface?view=net-11.0",
+      "title": "NetworkInterface Class",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened with net-8.0 among the listed monikers and net-11.0 as the default. It describes interface inventory/statistics; provider-specific availability and counter semantics still require runtime validation."
+    },
+    {
+      "sourceUrl": "https://developer.nvidia.com/video-codec-sdk",
+      "finalUrl": "https://developer.nvidia.com/video-codec-sdk",
+      "title": "NVIDIA Video Codec SDK",
+      "result": "OPENED",
+      "evidence": "NVIDIA page opened and describes NVENC/NVDEC APIs and SDK support for Windows and Linux. Exact GPU generation support, SDK license, redistribution conditions, and compatibility remain unreviewed; no SDK integration is implied."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/multimedia/midi",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/multimedia/midi",
+      "title": "MIDI",
+      "result": "SOURCE_URL_404",
+      "evidence": "The supplied Microsoft Learn URL returned 404. No replacement page or current MIDI API contract has been verified."
+    },
+    {
+      "sourceUrl": "https://support.microsoft.com/windows/windows-camera-microphone-and-privacy-a83257bc-e990-d54a-df1c-29097f7d3a6c",
+      "finalUrl": "https://support.microsoft.com/en-us/topic/a83257bc-e990-d54a-df1c-29097f7d3a6c",
+      "title": "Windows camera, microphone and privacy",
+      "result": "SOURCE_URL_404",
+      "evidence": "Microsoft Support redirected the supplied URL to a topic URL that returned 404. No replacement page or camera/microphone API contract has been verified."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.environment.getfolderpath?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.environment.getfolderpath?view=net-11.0",
+      "title": "Environment.GetFolderPath Method",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened with net-8.0 among the listed monikers and net-11.0 as the default. Folder special-path results are runtime/environment dependent and should not be assumed to be writable or equivalent across Windows profiles."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/privacy/",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/privacy/",
+      "title": "Windows Privacy hub",
+      "result": "OPENED_BROAD_GUIDANCE",
+      "evidence": "Microsoft Learn privacy hub opened and describes organizational data-privacy controls and resources. It is guidance, not a local app-permissions API or permission-state contract."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/powershell/module/trustedplatformmodule/get-tpm",
+      "finalUrl": "https://learn.microsoft.com/en-us/powershell/module/trustedplatformmodule/get-tpm?view=windowsserver2025-ps",
+      "title": "Get-Tpm",
+      "result": "OPENED_WITH_REDIRECT",
+      "evidence": "Microsoft Learn identifies the TrustedPlatformModule PowerShell module and syntax Get-Tpm. It returns a TpmObject with hardware/provisioning fields, including owner-authorization-related fields that must never be logged or exported. Runtime module/TPM availability remains to be detected."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/powershell/module/secureboot/confirm-securebootuefi",
+      "finalUrl": "https://learn.microsoft.com/en-us/powershell/module/secureboot/confirm-securebootuefi?view=windowsserver2025-ps",
+      "title": "Confirm-SecureBootUEFI",
+      "result": "OPENED_WITH_REDIRECT",
+      "evidence": "Microsoft Learn documents the no-argument Confirm-SecureBootUEFI cmdlet. It requires administrator-mode PowerShell and reports unsupported on non-UEFI systems; this application has no privileged worker, so it must not claim this check is available without a validated authorized provider."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/powershell/module/netsecurity/get-netfirewallprofile",
+      "finalUrl": "https://learn.microsoft.com/en-us/powershell/module/netsecurity/get-netfirewallprofile?view=windowsserver2025-ps",
+      "title": "Get-NetFirewallProfile",
+      "result": "OPENED_WITH_REDIRECT",
+      "evidence": "Microsoft Learn documents read-oriented Get-NetFirewallProfile parameter sets for profile/policy-store queries. The module/provider must be present and access errors surfaced. This cmdlet does not itself justify firewall changes."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/signtool",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/signtool",
+      "title": "SignTool",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn describes SignTool as a command-line CryptoAPI tool for signing, verifying, and timestamping files. This is SDK/WDK tooling, not a runtime trust verifier or an available signing identity; no certificate or signature is asserted."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.mutex?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.mutex?view=net-11.0",
+      "title": "Mutex Class",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened with net-8.0 among the listed monikers and net-11.0 as the default. API documentation alone does not establish named-object ACL behavior or cross-session identity; the app's single-instance policy is validated separately."
+    },
+    {
+      "sourceUrl": "https://www.sqlite.org/pragma.html#pragma_integrity_check",
+      "finalUrl": "https://www.sqlite.org/pragma.html#pragma_integrity_check",
+      "title": "SQLite PRAGMA statements",
+      "result": "OPENED",
+      "evidence": "Official SQLite PRAGMA documentation opened. It warns PRAGMAs are SQLite-specific and unknown PRAGMAs may be silently ignored, so integrity checks must verify returned rows and errors rather than treat command execution as success."
+    },
+    {
+      "sourceUrl": "https://joshclose.github.io/CsvHelper/",
+      "finalUrl": "https://joshclose.github.io/CsvHelper/",
+      "title": "CsvHelper",
+      "result": "OPENED_VERSION_COMPATIBILITY_UNRESOLVED",
+      "evidence": "Project documentation opened and identifies CsvHelper v34 as the latest release, with advertised .NET 10, .NET Standard 2.0/2.1, and .NET Framework targets. The exact package target, license, and .NET 8 compatibility must be confirmed from a pinned release before adoption."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.text.encodings.web.htmlencoder?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.text.encodings.web.htmlencoder?view=net-11.0",
+      "title": "HtmlEncoder Class",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened and lists net-8.0 support. HtmlEncoder is suitable for context-appropriate HTML encoding, but does not replace URL/attribute validation or safe DOM construction."
+    },
+    {
+      "sourceUrl": "https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net",
+      "finalUrl": "https://docs.github.com/en/actions/tutorials/build-and-test-code/net",
+      "title": "Building and testing .NET",
+      "result": "OPENED_WITH_REDIRECT",
+      "evidence": "GitHub Docs redirected to its current .NET build/test tutorial. It describes GitHub-hosted runner workflows and repository workflow files; exact runner images, action versions, permissions, and release gates still require a pinned workflow."
+    },
+    {
+      "sourceUrl": "https://github.com/xunit/xunit",
+      "finalUrl": "https://github.com/xunit/xunit",
+      "title": "xUnit.net",
+      "result": "REPOSITORY_OPENED_LICENSE_UNREVIEWED",
+      "evidence": "The public GitHub repository describes xUnit.net as a free, open-source .NET test framework. The specific license text, selected package versions, support policy, and transitive dependencies were not reviewed."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.runtimeinformation?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.runtimeinformation?view=net-11.0",
+      "title": "RuntimeInformation Class",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened and lists net-8.0 support. Runtime/OS identification is not a hardware compatibility or capability proof."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects",
+      "title": "Job Objects - Win32 apps",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn page opened and describes job objects as securable, shareable groups of processes with controlling attributes. Plugin isolation requires a threat model and explicit limits; the page alone does not establish a safe sandbox."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.reflection.assemblyinformationalversionattribute?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.reflection.assemblyinformationalversionattribute?view=net-11.0",
+      "title": "AssemblyInformationalVersionAttribute",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened and lists net-8.0 support. Informational version is assembly metadata and is not evidence of a trusted publisher, signed build, or release provenance."
+    },
+    {
+      "sourceUrl": "https://spdx.dev/use/specifications/",
+      "finalUrl": "https://spdx.dev/use/specifications/",
+      "title": "SPDX specifications",
+      "result": "OPENED",
+      "evidence": "SPDX specifications page opened and is dated 2025-08-05. It describes a standard for software package/license information; using SPDX does not itself establish that this project's dependency inventory or license conclusions are complete."
+    },
+    {
+      "sourceUrl": "https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds",
+      "finalUrl": "https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations",
+      "title": "GitHub artifact attestations",
+      "result": "OPENED_WITH_REDIRECT",
+      "evidence": "GitHub Docs redirected to the current attestation guide. The guide requires workflow permissions including id-token and attestations write and an attest action step. No attestation has been generated or verified for these local artifacts."
+    },
+    {
+      "sourceUrl": "https://nsis.sourceforge.io/Docs/",
+      "finalUrl": "https://nsis.sourceforge.io/Docs/",
+      "title": "NSIS Users Manual",
+      "result": "OPENED_LICENSE_UNREVIEWED",
+      "evidence": "NSIS Users Manual opened and describes a scriptable Win32 installer/uninstaller system. NSIS is used by the local packaging script, but the applicable license, included plugins, and redistribution compliance still require review."
+    },
+    {
+      "sourceUrl": "https://docs.github.com/en/rest/releases/releases",
+      "finalUrl": "https://docs.github.com/en/rest/releases/releases",
+      "title": "REST API endpoints for releases",
+      "result": "OPENED",
+      "evidence": "GitHub REST API documentation opened. It describes release list/create/update/delete endpoints and authorization requirements. No release endpoint was called and no release was created."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/style-guide/welcome/",
+      "finalUrl": "https://learn.microsoft.com/en-us/style-guide/welcome/",
+      "title": "Microsoft Writing Style Guide",
+      "result": "OPENED",
+      "evidence": "Microsoft Writing Style Guide landing page opened. This is writing guidance and does not provide application functionality, localization coverage, or technical API validation."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_4/nf-dxgi1_4-idxgiadapter3-queryvideomemoryinfo",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_4/nf-dxgi1_4-idxgiadapter3-queryvideomemoryinfo",
+      "title": "IDXGIAdapter3::QueryVideoMemoryInfo",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn API page opened. It describes querying current video-memory budget and process usage through DXGI. Budget values are not fixed VRAM capacity or temperature, and device/driver/runtime availability and a validated .NET interop provider remain unverified."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/powershell/module/storage/get-storagereliabilitycounter?view=windowsserver2025-ps",
+      "finalUrl": "https://learn.microsoft.com/en-us/powershell/module/storage/get-storagereliabilitycounter?view=windowsserver2025-ps",
+      "title": "Get-StorageReliabilityCounter",
+      "result": "OPENED_VERSION_SCOPE_REVIEW_REQUIRED",
+      "evidence": "Microsoft Learn cmdlet page opened with the WindowsServer2025-ps moniker and Storage module. Hardware reliability fields can be unavailable or vendor-dependent; local Windows edition/module availability, elevation needs, supported device classes, and a production provider are not established."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/perfctrs/about-performance-counters",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/perfctrs/about-performance-counters",
+      "title": "About Performance Counters",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn overview opened and describes counters for OS, application, service, and driver performance. A counter set, localized name, access requirements, sampling interval, and hardware/provider support must be verified individually."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getsystemtimes",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getsystemtimes",
+      "title": "GetSystemTimes",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn API page opened. It returns system timing values and states that multiprocessor values are summed across processors. A utilization percentage requires timestamped deltas and a defined denominator; the API does not provide per-core utilization by itself."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-globalmemorystatusex",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-globalmemorystatusex",
+      "title": "GlobalMemoryStatusEx",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn API page opened. It reports current physical and virtual memory availability and states the data is volatile, so successive calls can differ. This does not establish hardware health or an optimization benefit."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/wmisdk/wql-sql-for-wmi",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/wmisdk/wql-sql-for-wmi",
+      "title": "WQL (SQL for WMI)",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn page opened. WQL is a subset of ANSI SQL with semantic differences. This language overview does not validate any particular query or provider; user-supplied values must not be interpolated into executable query text."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/wmisdk/wmi-reference",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/wmisdk/wmi-reference",
+      "title": "WMI Reference",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn WMI reference index opened. It links core WMI topics but does not prove a specific class/provider is installed, enabled, accessible, or consistent across Windows editions."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powersetactivescheme",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powersetactivescheme",
+      "title": "PowerSetActiveScheme",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn API page opened. It sets the active power scheme for the current user, lists Windows Vista or later desktop support, and identifies PowrProf.dll. This does not establish that a specific OEM plan is suitable or improves performance."
+    },
+    {
+      "sourceUrl": "https://www.sqlite.org/lang_transaction.html",
+      "finalUrl": "https://www.sqlite.org/lang_transaction.html",
+      "title": "SQLite transaction control",
+      "result": "OPENED",
+      "evidence": "SQLite transaction documentation opened. It states that BEGIN/COMMIT transactions do not nest and recommends SAVEPOINT for nested transactions; errors and connection closure can roll back work. Application crash/power-loss durability still depends on configured journal and synchronization behavior."
+    },
+    {
+      "sourceUrl": "https://github.com/ChrisTitusTech/winutil",
+      "finalUrl": "https://github.com/ChrisTitusTech/winutil",
+      "title": "Chris Titus Tech Windows Utility",
+      "result": "REPOSITORY_OPENED_LICENSE_CONTENT_UNREVIEWED",
+      "evidence": "The public repository describes a Windows utility for installing programs, tweaks, fixes, and updates and displays an MIT license link. No source was copied or executed; the license text, commit-pinned behavior, script safety, provenance, and suitability for HyperBoostX were not validated."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.protecteddata?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.protecteddata?view=windowsdesktop-11.0&viewFallbackFrom=net-8.0",
+      "title": "ProtectedData Class",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn redirected the generic net-8.0 view to a WindowsDesktop view; the page lists WindowsDesktop 8.0 support. The API is Windows DPAPI-related and not a general cross-platform crypto vault; package/reference resolution and same-user malware limits remain separate concerns."
+    },
+    {
+      "sourceUrl": "https://docs.nvidia.com/nim/large-language-models/latest/get-started/quickstart.html",
+      "finalUrl": "https://docs.nvidia.com/nim/large-language-models/latest/get-started/quickstart.html",
+      "title": "NVIDIA NIM LLM quickstart",
+      "result": "OPENED",
+      "evidence": "NVIDIA's current quickstart describes running an LLM/VLM container, pulling a model, configuring a local cache, and credentials for some model sources. This is not a lightweight offline provider; Docker, model licensing, GPU compatibility, credential needs, resource costs, and network-consent behavior require independent assessment."
+    },
+    {
+      "sourceUrl": "https://github.com/intel/drivers.gpu.control-library",
+      "finalUrl": "https://github.com/intel/drivers.gpu.control-library",
+      "title": "Intel Graphics Control Library",
+      "result": "REPOSITORY_OPENED_DETAILS_UNREVIEWED",
+      "evidence": "The public Intel repository page opened and links to project documentation. The repository source, release/version policy, license, supported GPUs/drivers, API capabilities, dependencies, and redistribution terms were not reviewed."
+    },
+    {
+      "sourceUrl": "https://gpuopen.com/adlx/",
+      "finalUrl": "https://gpuopen.com/adlx/",
+      "title": "AMD ADLX SDK",
+      "result": "OPENED",
+      "evidence": "AMD's page describes ADLX SDK v2.0 for display, graphics, performance monitoring, GPU tuning, and MCP-based natural-language control. The MCP control path is not a safe substitute for typed, user-approved actions; exact OS/GPU support, SDK license, package contents, and .NET integration remain unverified."
+    },
+    {
+      "sourceUrl": "https://docs.nvidia.com/deploy/nvml-api/latest/",
+      "finalUrl": "https://docs.nvidia.com/deploy/nvml-api/latest/",
+      "title": "NVIDIA Management Library API Reference",
+      "result": "OPENED",
+      "evidence": "NVIDIA describes NVML as a C-based API for querying GPU state and performing supported management operations, with driver/library and platform details in the guide. This does not establish support for AMD/Intel GPUs, redistribution rights, stable .NET bindings, or a particular device's capabilities."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.priorityclass?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.priorityclass?view=net-11.0",
+      "title": "Process.PriorityClass Property",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened and lists net-8.0 support. The property reads/sets a process scheduling priority class; changing another process can fail or affect system responsiveness and is not evidence of improved game performance."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/powercfg-command-line-options",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/powercfg-command-line-options",
+      "title": "Powercfg command-line options",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn describes powercfg.exe for power schemes, device power states, and energy/battery analysis. This is a command-line utility reference, not authorization to execute arbitrary commands; per-option elevation, device behavior, and supported power states need separate validation."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-functions",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-functions",
+      "title": "Registry Functions",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn registry function index opened. It is a broad API catalog, not proof that a particular key/value is safe, reversible, available, or appropriate; a registry mutation must still constrain the hive, path, value kind, current state, backup, and rollback."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.processoraffinity?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.processoraffinity?view=net-11.0",
+      "title": "Process.ProcessorAffinity Property",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened and lists net-8.0 support. It exposes a process processor-affinity mask; mask width, processor groups/topology, access rights, and scheduler side effects require validation. Setting affinity is not a general performance improvement."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getlogicalprocessorinformationex",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getlogicalprocessorinformationex",
+      "title": "GetLogicalProcessorInformationEx",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn API page opened and lists Windows 7 or later desktop support for querying processor and related-hardware relationships. It is a topology inventory API, not an affinity recommendation; topology and processor-group handling still require implementation and tests."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.stopwatch?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.stopwatch?view=net-11.0",
+      "title": "Stopwatch Class",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened and lists net-8.0 support. Stopwatch can measure elapsed intervals; it does not measure rendered frames or establish in-game FPS/frame-time evidence."
+    },
+    {
+      "sourceUrl": "https://game.intel.com/us/intel-presentmon/",
+      "finalUrl": "https://game.intel.com/us/intel-presentmon/",
+      "title": "Intel PresentMon",
+      "result": "OPENED_PRODUCT_PAGE_NOT_SDK_REFERENCE",
+      "evidence": "The URL opens Intel's PresentMon v2.6.0 telemetry/overlay product page and links an installer; it is not SDK/API documentation. It advertises game performance capture and overlay features. Do not embed/inject its overlay; licensing, distribution, API details, and non-overlay integration remain unverified."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/api/wintrust/nf-wintrust-winverifytrust",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/api/wintrust/nf-wintrust-winverifytrust",
+      "title": "WinVerifyTrust",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn API page opened and describes a trust-verification action for a specified object, with Wintrust.lib/Wintrust.dll and broad Windows support. A successful trust action depends on the selected policy and does not by itself prove a vendor is authorized by HyperBoostX."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-bios",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-bios",
+      "title": "Win32_BIOS",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn WMI class page opened and lists BIOS fields including version, manufacturer, release date, and serial number. Values are provider/firmware reports, can be missing or inaccurate, and serial numbers are sensitive; do not treat them as compatibility proof or share by default."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-videocontroller",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-videocontroller",
+      "title": "Win32_VideoController",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn WMI class page opened and lists video-controller inventory and management properties, including Reset and SetPowerState. Those management methods are not approved optimizer actions; WMI-reported VRAM, capabilities, and utilization need independent provider validation."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-baseboard",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-baseboard",
+      "title": "Win32_BaseBoard",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn WMI class page opened and identifies baseboard/motherboard inventory fields, including manufacturer, product, version, and serial number. Firmware reporting may be incomplete; serials are sensitive and must be redacted from shared diagnostics."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-physicalmemory",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-physicalmemory",
+      "title": "Win32_PhysicalMemory",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn WMI class page opened and lists physical-memory device properties such as capacity, locator, configured speed, and manufacturer. Reported speed/part details require validation against the module and provider; this class does not establish RAM health or tuning compatibility."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/pnputil-command-syntax",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/pnputil-command-syntax",
+      "title": "PnPUtil Command Syntax",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn command reference opened. PnPUtil has device and driver-package commands whose effects and OS availability vary by option. Do not expose it as arbitrary user/AI commands; destructive driver operations require separate, isolated verification."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/api/cfgmgr32/nf-cfgmgr32-cm_get_devnode_status",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/api/cfgmgr32/nf-cfgmgr32-cm_get_devnode_status",
+      "title": "CM_Get_DevNode_Status",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn API page opened. It obtains a device-instance status from the local machine's device tree and lists broad Windows 2000-or-later support. Correct interpretation depends on status/problem flags and device-node identity; this does not prove a driver is current or hardware is healthy."
+    },
+    {
+      "sourceUrl": "https://github.com/CorsairOfficial/cue-sdk",
+      "finalUrl": "https://github.com/CorsairOfficial/cue-sdk",
+      "title": "Corsair iCUE SDK",
+      "result": "REPOSITORY_OPENED_DETAILS_UNREVIEWED",
+      "evidence": "The public CorsairOfficial repository page opened and identifies an iCUE SDK. No release-pinned API, license/redistribution terms, supported product/driver matrix, dependencies, security policy, or device behavior was reviewed."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/powershell/module/appx/get-appxpackage",
+      "finalUrl": "https://learn.microsoft.com/en-us/powershell/module/appx/get-appxpackage?view=windowsserver2025-ps",
+      "title": "Get-AppxPackage",
+      "result": "OPENED_VERSION_SCOPE_REVIEW_REQUIRED",
+      "evidence": "Microsoft Learn redirected to the Appx PowerShell module page with a WindowsServer2025-ps moniker and Windows 11 product metadata. This source fetch established the cmdlet/module identity, not its availability on every target edition, exact inventory coverage, permission behavior, or a safe package-removal workflow."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/powershell/module/appx/remove-appxpackage",
+      "finalUrl": "https://learn.microsoft.com/en-us/powershell/module/appx/remove-appxpackage?view=windowsserver2025-ps",
+      "title": "Remove-AppxPackage",
+      "result": "OPENED_MUTATING_CMDLET",
+      "evidence": "Microsoft Learn redirected to the Appx module page, which explicitly describes removal of an app package from one or more user accounts. This is a destructive package-management action, not an optimizer toggle; exact scope, dependency impact, reinstallation, consent, and rollback must be verified before any implementation."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/sfc",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/sfc",
+      "title": "sfc command",
+      "result": "OPENED_MUTATING_REPAIR_REFERENCE",
+      "evidence": "Microsoft Learn describes SFC as scanning/verifying protected system files and replacing incorrect versions. It is an OS repair operation, not a harmless production diagnostic; elevation, servicing state, interruption behavior, and recovery must be tested separately."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/repair-a-windows-image",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/repair-a-windows-image?view=windows-11",
+      "title": "Repair a Windows Image",
+      "result": "OPENED_WITH_REDIRECT",
+      "evidence": "Microsoft Learn redirected to the Windows 11 view and lists Windows 10 and Windows 11 monikers. This is Windows image repair guidance; exact DISM commands, source-image matching, elevation, servicing side effects, and rollback are not validated for a production workflow."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/wua_sdk/portal-client",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/wua_sdk/portal-client",
+      "title": "Windows Update Agent API",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn describes WUA as COM interfaces for administrators and programmers to access Windows Update and WSUS. Update search/install behavior, management policy, network access, user consent, interruption, and rollback require separate implementation and disposable-environment testing."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/chkdsk",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/chkdsk",
+      "title": "chkdsk command",
+      "result": "OPENED_MUTATING_REPAIR_REFERENCE",
+      "evidence": "Microsoft Learn describes CHKDSK as checking filesystem and volume metadata for logical and physical errors. Volume locks, offline scheduling, repair flags, data-loss risk, and reboot behavior must be assessed before exposing it; no check or repair was run."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.io.driveinfo?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.io.driveinfo?view=net-11.0",
+      "title": "DriveInfo Class",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened and lists net-8.0 support. DriveInfo is an API for drive metadata and capacity; it does not establish filesystem integrity, SMART health, or storage-device reliability."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getdiskfreespaceexw",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getdiskfreespaceexw",
+      "title": "GetDiskFreeSpaceExW",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn API page opened. It reports total volume space, total free space, and free space available to the calling thread's user, and lists broad Windows desktop support. Free-space counters are not a disk-health or cleanup recommendation."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/powershell/module/storage/get-physicaldisk",
+      "finalUrl": "https://learn.microsoft.com/en-us/powershell/module/storage/get-physicaldisk?view=windowsserver2025-ps",
+      "title": "Get-PhysicalDisk",
+      "result": "OPENED_VERSION_SCOPE_REVIEW_REQUIRED",
+      "evidence": "Microsoft Learn redirected to the Storage PowerShell module page with a WindowsServer2025-ps moniker and Windows 11 product metadata. Exact OS/module availability, provider backing, device enumeration coverage, and privilege behavior are not established by this retrieval."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/powershell/module/storage/get-volume",
+      "finalUrl": "https://learn.microsoft.com/en-us/powershell/module/storage/get-volume?view=windowsserver2025-ps",
+      "title": "Get-Volume",
+      "result": "OPENED_VERSION_SCOPE_REVIEW_REQUIRED",
+      "evidence": "Microsoft Learn redirected to the Storage PowerShell module page with a WindowsServer2025-ps moniker and Windows 11 product metadata. Local module/provider availability, volume permissions, removable/network-volume behavior, and data completeness require runtime validation."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/powershell/module/dnsclient/clear-dnsclientcache",
+      "finalUrl": "https://learn.microsoft.com/en-us/powershell/module/dnsclient/clear-dnsclientcache?view=windowsserver2025-ps",
+      "title": "Clear-DnsClientCache",
+      "result": "OPENED_VERSION_SCOPE_REVIEW_REQUIRED",
+      "evidence": "Microsoft Learn redirected to the DNS Client PowerShell module page with a WindowsServer2025-ps moniker and Windows 11 product metadata. This cmdlet changes local resolver cache state; exact support/permission behavior and any user-visible network consequences must be checked before offering it."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/api/windns/nf-windns-dnsqueryex",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/api/windns/nf-windns-dnsqueryex",
+      "title": "DnsQueryEx",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn describes DnsQueryEx as an asynchronous generic DNS query API, available on Windows 8 or later and exported by Dnsapi.dll. Interop structure ownership, cancellation/completion lifetime, resolver policy, and network error handling require tests."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientserveraddress",
+      "finalUrl": "https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientserveraddress?view=windowsserver2025-ps",
+      "title": "Get-DnsClientServerAddress",
+      "result": "OPENED_VERSION_SCOPE_REVIEW_REQUIRED",
+      "evidence": "Microsoft Learn redirected to the DNS Client PowerShell module page with a WindowsServer2025-ps moniker and Windows 11 product metadata. The retrieved page identifies the cmdlet/module but does not validate adapter enumeration, policy, permissions, localization, or runtime availability on all supported editions."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-nettcpsetting",
+      "finalUrl": "https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-nettcpsetting?view=windowsserver2025-ps",
+      "title": "Get-NetTCPSetting",
+      "result": "OPENED_VERSION_SCOPE_REVIEW_REQUIRED",
+      "evidence": "Microsoft Learn redirected to the NetTCPIP module page with a WindowsServer2025-ps moniker and Windows 11 product metadata. This reference is for reading TCP templates, not evidence that altering TCP settings improves latency; module availability and actual values require runtime checks."
+    },
+    {
+      "sourceUrl": "https://github.com/intel/libvpl",
+      "finalUrl": "https://github.com/intel/libvpl",
+      "title": "Intel Video Processing Library",
+      "result": "REPOSITORY_OPENED_LICENSE_CONTENT_UNREVIEWED",
+      "evidence": "The public Intel repository identifies the Video Processing Library API, dispatcher, and examples and displays an MIT license link. Exact release/version, supported hardware, bundled dependencies, license text, redistribution terms, and suitability for HyperBoostX were not independently reviewed."
+    },
+    {
+      "sourceUrl": "https://github.com/GPUOpen-LibrariesAndSDKs/AMF",
+      "finalUrl": "https://github.com/GPUOpen-LibrariesAndSDKs/AMF",
+      "title": "AMD Advanced Media Framework",
+      "result": "REPOSITORY_OPENED_LICENSE_CONTENT_UNREVIEWED",
+      "evidence": "The public AMD repository describes AMF as a multimedia-processing SDK for AMD devices and links a license. The license text, supported hardware/driver matrix, binary redistribution, dependencies, and exact API version were not reviewed."
+    },
+    {
+      "sourceUrl": "https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md?plain=1",
+      "finalUrl": "https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md?plain=1",
+      "title": "OBS WebSocket protocol",
+      "result": "PROTOCOL_FILE_OPENED_VERSION_UNPINNED",
+      "evidence": "The public OBS repository page identifies a generated protocol document of 5,798 lines on the moving master branch. No version-pinned protocol, authentication section, licensing terms, local-bind configuration, or runtime interaction was validated; do not enable remote control by default."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/coreaudio/wasapi",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/coreaudio/wasapi",
+      "title": "Windows Audio Session API",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn WASAPI overview opened. It describes Windows Core Audio session interfaces; device enumeration, stream modes, endpoint changes, permissions, and behavior on OEM audio stacks need specific implementation tests. It does not justify game injection or overlays."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nn-endpointvolume-iaudiometerinformation",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nn-endpointvolume-iaudiometerinformation",
+      "title": "IAudioMeterInformation",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn identifies this interface as a peak meter for an audio stream to or from an endpoint device and lists Windows Vista or later. Endpoint support, meter units, permissions, and whether a value is exposed by a specific driver require runtime verification."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/coreaudio/core-audio-apis-in-windows-vista",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/coreaudio/core-audio-apis-in-windows-vista",
+      "title": "Core Audio APIs",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn Core Audio API index opened. It is a broad API map, not an implementation specification for a particular audio operation; select an exact interface and validate device, thread, lifetime, and error behavior before use."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.win32.registrykey?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.win32.registrykey?view=net-11.0",
+      "title": "RegistryKey Class",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened and lists net-8.0 support. RegistryKey exposes Windows registry access; the API does not provide an application-specific allowlist, transactional backup, or rollback policy. Keep hive/path/value kinds fixed and access-denied cases explicit."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.net.networkinformation.ping?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.net.networkinformation.ping?view=net-11.0",
+      "title": "Ping Class",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened and lists net-8.0 support. ICMP response time measures one network path/host under current resolver and routing conditions; ICMP may be blocked and does not represent game-server latency or user-perceived performance."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-getperformanceinfo",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-getperformanceinfo",
+      "title": "GetPerformanceInfo",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn describes retrieving system performance values in PERFORMANCE_INFORMATION and lists broad Windows desktop support. Values are snapshots, not rates; any derived metric needs timestamped deltas, units, and counter-wrap handling."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.periodictimer?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.periodictimer?view=net-11.0",
+      "title": "PeriodicTimer Class",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened and lists .NET 6.0 and later, including net-8.0. It is a scheduling primitive, not a real-time guarantee; sampling must handle cancellation, missed intervals, shutdown, and bounded resource use."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/core/extensions/logging/overview",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/core/extensions/logging/overview",
+      "title": "Logging in .NET",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn guide opened for Microsoft.Extensions.Logging abstractions. Provider selection, retention, redaction, filesystem access controls, and dependency versions are application responsibilities; logging infrastructure must not receive secrets or unredacted command lines."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.text.json?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.text.json?view=net-11.0",
+      "title": "System.Text.Json Namespace",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened and lists net-8.0 support. JSON serialization/deserialization does not itself enforce the application's schema, size limits, allowed fields, safe paths, or secret redaction."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/communitytoolkit/mvvm/",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/communitytoolkit/mvvm/",
+      "title": "MVVM Toolkit introduction",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn overview opened for the CommunityToolkit MVVM APIs. It does not validate the project's selected package version, license obligations, generated-code behavior in this build, or whether every UI command is correctly bound."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.net.http.httpclient?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.net.http.httpclient?view=net-11.0",
+      "title": "HttpClient Class",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened and lists net-8.0 support. It is a general HTTP client API; callers must separately impose consent, TLS/endpoint policy, timeouts, response-size limits, cancellation, and secret-safe error handling."
+    },
+    {
+      "sourceUrl": "https://docs.api.nvidia.com/nim/reference/llm-apis",
+      "finalUrl": "https://docs.api.nvidia.com/nim/reference/llm-apis",
+      "title": "NVIDIA hosted LLM APIs",
+      "result": "OPENED_REMOTE_PROVIDER_REFERENCE",
+      "evidence": "NVIDIA API reference identifies a hosted HTTPS base URL and POST /v1/chat/completions for remote LLM inference. This necessarily crosses a network/data-sharing boundary; authentication, account terms, model availability, retention, cost, rate limits, and user consent must be separately verified before integration."
+    },
+    {
+      "sourceUrl": "https://docs.nvidia.com/nim/large-language-models/latest/api-reference.html",
+      "finalUrl": "https://docs.nvidia.com/nim/large-language-models/latest/reference/api-reference.html",
+      "title": "NVIDIA NIM API reference",
+      "result": "OPENED_WITH_REDIRECT",
+      "evidence": "The original NVIDIA URL is a meta-refresh to the current API reference. The current guide describes OpenAI-compatible inference endpoints and NIM-specific management endpoints whose availability depends on the container inference backend. Hosted versus self-hosted mode, authentication, privacy, licensing, and model capability must be distinguished."
+    },
+    {
+      "sourceUrl": "https://github.com/LibreHardwareMonitor/LibreHardwareMonitor",
+      "finalUrl": "https://github.com/LibreHardwareMonitor/LibreHardwareMonitor",
+      "title": "LibreHardwareMonitor",
+      "result": "REPOSITORY_OPENED_LICENSE_CONTENT_UNREVIEWED",
+      "evidence": "The public repository describes temperature, fan, voltage, load, and clock monitoring and displays an MPL-2.0 license link. Exact license obligations, sensor/driver access model, hardware support, privileged components, package versions, and safe integration were not reviewed."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/api/powerbase/nf-powerbase-callntpowerinformation",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/api/powerbase/nf-powerbase-callntpowerinformation",
+      "title": "CallNtPowerInformation",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn describes a power information API with multiple information levels and set/retrieve behavior, including policy and system information. The API's individual level semantics and privilege requirements must be checked; only explicitly read-only data should be used for diagnostics."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-processor",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-processor",
+      "title": "Win32_Processor",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn WMI class page opened and lists processor identity/status fields as well as Reset and SetPowerState methods. WMI values may be incomplete or provider-reported; management methods are not approved optimizer actions, and identity fields can be sensitive."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken?view=net-11.0",
+      "title": "CancellationToken Struct",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened and lists net-8.0 support. Cancellation is cooperative; providers must observe the token at safe points and report whether work or mutation already occurred rather than claiming that cancellation forcibly stopped an operation."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process?view=net-11.0",
+      "title": "Process Class",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened and lists net-8.0 support. Process exposes process inspection and control APIs; access rights, process identity/PID reuse, protected processes, cancellation, and any termination side effect require explicit handling."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/dx-graphics-dxgi",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/dx-graphics-dxgi",
+      "title": "DXGI overview",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn DXGI overview opened. It is an API-family overview, not a concrete GPU telemetry or tuning contract; the specific interface, runtime support, adapter selection, driver behavior, and error cases must be validated independently."
+    },
+    {
+      "sourceUrl": "https://github.com/GameTechDev/PresentMon",
+      "finalUrl": "https://github.com/GameTechDev/PresentMon",
+      "title": "PresentMon",
+      "result": "REPOSITORY_OPENED_LICENSE_CONTENT_UNREVIEWED",
+      "evidence": "The public GameTechDev repository describes capture/analysis of Windows graphics-application performance and displays an MIT license link. No pinned release/API, license text, dependencies, telemetry compatibility, or overlay-free integration was validated; do not inject or ship an overlay."
+    },
+    {
+      "sourceUrl": "https://github.com/JosefNemec/Playnite",
+      "finalUrl": "https://github.com/JosefNemec/Playnite",
+      "title": "Playnite game library manager",
+      "result": "REPOSITORY_OPENED_LICENSE_CONTENT_UNREVIEWED",
+      "evidence": "The public Playnite repository describes a game-library manager with third-party library integrations and displays an MIT license link. No stable integration API, package/license terms, account-data behavior, or compatibility was reviewed; no code was copied."
+    },
+    {
+      "sourceUrl": "https://github.com/microsoft/perfview",
+      "finalUrl": "https://github.com/microsoft/perfview",
+      "title": "PerfView",
+      "result": "REPOSITORY_OPENED_LICENSE_CONTENT_UNREVIEWED",
+      "evidence": "The public Microsoft repository describes PerfView as a CPU/memory performance-analysis tool and displays an MIT license link. It is a developer diagnostic tool, not a production runtime dependency; license text, pinned versions, ETW permissions, and output-data sensitivity remain unreviewed."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/etw/about-event-tracing",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/etw/about-event-tracing",
+      "title": "Event Tracing for Windows",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn describes ETW as a kernel-level facility for recording kernel/application-defined events to log files. ETW providers, session permissions, trace size/retention, and possible sensitive content need per-provider review; no trace was collected."
+    },
+    {
+      "sourceUrl": "https://gitlab.com/CalcProgrammer1/OpenRGB",
+      "finalUrl": "https://gitlab.com/CalcProgrammer1/OpenRGB",
+      "title": "OpenRGB",
+      "result": "PROJECT_PAGE_OPENED_LICENSE_CONTENT_UNREVIEWED",
+      "evidence": "The OpenRGB project page describes cross-platform RGB device control and links a GNU GPL v2.0-or-later license. The license text, driver/device permissions, supported hardware, background service behavior, and redistribution compatibility were not reviewed; no control operation was attempted."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/services/service-control-manager",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/services/service-control-manager",
+      "title": "Service Control Manager",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn describes SCM as a boot-started RPC server used to manage services, including remote machines. Service configuration/control is a high-impact boundary; do not expose remote targets or change services without a typed allowlist, consent, recovery, and isolated tests."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-start-page",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-start-page",
+      "title": "Task Scheduler for developers",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn describes Task Scheduler as executing tasks when configured criteria are met. Registered tasks can launch programs or scripts; enumeration does not justify disabling, editing, or running tasks, and task identity/privileges must be preserved."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/shell/knownfolderid",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/shell/knownfolderid",
+      "title": "KNOWNFOLDERID",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn describes KNOWNFOLDERID constants as GUIDs for standard system-registered folders. Resolve paths through the OS API rather than assuming a localized or redirected profile path; folder ACLs and redirection still need runtime checks."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys",
+      "title": "Run and RunOnce Registry Keys",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn states Run/RunOnce keys start programs at user logon. Removing an entry can disable user or system functionality; preserve exact hive, name, type, command, policy context, and conflict-aware rollback, and protect security/driver/hardware entries."
+    },
+    {
+      "sourceUrl": "https://github.com/winsiderss/systeminformer",
+      "finalUrl": "https://github.com/winsiderss/systeminformer",
+      "title": "System Informer",
+      "result": "REPOSITORY_OPENED_LICENSE_CONTENT_UNREVIEWED",
+      "evidence": "The public repository describes a multi-purpose system monitor/debugger and malware-detection tool and displays an MIT license link. Exact license text, privileged components, process-control behavior, release provenance, and redistribution requirements were not reviewed."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/api/winsvc/nf-winsvc-changeserviceconfigw",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/api/winsvc/nf-winsvc-changeserviceconfigw",
+      "title": "ChangeServiceConfigW",
+      "result": "OPENED_MUTATING_API",
+      "evidence": "Microsoft Learn API page opened and explicitly describes changing a service's configuration parameters. Service identity, required access rights, driver/security-service protections, boot impact, backup/rollback, and UAC behavior must be validated in a disposable Windows environment before any implementation."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-schema",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-schema",
+      "title": "Task Scheduler Schema",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn says the XML schema defines valid task-registration XML used with ITaskFolder.RegisterTask. Schema-valid XML can still request dangerous triggers, principals, actions, or privileges; do not import/register arbitrary task XML."
+    },
+    {
+      "sourceUrl": "https://github.com/Raphire/Win11Debloat",
+      "finalUrl": "https://github.com/Raphire/Win11Debloat",
+      "title": "Win11Debloat",
+      "result": "REPOSITORY_OPENED_LICENSE_CONTENT_UNREVIEWED",
+      "evidence": "The public repository describes a PowerShell script for removing preinstalled apps, disabling telemetry, and other Windows 10/11 changes and displays an MIT license link. No script was copied or run; source safety, exact effects, policy conflicts, license text, and rollback behavior were not reviewed."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/package-manager/winget/uninstall",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/package-manager/winget/uninstall",
+      "title": "winget uninstall",
+      "result": "OPENED_MUTATING_COMMAND",
+      "evidence": "Microsoft Learn describes the winget uninstall command as uninstalling a specified application. Package identifiers, source selection, interactive behavior, dependency effects, and reinstallation/rollback must be explicit; never pass arbitrary command text or uninstall without approval."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/fileio/reparse-points",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/fileio/reparse-points",
+      "title": "Reparse Points",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn overview opened describing file/directory reparse points. Traversal and cleanup must account for links, junctions, and other reparse tags to avoid escaping an approved root or deleting unintended data; the exact file-operation flags require implementation tests."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shemptyrecyclebinw",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shemptyrecyclebinw",
+      "title": "SHEmptyRecycleBinW",
+      "result": "OPENED_DESTRUCTIVE_API",
+      "evidence": "Microsoft Learn explicitly describes this Shell API as emptying the Recycle Bin on a specified drive. This can irreversibly destroy user-recoverable files and must not run as an automatic cleanup or optimization; no invocation was made."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.io.path.gettemppath?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.io.path.gettemppath?view=net-11.0",
+      "title": "Path.GetTempPath",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened and lists net-8.0 support. The returned temporary directory is environment-dependent and does not establish that a file is safe to delete; validate ownership, canonical path, reparse points, age, and application ownership."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.io.directory.enumeratefiles?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.io.directory.enumeratefiles?view=net-11.0",
+      "title": "Directory.EnumerateFiles",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened and lists net-8.0 support. Enumeration can encounter access, I/O, and path changes; safe cleanup must bound traversal, avoid following reparse points, handle partial enumeration explicitly, and never convert errors into success."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.sha256?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.sha256?view=net-11.0",
+      "title": "SHA256 Class",
+      "result": "OPENED_WITH_VERSION_FALLBACK",
+      "evidence": "Microsoft Learn API page opened and lists net-8.0 support. SHA-256 can produce a content digest but an untrusted digest does not authenticate a publisher or prove package provenance; signature/trust verification is separate."
+    },
+    {
+      "sourceUrl": "https://github.com/qarmin/czkawka",
+      "finalUrl": "https://github.com/qarmin/czkawka",
+      "title": "Czkawka duplicate file tools",
+      "result": "REPOSITORY_OPENED_LICENSE_CONTENT_UNREVIEWED",
+      "evidence": "The public repository describes a cross-platform app for finding duplicate/empty folders and similar media and displays an MIT license link. Exact source behavior, deletion safeguards, license terms, pinned version, dependencies, and suitability for integration were not reviewed."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/powershell/module/storage/optimize-volume",
+      "finalUrl": "https://learn.microsoft.com/en-us/powershell/module/storage/optimize-volume?view=windowsserver2025-ps",
+      "title": "Optimize-Volume",
+      "result": "OPENED_VERSION_SCOPED_MUTATING_CMDLET",
+      "evidence": "Microsoft Learn redirected to the Storage module page with a WindowsServer2025-ps moniker and Windows 11 product metadata. Volume optimization is a mutating maintenance operation whose behavior depends on media, filesystem, and selected mode; exact option semantics, device support, elevation, interruption, and verification require disposable-system tests."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/nativewifi/portal",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/nativewifi/portal",
+      "title": "Native Wifi",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn describes Native Wifi APIs for configuring, connecting to, and disconnecting from wireless networks. Network profile changes can disrupt connectivity and expose credentials; this overview does not validate any particular operation, consent flow, rollback, or supported adapter."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/iphlp/ip-helper-start-page",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/iphlp/ip-helper-start-page",
+      "title": "IP Helper API",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn describes IP Helper as supporting retrieval and modification of local network configuration. It is a broad API catalog; changing routes, interfaces, or addresses is high-impact and requires an individually validated action, consent, and connectivity recovery."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/powershell/module/dnsclient/set-dnsclientserveraddress",
+      "finalUrl": "https://learn.microsoft.com/en-us/powershell/module/dnsclient/set-dnsclientserveraddress?view=windowsserver2025-ps",
+      "title": "Set-DnsClientServerAddress",
+      "result": "OPENED_VERSION_SCOPE_MUTATING_CMDLET",
+      "evidence": "Microsoft Learn redirected to the DNS Client module page with a WindowsServer2025-ps moniker and Windows 11 product metadata. Setting DNS server addresses changes network configuration and can break name resolution; interface selection, existing state backup, policy/permission handling, verification, rollback, and offline behavior are unvalidated."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/medfound/microsoft-media-foundation-sdk",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/medfound/microsoft-media-foundation-sdk",
+      "title": "Microsoft Media Foundation",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn Media Foundation SDK overview opened. Device capture requires explicit user consent, privacy settings, device-specific error handling, and safe release of media resources; an SDK overview is not evidence that a webcam can be opened or is available."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/medfound/enumerating-video-capture-devices",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/medfound/enumerating-video-capture-devices",
+      "title": "Enumerating Video Capture Devices",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn how-to describes enumerating video-capture devices and creating a device instance. Enumeration is not consent to activate a camera; privacy controls, device ownership, hotplug, unsupported formats, and no-capture diagnostics must be tested."
+    },
+    {
+      "sourceUrl": "https://github.com/microsoft/sbom-tool",
+      "finalUrl": "https://github.com/microsoft/sbom-tool",
+      "title": "Microsoft SBOM Tool",
+      "result": "REPOSITORY_OPENED_LICENSE_CONTENT_UNREVIEWED",
+      "evidence": "The public Microsoft repository describes an SPDX 2.2-compatible SBOM generator and displays an MIT license link. Exact tool version, license text, input completeness, package detection coverage, and verification of generated SBOMs remain unreviewed."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/sr/system-restore-portal",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/sr/system-restore-portal",
+      "title": "System Restore",
+      "result": "OPENED_HIGH_IMPACT_RECOVERY_REFERENCE",
+      "evidence": "Microsoft Learn describes APIs for setting restore points and monitoring changes to support system rollback. Restore-point creation is not a substitute for application-owned per-action backups and does not guarantee every application/configuration change is reversible; no restore point was created."
+    },
+    {
+      "sourceUrl": "https://www.sqlite.org/backup.html",
+      "finalUrl": "https://www.sqlite.org/backup.html",
+      "title": "SQLite Online Backup API",
+      "result": "OPENED",
+      "evidence": "SQLite documentation explains that the online backup API produces a consistent snapshot while avoiding pitfalls of copying a live database file, including WAL/locking and crash corruption. This is relevant to database backup, not backup of Windows configuration; restore integrity and transaction coordination still need tests."
+    },
+    {
+      "sourceUrl": "https://github.com/microsoft/diskspd",
+      "finalUrl": "https://github.com/microsoft/diskspd",
+      "title": "Microsoft DiskSpd",
+      "result": "REPOSITORY_OPENED_LICENSE_CONTENT_UNREVIEWED",
+      "evidence": "The public Microsoft repository describes DiskSpd as a storage load generator/performance test tool and displays an MIT license link. It can impose substantial I/O load and alter test conditions; do not run on a user's machine or treat synthetic throughput as a universal optimization score."
+    },
+    {
+      "sourceUrl": "https://benchmarkdotnet.org/articles/overview.html",
+      "finalUrl": "https://benchmarkdotnet.org/articles/overview.html",
+      "title": "BenchmarkDotNet overview",
+      "result": "OPENED",
+      "evidence": "BenchmarkDotNet documentation states support for .NET Framework/Core, Mono, NativeAOT, and Windows/Linux/macOS and shows Release-mode microbenchmarking. Package/version/license review and reproducible application-level workload design are separate; microbenchmarks do not establish game FPS improvements."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/",
+      "title": "Microsoft.Data.Sqlite overview",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn overview for Microsoft.Data.Sqlite opened. Exact package version, native SQLite build, SQLite feature availability, provider settings, durability configuration, and license/transitive-dependency review remain separate tasks."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/framework/ui-automation/ui-automation-overview",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/framework/ui-automation/ui-automation-overview",
+      "title": "UI Automation Overview",
+      "result": "OPENED_FRAMEWORK_OVERVIEW",
+      "evidence": "Microsoft Learn describes UI Automation as a Windows accessibility framework for supported applications, including WPF. The .NET Framework overview is not a current app test plan; selectors, control semantics, end-to-end bindings, error states, and accessibility behavior still require executable UI tests."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/core/testing/",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/core/testing/",
+      "title": "Testing in .NET",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn testing overview opened. It describes concepts and tooling, not HyperBoostX test evidence; test suites, isolation, assertion coverage, environment, exact commands, and results must be recorded from this repository's actual runs."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.io.pipes.namedpipeserverstream?view=net-8.0",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/api/system.io.pipes.namedpipeserverstream?view=net-8.0",
+      "title": "NamedPipeServerStream Class",
+      "result": "OPENED_NET8_API_REFERENCE",
+      "evidence": "Microsoft Learn API reference resolves to System.IO.Pipes.NamedPipeServerStream for .NET 8 and includes .NET 8 in its ranged monikers (the page currently defaults to .NET 11). The stream API alone does not establish peer authentication, restrictive ACLs, message validation, replay protection, least privilege, or secure broker behavior."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/windows/win32/ipc/named-pipe-security-and-access-rights",
+      "finalUrl": "https://learn.microsoft.com/en-us/windows/win32/ipc/named-pipe-security-and-access-rights",
+      "title": "Named Pipe Security and Access Rights",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn describes Windows security descriptors controlling access to both named-pipe client and server ends. Correct ACL construction, client identity verification, impersonation rules, service isolation, denial tests, and resistance to pipe squatting still require a concrete implementation and isolated Windows tests."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/nuget/concepts/auditing-packages",
+      "finalUrl": "https://learn.microsoft.com/en-us/nuget/concepts/auditing-packages",
+      "title": "Auditing package dependencies for security vulnerabilities",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn describes NuGet package vulnerability auditing and acting on audit reports. Enabling restore-time auditing is not a completed security review; advisory data freshness, transitive/runtime/package coverage, severity policy, suppression governance, and actual CI results must be verified."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/core/tutorials/creating-app-with-plugin-support",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/core/tutorials/creating-app-with-plugin-support",
+      "title": "Create a .NET application with plugins",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn tutorial demonstrates plugin loading with AssemblyLoadContext and AssemblyDependencyResolver to isolate dependency resolution. Separate load contexts are not a security sandbox: executing a plugin in-process retains the host process trust and privileges; untrusted plugins need a separately designed process boundary and permissions."
+    },
+    {
+      "sourceUrl": "https://docs.discord.com/developers/topics/rate-limits",
+      "finalUrl": "https://docs.discord.com/developers/topics/rate-limits",
+      "title": "Discord Rate Limits",
+      "result": "OPENED",
+      "evidence": "Discord developer documentation says route/global limits vary and should not be hard-coded; clients should parse rate-limit response headers and respond appropriately. This informs a possible optional integration but does not establish consent, payload privacy, credential protection, network resilience, or live connectivity."
+    },
+    {
+      "sourceUrl": "https://docs.discord.com/developers/resources/webhook",
+      "finalUrl": "https://docs.discord.com/developers/resources/webhook",
+      "title": "Discord Webhook Resource",
+      "result": "OPENED_SECRET_BEARER_ENDPOINT",
+      "evidence": "Discord documents incoming webhook URLs/tokens as credentials that can post without a bot user. Any integration must treat the URL as a secret, obtain explicit consent for outbound data, preview/redact payloads, avoid logging it, and handle revocation/rate limits; no webhook was invoked."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/desktop/wpf/systems/xaml-resources-overview",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/desktop/wpf/systems/xaml-resources-overview",
+      "title": "XAML Resources Overview",
+      "result": "OPENED",
+      "evidence": "Microsoft Learn explains reusable WPF XAML resources such as brushes and styles. Shared resources support consistent presentation but do not alone provide dynamic theme switching, high-DPI validation, accessibility, or localization."
+    },
+    {
+      "sourceUrl": "https://github.com/microsoft/PowerToys",
+      "finalUrl": "https://github.com/microsoft/PowerToys",
+      "title": "Microsoft PowerToys",
+      "result": "REPOSITORY_OPENED_LICENSE_LINK_VISIBLE",
+      "evidence": "The public Microsoft PowerToys repository describes a Windows productivity/customization utilities collection and displays an MIT license link. This is a product/project reference, not an API or evidence of feature compatibility; no code was copied and license text/release provenance were not audited."
+    },
+    {
+      "sourceUrl": "https://learn.microsoft.com/en-us/dotnet/desktop/wpf/advanced/wpf-globalization-and-localization-overview",
+      "finalUrl": "https://learn.microsoft.com/en-us/dotnet/desktop/wpf/advanced/wpf-globalization-and-localization-overview",
+      "title": "Globalization and Localization Overview",
+      "result": "OPENED_LEGACY_FRAMEWORK_OVERVIEW",
+      "evidence": "Microsoft Learn overview discusses WPF globalization/localization, automatic layout and satellite assemblies; the page identifies its service as dotnet-framework and dates to 2017. Its concepts are useful background, but do not establish .NET 8 project localization coverage, language quality, culture-sensitive formatting, or runtime switching."
+    }
+  ]
+}

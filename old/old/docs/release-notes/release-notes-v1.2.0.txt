@@ -1,0 +1,15 @@
+HyperBoostX v1.2.0
+
+Stable release focused on adaptive optimization groundwork and stricter release quality gates.
+
+Highlights
+- Added system-drive classification and device profiling for SSD/HDD, laptop/desktop, RAM class, and bottleneck detection.
+- Extended Dashboard, Smart Recommendation, and System Info to show adaptive device context and realistic expected gain messaging.
+- Clarified app update readiness states so manual-ready and auto-ready installers are easier to distinguish.
+- Carries forward the audit stabilization work that cleared Feature Audit Full and Full QA Matrix before official release.
+
+Validation
+- `dotnet build wpf\\HyperBoostX.csproj -c Release`
+- backend syntax verification for adaptive monitoring changes
+- `Feature Audit Full` - `43/43` passed, `0` failed
+- `Full QA Matrix` - `67/67` passed, `0` failed

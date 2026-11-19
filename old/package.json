@@ -1,0 +1,10 @@
+{
+  "name": "hyperboostx-v3-qa",
+  "private": true,
+  "scripts": {
+    "audit:prototype": "playwright test --config scripts/prototype-audit.config.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1"
+  }
+}
