@@ -287,7 +287,7 @@ public sealed class ShellTests
     });
     private static void AssertWmiProviderObserved(DiagnosticReport report,string provider)
     {
-        var facts=report.Facts.Where(f=>f.Source.Contains(provider,StringComparison.Ordinal)).ToArray();
+        var facts=report.Facts.Where(f=>f.Source.Contains(provider,StringComparison.Ordinal)&&f.Name!="Driver scan scope").ToArray();
         Assert.NotEmpty(facts);
         Assert.True(facts.Any(f=>f.Availability=="Available")||
                     facts.Any(f=>f.Name=="Provider unavailable"&&f.Availability=="Unavailable"),

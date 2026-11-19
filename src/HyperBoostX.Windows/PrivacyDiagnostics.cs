@@ -26,7 +26,7 @@ public static class PrivacyDiagnostics
         {
             token.ThrowIfCancellationRequested();
             var read=provider(definition.Path,definition.Name);
-            var source=$"HKLM\{definition.Path}\{definition.Name} (DWORD policy)";
+            var source=$@"HKLM\{definition.Path}\{definition.Name} (DWORD policy)";
             if(!read.Readable){facts.Add(new(definition.Label,"Unavailable",source,"Unavailable","Unavailable"));continue;}
             if(!read.Exists){facts.Add(new(definition.Label,"Not configured in this policy location",source,"Direct","Available"));continue;}
             if(read.Kind!=RegistryValueKind.DWord||read.Value is not int code)
