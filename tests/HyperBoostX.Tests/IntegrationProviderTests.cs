@@ -267,6 +267,60 @@ public sealed class IntegrationProviderTests:IDisposable
         var advice=await provider.AdviseAsync(NvidiaProvider.DefaultEndpoint,"fixture-key","actual/model","report",[new("safe.action","Safe","Optimize","","User","Low","None","test")],default);
         Assert.Equal("safe.action",advice.ActionIds.Single());Assert.DoesNotContain("fixture-key",advice.Explanation);
     }
+    [Theory]
+    [InlineData("null")]
+    [InlineData("[]")]
+    [InlineData("{")]
+    [InlineData("{\"data\":null}")]
+    public async Task MalformedCatalogReturnsSanitizedProviderError(string body)
+    {
+        using var client=new HttpClient(new Handler(_=>Task.FromResult(Response(body))));
+        var error=await Assert.ThrowsAsync<HbxException>(()=>new NvidiaProvider(client).ModelsAsync(NvidiaProvider.DefaultEndpoint,"fixture-key",default));
+        Assert.Contains("HBX-AI-",error.Message);
+    }
+    [Fact]public async Task CatalogSkipsNonObjectsAndEchoedKey()
+    {
+        using var client=new HttpClient(new Handler(_=>Task.FromResult(Response("{\"data\":[null,42,{\"id\":\"fixture-key\"},{\"id\":\"valid/model\"}]}"))));
+        var models=await new NvidiaProvider(client).ModelsAsync(NvidiaProvider.DefaultEndpoint,"fixture-key",default);
+        Assert.Equal("valid/model",Assert.Single(models));
+    }
+    [Theory]
+    [InlineData("null")]
+    [InlineData("{")]
+    [InlineData("{\"choices\":[null]}")]
+    [InlineData("{\"choices\":[{\"message\":42}]}")]
+    public async Task MalformedChatEnvelopeReturnsSanitizedProviderError(string body)
+    {
+        using var client=new HttpClient(new Handler(_=>Task.FromResult(Response(body))));
+        await Assert.ThrowsAsync<HbxException>(()=>new NvidiaProvider(client).AdviseAsync(NvidiaProvider.DefaultEndpoint,"fixture-key","model","report",[],default));
+    }
+    [Fact]public async Task ChatRedactsKeyAfterJsonDecodingAndRejectsNonObjectPlanActions()
+    {
+        const string key="fixture+key";
+        var content=Json.Write(new{explanation=key,action_ids=Array.Empty<string>()});
+        var response=Json.Write(new{choices=new[]{new{message=new{content}}}});
+        using var client=new HttpClient(new Handler(_=>Task.FromResult(Response(response))));
+        var advice=await new NvidiaProvider(client).AdviseAsync(NvidiaProvider.DefaultEndpoint,key,"model","report",[],default);
+        Assert.DoesNotContain(key,advice.Explanation);Assert.Empty(advice.ActionIds);
+        using var arrayClient=new HttpClient(new Handler(_=>Task.FromResult(Response(Json.Write(new{choices=new[]{new{message=new{content="[]"}}}})))));
+        Assert.Empty((await new NvidiaProvider(arrayClient).AdviseAsync(NvidiaProvider.DefaultEndpoint,key,"model","report",[],default)).ActionIds);
+    }
+    private sealed class StalledBody:MemoryStream
+    {
+        public override async ValueTask<int> ReadAsync(Memory<byte> buffer,CancellationToken cancellationToken=default)
+        {
+            await Task.Delay(Timeout.InfiniteTimeSpan,cancellationToken);
+            return 0;
+        }
+    }
+    [Fact]public async Task ProviderDeadlineCoversResponseBodyAfterHeaders()
+    {
+        using var client=new HttpClient(new Handler(_=>Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK){Content=new StreamContent(new StalledBody())}))){Timeout=TimeSpan.FromMilliseconds(100)};
+        using var guard=new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        var error=await Assert.ThrowsAsync<HbxException>(()=>new NvidiaProvider(client).ModelsAsync(NvidiaProvider.DefaultEndpoint,"fixture-key",guard.Token));
+        Assert.Contains("HBX-AI-0005",error.Message);
+        Assert.False(guard.IsCancellationRequested);
+    }
     [Theory][InlineData(401)][InlineData(429)][InlineData(500)][InlineData(302)]
     public async Task ProviderErrorsNeverBecomeSuccessOrExposeResponseBody(int code)
     {

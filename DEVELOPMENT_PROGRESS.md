@@ -475,3 +475,10 @@ This is a source-level and Windows Server CI qualification for the specific feat
 - Nine requirement records verified for bounded installer lifecycle, four partial for deliverables. See docs/verified-evidence/installer-ci-123bd546.md.
 - Recorded all 4,056 mandatory requirement IDs and enforced baseline preservation and summary consistency in Stable gate. Additions allowed; removing/demoting IDs is blocked unless baseline itself is explicitly revised. This is structural protection, not proof of authenticity.
 - Registry: 132 implemented-verified, 3924 mandatory outstanding. Stable blocked.
+
+
+## Continuation — main CI and AI response boundary (2026-11-19)
+
+- Reviewed actual Windows CI run 44544118022 for archive consolidation commit 3617c7db34d4864cabacef73d005c6f170dc113d: 285/285 tests, zero compiler errors, one xUnit2031 warning; installer/portable and 488 payload hashes passed, Stable gate rejected 3,924 mandatory requirements. Interactive desktop qualification remains separate.
+- Fixed the xUnit2031 assertion warning. AI provider now imposes an end-to-end request deadline including streamed content, validates JSON object kinds at all external envelope boundaries, rejects malformed JSON with a sanitized domain error, and redacts API keys after decoding nested JSON. Added regression tests for malformed envelopes/catalog items, encoded key echoes, non-object advice, and stalled response content. No new requirement is marked verified until fresh CI evidence exists.
+- References: https://learn.microsoft.com/en-us/dotnet/api/system.net.http.httpcompletionoption?view=net-8.0 ; https://learn.microsoft.com/en-us/dotnet/api/system.text.json.jsonelement.trygetproperty?view=net-8.0 ; https://docs.api.nvidia.com/nim/reference/llm-apis . No external source code copied. Next: inspect fresh CI, then continue highest-priority verified action/worker recovery workflows and requirement evidence. No Stable claim.

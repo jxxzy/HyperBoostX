@@ -79,7 +79,7 @@ public sealed class ShellTests
         timer.Start();Dispatcher.PushFrame(frame);timer.Stop();
         Assert.False(vm.Busy);Assert.Contains("/ 100",vm.DashboardReadinessValue);
         Assert.Contains("/6",vm.DashboardReadinessCoverage);
-        var report=Assert.Single(vm.Runtime.Journal.Reports().Where(x=>x.Center=="HyperBoost Score"));
+        var report=Assert.Single(vm.Runtime.Journal.Reports(),x=>x.Center=="HyperBoost Score");
         Assert.Contains(report.Facts,x=>x.Name=="Method"&&x.Source=="HBX-HEALTH-SCORE-2");
         var reopened=new ShellViewModel(vm.Runtime);reopened.Navigate("Dashboard");
         Assert.Equal(vm.DashboardReadinessValue,reopened.DashboardReadinessValue);

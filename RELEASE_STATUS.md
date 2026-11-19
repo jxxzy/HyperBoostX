@@ -148,3 +148,10 @@ Privacy and Driver Smart Scan scopes now invoke real bounded policy/driver provi
 
 
 Installer lifecycle CI at 09cace4 passed 279/279 tests and five lifecycle checks with 488 payload files hashed; interactive UI NOT_RUN. New readiness and OS low-memory bindings are pending fresh CI and real Windows client acceptance. Stable remains blocked by the preserved requirement registry and release gates.
+
+
+## Continuation — main CI and AI response boundary (2026-11-19)
+
+- Reviewed actual Windows CI run 44544118022 for archive consolidation commit 3617c7db34d4864cabacef73d005c6f170dc113d: 285/285 tests, zero compiler errors, one xUnit2031 warning; installer/portable and 488 payload hashes passed, Stable gate rejected 3,924 mandatory requirements. Interactive desktop qualification remains separate.
+- Fixed the xUnit2031 assertion warning. AI provider now imposes an end-to-end request deadline including streamed content, validates JSON object kinds at all external envelope boundaries, rejects malformed JSON with a sanitized domain error, and redacts API keys after decoding nested JSON. Added regression tests for malformed envelopes/catalog items, encoded key echoes, non-object advice, and stalled response content. No new requirement is marked verified until fresh CI evidence exists.
+- References: https://learn.microsoft.com/en-us/dotnet/api/system.net.http.httpcompletionoption?view=net-8.0 ; https://learn.microsoft.com/en-us/dotnet/api/system.text.json.jsonelement.trygetproperty?view=net-8.0 ; https://docs.api.nvidia.com/nim/reference/llm-apis . No external source code copied. Next: inspect fresh CI, then continue highest-priority verified action/worker recovery workflows and requirement evidence. No Stable claim.
