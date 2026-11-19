@@ -488,3 +488,10 @@ This is a source-level and Windows Server CI qualification for the specific feat
 
 - Enforced the 200-preview cap atomically across concurrent preview creation, rechecked the Safety Guard under the operation lock after provider read, and resolved rollback provider errors only after observing the original state or an action-specific terminal target state. Cancellation now recognizes action-specific terminal recovery as well. Failed recovery read-back remains RecoveryRequired; no blind write or success claim.
 - New regression coverage for preview capacity, restriction changes during read, and a game process exiting exactly at restore write. Windows CI pending; no requirement status promoted. Remaining priorities: elevated Windows client/VM tests, legacy action parity, UI/provider verification, and signing. No Stable release.
+
+
+## Plugin and update inspection hardening (2026-11-19)
+
+- Strict plugin manifests now require all eight distinct named fields, reject null fields and duplicate permission entries, and isolate invalid manifests so inventory continues. The package directory, manifest, DLL path, and parent directories use managed local-path/reparse checks; rooted, alternate-stream and traversal DLL paths are rejected. Files are held read-only during bounded async hashing/inspection. This is not a complete defense against filesystem races or plugin isolation certification. No plugin executes.
+- Update package paths now use the same local/reparse checks. Authenticode requests use WTD_CACHE_ONLY_URL_RETRIEVAL to avoid network retrieval; online revocation is explicitly not verified. Local trust alone does not authorize an update.
+- Added five manifest regression cases and one alternate-stream package-path test. Fresh CI pending; no requirement verification status promoted. References: https://learn.microsoft.com/en-us/windows/win32/api/wintrust/ns-wintrust-wintrust_data ; https://learn.microsoft.com/en-us/dotnet/api/system.io.fileattributes ; https://learn.microsoft.com/en-us/dotnet/api/system.io.fileshare ; https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/use-dom-utf8jsonreader-utf8jsonwriter .

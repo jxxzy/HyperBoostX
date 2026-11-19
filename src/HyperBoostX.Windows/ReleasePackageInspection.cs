@@ -12,7 +12,7 @@ public static class ReleasePackageInspection
     public static string ValidatePath(string path)
     {
         if(string.IsNullOrWhiteSpace(path)||!Path.IsPathFullyQualified(path))throw new HbxException("Select an absolute local release package path.");
-        var full=Path.GetFullPath(path);if(full.StartsWith(@"\\",StringComparison.Ordinal))throw new HbxException("Network release packages are not inspected. Copy the file locally first.");
+        var full=SafePaths.Local(path);if(full.StartsWith(@"\\",StringComparison.Ordinal))throw new HbxException("Network release packages are not inspected. Copy the file locally first.");
         if(!File.Exists(full))throw new HbxException("Release package was not found.");
         if(!Extensions.Contains(Path.GetExtension(full),StringComparer.OrdinalIgnoreCase))throw new HbxException("Supported release packages: EXE, MSI, MSIX, APPX and bundle variants.");
         if(new FileInfo(full).Length>4L*1024*1024*1024)throw new HbxException("Release package exceeds the 4 GiB inspection limit.");
@@ -32,7 +32,7 @@ public static class ReleasePackageInspection
             new("Candidate package",Path.GetFileName(full),full,"Direct","Available"),
             new("Package size",$"{info.Length:N0} bytes","File metadata","Direct","Available"),
             new("SHA-256",hash,"SHA256.HashDataAsync","Measured","Available"),
-            new("Authenticode trust",trust.Trusted?"Trusted":$"Not trusted: {trust.Detail}","WinVerifyTrust",trust.Trusted?"Verified":"Unavailable",trust.Trusted?"Available":"Unavailable"),
+            new("Authenticode trust",trust.Trusted?"Trusted":$"Not trusted: {trust.Detail}","WinVerifyTrust (local cache; online revocation not verified)",trust.Trusted?"Verified":"Unavailable",trust.Trusted?"Available":"Unavailable"),
             new("Signer",signer,"Authenticode certificate",signer=="Unavailable"?"Unavailable":"Direct",signer=="Unavailable"?"Unavailable":"Available"),
             new("Candidate version",candidate?.ToString()??"Unavailable","File version metadata",candidate is null?"Unavailable":"Direct",candidate is null?"Unavailable":"Available"),
             new("Version comparison",comparison,"Candidate vs current assembly version",candidate is null?"Unavailable":"Calculated",candidate is null?"Unavailable":"Available"),
@@ -45,12 +45,12 @@ public static class ReleasePackageInspection
     public static (bool Trusted,string Detail) VerifyAuthenticode(string path)
     {
         var fileInfo=new WinTrustFileInfo(path);var data=new WinTrustData(fileInfo);var action=WinTrustActionGenericVerifyV2;
-        try{var result=WinVerifyTrust(IntPtr.Zero,action,data);return result==0?(true,"Windows trust verification succeeded"):(false,$"WINTRUST 0x{result:X8}");}
+        try{var result=WinVerifyTrust(IntPtr.Zero,action,data);return result==0?(true,"Windows trust verification succeeded (local cache; online revocation not verified)"):(false,$"WINTRUST 0x{result:X8}");}
         finally{data.StateAction=WinTrustDataStateAction.Close;WinVerifyTrust(IntPtr.Zero,action,data);data.Dispose();fileInfo.Dispose();}
     }
     private static readonly Guid WinTrustActionGenericVerifyV2=new("00AAC56B-CD44-11D0-8CC2-00C04FC295EE");
     [DllImport("wintrust.dll",ExactSpelling=true,SetLastError=true)]private static extern uint WinVerifyTrust(IntPtr hwnd,[MarshalAs(UnmanagedType.LPStruct)]Guid actionId,WinTrustData data);
-    private enum WinTrustDataUIChoice:uint{None=2} private enum WinTrustDataRevocationChecks:uint{None=0} private enum WinTrustDataChoice:uint{File=1} private enum WinTrustDataStateAction:uint{Ignore=0,Verify=1,Close=2} private enum WinTrustDataProvFlags:uint{Safer=0x100}
+    private enum WinTrustDataUIChoice:uint{None=2} private enum WinTrustDataRevocationChecks:uint{None=0} private enum WinTrustDataChoice:uint{File=1} private enum WinTrustDataStateAction:uint{Ignore=0,Verify=1,Close=2} private enum WinTrustDataProvFlags:uint{Safer=0x100,CacheOnlyUrlRetrieval=0x1000}
     [StructLayout(LayoutKind.Sequential,CharSet=CharSet.Unicode)]private sealed class WinTrustFileInfo:IDisposable
     {
         public uint StructSize=(uint)Marshal.SizeOf<WinTrustFileInfo>();public IntPtr FilePath;public IntPtr FileHandle=IntPtr.Zero;public IntPtr KnownSubject=IntPtr.Zero;
@@ -58,7 +58,7 @@ public static class ReleasePackageInspection
     }
     [StructLayout(LayoutKind.Sequential,CharSet=CharSet.Unicode)]private sealed class WinTrustData:IDisposable
     {
-        public uint StructSize=(uint)Marshal.SizeOf<WinTrustData>();public IntPtr PolicyCallbackData=IntPtr.Zero;public IntPtr SIPClientData=IntPtr.Zero;public WinTrustDataUIChoice UIChoice=WinTrustDataUIChoice.None;public WinTrustDataRevocationChecks RevocationChecks=WinTrustDataRevocationChecks.None;public WinTrustDataChoice UnionChoice=WinTrustDataChoice.File;public IntPtr FileInfoPtr;public WinTrustDataStateAction StateAction=WinTrustDataStateAction.Verify;public IntPtr StateData=IntPtr.Zero;public IntPtr URLReference=IntPtr.Zero;public WinTrustDataProvFlags ProvFlags=WinTrustDataProvFlags.Safer;public uint UIContext=0;
+        public uint StructSize=(uint)Marshal.SizeOf<WinTrustData>();public IntPtr PolicyCallbackData=IntPtr.Zero;public IntPtr SIPClientData=IntPtr.Zero;public WinTrustDataUIChoice UIChoice=WinTrustDataUIChoice.None;public WinTrustDataRevocationChecks RevocationChecks=WinTrustDataRevocationChecks.None;public WinTrustDataChoice UnionChoice=WinTrustDataChoice.File;public IntPtr FileInfoPtr;public WinTrustDataStateAction StateAction=WinTrustDataStateAction.Verify;public IntPtr StateData=IntPtr.Zero;public IntPtr URLReference=IntPtr.Zero;public WinTrustDataProvFlags ProvFlags=WinTrustDataProvFlags.Safer|WinTrustDataProvFlags.CacheOnlyUrlRetrieval;public uint UIContext=0;
         public WinTrustData(WinTrustFileInfo file){FileInfoPtr=Marshal.AllocCoTaskMem(Marshal.SizeOf<WinTrustFileInfo>());Marshal.StructureToPtr(file,FileInfoPtr,false);}public void Dispose(){if(FileInfoPtr!=IntPtr.Zero){Marshal.FreeCoTaskMem(FileInfoPtr);FileInfoPtr=IntPtr.Zero;}}
     }
 }

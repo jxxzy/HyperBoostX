@@ -177,6 +177,37 @@ public sealed class IntegrationProviderTests:IDisposable
         var root=Path.Combine(_root,"bad-plugins");var plugin=Path.Combine(root,"bad");Directory.CreateDirectory(plugin);File.WriteAllText(Path.Combine(plugin,"plugin.json"),Json.Write(new PluginManifest(1,"bad.plugin","1.0","1.0","Bad","..\\outside.dll",new string('0',64),["Process.Execute"])));
         var report=await PluginManifestInspection.ScanAsync(root,new Version(3,0),default);Assert.Contains(report.Facts,f=>f.Name=="bad"&&f.Value.StartsWith("Rejected:",StringComparison.Ordinal));
     }
+    [Theory]
+    [InlineData("missing")]
+    [InlineData("null")]
+    [InlineData("duplicate")]
+    [InlineData("traversal")]
+    [InlineData("duplicate-permission")]
+    public async Task PluginManifestRejectsMalformedFieldsAndTraversalWithoutStoppingInventory(string kind)
+    {
+        var root=Path.Combine(_root,"plugin-validation");var plugin=Path.Combine(root,"invalid");Directory.CreateDirectory(plugin);
+        var manifest=Json.Write(new PluginManifest(1,"test.plugin","1.0","1.0","Fixture",kind=="traversal"?"../outside.dll":"fixture.dll",new string('0',64),
+            kind=="duplicate-permission"?["Diagnostics.Read","Diagnostics.Read"]:[]));
+        if(kind=="missing"||kind=="null"||kind=="duplicate")
+        {
+            var obj=System.Text.Json.Nodes.JsonNode.Parse(manifest)!.AsObject();
+            if(kind=="missing")obj.Remove("Permissions");
+            if(kind=="null")obj["Permissions"]=null;
+            manifest=obj.ToJsonString();
+            if(kind=="duplicate")manifest=manifest.Insert(1,"\"SchemaVersion\":1,");
+        }
+        File.WriteAllText(Path.Combine(plugin,"plugin.json"),manifest);
+        var second=Path.Combine(root,"second");Directory.CreateDirectory(second);
+        var report=await PluginManifestInspection.ScanAsync(root,new Version(3,0),default);
+        Assert.Contains(report.Facts,f=>f.Name=="invalid"&&f.Value.StartsWith("Rejected:",StringComparison.Ordinal));
+        Assert.Contains(report.Facts,f=>f.Name=="second"&&f.Value.Contains("plugin.json missing",StringComparison.Ordinal));
+    }
+    [Fact]public void PackageInspectionRejectsAlternateDataStreamPaths()
+    {
+        var path=Path.Combine(_root,"candidate.exe");File.WriteAllText(path,"fixture");
+        Assert.Throws<HbxException>(()=>ReleasePackageInspection.ValidatePath(path+":hidden.exe"));
+    }
+
     [Fact]public async Task NetworkProfilePreviewReturnsAdaptersDnsPolicyProfilesAndExplicitNoChangeState()
     {
         var report=await NetworkProfileDiagnostics.ScanAsync("Balanced",default);Assert.Equal("Network Profiles",report.Center);Assert.Contains(report.Facts,f=>f.Name=="Selected profile"&&f.Value=="Balanced");Assert.Contains(report.Facts,f=>f.Name=="Change policy"&&f.Value.Contains("No DNS server",StringComparison.Ordinal));Assert.Contains(report.Facts,f=>f.Name=="Restore state"&&f.Value.Contains("No HyperBoostX-managed",StringComparison.Ordinal));Assert.Contains(report.Facts,f=>f.Name.StartsWith("DNS policy",StringComparison.Ordinal)||f.Name=="DNS policy provider");
