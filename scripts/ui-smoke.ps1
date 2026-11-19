@@ -848,6 +848,21 @@ foreach($route in $routes){
   Save-WindowScreenshot (Join-Path $OutputDirectory ($slug+'.png'))
  }
  if($page -eq 'Dashboard'){
+  $dashboardReadings=[ordered]@{}
+  $metricDeadline=[DateTime]::UtcNow.AddSeconds(30)
+  do{
+   foreach($metric in @('DashboardCpuLoad','DashboardMemoryPressure','DashboardGpuLoad','DashboardGpuDetail')){
+    $metricCondition=New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::AutomationIdProperty,$metric)
+    $element=$window.FindFirst([System.Windows.Automation.TreeScope]::Descendants,$metricCondition)
+    if(!$element){throw "Missing Dashboard metric: $metric"}
+    $dashboardReadings[$metric]=$element.Current.Name
+   }
+   if($dashboardReadings.DashboardCpuLoad -match '%' -and $dashboardReadings.DashboardMemoryPressure -match 'GiB' -and ($dashboardReadings.DashboardGpuLoad -match '%' -or $dashboardReadings.DashboardGpuLoad -in @('Unavailable','Tidak tersedia'))){break}
+   Start-Sleep -Milliseconds 250
+  }while([DateTime]::UtcNow -lt $metricDeadline)
+  if($dashboardReadings.DashboardCpuLoad -notmatch '%' -or $dashboardReadings.DashboardMemoryPressure -notmatch 'GiB'){throw 'Dashboard CPU and RAM bindings did not show actual samples.'}
+  if($dashboardReadings.DashboardGpuLoad -notmatch '%' -and $dashboardReadings.DashboardGpuLoad -notin @('Unavailable','Tidak tersedia')){throw 'Dashboard GPU provider did not resolve to measured or unavailable state.'}
+  $dashboardReadings | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $OutputDirectory 'dashboard-telemetry-evidence.json') -Encoding UTF8
   Invoke-ControlById 'ToggleSidebarButton'
   Start-Sleep -Milliseconds 200
   Save-WindowScreenshot (Join-Path $OutputDirectory 'dashboard-compact.png')

@@ -276,5 +276,8 @@
   "Dismiss": "关闭",
   "SafeBoostTransparency": "禁用透明效果",
   "SafeBoostCapture": "禁用 Windows 游戏捕获首选项",
-  "SafeBoostApply": "预览并应用安全优化"
+  "SafeBoostApply": "预览并应用安全优化",
+  "GpuLoad": "GPU 负载",
+  "GpuBusiestEngine": "观测到的最繁忙引擎",
+  "GpuLoadUnavailableDetail": "暂无当前 WDDM 测量值"
 }

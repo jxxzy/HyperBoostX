@@ -49,6 +49,24 @@ public sealed class ShellTests
 
     [Fact]public void HyperBoostScoreProvidesMeasuredSixComponentScan()=>Run(vm=>{vm.Navigate("HyperBoost Score");Assert.Equal(RouteSupport.Implemented,vm.RouteBinding.Support);Assert.True(vm.ScanCommand.CanExecute(null));Assert.Contains("six-component",vm.RouteBinding.Detail);});
 
+    [Fact]public void DashboardTelemetryFeedsRealCpuAndMemoryBindingsAndGpuStatus()=>Run(vm=>
+    {
+        vm.Navigate("Dashboard");
+        Assert.Equal(vm.Localization["Sampling"],vm.LiveGpu);
+        vm.StartTelemetry();
+        try
+        {
+            var deadline=DateTime.UtcNow.AddSeconds(25);var frame=new DispatcherFrame();
+            var timer=new DispatcherTimer(DispatcherPriority.Background){Interval=TimeSpan.FromMilliseconds(50)};
+            timer.Tick+=(_,_)=>{if((vm.LiveCpu.EndsWith("%",StringComparison.Ordinal)&&vm.LiveMemory.Contains("GiB",StringComparison.Ordinal)&&vm.LiveGpu!=vm.Localization["Sampling"])||DateTime.UtcNow>=deadline){timer.Stop();frame.Continue=false;}};
+            timer.Start();Dispatcher.PushFrame(frame);timer.Stop();
+            Assert.EndsWith("%",vm.LiveCpu);Assert.Contains("GiB",vm.LiveMemory);
+            Assert.True(vm.LiveGpu.Contains("%",StringComparison.Ordinal)||vm.LiveGpu==vm.Localization["Unavailable"]);
+            Assert.NotEmpty(vm.LiveGpuDetail);
+        }
+        finally{vm.StopTelemetry();}
+    });
+
     [Fact]public void DashboardStorageMetricReflectsTheActualWindowsSystemVolume()=>Run(vm=>
     {
         vm.Navigate("Dashboard");

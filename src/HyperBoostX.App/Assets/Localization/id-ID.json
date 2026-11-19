@@ -276,5 +276,8 @@
   "Dismiss": "Tutup",
   "SafeBoostTransparency": "Nonaktifkan transparansi",
   "SafeBoostCapture": "Nonaktifkan preferensi perekaman game Windows",
-  "SafeBoostApply": "Pratinjau & terapkan Boost Aman"
+  "SafeBoostApply": "Pratinjau & terapkan Boost Aman",
+  "GpuLoad": "BEBAN GPU",
+  "GpuBusiestEngine": "Engine terukur tersibuk",
+  "GpuLoadUnavailableDetail": "Belum ada pengukuran WDDM terkini"
 }

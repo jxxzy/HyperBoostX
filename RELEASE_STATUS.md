@@ -132,3 +132,8 @@ The local V3 upload is integrated with additional WDDM, IPC, batch recovery, bou
 ## Deep audit correction
 
 DNS configuration now uses a new static IPv4 state schema; older effective-server recovery records are deliberately rejected for automatic rollback and require manual review. Native provider and fixture tests pending CI; real DNS mutation and elevated recovery remain unverified. Strict worker body parsing closes duplicate/missing field ambiguity. No Stable publication.
+
+
+## Dashboard telemetry increment
+
+933f009 Windows CI: 274/274 passing, unsigned packages created, Stable gate failed (3,935 mandatory requirements). New Dashboard GPU load binding uses a bounded busiest-observed-engine calculation and explicit coverage/staleness, with live CPU/RAM and shell tests. GPU hardware acceptance and updated packaged UI smoke are pending; no verified feature or Stable status is claimed from the new code alone.

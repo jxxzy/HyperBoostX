@@ -276,5 +276,8 @@
   "Dismiss": "Fechar",
   "SafeBoostTransparency": "Desativar transparência",
   "SafeBoostCapture": "Desativar preferência de captura de jogos do Windows",
-  "SafeBoostApply": "Revisar e aplicar otimização segura"
+  "SafeBoostApply": "Revisar e aplicar otimização segura",
+  "GpuLoad": "CARGA DA GPU",
+  "GpuBusiestEngine": "Motor observado mais ocupado",
+  "GpuLoadUnavailableDetail": "Sem medição WDDM atual"
 }

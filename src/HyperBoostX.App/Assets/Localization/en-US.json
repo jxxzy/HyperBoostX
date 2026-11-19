@@ -276,5 +276,8 @@
   "Dismiss": "Dismiss",
   "SafeBoostTransparency": "Disable transparency",
   "SafeBoostCapture": "Disable Windows game capture preference",
-  "SafeBoostApply": "Preview & apply Safe Boost"
+  "SafeBoostApply": "Preview & apply Safe Boost",
+  "GpuLoad": "GPU LOAD",
+  "GpuBusiestEngine": "Busiest observed engine",
+  "GpuLoadUnavailableDetail": "No current WDDM measurement"
 }
