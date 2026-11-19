@@ -13,7 +13,8 @@ def fixture():
     items = [dict(base, featureId='fixture', requirementId=f'fixture.{i}',
                   mandatory=True, status=gate.COMPLETE) for i in range(gate.MINIMUM_MANDATORY)]
     return {'schemaVersion': 1, 'inventory': dict(gate.REQUIRED_INVENTORY),
-            'summary': {'requirementCount': len(items)}, 'requirements': items}
+            'summary': {'requirementCount': len(items), 'statusCounts': {gate.COMPLETE: len(items)},
+                        'mandatoryNotVerified': 0, 'stableReady': True}, 'requirements': items}
 
 
 class GateTests(unittest.TestCase):
@@ -21,7 +22,11 @@ class GateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             p = Path(tmp) / 'matrix.json'
             p.write_text(json.dumps(payload), encoding='utf-8')
-            with patch.object(gate, 'MATRIX', p), contextlib.redirect_stdout(io.StringIO()):
+            baseline = Path(tmp) / 'required.json'
+            baseline.write_text(json.dumps({'schemaVersion': 1, 'mandatoryRequirementIds':
+                                            [r['requirementId'] for r in fixture()['requirements']]}),
+                                encoding='utf-8')
+            with patch.object(gate, 'MATRIX', p), patch.object(gate, 'BASELINE', baseline), contextlib.redirect_stdout(io.StringIO()):
                 if success:
                     gate.main()
                 else:
@@ -73,4 +78,16 @@ class GateTests(unittest.TestCase):
 
     def test_wrong_schema(self):
         d = fixture(); d['schemaVersion'] = 2
+        self.execute(d)
+
+    def test_replaced_requirement(self):
+        d = fixture(); d['requirements'][0]['requirementId'] = 'replacement'
+        self.execute(d)
+
+    def test_stale_status_counts(self):
+        d = fixture(); d['summary']['statusCounts'] = {gate.COMPLETE: 1}
+        self.execute(d)
+
+    def test_false_readiness(self):
+        d = fixture(); d['summary']['stableReady'] = False
         self.execute(d)

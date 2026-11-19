@@ -6,7 +6,8 @@ ROOT = Path(__file__).resolve().parents[1]
 MATRIX = ROOT / 'docs' / 'registry' / 'requirement-traceability.json'
 COMPLETE = 'IMPLEMENTED_VERIFIED'
 # Audited 2026-11-16 mandatory baseline. Reconcile explicitly before reducing.
-MINIMUM_MANDATORY = 4051
+MINIMUM_MANDATORY = 4056
+BASELINE = ROOT / 'docs' / 'registry' / 'required-stable-ids.json'
 REQUIRED_INVENTORY = {
     'primaryRoutes': 73, 'prototypeSubfeatures': 376,
     'galleryImageReferences': 81, 'legacyActionMapEntries': 606,
@@ -57,6 +58,28 @@ def main():
     ids = [r['requirementId'].strip() for r in requirements]
     if len(set(ids)) != len(ids):
         fail('duplicate requirement IDs.')
+    try:
+        baseline = json.loads(BASELINE.read_text(encoding='utf-8-sig'))
+    except (OSError, ValueError) as exc:
+        fail(f'cannot read mandatory ID baseline: {exc}')
+    if not isinstance(baseline, dict) or baseline.get('schemaVersion') != 1:
+        fail('unsupported mandatory ID baseline schema.')
+    baseline_ids = baseline.get('mandatoryRequirementIds')
+    if (not isinstance(baseline_ids, list) or len(baseline_ids) < MINIMUM_MANDATORY
+            or any(not isinstance(i, str) or not i.strip() or i != i.strip() for i in baseline_ids)
+            or len(set(baseline_ids)) != len(baseline_ids)):
+        fail('invalid mandatory ID baseline.')
+    lost = set(baseline_ids) - {r['requirementId'] for r in mandatory}
+    if lost:
+        fail(f'{len(lost)} baseline requirements missing or demoted: {sorted(lost)[:10]}')
+    if summary.get('statusCounts') != dict(Counter(r['status'] for r in requirements)):
+        fail('summary status counts disagree with inventory.')
+    pending = sum(r['status'] != COMPLETE for r in mandatory)
+    if (type(summary.get('mandatoryNotVerified')) is not int
+            or summary['mandatoryNotVerified'] != pending
+            or type(summary.get('stableReady')) is not bool
+            or summary['stableReady'] != (pending == 0)):
+        fail('summary readiness disagrees with inventory.')
     incomplete = [r for r in mandatory if r['status'] != COMPLETE or
                   any(not isinstance(r[k], str) or r[k].strip().upper() in PLACEHOLDERS
                       for k in EVIDENCE_FIELDS)]

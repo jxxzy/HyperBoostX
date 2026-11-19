@@ -467,3 +467,11 @@ This is a source-level and Windows Server CI qualification for the specific feat
 
 - Independently verified installer CI 44519112690 at 09cace4: 279/279 tests, zero compiler warnings/errors, five lifecycle checks passed (fresh install, deliberately corrupted-file repair, uninstall registration, portable, uninstall/data preservation). 488 individual payload SHA-256 hashes matched installed and portable content. Interactive UI explicitly NOT_RUN. See https://github.com/jxxzy/HyperBoostX/actions/runs/44519112690.
 - Added actual Windows low-memory notification state using CreateMemoryResourceNotification/QueryMemoryResourceNotification, independent of the physical-memory percentage. Invalid/unavailable data stays explicit. On multiple processor groups the GetSystemTimes primary-group result is not shown as system aggregate. Dashboard readiness now invokes the existing six-component real-provider scoring workflow on demand, preserves timestamp and coverage, and restores the last measured snapshot from local history, not a placeholder or benchmark. Added live provider, invalid-score and STA shell persistence tests. All six locale catalogs updated. Fresh CI pending for this source.
+
+
+### Installer lifecycle evidence and mandatory-ID integrity
+
+- Windows CI 44520119608: 282 tests passed; 5 lifecycle checks passed; 488 payload hashes verified.
+- Nine requirement records verified for bounded installer lifecycle, four partial for deliverables. See docs/verified-evidence/installer-ci-123bd546.md.
+- Recorded all 4,056 mandatory requirement IDs and enforced baseline preservation and summary consistency in Stable gate. Additions allowed; removing/demoting IDs is blocked unless baseline itself is explicitly revised. This is structural protection, not proof of authenticity.
+- Registry: 132 implemented-verified, 3924 mandatory outstanding. Stable blocked.
