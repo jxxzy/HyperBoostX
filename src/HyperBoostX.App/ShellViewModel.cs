@@ -361,8 +361,8 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
         SmartScanScopes.Add(new(Localization,"Smart Scan","SmartScanDeepName","SmartScanDeepDescription",true,true));
         SmartScanScopes.Add(new(Localization,"Gaming","SmartScanGamingName","SmartScanGamingDescription",true,false));
         SmartScanScopes.Add(new(Localization,"Hardware","SmartScanHardwareName","SmartScanHardwareDescription",true,false));
-        SmartScanScopes.Add(new(Localization,"Privacy","SmartScanPrivacyName","SmartScanPrivacyDescription",false,false));
-        SmartScanScopes.Add(new(Localization,"Drivers","SmartScanDriversName","SmartScanDriversDescription",false,false));
+        SmartScanScopes.Add(new(Localization,"Privacy","SmartScanPrivacyName","SmartScanPrivacyDescription",true,false));
+        SmartScanScopes.Add(new(Localization,"Drivers","SmartScanDriversName","SmartScanDriversDescription",true,false));
         foreach(var scope in SmartScanScopes)scope.SelectionChanged+=(_,_)=>CommandManager.InvalidateRequerySuggested();
         ScanCommand=new Command(()=>Run(Scan),()=>!Busy&&IsDiagnostic&&RouteBinding.Support!=RouteSupport.Unsupported&&(!IsSmartScan||SmartScanScopes.Any(scope=>scope.IsSupported&&scope.IsSelected)));
         CancelCommand=new Command(()=>_cts?.Cancel(),()=>Busy);

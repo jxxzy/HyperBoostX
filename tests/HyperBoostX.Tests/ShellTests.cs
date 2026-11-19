@@ -365,11 +365,12 @@ public sealed class ShellTests
         var supported=vm.SmartScanScopes.Where(scope=>scope.IsSupported).ToArray();
         foreach(var scope in supported)scope.IsSelected=false;
         Assert.False(vm.ScanCommand.CanExecute(null));
-        foreach(var unsupported in vm.SmartScanScopes.Where(scope=>!scope.IsSupported))
+        Assert.Equal(6,supported.Length);
+        foreach(var id in new[]{"Privacy","Drivers"})
         {
-            Assert.False(unsupported.IsSelected);
-            unsupported.IsSelected=true;
-            Assert.False(unsupported.IsSelected);
+            var scope=vm.SmartScanScopes.Single(x=>x.Center==id);
+            scope.IsSelected=true;Assert.True(vm.ScanCommand.CanExecute(null));
+            scope.IsSelected=false;Assert.False(vm.ScanCommand.CanExecute(null));
         }
         var gaming=vm.SmartScanScopes.Single(scope=>scope.Center=="Gaming");
         gaming.IsSelected=true;
@@ -378,6 +379,21 @@ public sealed class ShellTests
         Assert.Equal(vm.Localization["SmartScanGamingName"],gaming.Name);
         Assert.NotEqual("[SmartScanDriversDescription]",vm.Localization["SmartScanDriversDescription"]);
     });
+    [Fact]public async Task SmartScanPrivacyAndDriverScopesUseActualWindowsProviders()
+    {
+        var diagnostics=new Diagnostics();
+        var privacy=await diagnostics.ScanAsync("Privacy",default);
+        Assert.Equal(5,privacy.Facts.Count);
+        Assert.Contains(privacy.Facts,f=>f.Name=="Diagnostic data policy");
+        Assert.Contains(privacy.Facts,f=>f.Name=="Camera app access policy");
+        Assert.Empty(privacy.Findings);
+        var drivers=await diagnostics.ScanAsync("Drivers",default);
+        AssertWmiProviderObserved(drivers,"Win32_PnPSignedDriver");
+        AssertWmiProviderObserved(drivers,"Win32_PnPEntity");
+        Assert.Contains(drivers.Facts,f=>f.Name=="Driver scan scope");
+        Assert.Empty(drivers.Findings);
+    }
+
     [Fact]public void OneClickBoostExplainsIndividualActionsAndExposesOnlyRegisteredActions()=>Run(vm=>
     {
         vm.Navigate("One Click Boost");

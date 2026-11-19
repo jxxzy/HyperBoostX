@@ -30,3 +30,10 @@ Existing technical reference registry is preserved; no references promoted to ve
 ## Dashboard load methodology reference
 
 - https://devblogs.microsoft.com/directx/gpus-in-the-task-manager/ — Microsoft describes using the busiest engine to represent utilization instead of summing independent engines. HyperBoostX uses the busiest *observed* engine across validated WDDM instances, marks partial coverage, and does not claim identical Task Manager measurements.
+
+## Privacy and driver references
+
+- https://learn.microsoft.com/en-us/windows/client-management/mdm/policy-csp-privacy — documented machine policy values and precedence limitations.
+- https://learn.microsoft.com/en-us/windows/privacy/configure-windows-diagnostic-data-in-your-organization — edition/version-specific diagnostic data policy values.
+- https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-pnpentity — actual Configuration Manager error codes.
+- https://learn.microsoft.com/en-us/previous-versions/windows/desktop/legacy/aa394354(v=vs.85) — Windows-reported driver metadata and signature flag; independent certificate trust is separate.

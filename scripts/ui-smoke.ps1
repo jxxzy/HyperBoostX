@@ -374,10 +374,16 @@ foreach($route in $routes){
   $quickToggle.Toggle();Start-Sleep -Milliseconds 100
   $privacyCondition=New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::AutomationIdProperty,'Privacy')
   $privacy=$window.FindFirst([System.Windows.Automation.TreeScope]::Descendants,$privacyCondition)
-  if(!$privacy -or $privacy.Current.IsEnabled){throw 'Unsupported privacy scope was not visibly disabled.'}
+  $privacyToggle=$null
+  if(!$privacy -or !$privacy.Current.IsEnabled -or !$privacy.TryGetCurrentPattern([System.Windows.Automation.TogglePattern]::Pattern,[ref]$privacyToggle)){throw 'Privacy scan scope is unavailable.'}
+  if($privacyToggle.Current.ToggleState -eq [System.Windows.Automation.ToggleState]::Off){$privacyToggle.Toggle()}
+  if($privacyToggle.Current.ToggleState -ne [System.Windows.Automation.ToggleState]::On){throw 'Privacy scan selection failed.'}
   $driverCondition=New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::AutomationIdProperty,'Drivers')
   $drivers=$window.FindFirst([System.Windows.Automation.TreeScope]::Descendants,$driverCondition)
-  if(!$drivers -or $drivers.Current.IsEnabled){throw 'Unsupported driver scope was not visibly disabled.'}
+  $driversToggle=$null
+  if(!$drivers -or !$drivers.Current.IsEnabled -or !$drivers.TryGetCurrentPattern([System.Windows.Automation.TogglePattern]::Pattern,[ref]$driversToggle)){throw 'Driver scan scope is unavailable.'}
+  if($driversToggle.Current.ToggleState -eq [System.Windows.Automation.ToggleState]::Off){$driversToggle.Toggle()}
+  if($driversToggle.Current.ToggleState -ne [System.Windows.Automation.ToggleState]::On){throw 'Driver scan selection failed.'}
   Invoke-ControlById 'ScanButton'
   $scanDeadline=[DateTime]::UtcNow.AddSeconds(150);$scanCompleted=$false
   while([DateTime]::UtcNow -lt $scanDeadline){
@@ -393,8 +399,8 @@ foreach($route in $routes){
   Select-ControlById 'SmartScanWorkspaceTab'
   Save-WindowScreenshot (Join-Path $OutputDirectory 'smart-scan.png')
   $domainPageEvidence.smartScanScopesToggled=$true
-  $domainPageEvidence.unsupportedPrivacyScopeDisabled=$true
-  $domainPageEvidence.unsupportedDriverScopeDisabled=$true
+  $domainPageEvidence.privacyScopeSelectedAndScanCompleted=$true
+  $domainPageEvidence.driverScopeSelectedAndScanCompleted=$true
   $domainPageEvidence.readOnlyScanCompleted=$true
   $domainPageEvidence.evidenceAndHistoryRendered=$true
  }

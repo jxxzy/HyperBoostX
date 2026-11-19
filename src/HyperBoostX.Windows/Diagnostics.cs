@@ -15,7 +15,7 @@ namespace HyperBoostX.Windows;
 
 public sealed class Diagnostics
 {
-    public static readonly string[] Centers=["Dashboard","Smart Scan","Optimize","Gaming","Processes","Hardware","GPU","Storage","Network","Startup","Apps","Devices","Security","Windows","Power","Creator","Reliability"];
+    public static readonly string[] Centers=["Dashboard","Smart Scan","Optimize","Gaming","Processes","Hardware","GPU","Storage","Network","Startup","Apps","Devices","Security","Windows","Power","Creator","Reliability","Privacy","Drivers"];
     private static readonly SemaphoreSlim WmiGate=new(2);
     public Task<DiagnosticReport> ScanAsync(string center,CancellationToken token)=>Task.Run(async()=>
     {
@@ -174,9 +174,12 @@ public sealed class Diagnostics
                     {token.ThrowIfCancellationRequested();using var app=key.OpenSubKey(name);if(app?.GetValue("DisplayName") is string display)Add(display,$"{app.GetValue("DisplayVersion")??"Version unavailable"} · {app.GetValue("Publisher")??"Publisher unavailable"}",$"{hive}/{view} uninstall inventory");}
                 }
                 break;
-            case "Devices":
-                await Query(@"root\cimv2","SELECT DeviceName,DriverVersion,DriverDate,DriverProviderName,InfName,IsSigned FROM Win32_PnPSignedDriver","DeviceName","DriverVersion","DriverDate","DriverProviderName","InfName","IsSigned");
-                await Query(@"root\cimv2","SELECT Name,ConfigManagerErrorCode FROM Win32_PnPEntity WHERE ConfigManagerErrorCode <> 0","Name","ConfigManagerErrorCode");break;
+            case "Privacy":
+                facts.AddRange(PrivacyDiagnostics.Inspect(token));break;
+            case "Drivers": case "Devices":
+                await Query(@"root\cimv2","SELECT DeviceName,DeviceClass,DriverVersion,DriverDate,DriverProviderName,InfName,IsSigned FROM Win32_PnPSignedDriver","DeviceName","DeviceClass","DriverVersion","DriverDate","DriverProviderName","InfName","IsSigned");
+                await Query(@"root\cimv2","SELECT Name,ConfigManagerErrorCode FROM Win32_PnPEntity WHERE ConfigManagerErrorCode <> 0","Name","ConfigManagerErrorCode");
+                Add("Driver scan scope","Windows-reported driver versions, classes, signature flags and device error codes; this does not verify certificates independently, compare the latest vendor release, or change drivers.","Win32_PnPSignedDriver / Win32_PnPEntity · methodology");break;
             case "Security":
                 await Query(@"root\Microsoft\Windows\Defender","SELECT AMServiceEnabled,AntivirusEnabled,AntispywareEnabled,RealTimeProtectionEnabled,AntivirusSignatureLastUpdated,QuickScanEndTime FROM MSFT_MpComputerStatus","AMServiceEnabled","AntivirusEnabled","AntispywareEnabled","RealTimeProtectionEnabled","AntivirusSignatureLastUpdated","QuickScanEndTime");
                 await Query(@"root\cimv2\Security\MicrosoftTpm","SELECT ManufacturerIdTxt,IsEnabled_InitialValue,IsActivated_InitialValue,SpecVersion FROM Win32_Tpm","ManufacturerIdTxt","IsEnabled_InitialValue","IsActivated_InitialValue","SpecVersion");

@@ -142,3 +142,6 @@ DNS configuration now uses a new static IPv4 state schema; older effective-serve
 ## Installer qualification increment
 
 Windows CI now runs real NSIS install/repair/uninstall and portable extraction with complete payload SHA-256 comparison, isolated recovery CLI and telemetry, preserving unrelated files and the recovery database. Interactive UI is separately marked NOT_RUN in hosted CI. Results are pending and are not client Windows compatibility, signed upgrade, or full Stable acceptance.
+
+
+Privacy and Driver Smart Scan scopes now invoke real bounded policy/driver providers; verification pending CI and desktop smoke. No driver installation, security weakening or permission changes. Stable still blocked.

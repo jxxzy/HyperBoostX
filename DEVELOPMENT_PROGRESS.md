@@ -441,3 +441,8 @@ Local source from 121577d was used as the primary implementation basis, with bui
 ## Continuation — real package lifecycle in Windows CI
 
 Added an isolated per-account NSIS fresh-install, actual corrupted-file repair, hash-by-hash installed and portable payload comparison, recovery CLI/real telemetry checks, registration verification, uninstall/preservation checks, and commit/package-bound JSON evidence. The CI uses a disposable hosted Windows Server account and explicitly marks interactive UI NOT_RUN; it does not qualify Windows 10/11 desktops, signed upgrades or production release. Tests are pending fresh CI; no status promotion.
+
+
+## Smart Scan provider increment
+
+Connected previously disabled Privacy and Driver scopes to actual bounded read-only Windows providers. Privacy reads documented machine AppPrivacy DWORDs for camera/microphone/location and AllowTelemetry; unset, unreadable, malformed and version-dependent settings are distinguished without inferring per-app effective permissions. Driver scope inventories WMI driver class/version/provider/INF/signature flag and PnP problem codes; Driver Health and Device Manager now route to their correct backend surfaces. Updated runtime registry, locale text, scope/UI smoke and provider regression tests. Pending fresh CI and interactive UI evidence; full effective privacy policy, independent driver trust, vendor update and mutation workflows remain open.

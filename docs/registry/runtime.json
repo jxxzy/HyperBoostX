@@ -1,4 +1,4 @@
-﻿{
+{
   "SchemaVersion": 1,
   "ActionRegistryVersion": 1,
   "Actions": [
@@ -8,7 +8,7 @@
       "Center": "Optimize",
       "Description": "Turn off Windows transparency. This changes appearance; an FPS gain is not promised.",
       "Scope": "Current user",
-      "Risk": "Low \u00B7 reversible",
+      "Risk": "Low · reversible",
       "Restart": "Sign out or restart affected app if needed",
       "Source": "Windows HKCU Registry",
       "Reversible": true
@@ -19,7 +19,7 @@
       "Center": "Optimize",
       "Description": "Enable Windows transparency for this user.",
       "Scope": "Current user",
-      "Risk": "Low \u00B7 reversible",
+      "Risk": "Low · reversible",
       "Restart": "Sign out or restart affected app if needed",
       "Source": "Windows HKCU Registry",
       "Reversible": true
@@ -30,7 +30,7 @@
       "Center": "Optimize",
       "Description": "Set the existing current-user Windows visual-effects preset to best performance. This changes appearance and may reduce animation or visual effects; review accessibility preferences. No FPS gain is promised.",
       "Scope": "Current user",
-      "Risk": "Medium \u00B7 reversible",
+      "Risk": "Medium · reversible",
       "Restart": "Sign out or restart affected apps",
       "Source": "Windows HKCU VisualFXSetting",
       "Reversible": true
@@ -39,9 +39,9 @@
       "Id": "gaming.capture.disable",
       "Name": "Disable game capture preference",
       "Center": "Gaming",
-      "Description": "Disable the current user\u0027s game capture preference. Other capture applications remain independent. Restart the game to evaluate behavior.",
+      "Description": "Disable the current user's game capture preference. Other capture applications remain independent. Restart the game to evaluate behavior.",
       "Scope": "Current user",
-      "Risk": "Low \u00B7 reversible",
+      "Risk": "Low · reversible",
       "Restart": "Sign out or restart affected app if needed",
       "Source": "Windows HKCU Registry",
       "Reversible": true
@@ -50,9 +50,9 @@
       "Id": "gaming.capture.enable",
       "Name": "Enable game capture preference",
       "Center": "Gaming",
-      "Description": "Enable the current user\u0027s Windows game capture preference.",
+      "Description": "Enable the current user's Windows game capture preference.",
       "Scope": "Current user",
-      "Risk": "Low \u00B7 reversible",
+      "Risk": "Low · reversible",
       "Restart": "Sign out or restart affected app if needed",
       "Source": "Windows HKCU Registry",
       "Reversible": true
@@ -63,7 +63,7 @@
       "Center": "Power",
       "Description": "Select an existing Windows power plan. Higher performance plans can increase heat and battery use. OEM software may override this setting.",
       "Scope": "Current user / PC power policy",
-      "Risk": "Medium \u00B7 reversible",
+      "Risk": "Medium · reversible",
       "Restart": "No restart",
       "Source": "PowrProf API",
       "Reversible": true
@@ -74,7 +74,7 @@
       "Center": "Startup",
       "Description": "Remove the selected HKCU Run value after backing up its exact command and type. Restore is blocked if another program recreates it differently.",
       "Scope": "Current user",
-      "Risk": "Medium \u00B7 reversible",
+      "Risk": "Medium · reversible",
       "Restart": "Next sign-in",
       "Source": "HKCU Run",
       "Reversible": true
@@ -85,7 +85,7 @@
       "Center": "Cleanup",
       "Description": "Move one selected .tmp file older than 7 days into local recovery quarantine. Contents are preserved, not erased. Restore verifies SHA-256 and never overwrites a new file. Quarantine does not reclaim disk space until separately managed.",
       "Scope": "Current user's temporary folder",
-      "Risk": "Moderate \u00B7 reversible",
+      "Risk": "Moderate · reversible",
       "Restart": "None",
       "Source": "Native filesystem + SHA-256",
       "Reversible": true
@@ -96,7 +96,7 @@
       "Center": "Network",
       "Description": "Set only the selected adapter static IPv4 DNS list to automatic configuration or a compiled public-resolver preset. IPv6 and other DNS settings are not changed. This may affect name resolution; no latency gain is promised.",
       "Scope": "Selected PC network adapter",
-      "Risk": "Medium \u00B7 reversible",
+      "Risk": "Medium · reversible",
       "Restart": "Reconnect the adapter if applications retain cached results",
       "Source": "Iphlpapi GetInterfaceDnsSettings / SetInterfaceDnsSettings",
       "Reversible": true,
@@ -131,7 +131,9 @@
     "Windows",
     "Power",
     "Creator",
-    "Reliability"
+    "Reliability",
+    "Privacy",
+    "Drivers"
   ],
   "Handoffs": [
     {
@@ -313,6 +315,14 @@
           "Destination": "eventvwr.msc"
         }
       ]
+    },
+    {
+      "Center": "Privacy",
+      "Tools": []
+    },
+    {
+      "Center": "Drivers",
+      "Tools": []
     },
     {
       "Center": "Repair",

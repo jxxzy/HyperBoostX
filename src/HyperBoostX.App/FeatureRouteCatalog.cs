@@ -95,7 +95,7 @@ public static class FeatureRouteCatalog
             "Live CPU, physical memory, system-volume usage, network and bounded WDDM busiest-observed-engine readings are available on supported providers. Missing or partial GPU data is explicit. Dashboard readiness and vendor thermal sensors remain unavailable; storage health is not inferred from capacity.",
             "Dashboard");
         Add(RouteSupport.Implemented, "Smart Scan",
-            "Runs the local diagnostic centers that are implemented in this build; no Windows setting is changed by a scan.",
+            "Runs six selectable local diagnostic scopes, including bounded driver inventory and documented machine privacy policies. Missing providers stay explicit; no Windows setting is changed by a scan.",
             "Smart Scan");
         Add(RouteSupport.Implemented, "Dashboard",
             "Calculates a timestamped, transparent six-component score from measured CPU and memory headroom, network sampling readiness, Windows GPU/driver readiness, system-volume free-space readiness, and bounded 24-hour System reliability events. Missing providers are excluded and coverage is reported.",
@@ -152,9 +152,12 @@ public static class FeatureRouteCatalog
         Add(RouteSupport.Limited, "Benchmark Lab",
             "CPU and storage microbenchmarks are measured. FPS/frametime entries are user-reported; frame capture and stutter correlation are unavailable.",
             "FPS & Frame Time", "Benchmark Center");
-        Add(RouteSupport.Limited, "Hardware",
-            "Device inventory depends on Windows properties and access rights; vendor-specific utility management is not supported.",
-            "Driver Health", "Device Manager");
+        Add(RouteSupport.Limited, "Drivers",
+            "Reads Windows-reported driver class, version, provider, signature flag, INF and PnP problem codes. Vendor update comparison, independent signature verification and mutations remain unavailable.",
+            "Driver Health");
+        Add(RouteSupport.Limited, "Devices",
+            "Reads PnP driver and device problem evidence and offers the Windows Device Manager handoff. Device mutations are not implemented.",
+            "Device Manager");
         Add(RouteSupport.Limited, "Startup",
             "Registry/folder startup entries, auto-start services, scheduled tasks when the Windows provider is available, selected current-user Run-entry recovery and Diagnostics-Performance boot durations when logged are available. Startup-trigger attribution and impact estimates are not implemented.",
             "Startup Manager");
