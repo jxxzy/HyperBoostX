@@ -34,6 +34,8 @@ jobs:
       - name: Test and package unsigned development build
         shell: powershell
         run: ./scripts/package.ps1
+      - name: Verify dependency locks unchanged
+        run: git diff --exit-code -- '**/packages.lock.json'
       - name: Verify package hashes
         shell: powershell
         run: |
