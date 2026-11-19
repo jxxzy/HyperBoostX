@@ -73,3 +73,8 @@ App Load Optimizer now also inventories installed applications from bounded 32/6
 ## GPU Center continuation (2026-11-19)
 
 The GPU Center scan now attempts native formatted WDDM engine and adapter memory queries. These are bounded snapshots of per-process/engine counters and dedicated/shared memory usage bytes, not aggregate utilization, capacity or live dashboard sensors. Unavailable and truncated provider results are explicitly labelled. Source and tests have been added; Windows CI and hardware validation are pending, with no additional requirements promoted to IMPLEMENTED_VERIFIED. Stable remains blocked.
+
+
+## Installed game discovery continuation (2026-11-19)
+
+Game Library now offers bounded Steam/Epic manifest discovery in addition to existing saved-game running-process matching. Candidate directories are reported, and Epic direct executable hints are contained and validated. No executable is launched and no profile is added by discovery. Rockstar, Xbox and automatic activation remain unfinished. Fixture tests added; fresh Windows CI evidence pending. Stable remains blocked.

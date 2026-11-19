@@ -57,6 +57,7 @@ public sealed partial class ShellViewModel
     public ICommand StartGameCommand{get;private set;}=null!;
     public ICommand RestoreGameCommand{get;private set;}=null!;
     public ICommand ScanGamesCommand{get;private set;}=null!;
+    public ICommand DiscoverInstalledGamesCommand{get;private set;}=null!;
     public ICommand ExportGamesCommand{get;private set;}=null!;
     public ICommand AddBenchmarkCommand{get;private set;}=null!;
     public ICommand ImportBenchmarkCommand{get;private set;}=null!;
@@ -102,6 +103,7 @@ public sealed partial class ShellViewModel
         StartGameCommand=new Command(()=>Run(StartGame),()=>!Busy&&SelectedGame!=null&&!HasGamingSession);
         RestoreGameCommand=new Command(()=>Run(async t=>{if(Confirm("Pulihkan perubahan sesi gaming? Game yang berjalan tidak akan ditutup.","Restore session"))await RestoreGaming(t);}),()=>!Busy&&HasGamingSession);
         ScanGamesCommand=new Command(()=>Run(async t=>{var games=Runtime.Games.List();var report=await Task.Run(()=>GameProcesses.Scan(games,t),t);Runtime.Journal.SaveReport(report);Show(report);Status="Pencocokan executable game selesai.";}),()=>!Busy);
+        DiscoverInstalledGamesCommand=new Command(()=>Run(async t=>{var result=await Task.Run(()=>InstalledGameDetection.Scan(t),t);t.ThrowIfCancellationRequested();var report=result.Report();Runtime.Journal.SaveReport(report);Show(report);Status=$"{result.Games.Count} kandidat game ditemukan. Pilih Add executable untuk menyimpan game; discovery tidak menjalankan game.";}),()=>!Busy&&IsGameLibrary);
         ExportGamesCommand=new Command(()=>Run(_=>{ExportGameLibrary();return Task.CompletedTask;}),()=>!Busy&&Games.Count>0);
         AddBenchmarkCommand=new Command(()=>Run(_=>{var item=Runtime.Benchmarks.Add(BenchmarkGame,ParseNumber(BenchmarkAverage),ParseNumber(BenchmarkLow),ParseNumber(BenchmarkFrametime),BenchmarkNotes);RefreshBenchmarks(item.Id);Runtime.Journal.SaveReport(Benchmarks.Report(item));Status="Hasil benchmark tersimpan sebagai data yang dimasukkan pengguna.";return Task.CompletedTask;}),()=>!Busy);
         ImportBenchmarkCommand=new Command(()=>Run(_=>{var dialog=new OpenFileDialog{Filter="Benchmark CSV|*.csv"};if(dialog.ShowDialog()==true){if(new FileInfo(dialog.FileName).Length>4*1024*1024)throw new HbxException("CSV maksimal 4 MiB.");var count=Runtime.Benchmarks.ImportCsv(File.ReadAllText(dialog.FileName));RefreshBenchmarks();Status=$"{count} benchmark diimpor.";}return Task.CompletedTask;}),()=>!Busy);

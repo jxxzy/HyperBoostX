@@ -104,7 +104,7 @@ public static class FeatureRouteCatalog
             "Shows local notification history. Optional webhook delivery requires an explicit preview and consent.",
             "Activity & Notifications");
         Add(RouteSupport.Implemented, "Game Library",
-            "Executable registration, profile CRUD, validated import/export, approved session changes and restore are available.",
+            "Executable registration, bounded Steam/Epic manifest discovery, profile CRUD, validated import/export, approved session changes and restore are available. Discovery lists candidates without launching games.",
             "Game Library");
         Add(RouteSupport.Implemented, "Restore",
             "Managed action history, state verification and conflict-aware rollback are available.",
