@@ -225,6 +225,13 @@
      <local:IntegrationsPanel Visibility="{Binding IsIntegration,Converter={StaticResource BoolVisibility}}"/>
      <local:TestCenterPanel Visibility="{Binding IsTestCenter,Converter={StaticResource BoolVisibility}}"/>
      <local:GameLibraryPanel Visibility="{Binding IsGameLibrary,Converter={StaticResource BoolVisibility}}"/>
+     <StackPanel Visibility="{Binding IsOneClickBoost,Converter={StaticResource BoolVisibility}}" Margin="0,0,0,16">
+      <TextBlock Text="Safe Boost — pilih perubahan" FontSize="16" FontWeight="SemiBold"/>
+      <TextBlock Text="Perubahan bersifat persisten dan dapat dipulihkan melalui Restore. Game capture dapat memengaruhi rekaman Windows; pilih hanya jika diperlukan. Tidak menjanjikan kenaikan FPS." TextWrapping="Wrap" Margin="0,6,0,8"/>
+      <CheckBox Content="Disable transparency" IsChecked="{Binding BoostTransparency}" Foreground="{DynamicResource TextBrush}" Margin="0,4"/>
+      <CheckBox Content="Disable Windows game capture preference" IsChecked="{Binding BoostCapture}" Foreground="{DynamicResource TextBrush}" Margin="0,4"/>
+      <Button Content="Preview &amp; Apply Safe Boost" AutomationProperties.AutomationId="SafeBoostButton" Command="{Binding SafeBoostCommand}" HorizontalAlignment="Left" Margin="0,8,0,0"/>
+     </StackPanel>
      <local:BenchmarkPanel Visibility="{Binding IsBenchmark,Converter={StaticResource BoolVisibility}}"/>
      <StackPanel Visibility="{Binding IsCleanup,Converter={StaticResource BoolVisibility}}" Margin="0,0,0,16">
       <TextBlock Text="{Binding Localization[CleanupExplanation]}" Margin="0,0,0,12"/>

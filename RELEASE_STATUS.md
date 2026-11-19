@@ -78,3 +78,8 @@ The GPU Center scan now attempts native formatted WDDM engine and adapter memory
 ## Installed game discovery continuation (2026-11-19)
 
 Game Library now offers bounded Steam/Epic manifest discovery in addition to existing saved-game running-process matching. Candidate directories are reported, and Epic direct executable hints are contained and validated. No executable is launched and no profile is added by discovery. Rockstar, Xbox and automatic activation remain unfinished. Fixture tests added; fresh Windows CI evidence pending. Stable remains blocked.
+
+
+## Safe Boost and CI continuation (2026-11-19)
+
+One Click Boost now composes two explicit existing current-user preferences with approval, journaled verification and compensating recovery. Tests use isolated fake actions; the broader preset catalog, actual performance measurements and Windows mutation/UI qualification remain outstanding. Windows CI at 19796bc independently passed 175 tests, compiled without warnings/errors and packaged unsigned development artifacts with matching SHA-256; this checkpoint is not evidence for later GPU/game discovery/Safe Boost commits. Stable remains blocked.

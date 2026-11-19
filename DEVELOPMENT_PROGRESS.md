@@ -202,3 +202,10 @@ Run `dotnet test HyperBoostX.sln -c Release` after feature tests and use the iso
 
 - Added bounded local Steam registry/default-library and libraryfolders.vdf/appmanifest discovery, plus Epic Games Launcher .item manifest discovery. Existing install directories become candidates; Epic executable hints are checked for local containment and existence. No game is launched or automatically registered. Missing, malformed, oversized and inaccessible manifest data is handled without shell execution; 32 roots, 500 files and 1 MiB per file limits apply.
 - Added a Game Library discovery command/button and persisted diagnostic report with coverage/limitations, plus four fixture-based tests for secondary Steam libraries, Epic manifests, path escape, invalid inputs and cancellation. Rockstar/Xbox providers and automatic profiles are not implemented by this change. Source and tests pending new Windows CI evidence. No verification promotion.
+
+
+## Continuation (2026-11-19) — Safe Boost batch workflow
+
+- One Click Boost now offers a real selectable batch of two existing reversible current-user Windows preferences (transparency and game capture). Each action's original and desired state is previewed; unapproved, altered, expired, duplicate or non-allowlisted previews are rejected before mutation. Verified changes remain recoverable in a shared action-journal session; failure/cancellation attempts compensating rollback and preserves explicit recovery-required status on conflicts. No Windows transaction or performance benefit is claimed.
+- Four isolated fake-action tests added for verified shared session, failure rollback, tampered/declined previews and cancellation. No real host mutation executed. Source/test execution pending subsequent CI; broader presets and elevated optimizations remain incomplete.
+- Independently observed successful Windows CI at 19796bc: 175/175 tests passed, 0 build warnings/errors, unchanged lock files, installer and portable ZIP with verified hashes. Artifacts from run 44453637972 remain unsigned development packages. The two subsequent feature commits and this batch are not included in that result.

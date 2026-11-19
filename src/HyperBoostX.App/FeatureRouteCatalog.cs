@@ -124,7 +124,10 @@ public static class FeatureRouteCatalog
 
         Add(RouteSupport.Limited, "Optimize",
             "Only registered reversible actions are exposed. The reference profile/tweak catalog is not treated as an implemented action list.",
-            "One Click Boost", "Safe Tweak Library", "Advanced Tweaks", "Windows Optimization");
+            "Safe Tweak Library", "Advanced Tweaks", "Windows Optimization");
+        Add(RouteSupport.Limited,"Optimize",
+            "Safe Boost composes explicitly selected existing transparency and Windows game-capture preferences, with before/after approval, durable recovery, read-back and compensating rollback on failure. Broader presets and measured gains remain unverified.",
+            "One Click Boost");
         Add(RouteSupport.Limited, "Dashboard",
             "The supported Memory Guard only notifies; it does not purge memory or terminate processes.",
             "Smart Memory Guard");

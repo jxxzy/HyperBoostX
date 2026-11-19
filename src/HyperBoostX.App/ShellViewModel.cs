@@ -149,6 +149,10 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
     public string Title=>Selected?.Name??"Dashboard";
     public string Subtitle=>Selected?.Description??"";
     public string ActionDescription=>SelectedAction==null?Localization["SelectChangeToReview"]:$"{SelectedAction.Description}\n{Localization["Scope"]}: {SelectedAction.Scope} · {Localization["Risk"]}: {SelectedAction.Risk} · {Localization["Restart"]}: {SelectedAction.Restart}";
+    public bool IsOneClickBoost=>Title=="One Click Boost";
+    private bool _boostTransparency,_boostCapture;
+    public bool BoostTransparency{get=>_boostTransparency;set{_boostTransparency=value;Notify();CommandManager.InvalidateRequerySuggested();}}
+    public bool BoostCapture{get=>_boostCapture;set{_boostCapture=value;Notify();CommandManager.InvalidateRequerySuggested();}}
     public bool IsDashboard=>SurfaceTitle=="Dashboard";
     public bool HasActions=>Actions.Count>0;
     public bool HasTools=>Tools.Count>0;
@@ -197,6 +201,7 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
     public ICommand ScanCommand{get;}
     public ICommand CancelCommand{get;}
     public ICommand ApplyCommand{get;}
+    public ICommand SafeBoostCommand{get;}
     public ICommand RollbackCommand{get;}
     public ICommand VerifyCommand{get;}
     public ICommand ExportCommand{get;}
@@ -235,6 +240,7 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
         ScanCommand=new Command(()=>Run(Scan),()=>!Busy&&IsDiagnostic&&RouteBinding.Support!=RouteSupport.Unsupported);
         CancelCommand=new Command(()=>_cts?.Cancel(),()=>Busy);
         ApplyCommand=new Command(()=>Run(Apply),()=>!Busy&&RouteBinding.Support!=RouteSupport.Unsupported&&SelectedAction!=null&&(!IsStartup||SelectedStartup!=null)&&(!IsPower||SelectedPlan!=null)&&(!IsCleanup||SelectedCleanup!=null));
+        SafeBoostCommand=new Command(()=>Run(ApplySafeBoost),()=>!Busy&&IsOneClickBoost&&!HasGamingSession&&(BoostTransparency||BoostCapture));
         RollbackCommand=new Command(()=>Run(Rollback),()=>!Busy&&SelectedChange?.Recoverable==true);
         VerifyCommand=new Command(()=>Run(Verify),()=>!Busy&&SelectedChange!=null);
         ExportCommand=new Command(Export,()=>!Busy&&_report!=null);
@@ -318,7 +324,7 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
         if(surface is "Knowledge Base" or "Repair")Show(new DiagnosticReport(surface,DateTimeOffset.UtcNow,Facts.ToArray(),[]));
         LoadLegacyPage();
         Notify(nameof(ObservationSummary));
-        foreach(var name in new[]{nameof(Title),nameof(Subtitle),nameof(Breadcrumb),nameof(SurfaceTitle),nameof(RouteBinding),nameof(RouteStatus),nameof(RouteDetail),nameof(FeatureId),nameof(RouteFeatures),nameof(IsRouteLimited),nameof(IsDashboard),nameof(HasActions),nameof(HasTools),nameof(IsPower),nameof(IsStartup),nameof(IsNetwork),nameof(IsRestore),nameof(IsSettings),nameof(IsReports),nameof(IsTestCenter),nameof(IsFileAnalysis),nameof(IsAppLoadOptimizer),nameof(IsLcdGuard),nameof(IsDiagnostic),nameof(HasFindings)})Notify(name);
+        foreach(var name in new[]{nameof(Title),nameof(Subtitle),nameof(Breadcrumb),nameof(SurfaceTitle),nameof(RouteBinding),nameof(RouteStatus),nameof(RouteDetail),nameof(FeatureId),nameof(RouteFeatures),nameof(IsRouteLimited),nameof(IsOneClickBoost),nameof(IsDashboard),nameof(HasActions),nameof(HasTools),nameof(IsPower),nameof(IsStartup),nameof(IsNetwork),nameof(IsRestore),nameof(IsSettings),nameof(IsReports),nameof(IsTestCenter),nameof(IsFileAnalysis),nameof(IsAppLoadOptimizer),nameof(IsLcdGuard),nameof(IsDiagnostic),nameof(HasFindings)})Notify(name);
         CommandManager.InvalidateRequerySuggested();
     }
     private void SelectFileAnalysisFolder()
@@ -417,6 +423,19 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
     {
         _report=report;_pageReport=report;SelectedFact=null;Facts.Clear();foreach(var f in report.Facts)Facts.Add(f);Findings.Clear();foreach(var f in report.Findings.OrderBy(f=>Goal=="Gaming"&&f.ActionId?.StartsWith("gaming.",StringComparison.Ordinal)==true?0:1))Findings.Add(f);
         Notify(nameof(HasFindings));Notify(nameof(ObservationSummary));CommandManager.InvalidateRequerySuggested();
+    }
+    private async Task ApplySafeBoost(CancellationToken token)
+    {
+        if(HasGamingSession)throw new HbxException("Restore the active gaming session first.");
+        var ids=ActionEngine.SafeBoostActionIds(BoostTransparency,BoostCapture);
+        var previews=new List<Preview>();
+        foreach(var id in ids)previews.Add(await Task.Run(()=>Runtime.Engine.PreviewAsync(id,"",token),token));
+        if(previews.Count==0)return;
+        var review=string.Join("\n\n",previews.Select(p=>$"{p.Description}\nBefore: {p.Before}\nAfter: {p.Desired}"));
+        if(!Confirm("Perubahan preferensi Windows yang dipilih:\n\n"+review+"\n\nEach action is backed up and read back. On failure the batch attempts conflict-aware recovery. No FPS gain is promised. Apply?","Safe Boost preview"))return;
+        var result=await Task.Run(()=>Runtime.Engine.ApplySafeBoostAsync(previews,true,token),token);
+        Status=$"{result.Status}: {result.Message}";Detail=Json.Write(result);RefreshHistory();
+        Facts.Clear();Findings.Clear();_pageReport=null;Notify(nameof(HasFindings));Notify(nameof(ObservationSummary));
     }
     private async Task Apply(CancellationToken token)
     {
