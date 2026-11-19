@@ -107,6 +107,7 @@ public sealed class PrivilegedRequestValidator:IDisposable
         catch(FormatException){return PrivilegedRequestValidation.Deny("HBX-IPC-NONCE","Request nonce is invalid.");}
         if(nonce.Length!=32)return PrivilegedRequestValidation.Deny("HBX-IPC-NONCE","Request nonce must contain 256 bits.");
         var canonicalNonce=Convert.ToBase64String(nonce);
+        if(!string.Equals(request.Nonce,canonicalNonce,StringComparison.Ordinal))return PrivilegedRequestValidation.Deny("HBX-IPC-NONCE","Request nonce must be canonical base64 containing 256 bits.");
         byte[] suppliedTag;
         try{suppliedTag=Convert.FromBase64String(request.AuthenticationTag);}
         catch(FormatException){return PrivilegedRequestValidation.Deny("HBX-IPC-AUTH","Authentication tag is invalid.");}

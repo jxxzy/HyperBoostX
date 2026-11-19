@@ -28,6 +28,19 @@ public sealed class EngineTests:IDisposable
         research.Add("Storage upgrade","Level load","A","Load time",10,"seconds","baseline");research.Add("Storage upgrade","Level load","A","Load time",12,"seconds","repeat");research.Add("Storage upgrade","Level load","C","Load time",7,"seconds","SSD");
         Assert.Equal(3,research.History().Count);var report=research.Report("Storage upgrade");Assert.Contains(report.Facts,f=>f.Name=="Load time · variant A"&&f.Value.Contains("n=2",StringComparison.Ordinal));Assert.Contains(report.Facts,f=>f.Name=="Load time · variant C"&&f.Value.Contains("Δ vs A -4",StringComparison.Ordinal));
     }
+    [Fact]public void ResearchTrialsNeverPoolDifferentWorkloadsOrBorrowTheirBaselines()
+    {
+        var research=new ResearchExperiments(new DocumentStore(Store,new TestProtector()));
+        research.Add("Experiment","Boot","A","Time",10,"seconds","");
+        research.Add("Experiment","Boot","B","Time",7,"seconds","");
+        research.Add("Experiment","Game load","A","Time",100,"seconds","");
+        research.Add("Experiment","Game load","B","Time",80,"seconds","");
+        research.Add("Experiment","File copy","C","Time",1,"seconds","");
+        var report=research.Report("Experiment");
+        Assert.Contains(report.Facts,f=>f.Name=="Boot / Time · variant B"&&f.Value.Contains("n=1 · Δ vs A -3",StringComparison.Ordinal));
+        Assert.Contains(report.Facts,f=>f.Name=="Game load / Time · variant B"&&f.Value.Contains("n=1 · Δ vs A -20",StringComparison.Ordinal));
+        Assert.Contains(report.Facts,f=>f.Name=="File copy / Time · variant C"&&f.Value.Contains("no baseline A for this workload",StringComparison.Ordinal)&&!f.Value.Contains("Δ vs A",StringComparison.Ordinal));
+    }
     [Fact]public void ResearchTrialsRejectInvalidVariantsAndNonFiniteValues()
     {
         var research=new ResearchExperiments(new DocumentStore(Store,new TestProtector()));
@@ -49,6 +62,45 @@ public sealed class EngineTests:IDisposable
     private readonly FakeAction _action=new();
     private Journal Store=>new(_root,new TestProtector());
     private ActionEngine Engine(string? block=null)=>new([_action],Store,new SafetyGuard(()=>block),"test-owner");
+    [Fact]public async Task SafeBoostVerifiesBothActionsInOneRecoverableSession()
+    {
+        var a=new FakeAction("windows.visual.transparency.disable");var b=new FakeAction("gaming.capture.disable");
+        var journal=Store;var e=new ActionEngine([a,b],journal,new SafetyGuard(()=>null),"test-owner");
+        var previews=new[]{await e.PreviewAsync(a.Info.Id,"",default),await e.PreviewAsync(b.Info.Id,"",default)};
+        var result=await e.ApplySafeBoostAsync(previews,true,default);
+        Assert.Equal("Verified",result.Status);Assert.Equal(2,result.Changes.Count);Assert.All(result.Changes,c=>Assert.Equal(result.Session,c.Session));
+        Assert.Equal("1",a.State.Value);Assert.Equal("1",b.State.Value);
+        Assert.All(journal.History(),c=>Assert.True(c.Recoverable));
+    }
+    [Fact]public async Task SafeBoostRestoresEarlierActionWhenLaterActionFails()
+    {
+        var a=new FakeAction("windows.visual.transparency.disable");var b=new FakeAction("gaming.capture.disable"){IgnoreWrite=true};
+        var e=new ActionEngine([a,b],Store,new SafetyGuard(()=>null),"test-owner");
+        var previews=new[]{await e.PreviewAsync(a.Info.Id,"",default),await e.PreviewAsync(b.Info.Id,"",default)};
+        var result=await e.ApplySafeBoostAsync(previews,true,default);
+        Assert.Equal("FailedRestored",result.Status);Assert.Equal("0",a.State.Value);Assert.Equal("0",b.State.Value);
+        Assert.Contains(result.Changes,c=>c.ActionId==a.Info.Id&&c.Status=="RolledBack");
+    }
+    [Fact]public async Task SafeBoostRejectsTamperedAndUnapprovedPreviewsWithoutWrites()
+    {
+        var a=new FakeAction("windows.visual.transparency.disable");
+        var e=new ActionEngine([a],Store,new SafetyGuard(()=>null),"test-owner");
+        var preview=await e.PreviewAsync(a.Info.Id,"",default);
+        await Assert.ThrowsAsync<HbxException>(()=>e.ApplySafeBoostAsync([preview],false,default));
+        await Assert.ThrowsAsync<HbxException>(()=>e.ApplySafeBoostAsync([preview with{Desired=new(true,"Int","2")}],true,default));
+        await Assert.ThrowsAsync<HbxException>(()=>e.ApplySafeBoostAsync([preview,preview],true,default));
+        Assert.Equal(0,a.Writes);
+    }
+    [Fact]public async Task SafeBoostCancellationRecoversAppliedAction()
+    {
+        using var cts=new CancellationTokenSource();
+        var a=new FakeAction("windows.visual.transparency.disable"){CancelSource=cts,CancelAfterWriteValue="1"};
+        var b=new FakeAction("gaming.capture.disable");
+        var e=new ActionEngine([a,b],Store,new SafetyGuard(()=>null),"test-owner");
+        var previews=new[]{await e.PreviewAsync(a.Info.Id,"",default),await e.PreviewAsync(b.Info.Id,"",default)};
+        var result=await e.ApplySafeBoostAsync(previews,true,cts.Token);
+        Assert.Equal("CancelledRestored",result.Status);Assert.Equal("0",a.State.Value);Assert.Equal(0,b.Writes);
+    }
     [Fact]public async Task ApplyPersistsBeforeAndVerifiesRollback()
     {
         var e=Engine();var p=await e.PreviewAsync("test","",default);var c=await e.ApplyAsync(p.Token,true,null,default);
@@ -280,11 +332,11 @@ public sealed class EngineTests:IDisposable
         if(root.StartsWith(parent,StringComparison.OrdinalIgnoreCase)&&Directory.Exists(root))Directory.Delete(root,true);
     }
     private sealed class TestProtector:IStateProtector{public byte[] Protect(byte[] b)=>b;public byte[] Unprotect(byte[] b)=>b;}
-    private sealed class FakeAction:ISystemAction
+    private sealed class FakeAction(string id="test"):ISystemAction
     {
         public State State=new(true,"Int","0");public int Writes;public bool IgnoreWrite;public bool ThrowAfterApply;
         public CancellationTokenSource? CancelSource;public string? CancelAfterWriteValue;
-        public ActionInfo Info=>new("test","Test","Test","Test","Test","Low","None","Test");
+        public ActionInfo Info=>new(id,"Test","Test","Test","Test","Low","None","Test");
         public void Validate(string target){if(target!="")throw new HbxException("invalid target");}
         public Task<State> ReadAsync(string target,CancellationToken token)=>Task.FromResult(State);
         public State Desired(string target,State before)=>new(true,"Int","1");

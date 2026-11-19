@@ -132,6 +132,71 @@ public sealed class ActionEngine
         catch(Exception e){c=c with{Status="RollbackFailed",Message=e.Message};}
         _journal.Save(c);return c;
     }
+    public sealed record BoostBatchResult(string Session,string Status,string Message,IReadOnlyList<Change> Changes);
+    public static IReadOnlyList<string> SafeBoostActionIds(bool transparency,bool capture)
+    {
+        var ids=new List<string>();
+        if(transparency)ids.Add("windows.visual.transparency.disable");
+        if(capture)ids.Add("gaming.capture.disable");
+        return ids;
+    }
+
+    // Persistent changes use the same action journal and recovery engine as individual actions.
+    // This is a compensating batch, not a Windows transaction.
+    public async Task<BoostBatchResult> ApplySafeBoostAsync(IReadOnlyList<Preview> previews,bool consent,CancellationToken token)
+    {
+        if(!consent)throw new HbxException("HBX-BOOST-0001: Explicit batch approval is required.");
+        token.ThrowIfCancellationRequested();
+        var allowed=SafeBoostActionIds(true,true);
+        if(previews.Count is <1 or >2||previews.Any(p=>p.Target!=""||!allowed.Contains(p.ActionId,StringComparer.Ordinal)||Get(p.ActionId).Info.RequiresElevation)||
+           previews.Select(p=>p.ActionId).Distinct(StringComparer.Ordinal).Count()!=previews.Count)
+            throw new HbxException("HBX-BOOST-0002: Invalid safe boost action selection.");
+        // Check the engine-issued immutable preview before any modification, not merely its displayed fields.
+        foreach(var preview in previews)
+            if(!_previews.TryGetValue(preview.Token,out var pending)||pending.Preview!=preview||
+                Stopwatch.GetElapsedTime(pending.Tick)>TimeSpan.FromMinutes(10))
+                throw new HbxException("HBX-BOOST-0003: Batch preview expired or does not match its original.");
+        var session=Guid.NewGuid().ToString("N");
+        var results=new List<Change>();
+        try
+        {
+            foreach(var preview in previews)
+            {
+                token.ThrowIfCancellationRequested();
+                var change=await ApplyAsync(preview.Token,true,session,token);
+                results.Add(change);
+                if(change.Status is not ("Verified" or "AlreadyDesiredState"))
+                    throw new HbxException("Action did not verify: "+change.ActionId);
+            }
+            return new(session,"Verified","Selected configuration was verified. Performance improvement has not been measured.",results);
+        }
+        catch(Exception operationError)
+        {
+            var problems=new List<string>();
+            try
+            {
+                // Recovery files are authoritative even when a database commit failed.
+                _journal.Reconcile();
+                if(!string.IsNullOrWhiteSpace(_journal.RecoveryNotice))
+                    problems.Add("Recovery journal requires review: "+_journal.RecoveryNotice);
+                foreach(var record in _journal.History(10000).Where(c=>c.Session==session&&c.Recoverable))
+                {
+                    try
+                    {
+                        var restored=await RollbackAsync(record.Id,true,CancellationToken.None);
+                        results.RemoveAll(c=>c.Id==restored.Id);results.Add(restored);
+                        if(restored.Status!="RolledBack")problems.Add(restored.ActionId+": "+restored.Status);
+                    }
+                    catch(Exception e){problems.Add(record.ActionId+": "+e.GetType().Name);}
+                }
+            }
+            catch(Exception e){problems.Add("Recovery history unavailable: "+e.GetType().Name);}
+            if(problems.Count!=0)return new(session,"RecoveryRequired","Batch interrupted. Review Restore: "+string.Join("; ",problems),results);
+            return new(session,operationError is OperationCanceledException?"CancelledRestored":"FailedRestored",
+                "Batch interrupted; recorded changes requiring recovery were restored. "+operationError.GetType().Name,results);
+        }
+    }
+
     public async Task<State> VerifyAsync(string id,CancellationToken token)
     {
         var c=_journal.Find(id);if(c.Owner!=_owner)throw new HbxException("HBX-RESTORE-0004: Owner mismatch.");

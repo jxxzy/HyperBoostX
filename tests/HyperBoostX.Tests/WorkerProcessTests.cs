@@ -73,6 +73,18 @@ public sealed class WorkerProcessTests
         Assert.False(denied.Success);Assert.Equal("HBX-IPC-PAYLOAD",denied.Code);
     }
 
+    [Fact]public async Task CancelledBeforeSendDoesNotPoisonWorkerConnection()
+    {
+        if(!OperatingSystem.IsWindows())return;
+        await using var client=await PrivilegedWorkerClient.StartAsync(FindWorker(),false,default);
+        using var cancelled=new CancellationTokenSource();cancelled.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>client.SendAsync("worker.health","","{}",cancelled.Token));
+        Assert.True((await client.SendAsync("worker.health","","{}",default)).Success);
+        var denied=await client.SendAsync("unregistered.action","","{}",default);
+        Assert.False(denied.Success);Assert.Equal("HBX-IPC-DENIED",denied.Code);
+        Assert.True((await client.SendAsync("worker.health","","{}",default)).Success);
+    }
+
     [Fact]public async Task SeparateWorkerAuthenticatesHealthAndShutsDownCleanly()
     {
         if(!OperatingSystem.IsWindows())return;
