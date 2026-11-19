@@ -168,6 +168,10 @@ public sealed class ActionEngine
             var problems=new List<string>();
             try
             {
+                // Recovery files are authoritative even when a database commit failed.
+                _journal.Reconcile();
+                if(!string.IsNullOrWhiteSpace(_journal.RecoveryNotice))
+                    problems.Add("Recovery journal requires review: "+_journal.RecoveryNotice);
                 foreach(var record in _journal.History(10000).Where(c=>c.Session==session&&c.Recoverable))
                 {
                     try
