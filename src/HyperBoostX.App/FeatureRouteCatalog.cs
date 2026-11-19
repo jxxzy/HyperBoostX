@@ -138,7 +138,7 @@ public static class FeatureRouteCatalog
             "Available Windows hardware properties are read; temperature, clocks and vendor sensor data remain unavailable.",
             "CPU Turbo Diagnostics", "Hardware Tuner", "Hardware Inventory");
         Add(RouteSupport.Limited, "GPU",
-            "GPU presence and supported Windows properties may be inspected; real-time utilization, VRAM and thermal vendor telemetry are unavailable.",
+            "GPU identity and driver details plus available WDDM per-engine and adapter-memory snapshots can be scanned. Live dashboard GPU polling, VRAM capacity and thermal sensors remain unavailable.",
             "GPU AI Assistant", "GPU Center");
         Add(RouteSupport.Limited, "Gaming",
             "Game Library can launch a registered executable with an approved, reversible profile. Automatic detection, overlays and FPS capture are not implemented.",

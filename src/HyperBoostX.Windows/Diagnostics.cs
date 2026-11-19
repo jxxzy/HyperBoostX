@@ -88,7 +88,8 @@ public sealed class Diagnostics
                 break;
             case "GPU":
                 await Query(@"root\cimv2","SELECT Name,DriverVersion,DriverDate,VideoProcessor,CurrentHorizontalResolution,CurrentVerticalResolution,CurrentRefreshRate,ConfigManagerErrorCode FROM Win32_VideoController","Name","DriverVersion","DriverDate","VideoProcessor","CurrentHorizontalResolution","CurrentVerticalResolution","CurrentRefreshRate","ConfigManagerErrorCode");
-                Add("VRAM",null,"Win32_VideoController.AdapterRAM is not reliable for modern VRAM sizes");
+                facts.AddRange(await GpuCounters.ScanAsync(token));
+                Add("VRAM capacity",null,"Win32_VideoController.AdapterRAM is not reliable for modern VRAM sizes; dedicated usage is not capacity");
                 Add("GPU temperature / power",null,"No validated vendor sensor provider");
                 break;
             case "Storage":

@@ -68,3 +68,8 @@ The `Boot Optimizer` route now performs real read-only analysis: bounded Event 1
 App Load Optimizer now also inventories installed applications from bounded 32/64-bit current-user and machine registry providers, completing its app-inventory requirement alongside launch timing, resource sampling, and report history. Tests pass 171/171 and packaged UI smoke exercised inventory plus launch measurement across 73/73 routes. Evidence: `artifacts/ui-app-inventory-smoke-e3e18fe8a34f49838eebc03d48212536`. Stable remains blocked by 3,979 mandatory requirements not verified.
 
 `Research Mode` now stores validated A/B/C/D repeat trials in encrypted local storage and calculates per-variant means/sample counts plus deltas against measured baseline A. It does not simulate SSD/RAM upgrades or claim causation. Tests pass 174/174 and packaged UI smoke saved/analyzed a trial while passing 73/73 routes. Evidence: `artifacts/ui-research-smoke-7fd53e99464041c1a84329c1188b6af2`. Current hashes are `49417174CB2A8E351305207B14A5363B4DA6E6435126CF12077BF096DA2C3C41` for setup and `4796AD362C32A250BE27BB6F64CA26BAC7A9B55D909317A965FB3693C1D47482` for portable. Stable remains blocked by 3,973 mandatory requirements not verified.
+
+
+## GPU Center continuation (2026-11-19)
+
+The GPU Center scan now attempts native formatted WDDM engine and adapter memory queries. These are bounded snapshots of per-process/engine counters and dedicated/shared memory usage bytes, not aggregate utilization, capacity or live dashboard sensors. Unavailable and truncated provider results are explicitly labelled. Source and tests have been added; Windows CI and hardware validation are pending, with no additional requirements promoted to IMPLEMENTED_VERIFIED. Stable remains blocked.

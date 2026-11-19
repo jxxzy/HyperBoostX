@@ -189,3 +189,10 @@ Run `dotnet test HyperBoostX.sln -c Release` after feature tests and use the iso
 - Migration Actions job succeeded; initial Stable requirement gate failed as expected; Windows build was in progress when this checkpoint was authored. See Actions for actual execution evidence. Signing, real Windows UI/VM/hardware and remaining requirement implementation continue to block Stable.
 
 - Initial Windows CI stopped at NuGet NU1004: five shipped projects had win-x64 lock targets but no declared RuntimeIdentifiers. Added win-x64 to the shared props for non-test projects, leaving the test lock framework-only; CI now rejects package-lock drift after packaging. Awaiting actual rerun verification; no build success claimed.
+
+
+## Continuation (2026-11-19) — GPU Center counter snapshots
+
+- Integrated bounded WDDM formatted Windows performance-counter queries into GPU Center via the existing diagnostic/report lifecycle. Per-process/engine utilization and adapter dedicated/shared bytes are separately labelled; zero is valid, unknown/out-of-range metrics are unavailable, aggregates are excluded and truncated enumeration is explicit. No driver changes, sensor values or total GPU utilization are invented.
+- Technical references: https://devblogs.microsoft.com/directx/gpus-in-the-task-manager/ and https://github.com/prometheus-community/windows_exporter/blob/main/docs/collector.gpu.md explain WDDM engine and memory semantics; exact WMI classes also used in Chromium crossbench Windows platform tests. Compatibility still requires actual Windows GPU validation.
+- Added five regression/integration tests. Source implementation only at commit time; CI and hardware evidence pending. Dashboard live GPU, thermal, clocks, adapter-name mapping and capacity remain outstanding. No registry verification promotion.
