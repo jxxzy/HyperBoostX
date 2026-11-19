@@ -156,6 +156,7 @@
   "MemoryGuard": "Proteção de memória · apenas alertas; sem limpeza automática",
   "MemoryGuardThreshold": "Limite de alerta",
   "MemoryGuardCooldown": "Intervalo entre alertas",
+  "MemoryGuardRecommendation": "Salve seu trabalho e revise os processos que consomem muita memória. Nenhuma limpeza de memória ou finalização de processos é automática.",
   "WindowsTools": "FERRAMENTAS DO WINDOWS",
   "OpenWindowsTool": "Abrir ferramenta do Windows ↗",
   "Observations": "OBSERVAÇÕES",

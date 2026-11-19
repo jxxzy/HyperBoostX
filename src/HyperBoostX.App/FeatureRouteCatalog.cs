@@ -129,7 +129,7 @@ public static class FeatureRouteCatalog
             "Safe Boost composes explicitly selected transparency and game-capture preferences with per-action review, durable recovery, read-back and compensating rollback. Broad presets and measured gains remain unavailable.",
             "One Click Boost");
         Add(RouteSupport.Limited, "Dashboard",
-            "Memory Guard provides persisted 70-95% notification threshold and 1-60 minute cooldown controls and displays measured system commit usage. It only notifies; it does not purge memory or terminate processes. Process exclusions, commit-pressure recommendations and emergency workload handling are not implemented.",
+            "Memory Guard provides persisted 70-95% notification thresholds for physical RAM and measured commit usage, independent Windows low-memory signal alerts, and 1-60 minute cooldown controls. It provides local recommendations only; it does not purge memory or terminate processes. Process exclusions and emergency workload handling are not implemented.",
             "Smart Memory Guard");
         Add(RouteSupport.Limited, "Power",
             "Existing Windows power plans can be inspected and selected with backup and verification. Processor, sleep and AC/DC policies are not changed.",

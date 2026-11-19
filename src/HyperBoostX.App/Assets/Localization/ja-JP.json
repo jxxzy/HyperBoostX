@@ -156,6 +156,7 @@
   "MemoryGuard": "メモリガード · 通知のみ、自動消去なし",
   "MemoryGuardThreshold": "通知しきい値",
   "MemoryGuardCooldown": "通知間隔",
+  "MemoryGuardRecommendation": "作業を保存し、メモリ使用量の多いプロセスを確認してください。メモリの自動解放やプロセスの自動終了は行いません。",
   "WindowsTools": "WINDOWS ツール",
   "OpenWindowsTool": "Windows ツールを開く ↗",
   "Observations": "観測結果",

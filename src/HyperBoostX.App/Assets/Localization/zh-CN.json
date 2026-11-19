@@ -156,6 +156,7 @@
   "MemoryGuard": "内存防护 · 仅提醒，不自动清理",
   "MemoryGuardThreshold": "提醒阈值",
   "MemoryGuardCooldown": "提醒间隔",
+  "MemoryGuardRecommendation": "请保存工作并检查占用大量内存的进程。不会自动清理内存或终止进程。",
   "WindowsTools": "WINDOWS 工具",
   "OpenWindowsTool": "打开 Windows 工具 ↗",
   "Observations": "观测结果",

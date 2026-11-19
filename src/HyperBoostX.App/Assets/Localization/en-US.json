@@ -156,6 +156,7 @@
   "MemoryGuard": "Memory Guard · alerts only; no automatic purge",
   "MemoryGuardThreshold": "Alert threshold",
   "MemoryGuardCooldown": "Alert cooldown",
+  "MemoryGuardRecommendation": "Save your work and review memory-intensive processes. No automatic memory purge or process termination is performed.",
   "WindowsTools": "WINDOWS TOOLS",
   "OpenWindowsTool": "Open Windows tool ↗",
   "Observations": "OBSERVATIONS",

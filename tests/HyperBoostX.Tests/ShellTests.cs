@@ -228,6 +228,17 @@ public sealed class ShellTests
         finally{vm.StopTelemetry();}
     });
 
+    [Fact]public void MemoryGuardCooldownAppliesToCommitPressureAndWindowsLowMemoryAlerts()
+    {
+        var now=DateTimeOffset.UtcNow;
+        foreach(var pressure in new[]{new MemoryPressureAssessment(30,95,false,90),new MemoryPressureAssessment(30,40,true,90)})
+        {
+            Assert.False(ShellViewModel.ShouldNotifyMemoryGuard(pressure,now.AddMinutes(-4),now,5));
+            Assert.True(ShellViewModel.ShouldNotifyMemoryGuard(pressure,now.AddMinutes(-5),now,5));
+        }
+        Assert.False(ShellViewModel.ShouldNotifyMemoryGuard(new MemoryPressureAssessment(30,null,null,90),now.AddHours(-1),now,5));
+    }
+
     [Fact]public void MemoryGuardCooldownHonorsThresholdAndExactInterval()
     {
         var now=DateTimeOffset.UtcNow;

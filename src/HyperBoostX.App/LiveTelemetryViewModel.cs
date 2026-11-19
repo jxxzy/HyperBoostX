@@ -122,6 +122,9 @@ public sealed partial class ShellViewModel
         var cooldown=Math.Clamp(cooldownMinutes,1,60);
         return memoryPercent>=threshold&&now-lastNotice>=TimeSpan.FromMinutes(cooldown);
     }
+    public static bool ShouldNotifyMemoryGuard(MemoryPressureAssessment pressure,DateTimeOffset lastNotice,DateTimeOffset now,int cooldownMinutes)
+        =>pressure.ShouldAlert&&now-lastNotice>=TimeSpan.FromMinutes(Math.Clamp(cooldownMinutes,1,60));
+
     public void StartTelemetry()
     {
         if(_telemetryStop!=null)return;
@@ -169,8 +172,19 @@ public sealed partial class ShellViewModel
                     var sample=await Task.Run(_telemetry.Sample,token);token.ThrowIfCancellationRequested();_liveSample=sample;_telemetryError=null;
                     if(sample.CpuPercent is {} cpu){_cpuPoints.Enqueue(cpu);while(_cpuPoints.Count>60)_cpuPoints.Dequeue();CpuChart=new PointCollection(_cpuPoints.Select((v,i)=>new Point(i*5,100-v)));}
                     var observedAt=DateTimeOffset.UtcNow;
-                    if(MemoryGuardEnabled&&ShouldNotifyMemoryGuard(sample.MemoryPercent,MemoryGuardThresholdPercent,_lastMemoryNotice,observedAt,MemoryGuardCooldownMinutes))
-                    {Status=$"Memory Guard: RAM {sample.MemoryPercent:F1}%. Simpan pekerjaan dan tinjau Processes. Tidak ada proses yang ditutup atau RAM yang dipurge otomatis.";_lastMemoryNotice=observedAt;}
+                    if(MemoryGuardEnabled)
+                    {
+                        var pressure=MemoryPressureAssessment.FromSample(sample,MemoryGuardThresholdPercent);
+                        if(ShouldNotifyMemoryGuard(pressure,_lastMemoryNotice,observedAt,MemoryGuardCooldownMinutes))
+                        {
+                            var reasons=new List<string>();
+                            if(pressure.PhysicalHigh)reasons.Add($"{Localization["PhysicalMemory"]}: {pressure.PhysicalPercent:F1}%");
+                            if(pressure.CommitHigh)reasons.Add($"{Localization["CommitCharge"]}: {pressure.CommitPercent:F1}%");
+                            if(pressure.WindowsLowMemory==true)reasons.Add(Localization["MemoryLowSignaled"]);
+                            Status=string.Join(" · ",reasons)+". "+Localization["MemoryGuardRecommendation"];
+                            _lastMemoryNotice=observedAt;
+                        }
+                    }
                     if(++ticks%15==0)await Task.Run(()=>Runtime.Documents.Update("telemetry",new List<TelemetrySample>(),items=>items.Append(sample).TakeLast(600).ToList()),token);
                     foreach(var name in new[]{nameof(LiveCpu),nameof(LiveMemory),nameof(LiveMemoryPressure),nameof(LiveCommit),nameof(LiveGpu),nameof(LiveGpuDetail),nameof(LiveStorage),nameof(LiveNetwork),nameof(LiveUptime),nameof(TelemetryStatus),nameof(CpuChart),nameof(HasCpuSamples)})Notify(name);
                 }

@@ -156,6 +156,7 @@
   "MemoryGuard": "Pelindung Memori · hanya notifikasi; tanpa pembersihan otomatis",
   "MemoryGuardThreshold": "Ambang peringatan",
   "MemoryGuardCooldown": "Jeda antarperingatan",
+  "MemoryGuardRecommendation": "Simpan pekerjaan dan tinjau proses yang memakai banyak memori. Tidak ada pembersihan RAM atau penghentian proses otomatis.",
   "WindowsTools": "ALAT WINDOWS",
   "OpenWindowsTool": "Buka alat Windows ↗",
   "Observations": "HASIL PENGAMATAN",

@@ -22,6 +22,24 @@ public sealed record TelemetrySample(DateTimeOffset ObservedAt,double? CpuPercen
     public int CpuProcessorGroups{get;init;}=1;
     public double MemoryPercent=>TotalMemory==0?0:100d*(TotalMemory-AvailableMemory)/TotalMemory;
 }
+public sealed record MemoryPressureAssessment(double? PhysicalPercent,double? CommitPercent,bool? WindowsLowMemory,int ThresholdPercent)
+{
+    public bool PhysicalHigh=>PhysicalPercent is double value&&value>=ThresholdPercent;
+    public bool CommitHigh=>CommitPercent is double value&&value>=ThresholdPercent;
+    public bool ShouldAlert=>PhysicalHigh||CommitHigh||WindowsLowMemory==true;
+
+    public static MemoryPressureAssessment FromSample(TelemetrySample sample,int thresholdPercent)
+    {
+        ArgumentNullException.ThrowIfNull(sample);
+        double? physical=sample.TotalMemory>0&&sample.AvailableMemory<=sample.TotalMemory
+            ?100d*(sample.TotalMemory-sample.AvailableMemory)/sample.TotalMemory:null;
+        double? commit=sample.CommitAvailability==MeasurementAvailability.Available&&
+            sample.CommitUsedBytes is ulong used&&sample.CommitLimitBytes is ulong limit&&limit>0&&used<=limit
+            ?100d*used/limit:null;
+        return new(physical,commit,sample.LowMemorySignaled,Math.Clamp(thresholdPercent,70,95));
+    }
+}
+
 public sealed class Telemetry
 {
     private (ulong Idle,ulong Kernel,ulong User)? _cpu;

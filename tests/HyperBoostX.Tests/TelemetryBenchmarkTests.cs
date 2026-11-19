@@ -21,6 +21,32 @@ public sealed class TelemetryBenchmarkTests
         Assert.Null(Telemetry.CpuUsage((10,30,20),(10,30,20)));
         Assert.Null(Telemetry.CpuUsage((10,30,20),(1,2,3)));
     }
+    [Theory]
+    [InlineData(90,50,false,true,false)]
+    [InlineData(50,90,false,false,true)]
+    [InlineData(50,50,true,false,false)]
+    [InlineData(89,89,false,false,false)]
+    public void MemoryPressureUsesPhysicalCommitAndWindowsSignalsIndependently(int physical,int commit,bool low,bool physicalHigh,bool commitHigh)
+    {
+        var sample=new TelemetrySample(DateTimeOffset.UnixEpoch,null,100,(ulong)(100-physical),null,null,0,"fixture")
+        {CommitUsedBytes=(ulong)commit,CommitLimitBytes=100,CommitAvailability=MeasurementAvailability.Available,LowMemorySignaled=low};
+        var pressure=MemoryPressureAssessment.FromSample(sample,90);
+        Assert.Equal((double)physical,pressure.PhysicalPercent);
+        Assert.Equal((double)commit,pressure.CommitPercent);
+        Assert.Equal(physicalHigh,pressure.PhysicalHigh);
+        Assert.Equal(commitHigh,pressure.CommitHigh);
+        Assert.Equal(physicalHigh||commitHigh||low,pressure.ShouldAlert);
+    }
+    [Fact]public void MemoryPressureNeverTreatsInvalidOrUnavailableCountersAsValid()
+    {
+        var sample=new TelemetrySample(DateTimeOffset.UnixEpoch,null,100,101,null,null,0,"fixture")
+        {CommitUsedBytes=100,CommitLimitBytes=100,CommitAvailability=MeasurementAvailability.Unavailable};
+        var pressure=MemoryPressureAssessment.FromSample(sample,20);
+        Assert.Null(pressure.PhysicalPercent);Assert.Null(pressure.CommitPercent);
+        Assert.Null(pressure.WindowsLowMemory);Assert.False(pressure.ShouldAlert);Assert.Equal(70,pressure.ThresholdPercent);
+        var invalid=MemoryPressureAssessment.FromSample(sample with{CommitAvailability=MeasurementAvailability.Available,CommitLimitBytes=99},100);
+        Assert.Null(invalid.CommitPercent);Assert.Equal(95,invalid.ThresholdPercent);
+    }
     [Fact]public async Task WindowsTelemetryReportsMeasuredMemoryAndBoundedCpu()
     {
         var provider=new Telemetry();var first=provider.Sample();await Task.Delay(150);var second=provider.Sample();
