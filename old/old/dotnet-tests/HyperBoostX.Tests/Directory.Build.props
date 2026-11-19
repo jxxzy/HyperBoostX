@@ -1,5 +1,0 @@
-<Project>
-  <PropertyGroup>
-    <BaseIntermediateOutputPath>..\..\build_tmp\dotnet-tests\HyperBoostX.Tests\obj\</BaseIntermediateOutputPath>
-  </PropertyGroup>
-</Project>

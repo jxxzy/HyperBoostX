@@ -1,0 +1,7 @@
+<Project><PropertyGroup><TargetFramework>net8.0-windows</TargetFramework><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><LangVersion>12</LangVersion><Deterministic>true</Deterministic><Version>3.0.0</Version><Authors>MR.4NONY</Authors><Product>HyperBoostX</Product><RestorePackagesWithLockFile>true</RestorePackagesWithLockFile></PropertyGroup>
+  <!-- Match the existing win-x64 lock targets for the five shipped projects.
+       Tests intentionally retain their framework-only lock file. -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' != 'HyperBoostX.Tests'">
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+</Project>

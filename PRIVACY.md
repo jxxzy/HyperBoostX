@@ -1,12 +1,13 @@
-# Privacy
+# HyperBoostX v3 privacy
 
-HyperBoostX v2.0.0 is local-first.
+Core functionality is local. This build does not enable cloud sync, AI requests, analytics, crash uploads, Discord messages or automatic update downloads.
 
-- Backend runs on `127.0.0.1`.
-- Reports, settings, profiles, sessions, backups, logs, and diagnostics are stored locally under `%LocalAppData%\HyperBoost X` by default.
-- Portable mode can use `HYPERBOOSTX_PORTABLE_HOME` to keep config beside a portable build.
-- Anonymous Usage and telemetry are off by default.
-- Crash reports are local manual exports and are not uploaded automatically.
-- Redaction removes tokens, API keys, Discord webhooks, bearer tokens, usernames, user profile paths, sensitive local paths, and future license keys from exported diagnostics.
+Diagnostic scans read Windows information such as hardware names, process names, installed apps, startup commands, network addresses and event metadata. Scan reports and action records remain under the current user's local application data. Reports and recovery records are encrypted with Windows DPAPI. Preferences do not contain credentials.
 
-Do not share exported logs or reports publicly until you have reviewed them.
+The application does not start camera or microphone capture. Ping sends ICMP packets only when the user requests it. Windows tools opened from the application have their own behavior and privacy policies.
+
+Exported reports mask common user-profile paths, IPv4 addresses and token-like strings. Redaction is best-effort: device names, app names or IPv6 addresses may remain identifying. Review reports before sharing. The support ZIP is deliberately restricted to app/OS version and action ID, status, and timestamps; raw startup commands, diagnostics and backups are excluded.
+
+No upload is performed after export. The user chooses the output path. CSV values that might be interpreted as spreadsheet formulas are escaped.
+
+The latest 100 scan reports are retained locally. Action/recovery history is retained until deliberately managed by the user; uninstall keeps it. Runtime logs rotate at 1 MiB with one previous file. Database backup is explicit. Keep recovery data if you still need rollback.
