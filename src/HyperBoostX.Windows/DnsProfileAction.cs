@@ -1,4 +1,5 @@
-using System.Management;
+using System.Runtime.InteropServices;
+using System.Net.Sockets;
 using System.Net;
 using System.Net.NetworkInformation;
 using HyperBoostX.Core;
@@ -21,30 +22,82 @@ public sealed class WindowsDnsProfileProvider:IDnsProfileProvider
         .Select(adapter=>new DnsAdapterOption(Guid.Parse(adapter.Id).ToString("D"),$"{adapter.Name} · {adapter.Description}"))
         .OrderBy(adapter=>adapter.Name,StringComparer.CurrentCultureIgnoreCase).ToArray();
 
+    private const ulong StaticNameServersFlag=0x0002;
+    private const uint DnsSettingsVersion=1;
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct DnsInterfaceSettings
+    {
+        public uint Version;
+        public ulong Flags;
+        public IntPtr Domain;
+        public IntPtr NameServer;
+        public IntPtr SearchList;
+        public uint RegistrationEnabled;
+        public uint RegisterAdapterName;
+        public uint EnableLLMNR;
+        public uint QueryAdapterName;
+        public IntPtr ProfileNameServer;
+    }
+
+    [DllImport("iphlpapi.dll",ExactSpelling=true)]
+    private static extern uint GetInterfaceDnsSettings(Guid adapter,ref DnsInterfaceSettings settings);
+    [DllImport("iphlpapi.dll",ExactSpelling=true)]
+    private static extern uint SetInterfaceDnsSettings(Guid adapter,ref DnsInterfaceSettings settings);
+    [DllImport("iphlpapi.dll",ExactSpelling=true)]
+    private static extern void FreeInterfaceDnsSettings(ref DnsInterfaceSettings settings);
+
+    // Read configured static IPv4 addresses, not effective DHCP resolvers.
     public string[] ReadDnsServers(string adapterId)
     {
-        using var configuration=Find(adapterId);
-        return configuration["DNSServerSearchOrder"] as string[]??[];
+        if(!Guid.TryParseExact(adapterId,"D",out var adapter))
+            throw new HbxException("HBX-DNS-0001: Adapter is invalid.");
+        var settings=new DnsInterfaceSettings{Version=DnsSettingsVersion};
+        uint result;
+        try{result=GetInterfaceDnsSettings(adapter,ref settings);}
+        catch(EntryPointNotFoundException){throw new HbxException("HBX-DNS-0005: Required Windows DNS configuration API is unavailable.");}
+        if(result!=0)throw new HbxException($"HBX-DNS-0005: DNS configuration could not be read (provider code {result}).");
+        try
+        {
+            if(settings.Version!=DnsSettingsVersion)throw new HbxException("HBX-DNS-0005: Unexpected native DNS settings version.");
+            return ParseStaticIpv4(Marshal.PtrToStringUni(settings.NameServer),Marshal.PtrToStringUni(settings.ProfileNameServer));
+        }
+        finally{FreeInterfaceDnsSettings(ref settings);}
+    }
+
+    public static string[] ParseStaticIpv4(string? configured,string? profile)
+    {
+        if(!string.IsNullOrWhiteSpace(profile))
+            throw new HbxException("HBX-DNS-0005: Profile-specific DNS exists; exact recovery is unsupported.");
+        if(string.IsNullOrWhiteSpace(configured))return [];
+        var values=configured.Split([',',' ','\t','\r','\n'],StringSplitOptions.RemoveEmptyEntries|StringSplitOptions.TrimEntries);
+        if(values.Length is <1 or >8)throw new HbxException("HBX-DNS-0005: Unsupported static DNS server list.");
+        var normalized=new List<string>();
+        foreach(var value in values)
+        {
+            if(!IPAddress.TryParse(value,out var address)||address.AddressFamily!=AddressFamily.InterNetwork||
+               IPAddress.IsLoopback(address)||address.Equals(IPAddress.Any)||address.Equals(IPAddress.Broadcast)||
+               address.GetAddressBytes()[0]>=224)
+                throw new HbxException("HBX-DNS-0005: An existing static resolver cannot be safely restored.");
+            normalized.Add(address.ToString());
+        }
+        return normalized.ToArray();
     }
 
     public uint SetDnsServers(string adapterId,string[] servers)
     {
-        using var configuration=Find(adapterId);
-        using var parameters=configuration.GetMethodParameters("SetDNSServerSearchOrder");
-        parameters["DNSServerSearchOrder"]=servers.Length==0?null:servers;
-        using var result=configuration.InvokeMethod("SetDNSServerSearchOrder",parameters,null);
-        return Convert.ToUInt32(result?["ReturnValue"]??uint.MaxValue);
-    }
-
-    private static ManagementObject Find(string adapter)
-    {
-        using var searcher=new ManagementObjectSearcher("SELECT SettingID,IPEnabled,DNSServerSearchOrder FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled=TRUE");
-        foreach(ManagementObject configuration in searcher.Get())
+        if(!Guid.TryParseExact(adapterId,"D",out var adapter))
+            throw new HbxException("HBX-DNS-0001: Adapter is invalid.");
+        var native=Marshal.StringToHGlobalUni(string.Join(",",servers));
+        try
         {
-            if(string.Equals(configuration["SettingID"]?.ToString()?.Trim('{','}'),adapter,StringComparison.OrdinalIgnoreCase))return configuration;
-            configuration.Dispose();
+            // Restrict writes to the static IPv4 list. An empty UTF-16 string
+            // clears the static override. Other fields remain zero.
+            var settings=new DnsInterfaceSettings{Version=DnsSettingsVersion,Flags=StaticNameServersFlag,NameServer=native};
+            return SetInterfaceDnsSettings(adapter,ref settings);
         }
-        throw new HbxException("HBX-DNS-0002: The selected network adapter configuration is unavailable.");
+        catch(EntryPointNotFoundException){throw new HbxException("HBX-DNS-0005: Required Windows DNS configuration API is unavailable.");}
+        finally{Marshal.FreeHGlobal(native);}
     }
 }
 
@@ -59,8 +112,8 @@ public sealed class DnsProfileAction:ISystemAction
     public DnsProfileAction(IDnsProfileProvider provider)=>_provider=provider??throw new ArgumentNullException(nameof(provider));
     public static IReadOnlyList<string> Presets=>PresetValues.Keys.ToArray();
     public ActionInfo Info {get;}=new("network.dns.set_profile","Set adapter DNS profile","Network",
-        "Set an explicitly selected adapter to automatic DNS or a compiled public-resolver preset. This does not promise lower latency and may affect name resolution.",
-        "Selected PC network adapter","Medium · reversible","Reconnect the adapter if applications retain cached results","Win32_NetworkAdapterConfiguration WMI",true,true);
+        "Set only the selected adapter static IPv4 DNS list to automatic configuration or a compiled public-resolver preset. IPv6 and other DNS settings are not changed. This may affect name resolution; no latency gain is promised.",
+        "Selected PC network adapter","Medium · reversible","Reconnect the adapter if applications retain cached results","Iphlpapi GetInterfaceDnsSettings / SetInterfaceDnsSettings",true,true);
 
     public static IReadOnlyList<DnsAdapterOption> Adapters()=>new WindowsDnsProfileProvider().Adapters();
 
@@ -84,17 +137,17 @@ public sealed class DnsProfileAction:ISystemAction
     {
         var (adapter,_)=Parse(target);token.ThrowIfCancellationRequested();
         var servers=_provider.ReadDnsServers(adapter).Select(NormalizeAddress).ToArray();
-        return Task.FromResult(new State(servers.Length>0,"DnsServers",Json.Write(servers)));
+        return Task.FromResult(new State(servers.Length>0,"DnsIpv4StaticServers",Json.Write(servers)));
     }
     public State Desired(string target,State before)
     {
-        var (_,preset)=Parse(target);var servers=PresetValues[preset];return new State(servers.Length>0,"DnsServers",Json.Write(servers));
+        var (_,preset)=Parse(target);var servers=PresetValues[preset];return new State(servers.Length>0,"DnsIpv4StaticServers",Json.Write(servers));
     }
     public Task WriteAsync(string target,State state,CancellationToken token)
     {
         var (adapter,_)=Parse(target);var servers=ValidateState(state);token.ThrowIfCancellationRequested();
         var code=_provider.SetDnsServers(adapter,servers);
-        if(code is not (0 or 1))throw new HbxException($"HBX-DNS-0003: Windows rejected the DNS change with provider code {code}.");
+        if(code!=0)throw new HbxException($"HBX-DNS-0003: Windows rejected the DNS change with provider code {code}.");
         return Task.CompletedTask;
     }
 
@@ -107,14 +160,14 @@ public sealed class DnsProfileAction:ISystemAction
     }
     private static string[] ValidateState(State state)
     {
-        if(state.Kind!="DnsServers")throw new HbxException("HBX-DNS-0004: Saved DNS state is invalid.");
+        if(state.Kind!="DnsIpv4StaticServers")throw new HbxException("HBX-DNS-0004: Saved DNS state lacks explicit static IPv4 configuration. Review old recovery records manually.");
         string[] servers;try{servers=Json.Read<string[]>(state.Value);}catch(Exception exception) when(exception is System.Text.Json.JsonException or InvalidDataException){throw new HbxException("HBX-DNS-0004: Saved DNS state is invalid.");}
         if(servers.Length>8||servers.Any(server=>NormalizeAddress(server)!=server)||state.Exists!=(servers.Length>0))throw new HbxException("HBX-DNS-0004: Saved DNS state is invalid.");
         return servers;
     }
     private static string NormalizeAddress(string value)
     {
-        if(!IPAddress.TryParse(value,out var address)||address.IsIPv6Multicast||IPAddress.IsLoopback(address)||address.Equals(IPAddress.Any)||address.Equals(IPAddress.IPv6Any))
+        if(!IPAddress.TryParse(value,out var address)||address.AddressFamily!=AddressFamily.InterNetwork||IPAddress.IsLoopback(address)||address.Equals(IPAddress.Any)||address.Equals(IPAddress.Broadcast)||address.GetAddressBytes()[0]>=224)
             throw new HbxException("HBX-DNS-0004: Saved DNS state contains an invalid address.");
         return address.ToString();
     }

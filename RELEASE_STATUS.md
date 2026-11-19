@@ -127,3 +127,8 @@ The candidate was rebuilt with this worker path. SHA-256: setup `1675116013FC80B
 ## Integration checkpoint (2026-11-19)
 
 The local V3 upload is integrated with additional WDDM, IPC, batch recovery, bounded discovery, research and build improvements from the development branch. Local historical verification is not a new test run. Current integrated source is UNVERIFIED until fresh CI completes. Signed packages, Windows 10/11 client VM validation, true hardware evidence, and thousands of mandatory requirements remain blockers. No Stable publication.
+
+
+## Deep audit correction
+
+DNS configuration now uses a new static IPv4 state schema; older effective-server recovery records are deliberately rejected for automatic rollback and require manual review. Native provider and fixture tests pending CI; real DNS mutation and elevated recovery remain unverified. Strict worker body parsing closes duplicate/missing field ambiguity. No Stable publication.

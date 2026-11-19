@@ -26,6 +26,8 @@ public sealed class PrivilegedActionDispatcher(ActionEngine engine,Journal? audi
 
     public async Task<PrivilegedDispatchResult> DispatchAsync(PrivilegedRequestEnvelope request,CancellationToken token)
     {
+        if(!PayloadValidators.TryGetValue(request.ActionId,out var validator)||!validator(request.Target,request.Body))
+            return new(false,"HBX-IPC-PAYLOAD","Action payload validation failed.");
         PrivilegedDispatchResult result;
         try
         {
@@ -92,9 +94,11 @@ public sealed class PrivilegedActionDispatcher(ActionEngine engine,Journal? audi
         try
         {
             using var document=JsonDocument.Parse(body);var root=document.RootElement;
-            if(root.ValueKind!=JsonValueKind.Object||root.EnumerateObject().Count()!=fields.Length)return false;
-            var allowed=new HashSet<string>(fields,StringComparer.OrdinalIgnoreCase);
-            if(root.EnumerateObject().Any(property=>!allowed.Contains(property.Name)))return false;
+            if(root.ValueKind!=JsonValueKind.Object)return false;
+            var allowed=new HashSet<string>(fields,StringComparer.Ordinal);
+            foreach(var property in root.EnumerateObject())
+                if(!allowed.Remove(property.Name)||property.Value.ValueKind==JsonValueKind.Null&&property.Name!="Session")return false;
+            if(allowed.Count!=0)return false;
             var value=Json.Read<T>(body);
             return value switch
             {

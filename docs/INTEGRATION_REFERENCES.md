@@ -19,3 +19,10 @@ These sources guide implementation and release tests; a reference is not evidenc
 | Shipping checklist | https://learn.microsoft.com/en-us/windows/apps/develop/test-before-you-ship | Separate qualification from development CI |
 
 Existing technical reference registry is preserved; no references promoted to verified behavioral evidence.
+
+
+## Independent implementation comparison
+
+- https://git.zx2c4.com/wireguard-windows/tree/tunnel/winipcfg/luid.go — corroborates a UTF-16 comma-separated resolver list for the native DNS interface. Reviewed as reference, no third-party code copied.
+- https://learn.microsoft.com/en-us/windows/win32/api/netioapi/ns-netioapi-dns_interface_settings — default stack IPv4, nameserver flag scopes mutation to the static list.
+- https://learn.microsoft.com/en-us/windows/win32/api/netioapi/nf-netioapi-getinterfacednssettings — set version, leave flags zero, free returned configuration.

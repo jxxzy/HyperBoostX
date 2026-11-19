@@ -424,3 +424,9 @@ Run `dotnet test HyperBoostX.sln -c Release` after feature tests and use the iso
 ## Integrated development checkpoint (2026-11-19)
 
 Local source from 121577d was used as the primary implementation basis, with build fixes and functional/security additions from 1241626 reconciled. Local historical 253/253 and 73/73 smoke reports are not independently reproduced yet; artifact paths were absent from the upload. Integrated changes: bounded WDDM snapshots, safe game manifest validation and bounded executable suggestions, explicit Safe Boost batch, race-free file-analysis terminal status, workload-isolated research, strict IPC frames/nonces/deadline, regression tests. Six locale text sets updated consistently for batch controls. Previous branch history preserved. Fresh CI and isolated Windows VM evidence are required. No Stable status promotion.
+
+
+## Deep security audit — DNS and typed IPC
+
+- Replaced WMI effective resolver snapshots with direct Windows IP Helper static IPv4 configuration reads and writes. Automatic DNS is represented by no static override, not pinned DHCP addresses. Only the static IPv4 nameserver flag is written; profile-specific/unsupported existing configurations fail closed. The distinct state schema rejects old ambiguous effective-DNS recovery records. Three additional fixtures test parsing, automatic-state restore and legacy-state rejection. Native read and fixture testing pending CI; actual DHCP/static mutation and rollback require isolated Windows 10/11 validation.
+- Tightened typed privileged payload parsing against duplicate, missing, null and incorrectly cased fields, including direct dispatcher entry. Added a negative regression test. Elevated data-root trust and cross-elevation qualification remain release blockers.

@@ -94,11 +94,11 @@
       "Id": "network.dns.set_profile",
       "Name": "Set adapter DNS profile",
       "Center": "Network",
-      "Description": "Set an explicitly selected adapter to automatic DNS or a compiled public-resolver preset. This does not promise lower latency and may affect name resolution.",
+      "Description": "Set only the selected adapter static IPv4 DNS list to automatic configuration or a compiled public-resolver preset. IPv6 and other DNS settings are not changed. This may affect name resolution; no latency gain is promised.",
       "Scope": "Selected PC network adapter",
       "Risk": "Medium \u00B7 reversible",
       "Restart": "Reconnect the adapter if applications retain cached results",
-      "Source": "Win32_NetworkAdapterConfiguration WMI",
+      "Source": "Iphlpapi GetInterfaceDnsSettings / SetInterfaceDnsSettings",
       "Reversible": true,
       "RequiresElevation": true
     },

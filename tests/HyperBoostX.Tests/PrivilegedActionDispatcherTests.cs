@@ -48,6 +48,19 @@ public sealed class PrivilegedActionDispatcherTests:IDisposable
         Assert.False(preview("",Json.Write(new WorkerPreviewRequest(new string('a',129),"safe-target"))));
     }
 
+    [Fact]public async Task TypedDispatcherRejectsDuplicateMissingOrAmbiguousPayloads()
+    {
+        var action=new FixtureAction();var dispatcher=Create(action);
+        var preview=PrivilegedActionDispatcher.PayloadValidators["action.preview"];
+        Assert.False(preview("","{\"ActionId\":\"fixture.action\",\"ActionId\":\"fixture.action\"}"));
+        Assert.False(preview("","{\"ActionId\":\"fixture.action\",\"target\":\"safe-target\"}"));
+        var apply=PrivilegedActionDispatcher.PayloadValidators["action.apply"];
+        Assert.False(apply("","{\"PreviewToken\":\"fixture\",\"Approved\":false,\"Approved\":true}"));
+        Assert.False(apply("","{\"PreviewToken\":\"fixture\",\"Approved\":true}"));
+        var response=await dispatcher.DispatchAsync(Request("action.preview","{\"ActionId\":\"fixture.action\",\"Target\":\"safe-target\",\"Command\":\"extra\"}"),default);
+        Assert.False(response.Success);Assert.Equal("HBX-IPC-PAYLOAD",response.Code);Assert.Equal(0,action.Writes);
+    }
+
     [Fact]public void ElevatedPreviewMustExactlyMatchReviewedState()
     {
         var before=new State(true,"Int","0");var desired=new State(true,"Int","1");

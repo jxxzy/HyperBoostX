@@ -22,8 +22,42 @@ public sealed class DnsProfileActionTests:IDisposable
     {
         if(!OperatingSystem.IsWindows())return;var adapter=DnsProfileAction.Adapters().FirstOrDefault();if(adapter is null)return;
         var action=new DnsProfileAction();var target=DnsProfileAction.Target(adapter.Id,"automatic");var state=await action.ReadAsync(target,default);
-        Assert.Equal("DnsServers",state.Kind);var servers=Json.Read<string[]>(state.Value);Assert.Equal(state.Exists,servers.Length>0);
+        Assert.Equal("DnsIpv4StaticServers",state.Kind);var servers=Json.Read<string[]>(state.Value);Assert.Equal(state.Exists,servers.Length>0);
         Assert.All(servers,server=>Assert.True(System.Net.IPAddress.TryParse(server,out _)));
+    }
+
+    [Fact]public void StaticConfigurationParsingRejectsAmbiguousProfiles()
+    {
+        Assert.Empty(WindowsDnsProfileProvider.ParseStaticIpv4(null,null));
+        Assert.Empty(WindowsDnsProfileProvider.ParseStaticIpv4("",null));
+        Assert.Equal(new[]{"1.1.1.1","8.8.8.8"},WindowsDnsProfileProvider.ParseStaticIpv4("1.1.1.1, 8.8.8.8",null));
+        Assert.Throws<HbxException>(()=>WindowsDnsProfileProvider.ParseStaticIpv4("8.8.8.8","10.0.0.5"));
+        Assert.Throws<HbxException>(()=>WindowsDnsProfileProvider.ParseStaticIpv4("2606:4700:4700::1111",null));
+        Assert.Throws<HbxException>(()=>WindowsDnsProfileProvider.ParseStaticIpv4("127.0.0.1",null));
+        Assert.Throws<HbxException>(()=>WindowsDnsProfileProvider.ParseStaticIpv4("224.0.0.1",null));
+    }
+
+    [Fact]public async Task AutomaticDnsRestoresAbsenceOfStaticOverride()
+    {
+        var adapter=Guid.NewGuid().ToString("D");
+        var provider=new FixtureDnsProfileProvider(adapter,[]);
+        var action=new DnsProfileAction(provider);
+        var journal=new Journal(_root,new TestProtector());
+        var engine=new ActionEngine([action],journal,new SafetyGuard(()=>null),"fixture-owner");
+        var preview=await engine.PreviewAsync(action.Info.Id,DnsProfileAction.Target(adapter,"cloudflare"),default);
+        Assert.False(preview.Before.Exists);
+        var change=await engine.ApplyAsync(preview.Token,true,null,default);
+        Assert.Equal("Verified",change.Status);
+        Assert.Equal("RolledBack",(await engine.RollbackAsync(change.Id,true,default)).Status);
+        Assert.Empty(provider.Servers);
+    }
+
+    [Fact]public void OldEffectiveDnsSnapshotsCannotBeAutomaticallyRestored()
+    {
+        var adapter=Guid.NewGuid().ToString("D");
+        var action=new DnsProfileAction(new FixtureDnsProfileProvider(adapter,["1.1.1.1"]));
+        var state=new State(true,"DnsServers",Json.Write(new[]{"1.1.1.1"}));
+        Assert.Throws<HbxException>(()=>action.ValidateRestore(DnsProfileAction.Target(adapter,"automatic"),state));
     }
 
     [Fact]public async Task DnsProfileApplyAndRollbackUseVerifiedEngineJournal()
@@ -56,7 +90,7 @@ public sealed class DnsProfileActionTests:IDisposable
     [Fact]public void InvalidRestoreStateIsRejectedBeforeAnyProviderWrite()
     {
         var action=new DnsProfileAction();var method=typeof(DnsProfileAction).GetMethod("WriteAsync");Assert.NotNull(method);
-        var invalid=new State(true,"DnsServers",Json.Write(new[]{"127.0.0.1"}));
+        var invalid=new State(true,"DnsIpv4StaticServers",Json.Write(new[]{"127.0.0.1"}));
         var target=$"{Guid.NewGuid():D}|automatic";
         var error=Assert.Throws<HbxException>(()=>action.ValidateRestore(target,invalid));Assert.StartsWith("HBX-DNS-0004",error.Message);
     }
@@ -82,7 +116,7 @@ public sealed class DnsProfileActionTests:IDisposable
         public uint SetDnsServers(string adapter,string[] value)
         {
             if(!string.Equals(adapter,adapterId,StringComparison.OrdinalIgnoreCase))throw new HbxException("Fixture adapter unavailable.");
-            if(ResultCode is 0 or 1)Servers=value.ToArray();
+            if(ResultCode==0)Servers=value.ToArray();
             return ResultCode;
         }
     }
