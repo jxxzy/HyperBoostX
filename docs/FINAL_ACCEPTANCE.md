@@ -21,3 +21,7 @@ Owner-confirmed targets (2026-11-19). All are mandatory and additive to AGENTS.m
 | 15 | Publish V3.0.0 Final Stable | All preceding targets verified, owner release authorization and reviewed signing/release provenance |
 
 Last independently observed successful CI: 920d6b5, run 44454458264, 188/188 passing tests, no compiler warnings/errors, unsigned development packages. This is not full Stable readiness. Later commits require their own test evidence. The registry previously reported 78/4,051 implemented-verified requirements and 3,973 outstanding; no status promotion without actual evidence. Keep development on v3-development; do not overwrite main or existing legacy release assets while gates remain closed.
+
+## Reconciliation — owner local snapshot
+
+The official hosted prototype audit recorded 376 capabilities: five net additions to the original 371 baseline. Both the historical baseline and newly observed capabilities are mandatory. The older 78/4,051 count is a prior development checkpoint, not the integrated status. Fresh gate checks must preserve and reconcile requirement IDs rather than infer verification from local reports.

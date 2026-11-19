@@ -19,27 +19,27 @@ public static class GameProcesses
 
     public static IReadOnlyList<InstalledGameCandidate> DiscoverInstalledGames(IReadOnlyList<string> steamRoots,IReadOnlyList<string> epicManifestRoots,CancellationToken token)
     {
-        var candidates = new List<InstalledGameCandidate>();
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var steamRoot in steamRoots)
+        var candidates=new List<InstalledGameCandidate>();
+        var seen=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        void Read(InstalledGameDetection.Result result)
+        {
+            foreach(var game in result.Games)
+            {
+                token.ThrowIfCancellationRequested();
+                if(candidates.Count>=500)return;
+                var executable=game.Executable??(game.Store=="Steam"?FindLikelyExecutable(game.InstallDirectory,game.Name,token):null);
+                if(executable is null||!seen.Add(executable))continue;
+                candidates.Add(new(game.Name,executable,game.Store=="Epic Games"?"Epic":game.Store));
+            }
+        }
+        Read(InstalledGameDetection.ScanLocations(steamRoots,null,token));
+        foreach(var root in epicManifestRoots.Take(32))
         {
             token.ThrowIfCancellationRequested();
-            DiscoverSteam(candidates,seen,steamRoot,token);
+            if(candidates.Count>=500)break;
+            Read(InstalledGameDetection.ScanLocations([],root,token));
         }
-
-        foreach (var manifestRoot in epicManifestRoots.Where(Directory.Exists))
-        {
-            token.ThrowIfCancellationRequested();
-            DiscoverEpic(candidates,seen,manifestRoot,token);
-        }
-
-        return candidates
-            .Where(candidate => candidate.Executable.EndsWith(".exe",StringComparison.OrdinalIgnoreCase)&&File.Exists(candidate.Executable))
-            .OrderBy(candidate=>candidate.Source,StringComparer.OrdinalIgnoreCase)
-            .ThenBy(candidate=>candidate.Name,StringComparer.OrdinalIgnoreCase)
-            .Take(500)
-            .ToArray();
+        return candidates.OrderBy(c=>c.Source,StringComparer.OrdinalIgnoreCase).ThenBy(c=>c.Name,StringComparer.OrdinalIgnoreCase).ToArray();
     }
 
     private static IEnumerable<string> SteamRoots()
@@ -71,117 +71,41 @@ public static class GameProcesses
         return roots;
     }
 
-    private static void DiscoverSteam(List<InstalledGameCandidate> candidates,HashSet<string> seen,string steamRoot,CancellationToken token)
+    private static string? FindLikelyExecutable(string root,string gameName,CancellationToken token)
     {
-        var steamApps=Path.Combine(steamRoot,"steamapps");
-        var roots=new List<string>{steamApps};
-        if(Directory.Exists(steamApps))
-        {
-            try
-            {
-                foreach(var line in ReadTextFilesByPrefix(steamApps,"libraryfolders.vdf",1))
-                {
-                    token.ThrowIfCancellationRequested();
-                    var match=System.Text.RegularExpressions.Regex.Match(line,"\"path\"\\s+\"(?<path>[^\"]+)\"");
-                    if(match.Success)
-                    {
-                        var path=match.Groups["path"].Value.Replace("\\\\","\\");
-                        var libraryApps=Path.Combine(path,"steamapps");
-                        if(Directory.Exists(libraryApps))roots.Add(libraryApps);
-                    }
-                }
-            }
-            catch(IOException){}
-        }
-
-        foreach(var libraryApps in roots.Distinct(StringComparer.OrdinalIgnoreCase))
-        {
-            string[] manifests;
-            try{manifests=Directory.GetFiles(libraryApps,"appmanifest_*.acf",SearchOption.TopDirectoryOnly);}
-            catch(UnauthorizedAccessException){continue;}catch(IOException){continue;}
-            foreach(var manifest in manifests)
-            {
-                token.ThrowIfCancellationRequested();
-                try
-                {
-                    var values=ReadKeyValues(File.ReadAllText(manifest));
-                    if(!values.TryGetValue("name",out var name)||!values.TryGetValue("installdir",out var installDir)||string.IsNullOrWhiteSpace(name)||string.IsNullOrWhiteSpace(installDir))
-                        continue;
-                    var installRoot=Path.Combine(libraryApps,"common",installDir);
-                    if(!Directory.Exists(installRoot))continue;
-                    var executable=FindLikelyExecutable(installRoot,name);
-                    if(executable is null||!seen.Add(executable))continue;
-                    candidates.Add(new InstalledGameCandidate(name,executable,"Steam"));
-                }
-                catch(IOException){}
-                catch(UnauthorizedAccessException){}
-            }
-        }
-    }
-
-    private static void DiscoverEpic(List<InstalledGameCandidate> candidates,HashSet<string> seen,string manifestRoot,CancellationToken token)
-    {
-        string[] manifests;
-        try{manifests=Directory.GetFiles(manifestRoot,"*.item",SearchOption.TopDirectoryOnly);}
-        catch(UnauthorizedAccessException){return;}catch(IOException){return;}
-        foreach(var manifest in manifests)
+        // Bounded traversal, no following reparse points or scanning outside the game root.
+        var pending=new Stack<(string Path,int Depth)>();
+        try{pending.Push((SafePaths.Local(root),0));}
+        catch(Exception ex) when(ex is IOException or UnauthorizedAccessException or HbxException){return null;}
+        var candidates=new List<(string Path,int Score)>();var examined=0;
+        while(pending.Count>0&&examined<2000)
         {
             token.ThrowIfCancellationRequested();
+            var (folder,depth)=pending.Pop();
             try
             {
-                using var document=JsonDocument.Parse(File.ReadAllText(manifest));
-                var root=document.RootElement;
-                if(!TryGetJsonString(root,"DisplayName",out var name)||!TryGetJsonString(root,"InstallLocation",out var installLocation)||!TryGetJsonString(root,"LaunchExecutable",out var launchExecutable))
-                    continue;
-                var executable=Path.GetFullPath(Path.Combine(installLocation,launchExecutable));
-                if(!executable.EndsWith(".exe",StringComparison.OrdinalIgnoreCase)||!File.Exists(executable)||!seen.Add(executable))continue;
-                candidates.Add(new InstalledGameCandidate(name,executable,"Epic"));
+                foreach(var entry in Directory.EnumerateFileSystemEntries(SafePaths.Local(folder)))
+                {
+                    token.ThrowIfCancellationRequested();
+                    if(++examined>2000)break;
+                    try
+                    {
+                        var attrs=File.GetAttributes(entry);
+                        if((attrs&FileAttributes.ReparsePoint)!=0)continue;
+                        if((attrs&FileAttributes.Directory)!=0)
+                        {if(depth<4)pending.Push((entry,depth+1));continue;}
+                        if(!entry.EndsWith(".exe",StringComparison.OrdinalIgnoreCase))continue;
+                        var safe=SafePaths.Local(entry);
+                        var score=ExecutableScore(safe,gameName);
+                        if(score>=50)candidates.Add((safe,score)); // do not guess arbitrary executable names
+                    }
+                    catch(Exception ex) when(ex is IOException or UnauthorizedAccessException or HbxException){}
+                }
             }
-            catch(JsonException){}
-            catch(IOException){}
-            catch(UnauthorizedAccessException){}
+            catch(Exception ex) when(ex is IOException or UnauthorizedAccessException or HbxException){}
         }
+        return candidates.OrderByDescending(c=>c.Score).ThenBy(c=>c.Path.Length).Select(c=>c.Path).FirstOrDefault();
     }
-
-    private static bool TryGetJsonString(JsonElement root,string property,out string value)
-    {
-        value="";
-        if(!root.TryGetProperty(property,out var element)||element.ValueKind!=JsonValueKind.String)return false;
-        value=element.GetString()?.Trim()??"";
-        return value.Length>0;
-    }
-
-    private static IEnumerable<string> ReadTextFilesByPrefix(string root,string fileName,int _)
-    {
-        var path=Path.Combine(root,fileName);
-        if(File.Exists(path))yield return File.ReadAllText(path);
-    }
-
-    private static Dictionary<string,string> ReadKeyValues(string content)
-    {
-        var values=new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase);
-        foreach(System.Text.RegularExpressions.Match match in System.Text.RegularExpressions.Regex.Matches(content,"\"(?<key>[^\"]+)\"\\s+\"(?<value>[^\"]+)\""))
-        {
-            var key=match.Groups["key"].Value.Trim();
-            var value=match.Groups["value"].Value.Trim();
-            if(key is "name" or "installdir")values[key]=value;
-        }
-        return values;
-    }
-
-    private static string? FindLikelyExecutable(string root,string gameName)
-    {
-        string[] executables;
-        try{executables=Directory.GetFiles(root,"*.exe",SearchOption.AllDirectories);}
-        catch(UnauthorizedAccessException){return null;}catch(IOException){return null;}
-        var scored=executables.Select(path=>new{Path=path,Score=ExecutableScore(path,gameName)})
-            .Where(item=>item.Score>0)
-            .OrderByDescending(item=>item.Score)
-            .ThenBy(item=>item.Path.Length)
-            .ToArray();
-        return scored.FirstOrDefault()?.Path;
-    }
-
     private static int ExecutableScore(string path,string gameName)
     {
         var name=Path.GetFileNameWithoutExtension(path);

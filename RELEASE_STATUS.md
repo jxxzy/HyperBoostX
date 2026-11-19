@@ -122,3 +122,8 @@ The post-score release candidate has now been rebuilt. Native UI smoke against t
 The privileged-worker production path now accepts only typed action lifecycle requests and delegates them to the journaled ActionEngine; arbitrary shell, registry, and command payloads are not exposed. Safe fixture and process-bound IPC coverage raises the full suite to 209/209. This closes the worker dispatch foundation, but it does not claim elevated mutation certification: isolated-VM apply/rollback evidence, remaining production handlers, packaging rebuild, and the existing release gates are still required before Stable.
 
 The candidate was rebuilt with this worker path. SHA-256: setup `1675116013FC80B0CED931396A3071B27D23576B65E77FF16EE222223550B859`; portable `377029D42B7D24CFC022E2D3D4B5B155DC96D4F9619BDA9008F39FA8E5599770`. Authenticode status is still `NotSigned`; commit/push and release publication remain deferred.
+
+
+## Integration checkpoint (2026-11-19)
+
+The local V3 upload is integrated with additional WDDM, IPC, batch recovery, bounded discovery, research and build improvements from the development branch. Local historical verification is not a new test run. Current integrated source is UNVERIFIED until fresh CI completes. Signed packages, Windows 10/11 client VM validation, true hardware evidence, and thousands of mandatory requirements remain blockers. No Stable publication.
