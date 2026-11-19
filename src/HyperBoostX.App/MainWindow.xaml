@@ -497,7 +497,7 @@
           <Button Content="{Binding Localization[RunSmartScan]}" Command="{Binding SmartScanCommand}" Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource AccentForegroundBrush}" BorderBrush="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
           <Button Content="{Binding Localization[ReviewOptimizations]}" Command="{Binding OptimizeCommand}"/>
           <Button Content="{Binding Localization[RestoreHistory]}" Command="{Binding RestoreCommand}"/>
-          <Button Content="{Binding Localization[RefreshReadiness]}" Command="{Binding RefreshReadinessCommand}" AutomationProperties.AutomationId="RefreshDashboardReadiness"/>
+          <Button Content="{Binding Localization[RefreshReadiness]}" Command="{Binding RefreshReadinessCommand}" AutomationProperties.AutomationId="RefreshDashboardReadiness" ToolTip="{Binding Localization[ReadinessHeuristic]}"/>
          </WrapPanel>
         </StackPanel>
         <Border Grid.Column="1" Width="120" Height="120" CornerRadius="60" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="5" Background="{DynamicResource SurfaceBrush}" VerticalAlignment="Center" Margin="18,0,0,0">

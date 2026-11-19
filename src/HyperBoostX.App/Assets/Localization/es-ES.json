@@ -279,5 +279,12 @@
   "SafeBoostApply": "Revisar y aplicar optimización segura",
   "GpuLoad": "CARGA DE GPU",
   "GpuBusiestEngine": "Motor observado más ocupado",
-  "GpuLoadUnavailableDetail": "Sin medición WDDM actual"
+  "GpuLoadUnavailableDetail": "Sin medición WDDM actual",
+  "MemoryLowSignaled": "Señal de memoria baja de Windows: activa",
+  "MemoryLowNotSignaled": "Señal de memoria baja de Windows: inactiva",
+  "MemoryPressureUnavailable": "Presión de memoria de Windows no disponible",
+  "ReadinessNoEvidence": "Sin medición de preparación",
+  "RefreshReadiness": "Medir preparación",
+  "ReadinessMeasurementSaved": "Medición guardada; no se cambió la configuración de Windows.",
+  "ReadinessHeuristic": "La preparación es una heurística medida, no un benchmark."
 }

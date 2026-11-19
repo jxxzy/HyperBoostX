@@ -279,5 +279,12 @@
   "SafeBoostApply": "安全な最適化を確認して適用",
   "GpuLoad": "GPU 負荷",
   "GpuBusiestEngine": "観測された最大エンジン負荷",
-  "GpuLoadUnavailableDetail": "現在の WDDM 測定値なし"
+  "GpuLoadUnavailableDetail": "現在の WDDM 測定値なし",
+  "MemoryLowSignaled": "Windows 低メモリ通知: 有効",
+  "MemoryLowNotSignaled": "Windows 低メモリ通知: 非アクティブ",
+  "MemoryPressureUnavailable": "Windows メモリ圧力を取得できません",
+  "ReadinessNoEvidence": "準備度の測定結果なし",
+  "RefreshReadiness": "準備度を測定",
+  "ReadinessMeasurementSaved": "測定結果を保存しました。Windows 設定は変更していません。",
+  "ReadinessHeuristic": "準備度は測定に基づく目安であり、ベンチマークではありません。"
 }

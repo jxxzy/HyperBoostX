@@ -461,3 +461,9 @@ Verified requirement records: Dashboard CPU load and master real-time CPU usage 
 Registry snapshot: 4056 requirements; 123 implemented-verified; 3933 mandatory not verified. Summary recalculated from the records (the previous stored statusCounts were stale). All requirement IDs and mandatory flags preserved.
 
 This is a source-level and Windows Server CI qualification for the specific features, not final Windows 10/11 release acceptance.
+
+
+## Dashboard pressure/readiness and installer verification
+
+- Independently verified installer CI 44519112690 at 09cace4: 279/279 tests, zero compiler warnings/errors, five lifecycle checks passed (fresh install, deliberately corrupted-file repair, uninstall registration, portable, uninstall/data preservation). 488 individual payload SHA-256 hashes matched installed and portable content. Interactive UI explicitly NOT_RUN. See https://github.com/jxxzy/HyperBoostX/actions/runs/44519112690.
+- Added actual Windows low-memory notification state using CreateMemoryResourceNotification/QueryMemoryResourceNotification, independent of the physical-memory percentage. Invalid/unavailable data stays explicit. On multiple processor groups the GetSystemTimes primary-group result is not shown as system aggregate. Dashboard readiness now invokes the existing six-component real-provider scoring workflow on demand, preserves timestamp and coverage, and restores the last measured snapshot from local history, not a placeholder or benchmark. Added live provider, invalid-score and STA shell persistence tests. All six locale catalogs updated. Fresh CI pending for this source.

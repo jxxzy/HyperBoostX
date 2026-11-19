@@ -14,3 +14,5 @@ Capabilities are probed: existing Registry values/types, enumerated power plans,
 Native power API reference: https://learn.microsoft.com/en-us/windows/win32/power/managing-power-schemes
 
 A hosted Windows Server 2022 CI package lifecycle test now exists. It is separate from real Windows 10/11 workstation acceptance and must not replace that matrix. Desktop GUI smoke and UAC mutation/recovery still require isolated client Windows environments.
+
+Hosted Windows Server 2022 run 44519112690 at 09cace4 passed installer/repair/portable/uninstall-preservation checks with 488 payload hashes. Installed UI explicitly NOT_RUN; no client legacy upgrade or signed package validation claimed.

@@ -279,5 +279,12 @@
   "SafeBoostApply": "Pratinjau & terapkan Boost Aman",
   "GpuLoad": "BEBAN GPU",
   "GpuBusiestEngine": "Engine terukur tersibuk",
-  "GpuLoadUnavailableDetail": "Belum ada pengukuran WDDM terkini"
+  "GpuLoadUnavailableDetail": "Belum ada pengukuran WDDM terkini",
+  "MemoryLowSignaled": "Sinyal RAM rendah Windows: aktif",
+  "MemoryLowNotSignaled": "Sinyal RAM rendah Windows: tidak aktif",
+  "MemoryPressureUnavailable": "Tekanan RAM Windows tidak tersedia",
+  "ReadinessNoEvidence": "Belum ada pengukuran kesiapan",
+  "RefreshReadiness": "Ukur kesiapan",
+  "ReadinessMeasurementSaved": "Pengukuran kesiapan disimpan; tidak ada pengaturan Windows diubah.",
+  "ReadinessHeuristic": "Kesiapan adalah heuristik terukur, bukan benchmark."
 }

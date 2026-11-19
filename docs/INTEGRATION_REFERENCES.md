@@ -37,3 +37,9 @@ Existing technical reference registry is preserved; no references promoted to ve
 - https://learn.microsoft.com/en-us/windows/privacy/configure-windows-diagnostic-data-in-your-organization — edition/version-specific diagnostic data policy values.
 - https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-pnpentity — actual Configuration Manager error codes.
 - https://learn.microsoft.com/en-us/previous-versions/windows/desktop/legacy/aa394354(v=vs.85) — Windows-reported driver metadata and signature flag; independent certificate trust is separate.
+
+## Memory pressure / processor-group coverage
+
+- https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-creatememoryresourcenotification
+- https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-querymemoryresourcenotification
+- https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getsystemtimes — primary processor-group scope on multi-group systems; aggregate not inferred.

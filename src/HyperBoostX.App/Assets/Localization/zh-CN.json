@@ -279,5 +279,12 @@
   "SafeBoostApply": "预览并应用安全优化",
   "GpuLoad": "GPU 负载",
   "GpuBusiestEngine": "观测到的最繁忙引擎",
-  "GpuLoadUnavailableDetail": "暂无当前 WDDM 测量值"
+  "GpuLoadUnavailableDetail": "暂无当前 WDDM 测量值",
+  "MemoryLowSignaled": "Windows 低内存信号：活动",
+  "MemoryLowNotSignaled": "Windows 低内存信号：未触发",
+  "MemoryPressureUnavailable": "无法获取 Windows 内存压力",
+  "ReadinessNoEvidence": "没有就绪度测量记录",
+  "RefreshReadiness": "测量就绪度",
+  "ReadinessMeasurementSaved": "已保存测量结果；未更改 Windows 设置。",
+  "ReadinessHeuristic": "就绪度是基于测量的启发式指标，不是基准测试。"
 }

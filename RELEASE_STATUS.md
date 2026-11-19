@@ -145,3 +145,6 @@ Windows CI now runs real NSIS install/repair/uninstall and portable extraction w
 
 
 Privacy and Driver Smart Scan scopes now invoke real bounded policy/driver providers; verification pending CI and desktop smoke. No driver installation, security weakening or permission changes. Stable still blocked.
+
+
+Installer lifecycle CI at 09cace4 passed 279/279 tests and five lifecycle checks with 488 payload files hashed; interactive UI NOT_RUN. New readiness and OS low-memory bindings are pending fresh CI and real Windows client acceptance. Stable remains blocked by the preserved requirement registry and release gates.
