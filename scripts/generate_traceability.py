@@ -9,11 +9,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE = ROOT.parent
-PROTOTYPE = WORKSPACE / "HyperBoostX-V3-Final-Complete-UI"
-NAVIGATION = PROTOTYPE / "navigation.json"
+PROTOTYPE = Path(os.environ.get(
+    "HBX_PROTOTYPE_DIR",
+    str(WORKSPACE / "HyperBoostX-V3-Final-Complete-UI"),
+)).resolve()
+NAVIGATION = ROOT / "src" / "HyperBoostX.App" / "Assets" / "navigation.json"
 INDEX = PROTOTYPE / "index.html"
 GALLERY = PROTOTYPE / "gallery.html"
-LEGACY_SOURCE = WORKSPACE / "V1" / "wpf" / "Data" / "ui_action_map_v2_10.json"
+LEGACY_SOURCE = ROOT / "old" / "wpf" / "Data" / "ui_action_map_v2_10.json"
 LEGACY_REGISTRY = ROOT / "docs" / "registry" / "legacy-parity.json"
 RUNTIME_REGISTRY = ROOT / "docs" / "registry" / "runtime.json"
 REFERENCE_MATRIX = ROOT / "docs" / "registry" / "technical-reference-matrix.json"
@@ -28,6 +31,14 @@ def slug(value):
 
 def sha256(path):
     return hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
+
+
+def display_path(path, root=WORKSPACE):
+    resolved = path.resolve()
+    try:
+        return resolved.relative_to(root.resolve()).as_posix()
+    except ValueError:
+        return f"external/{resolved.parent.name}/{resolved.name}"
 
 
 def requirement(requirement_id, source, source_reference, text, feature_id,
@@ -280,6 +291,15 @@ def main():
         REFERENCE_MATRIX, REFERENCE_VALIDATION
     )):
         raise SystemExit("Required prototype, legacy, or runtime registry source is missing.")
+
+    previous_records = {}
+    if OUTPUT.is_file():
+        previous_payload = json.loads(OUTPUT.read_text(encoding="utf-8-sig"))
+        previous_records = {
+            item["requirementId"]: item
+            for item in previous_payload.get("requirements", [])
+            if item.get("requirementId")
+        }
 
     navigation = json.loads(NAVIGATION.read_text(encoding="utf-8-sig"))
     legacy_source = json.loads(LEGACY_SOURCE.read_text(encoding="utf-8-sig"))
@@ -540,7 +560,7 @@ def main():
         action_ids = [item for item in mapped.get("v3_action_ids", []) if item in runtime_action_ids]
         records.append(requirement(
             f"legacy.{slug(legacy_source.get('app_version', 'unknown'))}.{slug(legacy_id)}",
-            "V1/wpf/Data/ui_action_map_v2_10.json",
+            "old/wpf/Data/ui_action_map_v2_10.json",
             f"{menu.get('key', 'menu')} / {legacy_id}",
             action.get("label") or action.get("text") or action.get("id") or "Legacy action",
             f"legacy.{slug(menu.get('key', 'menu'))}.{slug(legacy_id)}",
@@ -620,7 +640,7 @@ def main():
         records.append(requirement(
             "source-gap.codex-ui-implementation",
             "CODEX-UI-IMPLEMENTATION.md",
-            str(expected_ui_doc.relative_to(WORKSPACE)).replace("\\", "/"),
+            display_path(expected_ui_doc),
             "Expected implementation guide is not present in the supplied prototype folder; confirm whether another source file is authoritative.",
             "req.source-gap.prototype-documents",
             verification="File existence checked.",
@@ -629,7 +649,7 @@ def main():
             status="SOURCE_MISSING",
         ))
 
-    evidence = "dotnet test HyperBoostX.sln -c Release --no-restore: Passed 149/149"
+    evidence = "dotnet test HyperBoostX.sln -c Release --no-restore --nologo: Passed 251/251"
     implementation_records = [
         ("test-center.route-bindings", "Test Center route binding", "ui.command-center.test-center", "TestCenterPanel", "FeatureRouteCatalog.All / BindingFor", "Embedded 73-route catalog", "ShellTests.SafeTestCenterRunsAndPersistsHonestTimestampedResults; RenderTests.AllPagesRenderWithoutBindingErrors", "IMPLEMENTED_VERIFIED"),
         ("test-center.database-integrity", "Read-only application database check", "ui.command-center.test-center", "TestCenterPanel", "TestCenterRunner.RunAsync / Journal.IntegrityCheck", "SQLite PRAGMA quick_check", "ShellTests.SafeTestCenterRunsAndPersistsHonestTimestampedResults; EngineTests.DatabaseAndEncryptedDocumentsExposeReadOnlyIntegrityChecks", "IMPLEMENTED_VERIFIED"),
@@ -645,6 +665,7 @@ def main():
         ("application-health.resource-usage", "Application resource consumption", "ui.command-center.application-health", "TestCenterPanel", "TestCenterRunner.RunAsync / Process resource counters", "Current process working set, private bytes and cumulative CPU time", "ShellTests.SafeTestCenterRunsAndPersistsHonestTimestampedResults", "IMPLEMENTED_VERIFIED"),
         ("application-health.safe-repair", "Safe application repair workflow", "ui.command-center.application-health", "TestCenterPanel", "No handler", "Unsupported: no automated application repair handler", "Test Center reports UNSUPPORTED; no repair attempted.", "UNSUPPORTED"),
         ("application-health.privileged-worker", "Privileged worker and IPC health", "ui.command-center.application-health", "TestCenterPanel", "PrivilegedWorkerClient / HyperBoostX.Worker", "Separate worker, SID/PID/session-bound named pipe, ECDH P-256 and HMAC-SHA256", "WorkerProcessTests; ShellTests.SafeTestCenterRunsAndPersistsHonestTimestampedResults; published UI smoke Test Center", "PARTIAL_VERIFIED"),
+        ("application-health.worker-power-inspection", "Authenticated read-only worker power-plan inspection", "ui.command-center.application-health", "TestCenterPanel", "worker.power.inspect / HyperBoostX.Worker / PowerAction", "Windows PowrProf active-plan and plan inventory read", "WorkerProcessTests.WorkerPowerInspectUsesLiveWindowsStateAndRejectsUnexpectedTarget; release worker build", "IMPLEMENTED_VERIFIED"),
         ("application-health.file-integrity", "Signed application file integrity", "ui.command-center.application-health", "TestCenterPanel", "No handler", "Unsupported: no signed integrity manifest", "Test Center reports UNSUPPORTED; no trust asserted.", "UNSUPPORTED"),
         ("test-center.ai-consent", "AI connection test consent gate", "ui.command-center.test-center", "IntegrationsPanel", "IntegrationsViewModel.TestAiCommand", "Configured AI provider, explicit consent", "Automatic test is SKIPPED; provider connection test remains explicit.", "SKIPPED"),
         ("test-center.webhook-consent", "Webhook connection test consent gate", "ui.command-center.test-center", "IntegrationsPanel", "IntegrationsViewModel.TestWebhookCommand", "Configured HTTPS webhook, explicit consent", "Automatic test is SKIPPED; no network request made.", "SKIPPED"),
@@ -664,6 +685,7 @@ def main():
         ("security.lcd-performance-guard", "Configurable LCD utility overhead guard with cooling exclusions", "ui.privacy-security.lcd-performance-guard", "MainWindow LCD guard policy and observations", "ScanCommand / LcdPerformanceDetection.ScanAsync", "Two-sample Windows process CPU and working-set measurement with explicit vendor signatures", "IntegrationProviderTests LCD signature/live-process/gaming-gate tests; ShellTests route binding; published UI smoke", "IMPLEMENTED_VERIFIED"),
         ("gaming.stutter-analysis", "Imported frametime spike and optional telemetry correlation analysis", "ui.gaming.stutter-analyzer", "BenchmarkPanel frametime import and observation grid", "ImportFrametimeCommand / FrameTimeAnalysis.AnalyzeCsv", "Bounded user-selected CSV with calculated FPS lows, percentiles, spikes and Pearson correlations", "EngineTests frametime analysis tests; ShellTests route binding; published UI smoke", "IMPLEMENTED_VERIFIED"),
         ("reports.research-mode", "Persisted A/B/C/D repeat-trial experiment analysis", "ui.reports-tests.research-mode", "BenchmarkPanel Research Mode editor/history", "AddResearchTrialCommand / AnalyzeResearchCommand / ResearchExperiments", "DPAPI-protected local trial history with per-variant means and A-baseline deltas", "EngineTests research validation/report tests; ShellTests route binding; published UI smoke", "IMPLEMENTED_VERIFIED"),
+        ("automation.rules", "Opt-in allowlisted in-app scheduling and rule history", "ui.automation.scheduled-automation", "MainWindow automation editor/rules/history", "AutomationRules / EvaluateAutomationAsync", "DPAPI-protected rules/history and DispatcherTimer evaluation while the app is running", "EngineTests automation allowlist/due/emergency tests; ShellTests route binding; published UI smoke", "IMPLEMENTED_VERIFIED"),
     ]
     implementation_commands = {
         "configuration.schema-validation": "ImportSettingsCommand",
@@ -682,6 +704,7 @@ def main():
         "security.lcd-performance-guard": "ScanCommand",
         "gaming.stutter-analysis": "ImportFrametimeCommand",
         "reports.research-mode": "AddResearchTrialCommand / AnalyzeResearchCommand",
+        "automation.rules": "Add/enable/pause/remove/emergency-stop automation commands",
     }
     for item_id, title, feature_id, component, handler, provider, test, status in implementation_records:
         verification = (
@@ -839,6 +862,69 @@ def main():
                 "test": "FileAnalysisTests; ShellTests.DuplicateAndLargeFileRouteRunsRealReadOnlyAnalysis; scripts/ui-smoke.ps1",
                 "evidence": file_analysis_evidence,
                 "status": file_analysis_overrides[record["requirementId"]],
+            })
+
+    dashboard_storage_statuses = {
+        "req.master.0152-storage-usage": "IMPLEMENTED_VERIFIED",
+        "proto.subfeature.ui.command-center.dashboard.004-storage-health": "PARTIAL_VERIFIED",
+    }
+    for record in records:
+        if record["requirementId"] in dashboard_storage_statuses:
+            record.update({
+                "uiComponent": "MainWindow dashboard system-storage metric",
+                "command": "Dashboard route / LiveStorage binding",
+                "backendHandler": "ShellViewModel.LiveStorage",
+                "provider": "System.IO.DriveInfo for the Windows system volume",
+                "verification": (
+                    "Displays used capacity calculated from actual total and available bytes; unavailable volumes remain explicitly unavailable. "
+                    "Capacity is not presented as physical drive health."
+                ),
+                "test": "ShellTests.DashboardStorageMetricReflectsTheActualWindowsSystemVolume",
+                "evidence": (
+                    "dotnet test tests/HyperBoostX.Tests/HyperBoostX.Tests.csproj -c Release --no-restore --nologo "
+                    "--filter FullyQualifiedName~DashboardStorageMetricReflectsTheActualWindowsSystemVolume: Passed 1/1."
+                ),
+                "status": dashboard_storage_statuses[record["requirementId"]],
+            })
+
+    memory_guard_statuses = {
+        "proto.route.ui.optimization.smart-memory-guard": "PARTIAL_VERIFIED",
+        "proto.subfeature.ui.optimization.smart-memory-guard.001-thresholds": "IMPLEMENTED_VERIFIED",
+        "proto.subfeature.ui.optimization.smart-memory-guard.003-commit-charge": "IMPLEMENTED_VERIFIED",
+        "proto.subfeature.ui.optimization.smart-memory-guard.005-cooldown": "IMPLEMENTED_VERIFIED",
+        "req.master.0211-configurable-smart-memory-guard": "PARTIAL_VERIFIED",
+    }
+    for record in records:
+        if record["requirementId"] in memory_guard_statuses:
+            record.update({
+                "uiComponent": "MainWindow dashboard Memory Guard toggle and threshold slider",
+                "command": "MemoryGuardEnabled / MemoryGuardThresholdPercent bindings",
+                "backendHandler": "ShellViewModel.MemoryGuardThresholdPercent / PollTelemetry",
+                "provider": "Windows physical-memory telemetry and local journal settings",
+                "verification": (
+                    "Threshold is bounded to 70-95% and cooldown to 1-60 minutes; both are persisted, restored on telemetry startup, and used by the notification check. "
+                    "Cooldown boundary behavior is deterministically tested. System commit usage is read-only and provider-backed. Guard only notifies; process exclusions, commit-pressure recommendations, and emergency workload actions remain incomplete."
+                ),
+                "test": "ShellTests.MemoryGuardThresholdIsBoundedAndPersistsAcrossShellRestart; ShellTests.MemoryGuardCooldownHonorsThresholdAndExactInterval; ShellTests.LanguagePacksAreCompleteSelectableAndPersisted",
+                "evidence": (
+                    "Focused dotnet test for MemoryGuardThresholdIsBoundedAndPersistsAcrossShellRestart passed 1/1; "
+                    "language-pack regression passed with the threshold label across all six locales."
+                ),
+                "status": memory_guard_statuses[record["requirementId"]],
+            })
+
+    commit_reference_id = "technical-reference.menu-14.smart-memory-guard.commit"
+    for record in records:
+        if record["requirementId"] == commit_reference_id:
+            record.update({
+                "uiComponent": "MainWindow dashboard RAM card / Smart Memory Guard shared dashboard surface",
+                "command": "Dashboard telemetry sampling / LiveCommit binding",
+                "backendHandler": "Telemetry.Sample / GetPerformanceInfo; ShellViewModel.LiveCommit",
+                "provider": "Microsoft GetPerformanceInfo in Psapi.dll; PERFORMANCE_INFORMATION page counters converted with PageSize; GlobalMemoryStatusEx for physical memory",
+                "verification": "Live Windows host returned commit used/limit counters; API failures remain separately marked unavailable. The value is not interpreted as physical-memory pressure or health.",
+                "test": "IntegrationProviderTests.CommitPageCountsConvertUsingProviderPageSize; IntegrationProviderTests.TelemetryReadsActualWindowsCommitCharge; published UI smoke",
+                "evidence": "Microsoft Learn GetPerformanceInfo and PERFORMANCE_INFORMATION documentation reviewed; focused provider tests passed 2/2 on the Windows host. Broader synthetic-pressure workflow remains incomplete.",
+                "status": "PARTIAL_VERIFIED",
             })
 
     rgb_ids = {
@@ -1007,10 +1093,298 @@ def main():
                 "status": "IMPLEMENTED_VERIFIED",
             })
 
+    automation_ids = {
+        "proto.route.ui.automation.scheduled-automation",
+        "proto.subfeature.ui.automation.scheduled-automation.001-scheduled-scans",
+        "proto.subfeature.ui.automation.scheduled-automation.002-cleanup",
+        "proto.subfeature.ui.automation.scheduled-automation.003-reminders",
+        "proto.subfeature.ui.automation.scheduled-automation.004-pause",
+        "proto.subfeature.ui.automation.scheduled-automation.005-emergency-stop",
+        "proto.route.ui.automation.task-rule-system",
+        "proto.subfeature.ui.automation.task-rule-system.001-triggers",
+        "proto.subfeature.ui.automation.task-rule-system.002-conditions",
+        "proto.subfeature.ui.automation.task-rule-system.003-approved-actions",
+        "proto.subfeature.ui.automation.task-rule-system.004-cooldown",
+        "proto.subfeature.ui.automation.task-rule-system.005-history",
+    }
+    for record in records:
+        if record["requirementId"] in automation_ids:
+            record.update({
+                "uiComponent": "MainWindow automation editor, rule grid and execution history",
+                "command": "Add/enable/pause/remove/emergency-stop automation commands",
+                "backendHandler": "AutomationRules validation/persistence/due evaluation and ShellViewModel.EvaluateAutomationAsync",
+                "provider": "In-app DispatcherTimer with DPAPI-protected local rules/history; SmartScan, CleanupScan and Reminder allowlist only",
+                "verification": "Rules start paused; bounded intervals/conditions/cooldowns, pause/remove and emergency stop are enforced; no arbitrary commands, scripts, deletions or unattended mutations.",
+                "test": "EngineTests AutomationRules tests; ShellTests.AutomationRoutesExposeOnlyOptInAllowlistedRules; scripts/ui-smoke.ps1",
+                "evidence": "Full suite passed 178/178; due/condition/cooldown/history/emergency-stop behavior and command rejection verified; published UI smoke created, enabled and emergency-stopped a rule while passing 73/73 routes.",
+                "status": "IMPLEMENTED_VERIFIED",
+            })
+
+    msi_ids = {
+        "proto.route.ui.hardware.msi-safe-optimizer",
+        "proto.subfeature.ui.hardware.msi-safe-optimizer.001-msi-center",
+        "proto.subfeature.ui.hardware.msi-safe-optimizer.002-mystic-light",
+        "proto.subfeature.ui.hardware.msi-safe-optimizer.003-service-dependencies",
+        "proto.subfeature.ui.hardware.msi-safe-optimizer.004-exclusions",
+    }
+    for record in records:
+        if record["requirementId"] in msi_ids:
+            record.update({
+                "uiComponent": "MainWindow observation grid",
+                "command": "ScanCommand",
+                "backendHandler": "MsiSoftwareDetection.ScanAsync",
+                "provider": "Explicit MSI process/service/application signatures, two-sample resource measurement and Win32_Service dependencies",
+                "verification": "Read-only MSI Center/Mystic Light/Dragon Center inventory with cooling/fan/pump exclusions; no process, service or hardware mutation.",
+                "test": "IntegrationProviderTests MSI signatures/live-process tests; ShellTests.MsiSafeOptimizerRouteIsImplementedAndScannable; scripts/ui-smoke.ps1",
+                "evidence": "Full suite passed 187/187; real MSI Center-named process remained running and produced measured evidence; published UI smoke invoked the route and passed 73/73 routes.",
+                "status": "IMPLEMENTED_VERIFIED",
+            })
+
+    update_center_ids = {
+        "proto.route.ui.tools-settings.update-center",
+        "proto.subfeature.ui.tools-settings.update-center.001-current-version",
+        "proto.subfeature.ui.tools-settings.update-center.002-trusted-source",
+        "proto.subfeature.ui.tools-settings.update-center.003-integrity",
+        "proto.subfeature.ui.tools-settings.update-center.004-update-history",
+    }
+    for record in records:
+        if record["requirementId"] in update_center_ids:
+            record.update({
+                "uiComponent": "MainWindow Update Center inspection panel and history",
+                "command": "InspectCurrentPackageCommand / SelectUpdatePackageCommand / InspectUpdatePackageCommand",
+                "backendHandler": "ReleasePackageInspection.InspectAsync",
+                "provider": "SHA-256, FileVersionInfo, Authenticode certificate and WinVerifyTrust",
+                "verification": "Bounded local package inspection with current/candidate version, Windows trust, signer and integrity evidence; no download, execution, installation or replacement.",
+                "test": "IntegrationProviderTests ReleasePackageInspection tests; ShellTests.UpdateCenterIsImplementedWithNonExecutingInspectionCommands; scripts/ui-smoke.ps1",
+                "evidence": "Full suite passed 199/199; real executable fixture was hashed/trust-checked without modification; published packaged UI smoke reviewed Update Center and passed 73/73 routes (artifacts/ui-trust-smoke-969949270aa947619111f8e5fb5de983).",
+                "status": "IMPLEMENTED_VERIFIED",
+            })
+
+    plugin_manager_ids = {
+        "proto.route.ui.tools-settings.plugin-manager",
+        "proto.subfeature.ui.tools-settings.plugin-manager.001-plugin-inventory",
+        "proto.subfeature.ui.tools-settings.plugin-manager.002-compatibility",
+        "proto.subfeature.ui.tools-settings.plugin-manager.003-permissions",
+        "proto.subfeature.ui.tools-settings.plugin-manager.004-activity",
+    }
+    for record in records:
+        if record["requirementId"] in plugin_manager_ids:
+            record.update({
+                "uiComponent": "MainWindow Plugin Manager review panel and shared observation grid",
+                "command": "ReviewPluginsCommand",
+                "backendHandler": "PluginManifestInspection.ScanAsync",
+                "provider": "Strict plugin.json schema, version compatibility, SHA-256, allowlisted permissions and WinVerifyTrust",
+                "verification": "Bounded fail-closed package review with path/reparse/size validation; plugin assembly loading and execution are disabled.",
+                "test": "IntegrationProviderTests plugin manifest positive/negative tests; ShellTests.PluginManagerIsImplementedAsFailClosedManifestReview; scripts/ui-smoke.ps1",
+                "evidence": "Full suite passed 199/199; signed-system-file fixture and malicious permission/path manifest were reviewed without loading code; published packaged UI smoke reviewed Plugin Manager and passed 73/73 routes (artifacts/ui-trust-smoke-969949270aa947619111f8e5fb5de983).",
+                "status": "IMPLEMENTED_VERIFIED",
+            })
+
+    network_profile_ids = {
+        "proto.route.ui.network.network-profiles",
+        "proto.subfeature.ui.network.network-profiles.001-balanced",
+        "proto.subfeature.ui.network.network-profiles.002-gaming-diagnostics",
+        "proto.subfeature.ui.network.network-profiles.003-dns-policy",
+        "proto.subfeature.ui.network.network-profiles.004-restore",
+    }
+    for record in records:
+        if record["requirementId"] in network_profile_ids:
+            record.update({
+                "uiComponent": "MainWindow network profile selector and shared observations/findings",
+                "command": "ScanCommand / NetworkProfileMode",
+                "backendHandler": "NetworkProfileDiagnostics.ScanAsync",
+                "provider": "NetworkInterface, IPInterfaceProperties, Win32_NetworkAdapterConfiguration, NetworkList profiles and optional gateway ICMP",
+                "verification": "Measured Balanced/Gaming preview, DHCP/DNS policy and explicit restore state; no universal DNS, QoS, MTU, offload or registry mutation.",
+                "test": "IntegrationProviderTests NetworkProfilePreview tests; ShellTests.NetworkProfilesIsImplementedAsMeasuredPreviewWithoutHiddenMutation; scripts/ui-smoke.ps1",
+                "evidence": "Full suite passed 199/199; current-host providers returned measured or explicit unavailable evidence; published packaged UI smoke exercised Network Profiles and passed 73/73 routes (artifacts/ui-network-profiles-smoke-1e22b4d72816437ea504466851726663).",
+                "status": "IMPLEMENTED_VERIFIED",
+            })
+
+    curated_fields = (
+        "uiComponent", "command", "backendHandler", "provider", "verification",
+        "test", "evidence", "status", "mandatory",
+    )
+    for record in records:
+        previous = previous_records.get(record["requirementId"])
+        if previous:
+            for field in curated_fields:
+                if field in previous:
+                    record[field] = previous[field]
+
+    scan_tests = (
+        "ShellTests.SmartScanScopesGateExecutionAndRemainLocalized; "
+        "ShellTests.SmartScanLoadsOnlySavedSmartScanEvidenceAndHistory; "
+        "ShellTests.SmartScanRecommendationButtonsOnlyAcceptRegisteredSafeActions; "
+        "RenderTests.AllPagesRenderWithoutBindingErrors; scripts/ui-smoke.ps1"
+    )
+    scan_evidence = (
+        "dotnet test HyperBoostX.sln -c Release --no-restore --nologo: Passed 244/244. "
+        "scripts/package.ps1: Passed 244/244 and rebuilt the win-x64 desktop, installer and portable ZIP. "
+        "Published UI smoke: all 73 routes passed; Smart Scan toggled supported scope, kept unsupported "
+        "Privacy disabled, read 62 observations and 1 optional recommendation without changing Windows, "
+        "and rendered evidence/history (artifacts/ui-smartscan-4b44bd6ca2dd41d7ba9542f42fab39fe)."
+    )
+    smart_scan_updates = {
+        "proto.route.ui.command-center.smart-scan": {
+            "uiComponent": "MainWindow.xaml Smart Scan scope workspace, evidence/history/method tabs and recommendation cards",
+            "command": "ScanCommand / CancelCommand / allowlisted ApplyFindingCommand",
+            "backendHandler": "ShellViewModel.ScanSmartScopes -> Runtime.Diagnostics.ScanAsync",
+            "provider": "Read-only Dashboard, Smart Scan, Gaming and Hardware diagnostic centers; WMI, system APIs and existing preference readers",
+            "verification": "Published WPF smoke selected the route, toggled Quick scope, confirmed Privacy is disabled, completed the default Quick + Deep read-only scan, and rendered evidence/history. Privacy and dedicated driver scans remain unsupported; no Windows settings changed.",
+            "test": scan_tests,
+            "evidence": scan_evidence,
+            "status": "PARTIAL_VERIFIED",
+        },
+        "proto.subfeature.ui.command-center.smart-scan.001-quick-scan": {
+            "uiComponent": "SmartScanScopeOption Quick checkbox / Smart Scan Workspace",
+            "command": "ScanCommand -> ScanSmartScopes(Dashboard)",
+            "backendHandler": "Runtime.Diagnostics.ScanAsync(\"Dashboard\")",
+            "provider": "Windows OS/CPU WMI, memory, system-volume, power, network and current-user preference readers",
+            "verification": "Selected Quick scope was exercised by the published UI smoke as part of the default combined scan; the operation completed read-only and the combined report rendered.",
+            "test": scan_tests,
+            "evidence": scan_evidence,
+            "status": "PARTIAL_VERIFIED",
+        },
+        "proto.subfeature.ui.command-center.smart-scan.002-deep-scan": {
+            "uiComponent": "SmartScanScopeOption Deep checkbox / Smart Scan Workspace",
+            "command": "ScanCommand -> ScanSmartScopes(Smart Scan)",
+            "backendHandler": "Runtime.Diagnostics.ScanAsync(\"Smart Scan\")",
+            "provider": "Windows OS/CPU WMI, PnP and Defender WMI where available, memory/storage/power/network readers, and current-user preference readers",
+            "verification": "Selected Deep scope was exercised by the published UI smoke as part of the default combined scan; provider gaps remain explicit and no configuration changed.",
+            "test": scan_tests,
+            "evidence": scan_evidence,
+            "status": "PARTIAL_VERIFIED",
+        },
+        "proto.subfeature.ui.command-center.smart-scan.003-gaming-scan": {
+            "uiComponent": "SmartScanScopeOption Gaming checkbox",
+            "command": "ScanCommand -> ScanSmartScopes(Gaming)",
+            "backendHandler": "Runtime.Diagnostics.ScanAsync(\"Gaming\")",
+            "provider": "Existing Gaming diagnostics and registered current-user preference readers; FPS capture is unavailable",
+            "verification": "Scope selection and command gating are covered; the packaged UI smoke exercised Quick + Deep, not the Gaming provider. No automatic tuning or FPS result is claimed.",
+            "test": "ShellTests.SmartScanScopesGateExecutionAndRemainLocalized; RenderTests.AllPagesRenderWithoutBindingErrors",
+            "evidence": "Full suite passed 244/244; Gaming scope was not selected in the packaged scan.",
+            "status": "UI_BOUND_NOT_FEATURE_VERIFIED",
+        },
+        "proto.subfeature.ui.command-center.smart-scan.004-hardware-scan": {
+            "uiComponent": "SmartScanScopeOption Hardware checkbox",
+            "command": "ScanCommand -> ScanSmartScopes(Hardware)",
+            "backendHandler": "Runtime.Diagnostics.ScanAsync(\"Hardware\")",
+            "provider": "Existing read-only WMI hardware inventory",
+            "verification": "Scope selection and command gating are covered; the packaged UI smoke exercised Quick + Deep, not the Hardware provider.",
+            "test": "ShellTests.SmartScanScopesGateExecutionAndRemainLocalized; RenderTests.AllPagesRenderWithoutBindingErrors",
+            "evidence": "Full suite passed 244/244; Hardware scope was not selected in the packaged scan.",
+            "status": "UI_BOUND_NOT_FEATURE_VERIFIED",
+        },
+        "proto.subfeature.ui.command-center.smart-scan.005-privacy-scan": {
+            "uiComponent": "Disabled SmartScanScopeOption Privacy card with explicit provider limitation",
+            "command": "No command; unsupported scope cannot be selected",
+            "backendHandler": "NOT_IMPLEMENTED",
+            "provider": "No validated local privacy-audit provider",
+            "verification": "Packaged UI Automation confirmed the Privacy scope is disabled; the view explicitly states that no provider is wired.",
+            "test": scan_tests,
+            "evidence": scan_evidence,
+            "status": "UNSUPPORTED",
+        },
+        "proto.subfeature.ui.command-center.smart-scan.006-driver-scan": {
+            "uiComponent": "Disabled SmartScanScope Drivers card with explicit provider limitation",
+            "command": "No command; unsupported scope cannot be selected",
+            "backendHandler": "NOT_IMPLEMENTED",
+            "provider": "No dedicated driver-health or compatibility provider",
+            "verification": "The scope is disabled and the view explicitly states that no dedicated provider is wired; device-error observations in Deep scan are not full driver-health parity.",
+            "test": "ShellTests.SmartScanScopesGateExecutionAndRemainLocalized; RenderTests.AllPagesRenderWithoutBindingErrors",
+            "evidence": "Full suite passed 244/244; the driver scope remains unsupported.",
+            "status": "UNSUPPORTED",
+        },
+        "proto.route.ui.command-center.one-click-boost": {
+            "uiComponent": "MainWindow.xaml One Click Boost capability cards and registered-action review panel",
+            "command": "Selected registered action -> ApplyCommand -> preview/consent/action engine",
+            "backendHandler": "ShellViewModel.ApplyAction -> Runtime.Engine",
+            "provider": "Only currently registered typed V3 actions; no multi-action profile provider",
+            "verification": "Packaged UI rendered profile capability states and the registered-action review control. Safe preferences remain individual actions; automatic batch boost is explicitly NOT_IMPLEMENTED.",
+            "test": "ShellTests.OneClickBoostExplainsIndividualActionsAndExposesOnlyRegisteredActions; VisualEffectsActionTests; RenderTests.AllPagesRenderWithoutBindingErrors; scripts/ui-smoke.ps1",
+            "evidence": "Full suite/package passed 244/244; published UI smoke passed all 73 routes and verified the One Click Boost overview and action review control (artifacts/ui-smartscan-4b44bd6ca2dd41d7ba9542f42fab39fe).",
+            "status": "PARTIAL_VERIFIED",
+        },
+        "proto.subfeature.ui.command-center.one-click-boost.001-safe-boost": {
+            "uiComponent": "Safe Boost capability card and registered action selector",
+            "command": "ApplyCommand -> preview and explicit consent",
+            "backendHandler": "Runtime.Engine preview/apply/read-back/recovery lifecycle for individually registered actions",
+            "provider": "Current-user visual preference actions; no batch profile provider",
+            "verification": "Action lifecycle tests and packaged UI presence pass; multi-action One Click execution remains NOT_IMPLEMENTED.",
+            "test": "ShellTests.OneClickBoostExplainsIndividualActionsAndExposesOnlyRegisteredActions; VisualEffectsActionTests; scripts/ui-smoke.ps1",
+            "evidence": "Full suite passed 244/244; packaged UI smoke verified the action-review control. No optimization was applied during the UI smoke.",
+            "status": "PARTIAL_VERIFIED",
+        },
+        "proto.subfeature.ui.command-center.one-click-boost.002-gaming-boost": {
+            "uiComponent": "Gaming Boost limitation card; process-priority action remains in Game Library",
+            "command": "No One Click command; optional priority action is separately consented in Game Library",
+            "backendHandler": "GameLibrary process-priority lifecycle is separate from this route",
+            "provider": "Exact registered game process provider; no One Click batch integration",
+            "verification": "Packaged UI shows the separation and does not promise universal boost or FPS improvement.",
+            "test": "ShellTests.OneClickBoostExplainsIndividualActionsAndExposesOnlyRegisteredActions; GameProcessPriorityActionTests",
+            "evidence": "Full suite passed 244/244; the One Click page does not apply the gaming action.",
+            "status": "UI_BOUND_NOT_FEATURE_VERIFIED",
+        },
+        "proto.subfeature.ui.command-center.one-click-boost.003-low-end-boost": {
+            "uiComponent": "Low-End Boost capability card with unavailable status",
+            "command": "No command",
+            "backendHandler": "NOT_IMPLEMENTED",
+            "provider": "No validated profile action plan",
+            "verification": "Packaged UI states that the profile has no validated action plan and applies no changes.",
+            "test": "ShellTests.OneClickBoostExplainsIndividualActionsAndExposesOnlyRegisteredActions; scripts/ui-smoke.ps1",
+            "evidence": "Full suite passed 244/244; profile remains unavailable.",
+            "status": "UNSUPPORTED",
+        },
+        "proto.subfeature.ui.command-center.one-click-boost.004-creator-boost": {
+            "uiComponent": "Creator Boost capability card with unavailable status",
+            "command": "No command",
+            "backendHandler": "NOT_IMPLEMENTED",
+            "provider": "No validated profile action plan",
+            "verification": "Packaged UI states that the profile has no validated action plan and applies no changes.",
+            "test": "ShellTests.OneClickBoostExplainsIndividualActionsAndExposesOnlyRegisteredActions; scripts/ui-smoke.ps1",
+            "evidence": "Full suite passed 244/244; profile remains unavailable.",
+            "status": "UNSUPPORTED",
+        },
+        "proto.subfeature.ui.command-center.one-click-boost.005-custom-boost": {
+            "uiComponent": "Custom Boost capability card with unavailable status",
+            "command": "No command",
+            "backendHandler": "NOT_IMPLEMENTED",
+            "provider": "No validated user-authored profile engine",
+            "verification": "Packaged UI states that the profile has no validated action plan and applies no changes.",
+            "test": "ShellTests.OneClickBoostExplainsIndividualActionsAndExposesOnlyRegisteredActions; scripts/ui-smoke.ps1",
+            "evidence": "Full suite passed 244/244; profile remains unavailable.",
+            "status": "UNSUPPORTED",
+        },
+        "prototype.screen.002-02-smart-scan": {
+            "uiComponent": "Native Smart Scan workspace, tabs, scope cards and recommendation layout; captured at 1440x900",
+            "command": "Smart Scan route controls",
+            "backendHandler": "ShellViewModel.ScanSmartScopes",
+            "provider": "Packaged read-only native diagnostics",
+            "verification": "Native screenshot and packaged interaction smoke are recorded; no side-by-side visual-parity assessment against the prototype image is claimed.",
+            "test": "RenderTests.AllPagesRenderWithoutBindingErrors; scripts/ui-smoke.ps1",
+            "evidence": scan_evidence,
+            "status": "UI_BOUND_NOT_FEATURE_VERIFIED",
+        },
+        "prototype.screen.003-03-one-click-boost": {
+            "uiComponent": "Native One Click Boost profile status cards and action-review panel; captured at 1440x900",
+            "command": "Registered action review",
+            "backendHandler": "ShellViewModel.ApplyAction",
+            "provider": "Registered V3 actions only; batch profile provider unavailable",
+            "verification": "Native screenshot and UI presence smoke are recorded; no side-by-side visual-parity assessment against the prototype image is claimed.",
+            "test": "RenderTests.AllPagesRenderWithoutBindingErrors; scripts/ui-smoke.ps1",
+            "evidence": scan_evidence,
+            "status": "UI_BOUND_NOT_FEATURE_VERIFIED",
+        },
+    }
+    for record in records:
+        update = smart_scan_updates.get(record["requirementId"])
+        if update:
+            record.update(update)
+
     ids = [record["requirementId"] for record in records]
     if len(ids) != len(set(ids)):
         raise SystemExit("Requirement IDs are not unique.")
-    if len(navigation) != 73 or subfeature_count != 371 or len(legacy_actions) != 606:
+    if len(navigation) != 73 or subfeature_count != 376 or len(legacy_actions) != 606:
         raise SystemExit(
             f"Unexpected prototype counts: routes={len(navigation)}, subfeatures={subfeature_count}, legacy={len(legacy_actions)}."
         )
@@ -1031,11 +1405,11 @@ def main():
         "schemaVersion": 1,
         "generatedBy": "scripts/generate_traceability.py",
         "sources": {
-            "prototype": str(PROTOTYPE.relative_to(WORKSPACE)).replace("\\", "/"),
-            "navigation": {"path": str(NAVIGATION.relative_to(WORKSPACE)).replace("\\", "/"), "sha256": sha256(NAVIGATION)},
-            "prototypeIndex": {"path": str(INDEX.relative_to(WORKSPACE)).replace("\\", "/"), "sha256": sha256(INDEX)},
-            "prototypeGallery": {"path": str(GALLERY.relative_to(WORKSPACE)).replace("\\", "/"), "sha256": sha256(GALLERY)},
-            "legacyActionMap": {"path": str(LEGACY_SOURCE.relative_to(WORKSPACE)).replace("\\", "/"), "sha256": sha256(LEGACY_SOURCE)},
+            "prototype": display_path(PROTOTYPE),
+            "navigation": {"path": display_path(NAVIGATION), "sha256": sha256(NAVIGATION)},
+            "prototypeIndex": {"path": display_path(INDEX), "sha256": sha256(INDEX)},
+            "prototypeGallery": {"path": display_path(GALLERY), "sha256": sha256(GALLERY)},
+            "legacyActionMap": {"path": display_path(LEGACY_SOURCE), "sha256": sha256(LEGACY_SOURCE)},
             "technicalReferenceMatrix": {
                 "path": str(REFERENCE_MATRIX.relative_to(ROOT)).replace("\\", "/"),
                 "sha256": sha256(REFERENCE_MATRIX),
@@ -1045,7 +1419,7 @@ def main():
                 "sha256": sha256(REFERENCE_VALIDATION),
             },
             "codexUiImplementation": {
-                "path": str(expected_ui_doc.relative_to(WORKSPACE)).replace("\\", "/"),
+                "path": display_path(expected_ui_doc),
                 "present": expected_ui_doc.is_file(),
                 "sha256": sha256(expected_ui_doc),
             },

@@ -69,14 +69,20 @@ public sealed class ActionEngine
                     actual=await action.ReadAsync(c.Target,CancellationToken.None);
                 }
                 var cancelled=e is OperationCanceledException;
+                var targetNoLongerExists=action.IsRestoreSatisfied(actual,c.Before);
+                var restored=actual==c.Before||targetNoLongerExists;
+                var message=cancelled
+                    ?actual==c.Before?"Operation cancelled; the original state was restored and verified."
+                    :targetNoLongerExists?"Operation cancelled; the target no longer exists, so its process-specific state no longer applies."
+                    :"Operation cancelled; recovery is required because the original state could not be verified."
+                    :targetNoLongerExists?e.Message+" The target no longer exists; its process-specific state no longer applies."
+                    :e.Message;
                 c=c with
                 {
-                    Status=actual==c.Before?(cancelled?"CancelledRestored":"FailedRestored"):"RecoveryRequired",
+                    Status=restored?(cancelled?"CancelledRestored":"FailedRestored"):"RecoveryRequired",
                     Observed=actual,
                     CompletedAt=DateTimeOffset.UtcNow,
-                    Message=cancelled
-                        ?actual==c.Before?"Operation cancelled; the original state was restored and verified.":"Operation cancelled; recovery is required because the original state could not be verified."
-                        :e.Message
+                    Message=message
                 };
             }
             catch(Exception restoreError) { c=c with{Status="RecoveryRequired",Message=$"{e.Message} Recovery: {restoreError.Message}"}; }
@@ -94,7 +100,8 @@ public sealed class ActionEngine
         var action=Get(c.ActionId);action.ValidateRestore(c.Target,c.Before);
         if(!action.Info.Reversible)throw new HbxException("HBX-SAFE-0001: This engine requires a verified recovery strategy.");
         var current=await action.ReadAsync(c.Target,token);
-        if(current!=c.Before && current!=c.Desired)
+        var targetNoLongerExists=action.IsRestoreSatisfied(current,c.Before);
+        if(current!=c.Before && current!=c.Desired && !targetNoLongerExists)
         {
             c=c with{Status="ConflictDetected",Observed=current,Message="External change detected. Current state was preserved; automatic restore is blocked."};
             _journal.Save(c);return c;
@@ -102,9 +109,10 @@ public sealed class ActionEngine
         c=c with{Status="RollingBack"};_journal.Save(c);
         try
         {
-            if(current!=c.Before) await action.WriteAsync(c.Target,c.Before,token);
+            if(current!=c.Before&&!targetNoLongerExists) await action.WriteAsync(c.Target,c.Before,token);
             var actual=await action.ReadAsync(c.Target,CancellationToken.None);
-            c=c with{Status=actual==c.Before?"RolledBack":"RollbackFailed",Observed=actual,CompletedAt=DateTimeOffset.UtcNow,Message=actual==c.Before?"Original state read back and verified.":"Original state could not be verified."};
+            var restored=actual==c.Before||action.IsRestoreSatisfied(actual,c.Before);
+            c=c with{Status=restored?"RolledBack":"RollbackFailed",Observed=actual,CompletedAt=DateTimeOffset.UtcNow,Message=actual==c.Before?"Original state read back and verified.":restored?"Target no longer exists; its process-specific state no longer applies.":"Original state could not be verified."};
         }
         catch(OperationCanceledException e)
         {
@@ -124,72 +132,6 @@ public sealed class ActionEngine
         catch(Exception e){c=c with{Status="RollbackFailed",Message=e.Message};}
         _journal.Save(c);return c;
     }
-
-    public sealed record BoostBatchResult(string Session,string Status,string Message,IReadOnlyList<Change> Changes);
-    public static IReadOnlyList<string> SafeBoostActionIds(bool transparency,bool capture)
-    {
-        var ids=new List<string>();
-        if(transparency)ids.Add("windows.visual.transparency.disable");
-        if(capture)ids.Add("gaming.capture.disable");
-        return ids;
-    }
-
-    // Persistent changes use the same action journal and recovery engine as individual actions.
-    // This is a compensating batch, not a Windows transaction.
-    public async Task<BoostBatchResult> ApplySafeBoostAsync(IReadOnlyList<Preview> previews,bool consent,CancellationToken token)
-    {
-        if(!consent)throw new HbxException("HBX-BOOST-0001: Explicit batch approval is required.");
-        token.ThrowIfCancellationRequested();
-        var allowed=SafeBoostActionIds(true,true);
-        if(previews.Count is <1 or >2||previews.Any(p=>p.Target!=""||!allowed.Contains(p.ActionId,StringComparer.Ordinal))||
-           previews.Select(p=>p.ActionId).Distinct(StringComparer.Ordinal).Count()!=previews.Count)
-            throw new HbxException("HBX-BOOST-0002: Invalid safe boost action selection.");
-        // Check the engine-issued immutable preview before any modification, not merely its displayed fields.
-        foreach(var preview in previews)
-            if(!_previews.TryGetValue(preview.Token,out var pending)||pending.Preview!=preview||
-                Stopwatch.GetElapsedTime(pending.Tick)>TimeSpan.FromMinutes(10))
-                throw new HbxException("HBX-BOOST-0003: Batch preview expired or does not match its original.");
-        var session=Guid.NewGuid().ToString("N");
-        var results=new List<Change>();
-        try
-        {
-            foreach(var preview in previews)
-            {
-                token.ThrowIfCancellationRequested();
-                var change=await ApplyAsync(preview.Token,true,session,token);
-                results.Add(change);
-                if(change.Status is not ("Verified" or "AlreadyDesiredState"))
-                    throw new HbxException("Action did not verify: "+change.ActionId);
-            }
-            return new(session,"Verified","Selected configuration was verified. Performance improvement has not been measured.",results);
-        }
-        catch(Exception operationError)
-        {
-            var problems=new List<string>();
-            try
-            {
-                // Recovery files are authoritative even when a database commit failed.
-                _journal.Reconcile();
-                if(!string.IsNullOrWhiteSpace(_journal.RecoveryNotice))
-                    problems.Add("Recovery journal requires review: "+_journal.RecoveryNotice);
-                foreach(var record in _journal.History(10000).Where(c=>c.Session==session&&c.Recoverable))
-                {
-                    try
-                    {
-                        var restored=await RollbackAsync(record.Id,true,CancellationToken.None);
-                        results.RemoveAll(c=>c.Id==restored.Id);results.Add(restored);
-                        if(restored.Status!="RolledBack")problems.Add(restored.ActionId+": "+restored.Status);
-                    }
-                    catch(Exception e){problems.Add(record.ActionId+": "+e.GetType().Name);}
-                }
-            }
-            catch(Exception e){problems.Add("Recovery history unavailable: "+e.GetType().Name);}
-            if(problems.Count!=0)return new(session,"RecoveryRequired","Batch interrupted. Review Restore: "+string.Join("; ",problems),results);
-            return new(session,operationError is OperationCanceledException?"CancelledRestored":"FailedRestored",
-                "Batch interrupted; recorded changes requiring recovery were restored. "+operationError.GetType().Name,results);
-        }
-    }
-
     public async Task<State> VerifyAsync(string id,CancellationToken token)
     {
         var c=_journal.Find(id);if(c.Owner!=_owner)throw new HbxException("HBX-RESTORE-0004: Owner mismatch.");

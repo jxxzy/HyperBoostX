@@ -1,6 +1,7 @@
 namespace HyperBoostX.Core;
 
-public sealed record GamingSession(string Id,string GameId,string GameName,string Status,DateTimeOffset StartedAt,string Message="");
+public sealed record GameProcessIdentity(int ProcessId,long StartTimeUtcTicks);
+public sealed record GamingSession(string Id,string GameId,string GameName,string Status,DateTimeOffset StartedAt,string Message="",int? ProcessId=null,long? ProcessStartTimeUtcTicks=null);
 public sealed class GameSessions(ActionEngine engine,Journal journal,DocumentStore store)
 {
     public GamingSession? Current=>store.Read<GamingSession?>("gaming-session",null);
@@ -28,6 +29,17 @@ public sealed class GameSessions(ActionEngine engine,Journal journal,DocumentSto
         {
             return await RestoreCore(session with{Message="Profile failed: "+e.Message},CancellationToken.None);
         }
+    }
+    public GamingSession AttachProcess(string sessionId,GameProcessIdentity identity)
+    {
+        if(identity is null||identity.ProcessId<=0||identity.StartTimeUtcTicks<=0)throw new HbxException("HBX-GAME-0013: Game process identity is invalid.");
+        using var gate=Lock();var session=Current??throw new HbxException("HBX-GAME-0010: No gaming session exists.");
+        if(session.Id!=sessionId||session.Status!="Active")throw new HbxException("HBX-GAME-0014: Process identity does not belong to the active gaming session.");
+        if(session.ProcessId is not null&&(session.ProcessId!=identity.ProcessId||session.ProcessStartTimeUtcTicks!=identity.StartTimeUtcTicks))
+            throw new HbxException("HBX-GAME-0015: A different process is already attached to this gaming session.");
+        if(!new GameLibrary(store).List().Any(game=>game.Id==session.GameId))throw new HbxException("HBX-GAME-0006: Game no longer exists in the library.");
+        session=session with{ProcessId=identity.ProcessId,ProcessStartTimeUtcTicks=identity.StartTimeUtcTicks,Message="Profile applied. The exact game process is monitored for automatic restore."};
+        Save(session);return session;
     }
     public async Task<GamingSession> RestoreAsync(bool consent,CancellationToken token)
     {

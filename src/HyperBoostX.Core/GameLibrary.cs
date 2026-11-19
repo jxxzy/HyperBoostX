@@ -1,6 +1,6 @@
 namespace HyperBoostX.Core;
 
-public sealed record GameProfile(string? PowerPlan=null,bool DisableCapture=false,bool DisableTransparency=false);
+public sealed record GameProfile(string? PowerPlan=null,bool DisableCapture=false,bool DisableTransparency=false,bool RaisePriority=false);
 public sealed record GameEntry(string Id,string Name,string Executable,GameProfile Profile,DateTimeOffset AddedAt)
 {
     public override string ToString()=>Name;

@@ -12,6 +12,10 @@ public sealed record TelemetrySample(DateTimeOffset ObservedAt,double? CpuPercen
     public int? CpuWin32Error{get;init;}
     public MeasurementAvailability NetworkAvailability{get;init;}=MeasurementAvailability.Sampling;
     public int NetworkFailureCount{get;init;}
+    public ulong? CommitUsedBytes{get;init;}
+    public ulong? CommitLimitBytes{get;init;}
+    public MeasurementAvailability CommitAvailability{get;init;}=MeasurementAvailability.Unavailable;
+    public int? CommitWin32Error{get;init;}
     public double MemoryPercent=>TotalMemory==0?0:100d*(TotalMemory-AvailableMemory)/TotalMemory;
 }
 public sealed class Telemetry
@@ -19,6 +23,11 @@ public sealed class Telemetry
     private (ulong Idle,ulong Kernel,ulong User)? _cpu;
     private readonly Dictionary<string,(long Received,long Sent)> _network=[];
     private long _tick;
+    public static (ulong UsedBytes,ulong LimitBytes) ConvertCommitPages(ulong usedPages,ulong limitPages,ulong pageSizeBytes)
+    {
+        if(pageSizeBytes==0)throw new ArgumentOutOfRangeException(nameof(pageSizeBytes));
+        return(checked(usedPages*pageSizeBytes),checked(limitPages*pageSizeBytes));
+    }
     public static double? CpuUsage((ulong Idle,ulong Kernel,ulong User) before,(ulong Idle,ulong Kernel,ulong User) after)
     {
         if(after.Kernel<before.Kernel||after.User<before.User||after.Idle<before.Idle)return null;
@@ -57,12 +66,35 @@ public sealed class Telemetry
             ?MeasurementAvailability.Limited
             :seen.Count==0?MeasurementAvailability.Unavailable
             :sampled>0?MeasurementAvailability.Available:MeasurementAvailability.Sampling;
+        var commit=ReadCommitUsage(out var commitWin32Error);
         return new TelemetrySample(DateTimeOffset.UtcNow,usage,memory.TotalPhysical,memory.AvailablePhysical,seconds>0&&sampled>0?receive/seconds:null,seconds>0&&sampled>0?send/seconds:null,Environment.TickCount64,
             failures>0?$"Limited: {failures} adapter(s) unavailable":seen.Count==0?"No active supported adapter":"Active interfaces; aggregate traffic may include virtual adapters")
-        {CpuAvailability=cpuAvailability,CpuWin32Error=cpuWin32Error,NetworkAvailability=networkAvailability,NetworkFailureCount=failures};
+        {CpuAvailability=cpuAvailability,CpuWin32Error=cpuWin32Error,NetworkAvailability=networkAvailability,NetworkFailureCount=failures,
+            CommitUsedBytes=commit?.UsedBytes,CommitLimitBytes=commit?.LimitBytes,CommitAvailability=commit is null?MeasurementAvailability.Unavailable:MeasurementAvailability.Available,CommitWin32Error=commitWin32Error};
     }
+    private static CommitUsage? ReadCommitUsage(out int? win32Error)
+    {
+        var info=new PerformanceInformation{Size=(uint)Marshal.SizeOf<PerformanceInformation>()};
+        if(!GetPerformanceInfo(ref info,info.Size)){win32Error=Marshal.GetLastWin32Error();return null;}
+        win32Error=null;
+        try
+        {
+            var bytes=ConvertCommitPages((ulong)info.CommitTotal,(ulong)info.CommitLimit,(ulong)info.PageSize);
+            return new CommitUsage(bytes.UsedBytes,bytes.LimitBytes);
+        }
+        catch(ArgumentOutOfRangeException){return null;}
+        catch(OverflowException){return null;}
+    }
+    public sealed record CommitUsage(ulong UsedBytes,ulong LimitBytes);
     [StructLayout(LayoutKind.Sequential)]private struct FileTime{public uint Low,High;public readonly ulong Value=>((ulong)High<<32)|Low;}
     [StructLayout(LayoutKind.Sequential)]private struct MemoryStatus{public uint Length,Load;public ulong TotalPhysical,AvailablePhysical,TotalPageFile,AvailablePageFile,TotalVirtual,AvailableVirtual,AvailableExtended;}
+    [StructLayout(LayoutKind.Sequential)]private struct PerformanceInformation
+    {
+        public uint Size;
+        public nuint CommitTotal,CommitLimit,CommitPeak,PhysicalTotal,PhysicalAvailable,SystemCache,KernelTotal,KernelPaged,KernelNonpaged,PageSize;
+        public uint HandleCount,ProcessCount,ThreadCount;
+    }
     [DllImport("kernel32.dll",SetLastError=true)][return:MarshalAs(UnmanagedType.Bool)]private static extern bool GetSystemTimes(out FileTime idle,out FileTime kernel,out FileTime user);
     [DllImport("kernel32.dll",SetLastError=true)][return:MarshalAs(UnmanagedType.Bool)]private static extern bool GlobalMemoryStatusEx(ref MemoryStatus status);
+    [DllImport("psapi.dll",SetLastError=true)][return:MarshalAs(UnmanagedType.Bool)]private static extern bool GetPerformanceInfo(ref PerformanceInformation info,uint size);
 }

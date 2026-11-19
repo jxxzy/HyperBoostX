@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO.Pipes;
 using System.Security.Cryptography;
 using System.Security.Principal;
+using System.Text.Json;
 using HyperBoostX.Core;
 
 namespace HyperBoostX.Windows;
@@ -16,8 +17,6 @@ public sealed class PrivilegedWorkerClient:IAsyncDisposable
     private readonly string _userSid;
     private readonly SemaphoreSlim _requestLock=new(1,1);
     private bool _disposed;
-    private bool _faulted;
-    private static readonly TimeSpan RequestTimeout=TimeSpan.FromSeconds(15);
 
     private PrivilegedWorkerClient(Process process,NamedPipeClientStream pipe,byte[] sessionKey,int sessionId,string userSid)
     {_process=process;_pipe=pipe;_sessionKey=sessionKey;_sessionId=sessionId;_userSid=userSid;}
@@ -66,38 +65,32 @@ public sealed class PrivilegedWorkerClient:IAsyncDisposable
         await _requestLock.WaitAsync(token);
         try
         {
-            if(_faulted)throw new HbxException("HBX-WORKER-FAULTED: IPC exchange failed; start a new worker.");
             if(_process.HasExited)throw new HbxException($"HBX-WORKER-EXIT: Worker exited with code {_process.ExitCode}.");
             var request=new PrivilegedRequestEnvelope(PrivilegedRequestValidator.ProtocolVersion,Guid.NewGuid().ToString("D"),actionId,target,body,Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)),DateTimeOffset.UtcNow.ToUnixTimeSeconds(),_sessionId,_userSid,"");
             request=request with{AuthenticationTag=PrivilegedRequestValidator.Sign(request,_sessionKey)};
-            token.ThrowIfCancellationRequested();
-            using var timeout=CancellationTokenSource.CreateLinkedTokenSource(token);
-            timeout.CancelAfter(RequestTimeout);
-            try
-            {
-                await PrivilegedFrameCodec.WriteAsync(_pipe,request,timeout.Token);
-                var response=await PrivilegedFrameCodec.ReadResponseAsync(_pipe,timeout.Token);
-                var validation=PrivilegedResponseAuthenticator.Validate(response,request.RequestId,request.Nonce,_sessionKey);
-                if(!validation.Accepted)throw new HbxException($"{validation.Code}: {validation.Message}");
-                return response;
-            }
-            catch(Exception)
-            {
-                // Partial frames or late responses cannot safely be reused or retried.
-                _faulted=true;
-                _pipe.Dispose();
-                throw;
-            }
+            await PrivilegedFrameCodec.WriteAsync(_pipe,request,token);var response=await PrivilegedFrameCodec.ReadResponseAsync(_pipe,token);
+            var validation=PrivilegedResponseAuthenticator.Validate(response,request.RequestId,request.Nonce,_sessionKey);
+            if(!validation.Accepted)throw new HbxException($"{validation.Code}: {validation.Message}");
+            return response;
         }
         finally{_requestLock.Release();}
     }
+
+    public Task<PrivilegedResponseEnvelope> PreviewActionAsync(string actionId,string target,CancellationToken token)=>
+        SendAsync("action.preview","",JsonSerializer.Serialize(new WorkerPreviewRequest(actionId,target)),token);
+    public Task<PrivilegedResponseEnvelope> ApplyActionAsync(string previewToken,bool approved,string? session,CancellationToken token)=>
+        SendAsync("action.apply","",JsonSerializer.Serialize(new WorkerApplyRequest(previewToken,approved,session)),token);
+    public Task<PrivilegedResponseEnvelope> VerifyActionAsync(string changeId,bool approved,CancellationToken token)=>
+        SendAsync("action.verify","",JsonSerializer.Serialize(new WorkerChangeRequest(changeId,approved)),token);
+    public Task<PrivilegedResponseEnvelope> RollbackActionAsync(string changeId,bool approved,CancellationToken token)=>
+        SendAsync("action.rollback","",JsonSerializer.Serialize(new WorkerChangeRequest(changeId,approved)),token);
 
     public async ValueTask DisposeAsync()
     {
         if(_disposed)return;
         try
         {
-            if(!_faulted&&_pipe.IsConnected&&!_process.HasExited)
+            if(_pipe.IsConnected&&!_process.HasExited)
             {
                 using var timeout=new CancellationTokenSource(TimeSpan.FromSeconds(3));
                 try{await SendAsync("worker.shutdown","","{}",timeout.Token);await _process.WaitForExitAsync(timeout.Token);}catch{}

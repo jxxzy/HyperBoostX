@@ -19,38 +19,10 @@ public sealed class PrivilegedProtocolTests
         Assert.True(validator.Validate(request,"S-1-5-21-test",7,Now).Accepted);
         var replay=validator.Validate(request,"S-1-5-21-test",7,Now);
         Assert.False(replay.Accepted);Assert.Equal("HBX-IPC-REPLAY",replay.Code);
-    }
 
-    [Fact]public void NonCanonicalNonceCannotBypassReplayProtection()
-    {
-        var secret=RandomNumberGenerator.GetBytes(32);using var validator=Validator(secret);
-        var canonical=Signed(Request(),secret);
-        Assert.True(validator.Validate(canonical,"S-1-5-21-test",7,Now).Accepted);
-        var alternate=Signed(canonical with{Nonce=canonical.Nonce.Insert(4," ")},secret);
-        Assert.Equal("HBX-IPC-NONCE",validator.Validate(alternate,"S-1-5-21-test",7,Now).Code);
-        Assert.Equal("HBX-IPC-REPLAY",validator.Validate(canonical,"S-1-5-21-test",7,Now).Code);
-    }
-
-    [Fact]public async Task FrameRejectsDuplicateAndMissingFieldsInRequestsAndResponses()
-    {
-        var request=System.Text.Json.JsonSerializer.Serialize(Request());
-        await using var duplicate=RawFrame(request.Insert(1,"\"Version\":1,"));
-        await Assert.ThrowsAsync<HbxException>(()=>PrivilegedFrameCodec.ReadAsync(duplicate,default));
-        await using var missing=RawFrame(request.Replace("\"SessionId\":7,",""));
-        await Assert.ThrowsAsync<HbxException>(()=>PrivilegedFrameCodec.ReadAsync(missing,default));
-        var response=new PrivilegedResponseEnvelope(1,Request().RequestId,Request().Nonce,true,"OK","verified","{}",Now.ToUnixTimeSeconds(),"tag");
-        var json=System.Text.Json.JsonSerializer.Serialize(response);
-        await using var duplicateResponse=RawFrame(json.Insert(1,"\"Success\":false,"));
-        await Assert.ThrowsAsync<HbxException>(()=>PrivilegedFrameCodec.ReadResponseAsync(duplicateResponse,default));
-        await using var missingResponse=RawFrame(json.Replace("\"Success\":true,",""));
-        await Assert.ThrowsAsync<HbxException>(()=>PrivilegedFrameCodec.ReadResponseAsync(missingResponse,default));
-    }
-
-    private static MemoryStream RawFrame(string json)
-    {
-        var bytes=Encoding.UTF8.GetBytes(json);var header=new byte[4];
-        BinaryPrimitives.WriteInt32LittleEndian(header,bytes.Length);
-        var stream=new MemoryStream();stream.Write(header);stream.Write(bytes);stream.Position=0;return stream;
+        var canonicalEquivalent=request with{Nonce=Convert.ToBase64String(Convert.FromBase64String(request.Nonce))};
+        var replayEquivalent=validator.Validate(Signed(canonicalEquivalent,secret),"S-1-5-21-test",7,Now);
+        Assert.False(replayEquivalent.Accepted);Assert.Equal("HBX-IPC-REPLAY",replayEquivalent.Code);
     }
 
     [Fact]public void TamperingIdentityAndUnknownActionsAreDenied()

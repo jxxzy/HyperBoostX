@@ -1,12 +1,208 @@
 # HyperBoostX V3 development checkpoint
 
-Updated: 2026-11-16 (Asia/Jakarta). Active requirements: `docs/MASTER_DEVELOPMENT_TASK.md`.
+Updated: 2026-11-18 (Asia/Jakarta). Active requirements: `docs/MASTER_DEVELOPMENT_TASK.md`.
 
-Latest continuation: implemented and UI-smoke-verified per-user single-instance activation: a second launch against the same isolated data directory restores the existing minimized window, while a distinct data directory runs an independent instance. Added a narrow shutdown-race guard to activation dispatch. The supplied technical reference matrix is checked into `docs/registry/technical-reference-matrix.json`; the canonical generator registers all 365 assignments across 73 menus and 158 distinct URLs (109 source-tagged web-confirmed; 49 candidate-direct-link). All 158 distinct URLs received limited source-level checks; five supplied URLs returned 404, with alternatives identified for three, and one vendor page returned 403. These checks do not establish API/license/platform compatibility. Added `docs/SECURITY_THREAT_MODEL.md`, a source-grounded description of the current asInvoker/in-process boundary, threats, required broker protocol, and isolated test gates. It does not claim that a privileged worker, authenticated IPC, or security audit exists. The generator records the threat-model document as verified, privilege separation as partial, and privileged IPC as unsupported. Current matrix: 4,039 requirements; 4,022 mandatory items remain unverified. Stable remains blocked. The persistent ordered backlog is `docs/registry/development-backlog.json`.
+## Latest continuation (2026-11-18) — command palette and worker boundary
+
+- The native WPF command palette is now reachable from Ctrl+K and the search button, searches the full 73-route catalog, selects a result, and performs native route navigation. The UI Automation smoke exercised opening, filtering for and selecting `Network Profiles`, navigation, and closure.
+- Updated command-palette presentation toward gallery reference 81 (centered dialog, localized search hint, grouped rounded route cards, close action) and added mouse/keyboard (Ctrl+K, Escape, Enter) UI assertions. Packaged smoke passed **73/73 routes**, settings workflows, duplicate-instance workflows, and authenticated worker power inspection. Screenshot: `artifacts\ui-final-smoke-f4df27a092c14a6dbf9f5e2ff3ed9093\command-palette.png`. Exact theme/layout parity remains partial.
+- Full command `dotnet test HyperBoostX.sln -c Release --no-restore --nologo` passed **253/253**. `scripts\package.ps1` rebuilt the self-contained x64 app, CLI, worker, unsigned setup and portable ZIP; its test gate also passed **253/253**. PowerShell syntax and six locale-key consistency checks passed.
+- Package hashes were checked against `dist\SHA256SUMS.txt`: setup `F8143A1033AD5DCAAF65DDE88A330C67DF9BCA9F38B4907578F8D8EF6EF09188`; portable ZIP `5EDAD07CA5D50297BB5766C26DA8A1F69F05D4E2B2E3C5F4AA5F7CAE470D813A`.
+- Updated traceability for the verified command-palette workflow; exact visual matching to gallery reference 81 remains partial and is not claimed complete.
+- Elevated worker dispatch remains restricted to elevation-required actions, with a test that rejects a non-elevated action. Packaged Test Center ran authenticated read-only worker health/power inspection; cross-elevation/UAC and mutation-recovery acceptance remain unverified because no disposable Windows VM is available.
+- `python scripts\validate_stable_gate.py` remains failed: **3,935 mandatory requirements** are not `IMPLEMENTED_VERIFIED` (3,831 NOT_STARTED, 38 PARTIAL_VERIFIED, 2 SKIPPED, 56 UI_BOUND_NOT_FEATURE_VERIFIED, 8 UNSUPPORTED). Stable is not inferred from build or route smoke.
+
+## Latest continuation (2026-11-18) — authenticated worker power inspection and gaming discovery
+
+- Implemented `worker.power.inspect` in the authenticated, SID/PID/session-bound HyperBoostX worker. The action is read-only and returns the active plan ID, plan count, and whether the active plan was enumerated through the existing `PowerAction`/PowrProf provider. It rejects unexpected targets through the existing strict IPC payload validator.
+- Added a Windows fixture/live integration test named `WorkerPowerInspectUsesLiveWindowsStateAndRejectsUnexpectedTarget`. Exact focused verification passed 1/1. The worker Release build passed with 0 warnings and 0 errors.
+- Full solution verification passed **251/251** tests, 0 failed.
+- No power plan or Windows configuration was changed. No arbitrary shell or registry command was exposed.
+- Added bounded installed-game discovery for Steam registry/manifests and Epic manifests. Candidates require explicit registration and executable validation; no auto-launch or Windows profile mutation occurs during discovery.
+- Updated Per-Game Profile traceability to distinguish implemented profile editor/import/export/history behavior from `NOT_IMPLEMENTED` auto-apply and live game acceptance that remains outstanding.
+- `python scripts\validate_stable_gate.py` remains failed: **3,938 mandatory requirements** are not `IMPLEMENTED_VERIFIED` (3,835 NOT_STARTED, 37 PARTIAL_VERIFIED, 2 SKIPPED, 56 UI_BOUND_NOT_FEATURE_VERIFIED, 8 UNSUPPORTED).
+- Next concrete step: package and run the worker/app bundle, then continue the privileged mutation/recovery VM gate and route-specific implementation. Stable remains blocked.
+
+## Current package verification (2026-11-18)
+
+- `scripts\package.ps1` passed and rebuilt the complete win-x64 publish, CLI, worker, unsigned setup, portable ZIP and checksum manifest.
+- Full test suite inside the package gate: **251/251 passed**.
+- Packaged UI smoke passed **73/73 reference routes**, settings export/import/reset persistence and duplicate-instance activation workflows.
+- Smoke evidence: `artifacts\ui-current-package-smoke\`, including `ui-navigation.json`.
+- Setup SHA-256: `2DBA3461DAA2FB3194C6A77EDE9E287A7A2546EB52C832631DC00C17D1B3DB91`.
+- Portable SHA-256: `F7BDA0BBD0F32AE5DC7C728A9E72DFC22F7FD13FF6CCD88F33AF79104E77399A`.
+- Installer is unsigned and was not executed. Stable remains blocked until the mandatory VM, signing, installer lifecycle and remaining provider gates have evidence.
+
+## Stable continuation checkpoint (2026-11-18)
+
+- Added `worker.power.inspect` to the non-elevated, authenticated worker IPC and Test Center.
+- Focused worker/Test Center verification passed **2/2**.
+- Full solution suite passed **251/251**.
+- Final package rebuild passed; full suite and complete app/worker/CLI publish were rebuilt.
+- Final package UI smoke passed **73/73 routes**, settings workflows and duplicate-instance workflows.
+- Final setup SHA-256: `F21218DA80474E76E24DE2AED1526131BC39975A5ED904F5DA2C3AFFCA11326C`.
+- Final portable SHA-256: `5961B0BD01D31A46309F24046B7DB5615674F3F2C1C663443865E753450A0FC8`.
+- Smoke evidence: `artifacts\ui-final-package-smoke\`.
+- Stable gate command `python scripts\validate_stable_gate.py` remains failed: **3,938 mandatory requirements** are not `IMPLEMENTED_VERIFIED`.
+- Disposable VM tooling is unavailable: Hyper-V command modules, VirtualBox and VMware executables were not detected. Elevated mutation, UAC cancellation, cross-elevation attack, reboot/crash rollback and installer lifecycle acceptance remain NOT RUN/BLOCKED.
+- Installer remains unsigned. No signing certificate or publisher signature is available.
+- Next concrete implementation blocker: provide/attach a disposable Windows VM and authorized signing certificate, then run mutation, rollback, reboot, installer and release provenance gates.
+
+## Final end-to-end build checkpoint (2026-11-18)
+
+- `scripts\package.ps1` rebuilt tests, App, CLI, Worker, x64 installer and portable ZIP successfully.
+- Full solution tests passed **251/251**.
+- Final packaged UI smoke passed **73/73 routes**, settings export/import/reset persistence, and duplicate-instance workflows.
+- Evidence: `artifacts\ui-end-to-end-final-smoke\`.
+- Final setup SHA-256: `0451C7D191CC6DDD7C3255B808D9F1C1591632A6D7F65679E9504F03EEF5212D`.
+- Final portable SHA-256: `151F9B19FA6B740992B882131A5DDD7AF5318E62C6DFF36F3812C4DA2FE552D0`.
+- `python scripts\validate_stable_gate.py` remains failed with **3,938 mandatory requirements** not `IMPLEMENTED_VERIFIED`.
+- Remaining external blockers: disposable Windows VM, signing certificate, hardware matrix, live mutation/rollback acceptance and installer lifecycle evidence.
+
+## 4056-requirement continuation (2026-11-18)
+
+- Created bounded external recovery snapshot: `H:\HyperBoostX-V3-recovery-20261118-122544`.
+- Preserved source, tests, scripts, documentation, registry and final distribution files only; bulky build directories and generated artifacts were excluded.
+- Baseline tests remain the latest complete source gate: **251/251 passed**.
+- Baseline packaged UI remains **73/73 routes passed**.
+- Exact Stable gate remains **FAILED** with 3,938 of 4,056 mandatory requirements not `IMPLEMENTED_VERIFIED`.
+- VM tooling and signing certificate are external blockers. Hardware-only and dangerous provider implementations will remain unsupported rather than fabricated.
+
+## Latest continuation (2026-11-18) — recovery-copy integrity and full UI verification
+
+- Verified the recovery copy at `H:\HYPERBOOSTX V3`. The workspace has no `.git` metadata, so Git status/diff, branch, remote, and commit recovery are unavailable; no Undo, discard, restore, or source overwrite was used. The requested UI, ViewModel, tests, smoke script, six locale JSON files, canonical `docs\registry\development-backlog.json`, traceability, progress, and release files exist on disk.
+- `ShellViewModel.cs` has 825 newline-terminated physical lines and 826 logical/editor display lines including its trailing empty line. PowerShell's `Measure-Object -Line` counted 822 nonblank lines. This explains the reported 826/822 difference; it is not evidence that four source lines are missing.
+- Read-only consistency checks passed: 19 source/registry JSON files parsed; all six localization packs contain the same 269 keys with no missing/extra keys; `navigation.json` contains 73 routes / 376 capability entries; `ui-smoke.ps1` parsed without syntax errors. The Per-Game Profiles bindings and disclosure state remain in `GameProfilesPanel.xaml`, `ShellViewModel.cs`, and `MainWindow.xaml`.
+- Exact test command: `dotnet test tests\HyperBoostX.Tests\HyperBoostX.Tests.csproj -c Release --no-restore --nologo` — **249/249 passed**, 0 failed. The focused ShellTests/all-page render filter also passed **45/45**.
+- The first `dotnet publish ... --no-restore` attempt reported NETSDK1047 because the recovery copy's assets lacked the `win-x64` target. Restored the App and Worker projects for `win-x64`, then published the App to `artifacts\recovery-verified\app` and Worker to `artifacts\recovery-verified\worker`; both publishes passed. The original app-only publish output was preserved.
+- Packaged Per-Game Profiles smoke passed. Full smoke initially exposed that the app-only publish has no adjacent worker executable; a first merged test bundle overwrote WPF runtime dependencies and did not start, so it was not used. A separate staging folder was made from the app publish and only the four worker entrypoint files were added, preserving the app DLL and runtime dependencies. Exact full-smoke command: `.\scripts\ui-smoke.ps1 -Executable .\artifacts\recovery-verified\full-app-merge\HyperBoostX.exe -DataDirectory .\artifacts\recovery-verified\all-routes-data -OutputDirectory .\artifacts\recovery-verified\all-routes-smoke -TimeoutSeconds 30` — **passed all 73 routes**, exit code 0. Evidence in `artifacts\recovery-verified\all-routes-smoke\`, including `ui-navigation.json`, `domain-page-evidence.json`, and route screenshots. Settings import/export/reset, persistence, and single-instance scenarios were included by the script. No Windows configuration was changed.
+- `python scripts\validate_stable_gate.py` correctly remains failed: **3,941 mandatory requirements** are not `IMPLEMENTED_VERIFIED` (3,840 NOT_STARTED, 33 PARTIAL_VERIFIED, 2 SKIPPED, 58 UI_BOUND_NOT_FEATURE_VERIFIED, 8 UNSUPPORTED). The installer/portable ZIP in `dist` were not rebuilt and Stable is not claimed.
+- Next: continue UI-first work from `docs\registry\development-backlog.json`; the Per-Game Profiles workspace now has route-specific visual evidence and full-navigation coverage, while broader prototype parity and legacy/backend requirements remain open.
+
+## Latest continuation (2026-11-18) — Per-Game Profiles prototype workspace parity
+
+- Extended the native Per-Game Profiles workspace with the prototype's six capability cards and right-side Action Safety / Module Contract panels. The cards use actual implementation status and localized limitation details; unavailable auto-apply remains explicitly unavailable, and no demo profiles or sample history were added.
+- Verified the XAML and localization bindings with `dotnet test tests\HyperBoostX.Tests\HyperBoostX.Tests.csproj -c Release --no-restore --nologo --filter "FullyQualifiedName~ShellTests|FullyQualifiedName~AllPagesRenderWithoutBindingErrors"` — passed **45/45** (44 ShellTests and 1 all-page render/binding test).
+- Published the current Windows UI with `dotnet publish src\HyperBoostX.App\HyperBoostX.App.csproj -c Release -r win-x64 --self-contained true --no-restore --nologo -o artifacts\ui-profile-capability-grid-check\app` — passed.
+- Packaged UI Automation command: `& .\scripts\ui-smoke.ps1 -Executable .\artifacts\ui-profile-capability-grid-check\app\HyperBoostX.exe -DataDirectory .\artifacts\ui-profile-capability-grid-check\data -OutputDirectory .\artifacts\ui-profile-capability-grid-check\smoke -OnlyRoute 'Per-Game Profiles'` — passed. It verified that the capability workspace, all six capability cards, Action Safety, Module Contract, profile empty state, and profile controls are present and visible. Screenshot: `artifacts\ui-profile-capability-grid-check\smoke\per-game-profiles.png`.
+- Compared the native screenshot with the current deployed Per-Game Profiles prototype at a 1440×900 viewport. The capability-grid / side-rail composition is represented natively; this is a route-specific visual check, not full prototype parity. Full 73-route UI smoke and Stable gates remain outstanding.
+
+## Latest continuation (2026-11-18) — deployed prototype capability refresh and profile empty state
+
+- Rechecked the live prototype at `https://nexoraid-id.github.io/hyperboostx-v3-prototype/` and its deployed `data/catalog.json` using GitHub Pages and the public prototype repository. The current catalog contains 73 routes and **376** capability entries, not the addendum's historical 371 and not the earlier browser extraction of 372. Catalog SHA-256: `d785acfabee0016fb6b714802cdf3737e098375c244334cbecbd47135b73d055`. The prototype still marks itself `demoOnly`; its demo buttons are not evidence of real Windows operations.
+- Compared all native route feature arrays against the live catalog. Synced the five net-new entries and removed the stale `Audio endpoints` label: `Advanced Mic Mixer`, `Voicemeeter`, `Camera tracking`, `Defender Scan Guard`, `System Reality Guard`, and `Protected Apps`. Updated the feature inventory and traceability registry to 376 entries / 4,056 requirements, preserving the original 371-entry addendum baseline as a separate field. The capability-specific controls remain explicitly unavailable; no prototype demo behavior was copied.
+- Refined Per-Game Profiles to render an intentional empty-state card and a real register-game command instead of a blank list plus detached status text. No sample profiles or fabricated records were added. Security Health retains its verified read-only implementation status while showing the unavailable Defender Scan Guard disclosure.
+- Added catalog and disclosure assertions. Exact commands/results:
+  - `dotnet test tests\HyperBoostX.Tests\HyperBoostX.Tests.csproj -c Release --no-restore --nologo --filter "FullyQualifiedName~ShellTests"` — passed **44/44**.
+  - `dotnet test tests\HyperBoostX.Tests\HyperBoostX.Tests.csproj -c Release --no-restore --nologo --filter "FullyQualifiedName~AllPagesRenderWithoutBindingErrors"` — passed **1/1**.
+  - `dotnet publish src\HyperBoostX.App\HyperBoostX.App.csproj -c Release -r win-x64 --self-contained true --no-restore --nologo -o artifacts\ui-per-game-empty-state-check\app` — passed.
+  - `.\scripts\ui-smoke.ps1 -Executable .\artifacts\ui-per-game-empty-state-check\app\HyperBoostX.exe -DataDirectory .\artifacts\ui-prototype-current-capability-smoke\per-game-profiles\data -OutputDirectory .\artifacts\ui-prototype-current-capability-smoke\per-game-profiles\smoke -OnlyRoute 'Per-Game Profiles'` — passed.
+  - `$exe=Join-Path $PWD 'artifacts\ui-per-game-empty-state-check\app\HyperBoostX.exe'; $base=Join-Path $PWD 'artifacts\ui-prototype-current-capability-smoke'; $routes=@('Audio & DJ Performance','Webcam Diagnostics','Security Health','Trust Center'); foreach($route in $routes){$key=($route -replace '[^A-Za-z0-9]+','-').Trim('-').ToLowerInvariant(); $data=Join-Path $base (Join-Path $key 'data'); $output=Join-Path $base (Join-Path $key 'smoke'); & .\scripts\ui-smoke.ps1 -Executable $exe -DataDirectory $data -OutputDirectory $output -OnlyRoute $route}` — all four routes passed.
+- The first Security Health smoke exposed that its limitation card was hidden on an implemented route; the disclosure binding was corrected without downgrading the actual read-only route, then all four module smokes passed. No Windows configuration was changed.
+- Full 73-route UI smoke was not rerun in this batch. The latest full smoke from the prior checkpoint still failed at Windows Services because the scan/filter produced no visible inventory rows. The setup installer/portable ZIP in `dist` were not rebuilt by this targeted publish and must not be treated as containing these changes. Workspace still has no `.git` metadata, so no commit was made. Stable remains blocked.
+- Next concrete step: investigate the Windows Services smoke failure, then continue route-specific UI parity and update the full packaged smoke/package evidence against the current deployed catalog.
+
+## Latest continuation (2026-11-18) — GPU Center
+
+- Added a dedicated GPU Center workspace with Workspace, Evidence, History and Help tabs, live-telemetry-unavailable cards, Windows-reported adapter and driver-version summaries, and an adapter-name filter. All values remain read-only; the vendor filter searches reported adapter names and does not claim vendor detection or change graphics settings.
+- Reused the existing WMI `Win32_VideoController` provider. Its GPU scan now retains the adapter `Name` alongside the existing driver/display properties; `AdapterRAM` remains explicitly excluded as a modern VRAM measurement. GPU utilization, VRAM, clock, temperature, hybrid-graphics switching, driver health/update and vendor controls are NOT_IMPLEMENTED without validated providers.
+- Added six-language strings, a focused ViewModel test covering fixture-backed NVIDIA/AMD/Intel name and driver filtering, and GPU-specific packaged UI Automation for the actual read-only scan, evidence, and history.
+- Exact verification: `dotnet test HyperBoostX.sln -c Release --no-restore --nologo` and `.\scripts\package.ps1` passed 246/246. The packaged UI smoke reached GPU Center, scanned 10 WMI observations on this host, rendered the NVIDIA GeForce RTX 3090 Ti and Windows-reported driver version 32.0.16.2114, and passed the GPU evidence/history checks. The overall smoke later failed at the existing File Analysis duplicate/large-file fixture assertion (0/2 expected rows); it is not reported as a full UI-smoke pass. No Windows configuration changed. Screenshot: `artifacts/ui-gpu-center-verified/gpu-center.png`.
+- The package checksum manifest was matched to the published files: setup `2595E9AEE4A642481FA384DDC108B7C82F7C8BD1158B94ED44C1D6E08D269400`; portable `20DEBE96AB257649F56AEB8E77781833119771A1A5BFEFD8469E606BD8B9A7E9`. Installer Authenticode is `NotSigned`; it was not run. Stable remains blocked.
+- Next UI-first batch: Gaming Profiles. GPU sensors, hybrid graphics, vendor-specific controls and side-by-side prototype parity remain unfinished.
+
+## Previous continuation (2026-11-18) — CPU & RAM Optimization Center
+
+- Added a route-specific native WPF workspace for CPU Optimization based on the prototype structure: Workspace, Evidence, History, and Help tabs; live CPU usage, physical memory, commit charge, uptime, a CPU activity chart, and logical processor count. The current clock and temperature values are explicitly unavailable because no validated sensor provider is wired.
+- The CPU route now continues the existing real telemetry sampler. `Analyze CPU` runs the existing bounded two-observation process inventory, records measured per-process CPU and working set where permissions allow, and persists the report for the Evidence and History tabs. This remains read-only; the latest isolated UI smoke displayed 187 observations and changed no Windows settings.
+- Reused the persisted Memory Guard controls in this center. It only issues local threshold/cooldown alerts; it never purges memory or terminates processes. Generic CPU priority, affinity, and processor power-policy changes remain `NOT_IMPLEMENTED`; the UI offers a navigation handoff to the supported per-game priority workflow in Game Library.
+- Added focused route and localization assertions for all six languages. `dotnet test HyperBoostX.sln -c Release --no-restore --nologo` and `.\scripts\package.ps1` passed 245/245. The published UI smoke passed all 73 routes and exercised CPU telemetry display, policy limitations, Memory Guard toggling, a real read-only process scan, and persisted evidence/history. Evidence and 1440×900 screenshot: `artifacts/ui-cpu-optimization-final-03`.
+- The prototype and native page were visually inspected, but no side-by-side pixel-parity measurement was performed. Full processor-group/core topology, CPU clock/temperature, general priority/affinity/power-policy workflows, and the broader remaining UI are unfinished. No Windows mutation or privileged action was run; Stable remains blocked.
+- Next UI-first batch at that checkpoint: GPU Diagnostics; this was completed as a partial read-only surface above. Revisit CPU policy controls only when safe providers and rollback behavior are verified.
+
+## Earlier continuation (2026-11-18) — Smart Scan and One Click Boost native UI
+
+- Implemented dedicated WPF/MVVM panels for Smart Scan and One Click Boost rather than sending both routes through the shared diagnostic layout. Smart Scan now has Quick, Deep, Gaming, and Hardware scope selectors, explicit disabled Privacy and Driver scopes, workspace/evidence/history/method tabs, read-only progress/status, optional recommendation controls, and saved Smart Scan history. The `ScanCommand` combines selected native diagnostic providers and records a single report; no Windows setting is changed by a scan.
+- One Click Boost now explains the supported scope and shows Safe/Gaming as limited plus Low-End/Creator/Custom as unavailable. Registered actions remain individually selected and reviewed by the existing preview/consent/backup/apply/read-back/recovery lifecycle. Automatic multi-action boost remains explicitly `NOT_IMPLEMENTED`; no boost profile is presented as complete.
+- Added all new UI strings to the six existing language packs. Added focused ViewModel tests for scope gating, localization, saved scan evidence, and truthful One Click action availability. Updated `scripts/ui-smoke.ps1` to exercise scope toggling, verify unsupported scopes are disabled, run an actual read-only Smart Scan, and verify its evidence/history and One Click action-review surface.
+- Exact verification: `dotnet test HyperBoostX.sln -c Release --no-restore --nologo` passed 244/244 after the final test changes; `.\scripts\package.ps1` passed 244/244 and rebuilt the win-x64 desktop, unsigned installer, portable ZIP, and checksum manifest. Final packaged UI smoke passed all 73 navigation routes, settings/single-instance workflows, Smart Scan/One Click checks, and confirmed both unsupported Privacy and Drivers scopes are disabled. The host Smart Scan returned 62 observations and 1 optional recommendation; the report stated no Windows settings changed. Evidence/screenshots: `artifacts/ui-smartscan-final`.
+- `scripts/generate_traceability.py` now accepts `HBX_PROTOTYPE_DIR` for the supplied prototype checkout, avoids writing its absolute local path into the registry, preserves previously curated evidence, and records this batch. The regenerated registry confirms 73 routes, 371 subfeatures, 606 legacy actions, and 4,051 requirements; 115 are `IMPLEMENTED_VERIFIED`, 23 `PARTIAL_VERIFIED`, 8 `UNSUPPORTED`, and 3,936 mandatory requirements are not yet `IMPLEMENTED_VERIFIED`.
+- The native screenshots were inspected at 1440×900, but no side-by-side prototype pixel/parity assessment was performed. Privacy/Driver providers, Gaming/Hardware end-to-end scope execution, multi-action One Click plans, Low-End/Creator/Custom plans, and the wider UI remain unfinished. No Windows mutation or privileged action was run. The installer remains unsigned and was not executed; Stable remains blocked. Workspace has no Git metadata, so no commit can be made.
+- Next concrete implementation step at that checkpoint: CPU & RAM Optimization Center; completed in the continuation above. Continue Gaming Profiles and remaining route-specific UI with honest provider states before broad backend migration resumes.
+
+## Earlier continuation (2026-11-18) — per-game process priority
+
+- Added an opt-in Game Library profile setting to request AboveNormal priority for the selected game only. The Windows provider checks registered executable path, PID, process start time, and current session; only Normal/BelowNormal can be raised, and High/Realtime or other states are preserved. No FPS improvement is promised.
+- Priority is reviewed separately after the exact game executable starts, then applied through the typed ActionEngine with the game session ID, durable before-state, read-back verification, and session rollback. A declined or failed priority request does not report success; the existing exit watcher remains responsible for the game session.
+- A process that has exited or whose PID was reused is treated as no longer applicable during rollback, avoiding stale-PID writes and false recovery failures.
+- Old saved profiles default the new opt-in to false. Runtime registry now has nine actions and parity remains test-enforced.
+- Focused fixture tests passed 7/7; full `dotnet test HyperBoostX.sln -c Release --no-restore --nologo` passed 227/227. `.\scripts\package.ps1` then passed the same 227-test gate and rebuilt desktop, CLI, worker, unsigned setup, and portable ZIP. Tests use an injected provider and never mutate a host process. Live game/VM validation and post-change UI Automation are NOT RUN.
+- Final package hashes verified against `dist\SHA256SUMS.txt`: setup `A08A4C553B125D808D7E1C5B29449717D5E8C3B433BD9D3183A2DEDB7F3DBE48`; portable `CCB32873D9F60D564978F0D45A71CB9AC71F5D143E4D7F8787B579D7D0A7DB4F`. The portable ZIP contains the desktop and worker executables. Installer Authenticode is `NotSigned`; installer was not run.
+- The workspace has no Git metadata. Stable remains blocked; this is a narrow feature addition, not a claim of V2 parity.
+
+## Continuation (2026-11-18) — gaming-session restart recovery
+
+- Game sessions now persist the launched process ID and exact start-time ticks in the encrypted document store after validating the registered executable and Windows session.
+- At application initialization, an active session reattaches only after checking PID, start time, executable path, and session. The exit watcher then restores the journaled profile when that exact process exits, including if it ended while HyperBoostX was closed. A PID reuse is treated as the original process having ended; access/path/session mismatches stay recoverable for manual inspection instead of touching an unverified process.
+- Old session records without process identity remain readable and deliberately require manual recovery; identity is never guessed. If persisting identity after launch fails, the current process watcher remains active while the app stays open and the UI reports that restart recovery is unavailable.
+- Focused session/priority/dispatcher suite passed 29/29. Full `dotnet test HyperBoostX.sln -c Release --no-restore --nologo` passed 230/230. No game executable was launched for the tests and no Windows setting was changed.
+- At the time of this change, package artifacts were stale; they have since been rebuilt with the current source (see latest verification below). Live game exit/restart, UAC, and disposable-VM tests remain NOT RUN.
+
+## Continuation (2026-11-18) — privileged verification uses the worker
+
+- Fixed the action-history **Verify** path for elevated actions: it now requires explicit consent, obtains UAC approval, and reads current state through the authenticated worker instead of attempting a possibly access-denied read in the non-elevated UI process. Ordinary non-elevated verification is unchanged.
+- Added a fixture assertion that worker verification is denied without approval and succeeds only with approval. Focused dispatcher/shell tests passed 41/41; full `dotnet test HyperBoostX.sln -c Release --no-restore --nologo` passed 227/227.
+- No UAC prompt, privileged mutation, or disposable-VM test was run. The package has since been rebuilt with this change (see Latest verification); isolated UAC/VM validation remains required.
+- Remaining P0 gate: test explicit UAC denial, cross-elevation peer identity/pipe ACLs, worker failure, and typed mutation/rollback in an isolated Windows VM. No VM is available here; do not test privileged changes on the owner host.
+
+Earlier continuation (2026-11-18): implemented and UI-smoke-verified per-user single-instance activation: a second launch against the same isolated data directory restores the existing minimized window, while a distinct data directory runs an independent instance. Added a narrow shutdown-race guard to activation dispatch. The supplied technical reference matrix is checked into `docs/registry/technical-reference-matrix.json`; the canonical generator registers all 365 assignments across 73 menus and 158 distinct URLs (109 source-tagged web-confirmed; 49 candidate-direct-link). All 158 distinct URLs received limited source-level checks; five supplied URLs returned 404, with alternatives identified for three, and one vendor page returned 403. These checks do not establish API/license/platform compatibility. Added `docs/SECURITY_THREAT_MODEL.md`, a source-grounded description of the current asInvoker/in-process boundary, threats, required broker protocol, and isolated test gates. It does not claim that a privileged worker, authenticated IPC, or security audit exists. The generator records the threat-model document as verified, privilege separation as partial, and privileged IPC as unsupported. Current matrix: 4,039 requirements; 4,022 mandatory items remain unverified. Stable remains blocked. The persistent ordered backlog is `docs/registry/development-backlog.json`.
+
+## Latest verification (2026-11-18)
+
+- Startup now resumes a gaming-session rollback left in `Restoring`, because that state records a prior explicit restore approval. `RecoveryRequired` and legacy sessions still require manual review; startup never guesses a game process identity or reruns an unapproved profile.
+- App Load confirmation is now owned by the main WPF window and reports approval/cancellation explicitly. `scripts/ui-smoke.ps1` now canonicalizes the executable path before deriving its App Load fixture path; the previous failure was the script passing a relative path to a provider that correctly requires an absolute local executable.
+- `LegacyFeatureTests.InterruptedSessionRestoreResumesFromPersistedJournalState` verifies the persisted interrupted-restore path with an isolated action journal. Focused session/priority/dispatcher tests passed 30/30. `.\scripts\package.ps1` passed the full solution suite 231/231 and rebuilt the current win-x64 desktop, CLI, worker, installer, portable ZIP, and checksum manifest.
+- SHA-256 verified against `dist\SHA256SUMS.txt`: setup `EC0F0EBEDADE8AF1A12D15627339410748C01F47CC6F938F2B3E0C5AD51B4BFD`; portable `7A729550B0D3B7158225448C029D531DDB8426C9F239D79E54B909D67F4B36B8`. The ZIP contains `HyperBoostX.exe`, `HyperBoostX.Worker.exe`, and `hbx.exe`. Setup Authenticode is `NotSigned`; installer was not run.
+- Post-package `.\scripts\ui-smoke.ps1` passed all 73 reference routes, settings export/import/reset and restart persistence, duplicate-instance activation, and separate-data startup (exit code 0). UI smoke used isolated data; it did not test privileged changes, live game restart, or installer lifecycle.
+- Tests use isolated fixtures and did not launch a game, mutate a Windows setting, or exercise UAC. Real game restart/exit, privileged VM validation, and installer lifecycle remain NOT RUN. The complete V2.10 action/API migration remains unfinished; Stable is not claimed.
 
 ## Objective and scope
 
 Migrate supported V1–V2.10 capabilities into working native V3 features, verify mutation/rollback, complete UI, test and package. No public deployment or destructive host testing is authorized. Stable is blocked until the full master gate is met. Unsupported hardware/permissions must be reported accurately.
+
+## Latest audit (2026-11-17)
+
+- Verified by command: `Set-Location 'H:\HYPERBOOSTX V3'; Get-Location; git status --short --branch; echo '---'; dotnet test HyperBoostX.sln -c Release --no-restore --nologo`
+- Result before the dashboard continuations: `dotnet test` passed 215/215 tests in 15 seconds, with zero failures. The latest full suite after deterministic Memory Guard cooldown coverage passed 218/218.
+- Repository status: the workspace currently has no `.git` directory, so it is not a valid Git working tree and cannot be committed, branched, or pushed from this session.
+- Release status: this is still not a Stable-ready product. The public test gate passes, but it does not satisfy the required in-scope production evidence for elevated worker/IPC, unsigned package status, installer lifecycle, real Windows hardware validation, and owner-approved final audit.
+- Next concrete implementation step: finish the remaining privileged-worker and cross-elevation validation path in a disposable Windows environment before any Stable claim is made.
+
+## Continuation (2026-11-17) — dashboard system-volume usage
+
+- Exposed the existing `DriveInfo` system-volume usage measurement as a fifth dashboard metric. The value is calculated from Windows-reported total and available bytes; an unavailable volume remains unavailable, and capacity is not described as drive health.
+- Added labels to all six language packs and updated the dashboard route disclosure. Updated the master storage-usage traceability row to `IMPLEMENTED_VERIFIED`; prototype storage-health coverage remains `PARTIAL_VERIFIED` because physical drive health is not measured by this metric.
+- Focused verification: `dotnet test tests/HyperBoostX.Tests/HyperBoostX.Tests.csproj -c Release --no-restore --nologo --filter FullyQualifiedName~DashboardStorageMetricReflectsTheActualWindowsSystemVolume` passed 1/1. The test compares the UI-bound value with a fresh `DriveInfo` reading of the Windows system volume.
+- Stable remains blocked: this change closes only the dashboard storage-usage requirement, not the remaining feature, hardware, installer-signing, privileged-validation, and release gates.
+- Rebuilt with `scripts/package.ps1`: all 216 tests passed; the win-x64 desktop, CLI, worker, NSIS installer, portable ZIP, and checksum manifest were generated. UI Automation against the published executable passed all 73 routes plus settings and single-instance workflows (exit code 0).
+- Current local artifact SHA-256: setup `11625991A3E47087AF2FB1D6C284D6AA53C858BC670DE1DAA6290542B31E6AAC`; portable `3D9533BE2A9C852BBE5F2298F747A40075DCE7C57CAD6726B8D878F882CF78FD`. Both match `dist/SHA256SUMS.txt`; setup Authenticode status is `NotSigned`. Installer was not executed.
+- Current traceability after the dashboard updates: 4,052 requirements total; 114 `IMPLEMENTED_VERIFIED`, 8 `PARTIAL_VERIFIED`, and 3,938 mandatory requirements remain unverified. Stable is not ready.
+
+## Continuation (2026-11-17) — configurable Memory Guard alerts
+
+- Replaced the hard-coded 90% notification comparison with a persisted 70-95% user threshold, and the hard-coded five-minute alert interval with a persisted 1-60 minute cooldown. Both values restore at telemetry startup; localized sliders are available on Dashboard and Smart Memory Guard's shared dashboard surface.
+- Memory Guard remains notification-only. It does not purge RAM or terminate processes; process exclusions, commit-charge analysis, and emergency workload handling are not implemented. Cooldown policy boundaries are deterministic-tested without inducing real system memory pressure; end-to-end notification under synthetic telemetry remains untested.
+- Focused validation passed for `MemoryGuardThresholdIsBoundedAndPersistsAcrossShellRestart` (1/1), `MemoryGuardCooldownHonorsThresholdAndExactInterval` (1/1), and the language-pack regression (2/2). The full suite and packaging are being rerun after adding deterministic cooldown policy coverage.
+- Traceability records threshold and cooldown as `IMPLEMENTED_VERIFIED`, while the menu/master Memory Guard scope remains `PARTIAL_VERIFIED`: 4,052 requirements, 114 implemented-verified, 8 partial, and 3,938 mandatory requirements remain unverified. Stable remains blocked.
+- The prior published UI smoke passed all 73 routes with both sliders visible; packaging and smoke will be rerun after the new deterministic test is built.
+- Current local artifact SHA-256: setup `7D543E92306CA4E30618D79A71BDBF75342DCE94737519EAC5F3A8CDDE34019E`; portable `4BAE705EB2C696EEC2D41819D22EBA61225254C73AF0895D4CF4DA6583A1ADF9`. Both match `dist/SHA256SUMS.txt`; worker is present and installer Authenticode remains `NotSigned`. Installer was not executed.
+
+## Latest verified candidate (2026-11-17)
+
+- The cooldown-enabled source passed the full suite and `scripts/package.ps1`: 218/218 tests. UI Automation against the published executable passed 73/73 routes plus settings and single-instance workflows (exit code 0); screenshots are in `artifacts/ui-final-alert-policy-*`.
+- Final artifact SHA-256: setup `D692E067238B65BB8BEBF7134F49A1A65AC708A23C438AACCB16676DDD5E19E5`; portable `1B2067E5FE718564B9D4E31FF555EFCEB950AE191EB89BCEBD1EE884568A9329`. Both match `dist/SHA256SUMS.txt`; worker is present and installer Authenticode remains `NotSigned`. Installer was not executed.
+- Current requirement ledger: 4,052 total; 114 `IMPLEMENTED_VERIFIED`, 8 `PARTIAL_VERIFIED`, and 3,938 mandatory requirements remain unverified. Stable is not ready.
+- This verified candidate supersedes the earlier Memory Guard checkpoint's pending-build wording; end-to-end notification under synthetic telemetry, process exclusions, commit-charge analysis, and emergency workload handling remain unverified/unimplemented.
 
 ## Workspace
 
@@ -24,7 +220,7 @@ Migrate supported V1–V2.10 capabilities into working native V3 features, verif
 - Added encrypted `DocumentStore` for domain data.
 - Added native GameLibrary: validated executable registration, duplicate checks, profile persistence, remove/export, exact executable process matching.
 - Added GameSessions: approved preview batch, durable session status, engine-backed apply/rollback, partial failure compensation, crash-recovery lookup, external drift protection.
-- Added UI launch/watch/restore lifecycle. Auto-restore operates while app remains open; direct game executables are required, not short-lived launcher processes. Close warns about outstanding session.
+- Added UI launch/watch/restore lifecycle. Direct game executables are required, not short-lived launcher processes. Encrypted process identity enables reattachment after app restart; a process identity that cannot be confirmed leaves the session recoverable for manual restore. Close warns about outstanding session.
 - Added Benchmark Lab: validated manual measurements, transactional CSV import, 200-entry history, before/after comparison and export through reports. Input remains labelled user-reported, never measured automatically.
 - Added GameLibraryPanel and BenchmarkPanel plus native WPF commands. Game Library JSON import now validates every local executable/profile before atomically merging, reassigns IDs, skips duplicate paths, and caps import size; export includes usable executable paths only after an explicit privacy warning.
 - Updated the runtime action catalog from six to seven registered actions to include the real temporary-file quarantine provider; a runtime test now checks the full typed catalog against executable handlers.
@@ -51,9 +247,18 @@ Migrate supported V1–V2.10 capabilities into working native V3 features, verif
 
 ## Next priority
 
-- The P0 elevated worker and authenticated, allowlisted IPC are not implemented. Do not expose a generic command runner or add elevated mutations until request validation, identity/consent, durable backups, verification, rollback, and isolated Windows tests are designed and exercised.
-- No disposable Windows VM is available in this session; privileged service/task/DNS mutation, crash/reboot recovery, installer lifecycle, hardware compatibility, and soak tests remain NOT RUN.
-- Next unblocked task: validate API signatures, licenses, Windows support, dependencies, provider limits, and acceptance evidence for the 365 individual reference assignments. The P0 privileged-worker implementation is blocked until a disposable Windows environment is available. See `docs/registry/development-backlog.json`.
+- The typed privileged worker, authenticated allowlisted IPC, and explicit preview/approval UAC launch path exist. Cross-elevation identity/ACL behavior and live privileged mutation/recovery remain unverified; do not add generic command execution or test destructive changes on the owner host.
+- No disposable Windows VM is available in this session; DNS apply/rollback through the real WMI provider, service/task mutations, crash/reboot recovery, installer lifecycle, hardware compatibility, and soak tests remain NOT RUN.
+- The official V2.10 `main` snapshot at commit `8934419a45a11584891f3437fd291a12ef942584` confirms 73 menus and 606 action-map entries. Static Flask inventory contains 365 HTTP route decorators (one additional WebSocket decorator), resolving to 361 unique HTTP paths. The 606 action-map entries use 167 distinct path strings; this is not the same inventory as all backend paths. Per-entry handler/provider/test/rollback reconciliation remains unfinished.
+- Next unblocked task: continue source-level reconciliation from that pinned V2.10 commit, following each action-map entry and each unique HTTP path through its implementation and tests. The DNS cache-flush route is now explicitly classified as partial behavior with no V3 equivalent; do not conflate it with V3's separate, fixture-tested DNS profile action. See `docs/registry/development-backlog.json`.
+
+## Continuation (2026-11-17) — DNS profile lifecycle fixture coverage and V2 source reconciliation
+
+- Separated the DNS action from its concrete WMI provider through `IDnsProfileProvider`. Production still calls `Win32_NetworkAdapterConfiguration`; tests can now exercise the same typed ActionEngine path without changing a host adapter.
+- Added isolated fixture tests for preview, durable journal backup, apply/read-back, rollback to the original DNS servers, and a rejected Windows-provider return code. Focused command: `dotnet test tests\\HyperBoostX.Tests\\HyperBoostX.Tests.csproj -c Release --no-restore --nologo --filter FullyQualifiedName~DnsProfileActionTests`; observed 5/5 passed. These tests do not establish live WMI/elevated Windows behavior.
+- Audited the official source at `jxxzy/HyperBoostX` commit `8934419a45a11584891f3437fd291a12ef942584`. Its V2.10 action map contains 606 entries in 73 menus, with 167 distinct action-map path strings. The backend has 365 HTTP route decorators and 361 unique HTTP paths; one separate WebSocket route is excluded from that count.
+- Source trace confirmed `/api/network/apply` in three action-map entries performs an approved `ipconfig /flushdns` request, has no exact rollback, and can report top-level `ok=true` when the inner command failed. Updated the two remaining duplicate parity rows to `PARTIAL`/`UNSUPPORTED`; V3 does not claim this is migrated by `network.dns.set_profile`.
+- Full solution command `dotnet test HyperBoostX.sln -c Release --no-restore --nologo` passed 222/222 after the provider and fixture changes. No live Windows network mutation or disposable-VM test was run. Packaging was not rerun, so existing release artifacts do not contain this source update; Stable remains blocked.
 
 ## Outstanding
 
@@ -180,47 +385,37 @@ Run `dotnet test HyperBoostX.sln -c Release` after feature tests and use the iso
 - Core persistence/report validation and route tests bring the suite to 174/174. Packaged UI smoke saved a variant A trial, waited for analysis availability, rendered the summary, and passed 73/73 routes. Evidence: `artifacts/ui-research-smoke-7fd53e99464041c1a84329c1188b6af2`.
 - Traceability contains 4,051 requirements, 78 `IMPLEMENTED_VERIFIED`, 5 `PARTIAL_VERIFIED`, and 3,973 mandatory requirements not verified.
 
+## Continuation (2026-11-16) — safe automation and MSI analysis
 
-## Continuation (2026-11-19) — personal repository migration and Research Mode correction
+- Implemented opt-in in-app automation with allowlisted `SmartScan`, read-only `CleanupScan`, and local `Reminder` actions. Rules start paused, support validated intervals/conditions/cooldowns, pause/remove/emergency-stop, and retain encrypted execution history. Arbitrary commands/scripts and unattended mutations are structurally rejected.
+- Implemented MSI Safe Optimizer inventory for MSI Center, Mystic Light, LEDKeeper and Dragon Center signatures across processes, services and installed applications. It measures running-process CPU/memory, reports service dependencies, and enforces cooling/fan/pump/thermal exclusions without stopping anything.
+- Full suite passed 187/187. Published UI smoke created/enabled/emergency-stopped an automation rule, invoked MSI analysis, and passed 73/73 routes. Evidence: `artifacts/ui-automation-smoke-ce5ea22273c8403a8ec497715716e441` and `artifacts/ui-msi-smoke-b61d344fee7e46029922b8c00edb8132`.
+- Traceability contains 4,052 requirements, 96 `IMPLEMENTED_VERIFIED`, 5 `PARTIAL_VERIFIED`, and 3,956 mandatory requirements not verified. Changes remain uncommitted per owner instruction pending final audit readiness.
 
-- Imported all 143 tracked source files from the organization repository at 2ab5b4bf3a7049b898c64e322339e8398a3bcca7 into jxxzy/HyperBoostX branch v3-development. Compared every source blob SHA; no missing or changed original file at the migration commit 82e973fd796d64fc90266fb7c33a37ed18327812. Legacy main remains untouched. Removed the temporary write-enabled migration job after the import; routine CI has contents:read only.
-- Fixed Research Mode grouping: repeat-trial means and A baseline deltas are now isolated by workload, metric and unit within an experiment. Multiple workload labels are distinguished, missing matching baselines are reported, and numeric deltas use invariant culture. Added a regression test for two different workload baselines and a third workload without baseline. Windows test result pending; do not count it as verified yet.
-- Hardened Stable requirement gate against empty/deleted/demoted inventory, malformed flags/evidence and inconsistent metadata. Added twelve synthetic Python regression tests; the local patch suite passed 12/12. CI runs them before checking the actual matrix. No increase in implemented-verified requirement counts is claimed.
-- Migration Actions job succeeded; initial Stable requirement gate failed as expected; Windows build was in progress when this checkpoint was authored. See Actions for actual execution evidence. Signing, real Windows UI/VM/hardware and remaining requirement implementation continue to block Stable.
+## Continuation (2026-11-16) — local trust review and network profile diagnostics
 
-- Initial Windows CI stopped at NuGet NU1004: five shipped projects had win-x64 lock targets but no declared RuntimeIdentifiers. Added win-x64 to the shared props for non-test projects, leaving the test lock framework-only; CI now rejects package-lock drift after packaging. Awaiting actual rerun verification; no build success claimed.
+- Extended installed-application discovery with bounded current-user MSIX/AppX package inventory and deduplication alongside the existing registry providers.
+- Implemented a non-executing Update Center inspector with SHA-256, file version, Authenticode certificate, and WinVerifyTrust evidence. It never downloads, executes, installs, or replaces a package.
+- Implemented a fail-closed Plugin Manager reviewer with strict `plugin.json` parsing, app-version compatibility, permission allowlisting, hash/trust evidence, traversal/reparse/size bounds, and no assembly loading.
+- Implemented measured Balanced/Gaming network profile previews using adapter, IP, DHCP/DNS, Windows network-profile, and optional gateway latency evidence. No DNS, QoS, MTU, offload, or registry mutation is performed.
+- Full suite passed 199/199. Packaged UI smoke passed 73/73 routes for trust review and Network Profiles. Evidence: `artifacts/ui-trust-smoke-969949270aa947619111f8e5fb5de983` and `artifacts/ui-network-profiles-smoke-1e22b4d72816437ea504466851726663`.
+- Current package hashes: setup `B5DFCD695F036C1E15C4F18B9C37FCD9A0FCBEF7D4749F0BA3A8827C9E5025C6`; portable `9BA6BFE6CF481C0CC48EEBE497BA1C498ED1C4F54BAA5141793D5545A7FF3638`.
+- Traceability currently contains 4,052 requirements: 111 `IMPLEMENTED_VERIFIED`, 5 `PARTIAL_VERIFIED`, 58 `UI_BOUND_NOT_FEATURE_VERIFIED`, and 3,941 mandatory requirements not verified. Stable remains blocked; changes remain uncommitted pending owner audit readiness.
 
+## Continuation (2026-11-16) — official prototype audit and six-component health score
 
-## Continuation (2026-11-19) — GPU Center counter snapshots
+- Exercised the official hosted prototype in Google Chrome through Playwright: all 73 navigation routes, dark/light themes, Splash, Installer Wizard, Update Wizard, four onboarding steps, Action Review, and Command Palette. The reconciled count is 73 routes plus three distribution surfaces = 76. Evidence contains 152 screenshots under the latest `artifacts/prototype-audit-*` directory.
+- Added reproducible audit tooling and canonical outputs: `PROTOTYPE_INTERACTION_AUDIT.md`, `PROTOTYPE_FEATURE_INVENTORY.json`, `PROTOTYPE_TO_PRODUCTION_MATRIX.csv`, `PROTOTYPE_SCREENSHOT_MANIFEST.json`, `VISUAL_PARITY_REPORT.md`, and `FUNCTIONAL_PARITY_REPORT.md`.
+- Exact metadata mapping is 73/73. Native functional classification is now 24 Implemented, 49 Limited, 0 Unsupported, and 0 missing; the reports explicitly keep those 49 Limited routes as release blockers.
+- Upgraded HyperBoost Score from a partial three-input calculation to HBX-HEALTH-SCORE-2: measured CPU and memory headroom, network sampling readiness, Windows GPU/driver readiness, system-volume free-space readiness, and bounded 24-hour System error-event reliability. Missing providers are excluded and coverage remains explicit.
+- Focused live-provider verification passed, and the full suite passed 205/205. No package commit, push, or Stable claim was made; owner audit remains required.
 
-- Integrated bounded WDDM formatted Windows performance-counter queries into GPU Center via the existing diagnostic/report lifecycle. Per-process/engine utilization and adapter dedicated/shared bytes are separately labelled; zero is valid, unknown/out-of-range metrics are unavailable, aggregates are excluded and truncated enumeration is explicit. No driver changes, sensor values or total GPU utilization are invented.
-- Technical references: https://devblogs.microsoft.com/directx/gpus-in-the-task-manager/ and https://github.com/prometheus-community/windows_exporter/blob/main/docs/collector.gpu.md explain WDDM engine and memory semantics; exact WMI classes also used in Chromium crossbench Windows platform tests. Compatibility still requires actual Windows GPU validation.
-- Added five regression/integration tests. Source implementation only at commit time; CI and hardware evidence pending. Dashboard live GPU, thermal, clocks, adapter-name mapping and capacity remain outstanding. No registry verification promotion.
+## Continuation (2026-11-16) — rebuilt candidate and native UI gate
 
-
-## Continuation (2026-11-19) — installed game discovery
-
-- Added bounded local Steam registry/default-library and libraryfolders.vdf/appmanifest discovery, plus Epic Games Launcher .item manifest discovery. Existing install directories become candidates; Epic executable hints are checked for local containment and existence. No game is launched or automatically registered. Missing, malformed, oversized and inaccessible manifest data is handled without shell execution; 32 roots, 500 files and 1 MiB per file limits apply.
-- Added a Game Library discovery command/button and persisted diagnostic report with coverage/limitations, plus four fixture-based tests for secondary Steam libraries, Epic manifests, path escape, invalid inputs and cancellation. Rockstar/Xbox providers and automatic profiles are not implemented by this change. Source and tests pending new Windows CI evidence. No verification promotion.
-
-
-## Continuation (2026-11-19) — Safe Boost batch workflow
-
-- One Click Boost now offers a real selectable batch of two existing reversible current-user Windows preferences (transparency and game capture). Each action's original and desired state is previewed; unapproved, altered, expired, duplicate or non-allowlisted previews are rejected before mutation. Verified changes remain recoverable in a shared action-journal session; failure/cancellation attempts compensating rollback and preserves explicit recovery-required status on conflicts. No Windows transaction or performance benefit is claimed.
-- Four isolated fake-action tests added for verified shared session, failure rollback, tampered/declined previews and cancellation. No real host mutation executed. Source/test execution pending subsequent CI; broader presets and elevated optimizations remain incomplete.
-- Independently observed successful Windows CI at 19796bc: 175/175 tests passed, 0 build warnings/errors, unchanged lock files, installer and portable ZIP with verified hashes. Artifacts from run 44453637972 remain unsigned development packages. The two subsequent feature commits and this batch are not included in that result.
-
-- Safe Boost failure handling now reconciles durable recovery files before enumerating database history, and reports RecoveryRequired if the journal cannot confirm complete recovery. This closes a potential falsely successful rollback report after a database-write failure; CI execution pending.
-
-
-## Continuation (2026-11-19) — fix late file-analysis progress race
-
-- Windows CI run 44454086330 at 213bbe2 compiled with zero warnings/errors and passed 183/184 tests, including the new GPU and installed-game tests; the existing DuplicateAndLargeFileRouteRunsRealReadOnlyAnalysis test failed because an intermediate progress message overwrote the final coverage label. No package was promoted from that run.
-- Serialize progress and completion on the WPF Dispatcher and close the local progress callback on completion/failure/cancellation. Added a delayed dispatcher pump to the existing regression test without weakening its final-coverage assertions. New CI validation pending.
-
-
-## Continuation (2026-11-19) — IPC fail-closed framing and lifecycle
-
-- Independently verified Windows CI at 920d6b5: 188/188 tests passed, 0 compiler errors/warnings, installer and portable package created with verified checksums (run 44454458264). Stable gate still failed; these are development artifacts, not a Stable release.
-- Hardened authenticated nonce validation against alternate base64 encodings; both request and response JSON frames now reject duplicate, missing, null or unknown fields rather than relying on CLR defaults. The worker client uses a 15-second request deadline and permanently invalidates a transport after interrupted or unauthenticated exchanges; callers must start a fresh worker. Pre-send cancellation and ordinary authenticated denial remain safe to reuse. Added three regression tests. Windows verification pending on this commit; no elevated mutations or cross-elevation validation claimed.
-- Owner confirmed all 15 acceptance targets in the current conversation; preserve the canonical master task and 4,051-item traceability baseline. See docs/FINAL_ACCEPTANCE.md for the release acceptance mapping and evidence policy.
+- Rebuilt the self-contained desktop app, CLI, worker, NSIS installer, and portable archive after the health-score changes. The packaging test run passed 205/205.
+- Hardened the native Settings smoke workflow to interact with the standard Windows file dialog and Yes/No confirmation as distinct controls instead of relying on timing-sensitive keystrokes or an unverified popup command.
+- The latest published executable passed all 73 native navigation routes, settings export/privacy, import cancellation and approval, reset decline and approval, persistence after restart, same-data single-instance activation, and distinct-data instance isolation. Evidence: `artifacts/ui-final-smoke-0c33357a121a429f8357a856572ddd07`.
+- Security Health is now classified independently as implemented because its complete five-item reference scope is backed by real read-only Windows providers; Privacy Center remains Limited. Full suite: 206/206. Route parity: 25 Implemented, 48 Limited, 0 Unsupported.
+- Candidate hashes are setup `FD7A7DA5A56A1AC2154921CA13BA0966D562423C4C1DD1516DCBDFE698800CFB` and portable `606FDD8E2B3D0664A6CD2E131660FC5C2636B9C9894A991F35C9B583E1F56745`. The installer remains `NotSigned`; Stable remains blocked by the documented functional, signing, installer-lifecycle, hardware-matrix, and long-run gates.
+- Privileged Worker now exposes only typed `action.preview`, `action.apply`, `action.verify`, and `action.rollback` operations over authenticated IPC. These reuse the production ActionEngine lifecycle (allowlisted IDs, validation, durable journal, state recheck, explicit approval, read-back verification, and rollback) and reject unknown fields or generic command payloads. Fixture tests cover success, approval denial, stale-preview denial, verification, rollback, and injection-shaped payload rejection; the real worker process test confirms an unregistered action is denied. Full suite: 209/209. No privileged Windows mutation was executed on the owner host.
+- Packaging was rebuilt after the worker integration. Current SHA-256: setup `1675116013FC80B0CED931396A3071B27D23576B65E77FF16EE222223550B859`; portable `377029D42B7D24CFC022E2D3D4B5B155DC96D4F9619BDA9008F39FA8E5599770`. Authenticode remains `NotSigned`, so this is an audit candidate, not a Stable release.

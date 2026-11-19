@@ -1,0 +1,29 @@
+{
+  "schema_version": "2.10.0",
+  "name": "Full Feature Integrity Test",
+  "minimum_contract": {
+    "menus": 73,
+    "buttons": 606,
+    "unique_endpoints": 170,
+    "partial_or_roadmap_buttons": 0,
+    "default_fallback_pages": 0
+  },
+  "coverage_terms": {
+    "feature_coverage": "All visible menus have native v2.10 content and route-backed actions.",
+    "action_coverage": "All visible buttons map to known local backend routes or guarded safety evaluators.",
+    "owner_lab_truth": "Public stable remains blocked until installer runtime, hardware matrix, safety, restore, and UI properness evidence pass."
+  },
+  "forbidden_user_facing_terms": ["v1.3", "v1.4", "legacy", "old", "previous", "migrated"],
+  "required_surfaces": [
+    "Dashboard",
+    "Performance Boost",
+    "Cleanup",
+    "Startup Manager",
+    "Owner Lab Test Center",
+    "Action History",
+    "License Center",
+    "LCD Performance Guard",
+    "AI Universal",
+    "Discord Webhook Reporter"
+  ]
+}

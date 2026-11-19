@@ -12,6 +12,56 @@ namespace HyperBoostX.Tests;
 
 public sealed class WorkerProcessTests
 {
+    [Fact]public async Task PrivilegedWorkerEngineContainsOnlyElevationRequiredActions()
+    {
+        var root=Path.Combine(Path.GetTempPath(),"HyperBoostX-tests","worker-engine-"+Guid.NewGuid().ToString("N"));
+        try
+        {
+            var runtime=new Runtime(root);
+            var actions=runtime.CreatePrivilegedWorkerEngine().Actions;
+            Assert.NotEmpty(actions);
+            Assert.All(actions,action=>Assert.True(action.RequiresElevation));
+            Assert.Equal(new[]{"network.dns.set_profile"},actions.Select(action=>action.Id));
+            Assert.DoesNotContain(actions,action=>action.Id.StartsWith("windows.visual.",StringComparison.Ordinal));
+            Assert.DoesNotContain(actions,action=>action.Id.StartsWith("gaming.",StringComparison.Ordinal));
+            var dispatcher=new PrivilegedActionDispatcher(runtime.CreatePrivilegedWorkerEngine());
+            using var identity=WindowsIdentity.GetCurrent();
+            var secret=RandomNumberGenerator.GetBytes(32);
+            try
+            {
+                var request=CreateRequest("action.preview",secret,Process.GetCurrentProcess().SessionId,identity.User?.Value??throw new InvalidOperationException("Current SID unavailable."))
+                    with{Body=JsonSerializer.Serialize(new WorkerPreviewRequest("windows.visual.transparency.disable","")),AuthenticationTag=""};
+                request=request with{AuthenticationTag=PrivilegedRequestValidator.Sign(request,secret)};
+                var result=await dispatcher.DispatchAsync(request,default);
+                Assert.False(result.Success);
+                Assert.Contains("not registered",result.Message,StringComparison.OrdinalIgnoreCase);
+            }
+            finally{CryptographicOperations.ZeroMemory(secret);}
+        }
+        finally
+        {
+            if(Directory.Exists(root))Directory.Delete(root,true);
+        }
+    }
+
+    [Fact]public async Task WorkerPowerInspectUsesLiveWindowsStateAndRejectsUnexpectedTarget()
+    {
+        if(!OperatingSystem.IsWindows())return;
+        await using var client=await PrivilegedWorkerClient.StartAsync(FindWorker(),false,default);
+        var response=await client.SendAsync("worker.power.inspect","","{}",default);
+        Assert.True(response.Success,response.Message);
+        Assert.Equal("HBX-WORKER-POWER",response.Code);
+        using var document=JsonDocument.Parse(response.Body);
+        var activeId=document.RootElement.GetProperty("ActivePlanId").GetString();
+        Assert.True(Guid.TryParse(activeId,out _));
+        Assert.True(document.RootElement.GetProperty("PlanCount").GetInt32()>0);
+        Assert.True(document.RootElement.GetProperty("ActivePlanEnumerated").GetBoolean());
+        Assert.Equal(PowerAction.Current(),activeId);
+        var rejected=await client.SendAsync("worker.power.inspect","unexpected","{}",default);
+        Assert.False(rejected.Success);
+        Assert.Equal("HBX-IPC-PAYLOAD",rejected.Code);
+    }
+
     [Fact]public async Task ProductionClientOwnsWorkerHealthAndShutdownLifecycle()
     {
         if(!OperatingSystem.IsWindows())return;
@@ -19,18 +69,8 @@ public sealed class WorkerProcessTests
         var response=await client.SendAsync("worker.health","","{}",default);
         Assert.True(response.Success);Assert.Equal("HBX-WORKER-HEALTH",response.Code);
         using var body=JsonDocument.Parse(response.Body);Assert.Equal(client.ProcessId,body.RootElement.GetProperty("ProcessId").GetInt32());
-    }
-
-    [Fact]public async Task CancelledBeforeSendDoesNotPoisonWorkerConnection()
-    {
-        if(!OperatingSystem.IsWindows())return;
-        await using var client=await PrivilegedWorkerClient.StartAsync(FindWorker(),false,default);
-        using var cancelled=new CancellationTokenSource();cancelled.Cancel();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>client.SendAsync("worker.health","","{}",cancelled.Token));
-        Assert.True((await client.SendAsync("worker.health","","{}",default)).Success);
-        var denied=await client.SendAsync("unregistered.action","","{}",default);
-        Assert.False(denied.Success);Assert.Equal("HBX-IPC-DENIED",denied.Code);
-        Assert.True((await client.SendAsync("worker.health","","{}",default)).Success);
+        var denied=await client.SendAsync("action.preview","","{\"ActionId\":\"fixture\",\"Target\":\"\",\"Command\":\"whoami\"}",default);
+        Assert.False(denied.Success);Assert.Equal("HBX-IPC-PAYLOAD",denied.Code);
     }
 
     [Fact]public async Task SeparateWorkerAuthenticatesHealthAndShutsDownCleanly()

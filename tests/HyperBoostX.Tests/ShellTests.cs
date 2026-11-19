@@ -10,6 +10,197 @@ namespace HyperBoostX.Tests;
 
 public sealed class ShellTests
 {
+    [Fact]
+    public void SecurityHealthIsImplementedAsReadOnlyProtectionEvidence()
+    {
+        var binding=FeatureRouteCatalog.BindingFor("Security Health");
+        Assert.Equal(RouteSupport.Implemented,binding.Support);
+        Assert.Contains("Defender",binding.Detail,StringComparison.Ordinal);
+        Assert.Contains("Defender Scan Guard is not implemented",binding.Detail,StringComparison.Ordinal);
+        Assert.Contains("never weakens",binding.Detail,StringComparison.Ordinal);
+        Assert.Equal(RouteSupport.Limited,FeatureRouteCatalog.BindingFor("Privacy Center").Support);
+    }
+
+    [Fact]
+    public void SecurityHealthShowsCapabilityDisclosuresWithoutDowngradingItsImplementedReader()=>Run(vm=>
+    {
+        vm.Navigate("Security Health");
+        Assert.False(vm.IsRouteLimited);
+        Assert.True(vm.ShowsRouteDisclosure);
+    });
+
+    [Fact]
+    public void NativeNavigationMatchesTheLatestDeployedPrototypeCapabilityInventory()
+    {
+        Assert.Equal(73,FeatureRouteCatalog.All.Count);
+        Assert.Equal(376,FeatureRouteCatalog.All.Sum(route=>route.Features.Count));
+        Assert.Contains("Advanced Mic Mixer",FeatureRouteCatalog.All.Single(route=>route.Name=="Audio & DJ Performance").Features);
+        Assert.Contains("Voicemeeter",FeatureRouteCatalog.All.Single(route=>route.Name=="Audio & DJ Performance").Features);
+        Assert.DoesNotContain("Audio endpoints",FeatureRouteCatalog.All.Single(route=>route.Name=="Audio & DJ Performance").Features);
+        Assert.Contains("Camera tracking",FeatureRouteCatalog.All.Single(route=>route.Name=="Webcam Diagnostics").Features);
+        Assert.Contains("Defender Scan Guard",FeatureRouteCatalog.All.Single(route=>route.Name=="Security Health").Features);
+        var trustFeatures=FeatureRouteCatalog.All.Single(route=>route.Name=="Trust Center").Features;
+        Assert.Contains("System Reality Guard",trustFeatures);
+        Assert.Contains("Protected Apps",trustFeatures);
+        Assert.Contains("not implemented",FeatureRouteCatalog.BindingFor("Audio & DJ Performance").Detail,StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("not implemented",FeatureRouteCatalog.BindingFor("Webcam Diagnostics").Detail,StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("remain unavailable",FeatureRouteCatalog.BindingFor("Trust Center").Detail,StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]public void HyperBoostScoreProvidesMeasuredSixComponentScan()=>Run(vm=>{vm.Navigate("HyperBoost Score");Assert.Equal(RouteSupport.Implemented,vm.RouteBinding.Support);Assert.True(vm.ScanCommand.CanExecute(null));Assert.Contains("six-component",vm.RouteBinding.Detail);});
+
+    [Fact]public void DashboardStorageMetricReflectsTheActualWindowsSystemVolume()=>Run(vm=>
+    {
+        vm.Navigate("Dashboard");
+        var root=Path.GetPathRoot(Environment.SystemDirectory);
+        Assert.False(string.IsNullOrWhiteSpace(root));
+        var drive=new DriveInfo(root!);
+        Assert.True(drive.IsReady);
+        Assert.True(drive.TotalSize>0);
+        var available=Math.Clamp(drive.AvailableFreeSpace,0,drive.TotalSize);
+        Assert.Equal($"{100d*(drive.TotalSize-available)/drive.TotalSize:F0}%",vm.LiveStorage);
+        Assert.NotEqual("[SystemStorage]",vm.Localization["SystemStorage"]);
+        Assert.NotEqual("[WindowsSystemVolume]",vm.Localization["WindowsSystemVolume"]);
+    });
+
+    [Fact]public void CpuOptimizationCenterShowsMeasuredScopeAndExplicitProviderLimits()=>Run(vm=>
+    {
+        vm.Navigate("CPU Optimization");
+        Assert.True(vm.IsCpuOptimization);
+        Assert.Equal("Processes",vm.SurfaceTitle);
+        Assert.Equal(RouteSupport.Limited,vm.RouteBinding.Support);
+        Assert.True(vm.ScanCommand.CanExecute(null));
+        Assert.Empty(vm.Actions);
+        Assert.Equal(Environment.ProcessorCount.ToString(),vm.CpuLogicalProcessorCount);
+        Assert.Equal(vm.Localization["CpuOptimizationNoEvidence"],vm.CpuOptimizationSummary);
+        Assert.Contains("NOT_IMPLEMENTED",vm.Localization["CpuPolicyUnavailableDetail"],StringComparison.Ordinal);
+        Assert.False(vm.HasCpuOptimizationResults);
+        Assert.False(vm.HasCpuOptimizationHistory);
+        Assert.True(vm.NavigateCommand.CanExecute("Game Library"));
+        vm.NavigateCommand.Execute("Game Library");
+        Assert.Equal("Game Library",vm.Title);
+    });
+    [Fact]public void GpuCenterShowsOnlySavedWindowsEvidenceAndFiltersReportedAdapterNames()=>Run(vm=>
+    {
+        var report=new DiagnosticReport("GPU",DateTimeOffset.UtcNow,
+        [
+            new("Name","NVIDIA GeForce Fixture","Win32_VideoController","Direct","Available"),
+            new("NVIDIA GeForce Fixture · DriverVersion","555.1","Win32_VideoController","Direct","Available"),
+            new("Name","AMD Radeon Fixture","Win32_VideoController","Direct","Available"),
+            new("AMD Radeon Fixture · DriverVersion","24.1","Win32_VideoController","Direct","Available"),
+            new("Name","Intel Arc Fixture","Win32_VideoController","Direct","Available"),
+            new("Intel Arc Fixture · DriverVersion","31.0","Win32_VideoController","Direct","Available")
+        ],[]);
+        vm.Runtime.Journal.SaveReport(report);
+        vm.Navigate("GPU Center");
+        Assert.True(vm.IsGpuCenter);
+        Assert.Equal(RouteSupport.Limited,vm.RouteBinding.Support);
+        Assert.True(vm.HasGpuResults);
+        Assert.True(vm.HasGpuHistory);
+        Assert.Contains("NVIDIA GeForce Fixture",vm.GpuAdapterSummary,StringComparison.Ordinal);
+        Assert.Contains("AMD Radeon Fixture",vm.GpuAdapterSummary,StringComparison.Ordinal);
+        Assert.Contains("Intel Arc Fixture",vm.GpuAdapterSummary,StringComparison.Ordinal);
+        Assert.Contains("555.1",vm.GpuDriverSummary,StringComparison.Ordinal);
+        Assert.Contains("AdapterRAM",vm.Localization["GpuSensorUnavailable"],StringComparison.Ordinal);
+        vm.GpuVendorFilter="amd";
+        Assert.Equal("AMD Radeon Fixture",vm.GpuAdapterSummary);
+        Assert.Equal("24.1",vm.GpuDriverSummary);
+        Assert.Equal(2,vm.FactsView.Cast<Fact>().Count());
+        vm.GpuVendorFilter="intel";
+        Assert.Equal("Intel Arc Fixture",vm.GpuAdapterSummary);
+        Assert.Equal("31.0",vm.GpuDriverSummary);
+        vm.GpuVendorFilter="nvidia";
+        Assert.Equal("NVIDIA GeForce Fixture",vm.GpuAdapterSummary);
+        Assert.Equal("555.1",vm.GpuDriverSummary);
+        Assert.Equal(2,vm.FactsView.Cast<Fact>().Count());
+    });
+    [Fact]public void PerGameProfilesExposeTheExistingConsentAndRecoveryWorkflowWithoutAutomaticApplication()=>Run(vm=>
+    {
+        vm.Navigate("Per-Game Profiles");
+        Assert.True(vm.IsPerGameProfiles);
+        Assert.False(vm.IsGameLibrary);
+        Assert.Equal(RouteSupport.Limited,vm.RouteBinding.Support);
+        Assert.False(vm.HasRegisteredGames);
+        Assert.False(vm.HasGameProfileHistory);
+        Assert.False(vm.SaveGameProfileCommand.CanExecute(null));
+        Assert.True(vm.ScanGamesCommand.CanExecute(null));
+        Assert.True(vm.DiscoverGamesCommand.CanExecute(null));
+        Assert.False(vm.RegisterDiscoveredGameCommand.CanExecute(null));
+        Assert.Contains("NOT_IMPLEMENTED",vm.Localization["GameProfileAutoApplyUnavailable"],StringComparison.Ordinal);
+        Assert.NotEqual("[GameProfileApprovalNotice]",vm.Localization["GameProfileApprovalNotice"]);
+        vm.Runtime.Journal.Save(new Change{ActionId="gaming.capture.disable",Status="Verified"});
+        vm.Runtime.Journal.Save(new Change{ActionId="windows.visual.transparency.enable",Status="Verified"});
+        vm.Navigate("Dashboard");
+        vm.Navigate("Per-Game Profiles");
+        Assert.True(vm.HasGameProfileHistory);
+        Assert.Equal("gaming.capture.disable",Assert.Single(vm.GameProfileHistory).ActionId);
+        var executable=Path.Combine(Path.GetTempPath(),$"hbx-profile-{Guid.NewGuid():N}.exe");
+        File.WriteAllText(executable,"Fixture executable; never launched.");
+        try
+        {
+            vm.Runtime.Games.Add("Profile fixture",executable);
+            vm.Navigate("Dashboard");
+            vm.Navigate("Per-Game Profiles");
+            Assert.True(vm.HasRegisteredGames);
+            Assert.False(vm.IsGameLibrary);
+            vm.ProfileDisableCapture=true;
+            vm.SaveGameProfileCommand.Execute(null);
+            Assert.True(vm.Runtime.Games.List().Single().Profile.DisableCapture);
+            Assert.Equal("Profil tersimpan. Windows belum diubah.",vm.Status);
+        }
+        finally{File.Delete(executable);}
+    });
+
+    [Fact]public void MemoryGuardThresholdIsBoundedAndPersistsAcrossShellRestart()=>Run(vm=>
+    {
+        vm.StartTelemetry();
+        try
+        {
+            vm.Navigate("Smart Memory Guard");
+            Assert.True(vm.IsDashboard);
+            Assert.Equal(RouteSupport.Limited,vm.RouteBinding.Support);
+            Assert.Contains("persisted",vm.RouteDetail,StringComparison.Ordinal);
+            Assert.Contains("cooldown",vm.RouteDetail,StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("system commit usage",vm.RouteDetail,StringComparison.Ordinal);
+            Assert.Equal(90,vm.MemoryGuardThresholdPercent);
+            Assert.Equal(5,vm.MemoryGuardCooldownMinutes);
+            vm.MemoryGuardThresholdPercent=10;
+            Assert.Equal(70,vm.MemoryGuardThresholdPercent);
+            vm.MemoryGuardThresholdPercent=82;
+            Assert.Equal(82,vm.MemoryGuardThresholdPercent);
+            Assert.Equal("82",vm.Runtime.Journal.GetSetting("memory-guard-threshold"));
+            vm.MemoryGuardThresholdPercent=100;
+            Assert.Equal(95,vm.MemoryGuardThresholdPercent);
+            vm.MemoryGuardCooldownMinutes=0;
+            Assert.Equal(1,vm.MemoryGuardCooldownMinutes);
+            vm.MemoryGuardCooldownMinutes=20;
+            Assert.Equal("20",vm.Runtime.Journal.GetSetting("memory-guard-cooldown-minutes"));
+            vm.MemoryGuardCooldownMinutes=100;
+            Assert.Equal(60,vm.MemoryGuardCooldownMinutes);
+            var reopened=new ShellViewModel(vm.Runtime);
+            reopened.StartTelemetry();
+            try
+            {
+                Assert.Equal(95,reopened.MemoryGuardThresholdPercent);
+                Assert.Contains("95%",reopened.MemoryGuardThresholdText,StringComparison.Ordinal);
+                Assert.Equal(60,reopened.MemoryGuardCooldownMinutes);
+                Assert.Contains("60 min",reopened.MemoryGuardCooldownText,StringComparison.Ordinal);
+                Assert.False(reopened.MemoryGuardEnabled);
+            }
+            finally{reopened.StopTelemetry();}
+        }
+        finally{vm.StopTelemetry();}
+    });
+
+    [Fact]public void MemoryGuardCooldownHonorsThresholdAndExactInterval()
+    {
+        var now=DateTimeOffset.UtcNow;
+        Assert.False(ShellViewModel.ShouldNotifyMemoryGuard(89.9,90,now.AddMinutes(-10),now,5));
+        Assert.False(ShellViewModel.ShouldNotifyMemoryGuard(95,90,now.AddMinutes(-4),now,5));
+        Assert.True(ShellViewModel.ShouldNotifyMemoryGuard(95,90,now.AddMinutes(-5),now,5));
+        Assert.False(ShellViewModel.ShouldNotifyMemoryGuard(95,90,now.AddMinutes(1),now,5));
+    }
+
     [Fact]public void BootOptimizerExposesTheReadOnlyStartupDiagnosticInsteadOfAnUnavailableRoute()=>Run(vm=>
     {
         vm.Navigate("Boot Optimizer");
@@ -36,6 +227,24 @@ public sealed class ShellTests
         vm.Navigate("Research Mode");Assert.Equal(RouteSupport.Implemented,vm.RouteBinding.Support);Assert.True(vm.IsResearchMode);Assert.True(vm.AddResearchTrialCommand.CanExecute(null));Assert.False(vm.AnalyzeResearchCommand.CanExecute(null));
         vm.ResearchWorkload="Fixture";vm.ResearchValue="100";vm.AddResearchTrialCommand.Execute(null);
     });
+    [Theory][InlineData("Scheduled Automation")][InlineData("Task & Rule System")]
+    public void AutomationRoutesExposeOnlyOptInAllowlistedRules(string route)=>Run(vm=>
+    {
+        vm.Navigate(route);Assert.Equal(RouteSupport.Implemented,vm.RouteBinding.Support);Assert.True(vm.IsAutomation);Assert.True(vm.AddAutomationRuleCommand.CanExecute(null));Assert.All(vm.AutomationActions,action=>Assert.Contains(action,AutomationRules.ApprovedActions));
+    });
+    [Fact]public void UpdateCenterIsImplementedWithNonExecutingInspectionCommands()=>Run(vm=>
+    {
+        vm.Navigate("Update Center");Assert.Equal(RouteSupport.Implemented,vm.RouteBinding.Support);Assert.True(vm.IsUpdateCenter);Assert.True(vm.InspectCurrentPackageCommand.CanExecute(null));Assert.False(vm.InspectUpdatePackageCommand.CanExecute(null));
+        vm.UpdatePackagePath=Path.Combine(Environment.SystemDirectory,"where.exe");Assert.True(vm.InspectUpdatePackageCommand.CanExecute(null));
+    });
+    [Fact]public void PluginManagerIsImplementedAsFailClosedManifestReview()=>Run(vm=>
+    {
+        vm.Navigate("Plugin Manager");Assert.Equal(RouteSupport.Implemented,vm.RouteBinding.Support);Assert.True(vm.IsPluginManager);Assert.True(vm.ReviewPluginsCommand.CanExecute(null));Assert.EndsWith("Plugins",vm.PluginDirectory,StringComparison.OrdinalIgnoreCase);
+    });
+    [Fact]public void NetworkProfilesIsImplementedAsMeasuredPreviewWithoutHiddenMutation()=>Run(vm=>
+    {
+        vm.Navigate("Network Profiles");Assert.Equal(RouteSupport.Implemented,vm.RouteBinding.Support);Assert.True(vm.IsNetworkProfiles);Assert.True(vm.IsNetwork);Assert.True(vm.ScanCommand.CanExecute(null));Assert.Equal("Balanced",vm.NetworkProfileMode);
+    });
     [Fact]public void AppLoadOptimizerRouteIsImplementedAndRequiresASelectedExecutable()=>Run(vm=>
     {
         vm.Navigate("App Load Optimizer");
@@ -48,6 +257,10 @@ public sealed class ShellTests
     {
         vm.Navigate("RGB Software Detector");
         Assert.Equal(RouteSupport.Implemented,vm.RouteBinding.Support);Assert.True(vm.IsDiagnostic);Assert.True(vm.ScanCommand.CanExecute(null));
+    });
+    [Fact]public void MsiSafeOptimizerRouteIsImplementedAndScannable()=>Run(vm=>
+    {
+        vm.Navigate("MSI Safe Optimizer");Assert.Equal(RouteSupport.Implemented,vm.RouteBinding.Support);Assert.True(vm.IsDiagnostic);Assert.True(vm.ScanCommand.CanExecute(null));
     });
     [Fact]public void OverlayDetectorRouteIsImplementedAndScannable()=>Run(vm=>
     {
@@ -113,6 +326,66 @@ public sealed class ShellTests
             Assert.NotEmpty(vm.Subtitle);
         }
     });
+    [Fact]public void SmartScanRecommendationButtonsOnlyAcceptRegisteredSafeActions()=>Run(vm=>
+    {
+        vm.Navigate("Smart Scan");
+        Assert.True(vm.ApplyFindingCommand.CanExecute("windows.visual.effects.best_performance"));
+        Assert.True(vm.ApplyFindingCommand.CanExecute("windows.visual.transparency.disable"));
+        Assert.True(vm.ApplyFindingCommand.CanExecute("gaming.capture.disable"));
+        Assert.False(vm.ApplyFindingCommand.CanExecute("network.dns.set_profile"));
+        Assert.False(vm.ApplyFindingCommand.CanExecute("cmd.exe"));
+        vm.Navigate("Dashboard");
+        Assert.False(vm.ApplyFindingCommand.CanExecute("windows.visual.effects.best_performance"));
+    });
+    [Fact]public void SmartScanScopesGateExecutionAndRemainLocalized()=>Run(vm=>
+    {
+        vm.Navigate("Smart Scan");
+        Assert.True(vm.IsSmartScan);
+        Assert.Equal(6,vm.SmartScanScopes.Count);
+        Assert.Contains(vm.SmartScanScopes,scope=>scope.Name==vm.Localization["SmartScanQuickName"]&&scope.IsSelected&&scope.IsSupported);
+        Assert.True(vm.ScanCommand.CanExecute(null));
+        var supported=vm.SmartScanScopes.Where(scope=>scope.IsSupported).ToArray();
+        foreach(var scope in supported)scope.IsSelected=false;
+        Assert.False(vm.ScanCommand.CanExecute(null));
+        foreach(var unsupported in vm.SmartScanScopes.Where(scope=>!scope.IsSupported))
+        {
+            Assert.False(unsupported.IsSelected);
+            unsupported.IsSelected=true;
+            Assert.False(unsupported.IsSelected);
+        }
+        var gaming=vm.SmartScanScopes.Single(scope=>scope.Center=="Gaming");
+        gaming.IsSelected=true;
+        Assert.True(vm.ScanCommand.CanExecute(null));
+        vm.Language="es-ES";
+        Assert.Equal(vm.Localization["SmartScanGamingName"],gaming.Name);
+        Assert.NotEqual("[SmartScanDriversDescription]",vm.Localization["SmartScanDriversDescription"]);
+    });
+    [Fact]public void OneClickBoostExplainsIndividualActionsAndExposesOnlyRegisteredActions()=>Run(vm=>
+    {
+        vm.Navigate("One Click Boost");
+        Assert.True(vm.IsOneClickBoost);
+        Assert.False(vm.IsSmartScan);
+        Assert.NotEmpty(vm.Actions);
+        Assert.All(vm.Actions,action=>Assert.Contains(action,vm.Runtime.Engine.Actions));
+        Assert.Contains("NOT_IMPLEMENTED",vm.Localization["OneClickBatchUnavailable"],StringComparison.Ordinal);
+    });
+    [Fact]public void SmartScanLoadsOnlySavedSmartScanEvidenceAndHistory()=>Run(vm=>
+    {
+        vm.Navigate("Smart Scan");
+        Assert.False(vm.HasSmartScanResults);
+        Assert.False(vm.HasSmartScanHistory);
+        var oldReport=new DiagnosticReport("Hardware",DateTimeOffset.UtcNow.AddSeconds(-1),[new("CPU","Fixture CPU","Fixture")],[]);
+        vm.Runtime.Journal.SaveReport(oldReport);
+        vm.Navigate("Dashboard");
+        var scan=new DiagnosticReport("Smart Scan",DateTimeOffset.UtcNow,[new("CPU","Observed","Fixture")],[]);
+        vm.Runtime.Journal.SaveReport(scan);
+        vm.Navigate("Smart Scan");
+        Assert.True(vm.HasSmartScanResults);
+        Assert.True(vm.HasSmartScanHistory);
+        Assert.Equal(scan.ObservedAt,vm.SelectedSmartScanReport?.ObservedAt);
+        Assert.Equal("CPU",vm.Facts.Single().Name);
+        Assert.Contains("Smart Scan",vm.ObservationSummary);
+    });
     [Fact]public void GroupedNavigationAndCompactSidebarPreferencesPersist()=>Run(vm=>
     {
         Assert.True(vm.NavigationView.Groups?.Count>1);
@@ -146,6 +419,23 @@ public sealed class ShellTests
         vm.Search="no-such-feature";Assert.Empty(vm.Navigation);
         vm.Search="";Assert.Equal(ShellViewModel.AllNavigation.Count,vm.Navigation.Count);
     });
+    [Fact]public void CommandPaletteFiltersRoutesAndExecutesNativeNavigation()=>Run(vm=>
+    {
+        Assert.False(vm.IsCommandPaletteOpen);
+        vm.OpenCommandPaletteCommand.Execute(null);
+        Assert.True(vm.IsCommandPaletteOpen);
+        Assert.Equal(73,vm.CommandPaletteResults.Count);
+        vm.CommandPaletteQuery="Network Profiles";
+        Assert.Equal("Network Profiles",Assert.Single(vm.CommandPaletteResults).Name);
+        Assert.Equal("Network Profiles",vm.SelectedCommandPaletteEntry?.Name);
+        Assert.True(vm.ExecuteCommandPaletteCommand.CanExecute(null));
+        vm.ExecuteCommandPaletteCommand.Execute(null);
+        Assert.False(vm.IsCommandPaletteOpen);
+        Assert.Equal("Network Profiles",vm.Title);
+        vm.OpenCommandPaletteCommand.Execute(null);
+        vm.CloseCommandPaletteCommand.Execute(null);
+        Assert.False(vm.IsCommandPaletteOpen);
+    });
     [Fact]public void ObservationFilterSearchesEvidenceFieldsAndResetsForANewPage()=>Run(vm=>
     {
         var service=new Fact("Windows Update","Stopped","Win32_Service","Direct","Available");
@@ -174,6 +464,14 @@ public sealed class ShellTests
             Assert.Equal(language.Code,vm.Localization.Language);
             Assert.NotEqual("[Language]",vm.Localization["Language"]);
             Assert.NotEqual("[Search]",vm.Localization["Search"]);
+            Assert.NotEqual("[MemoryGuardThreshold]",vm.Localization["MemoryGuardThreshold"]);
+            Assert.NotEqual("[CpuPolicyUnavailableDetail]",vm.Localization["CpuPolicyUnavailableDetail"]);
+            Assert.NotEqual("[CpuPerGamePriorityAction]",vm.Localization["CpuPerGamePriorityAction"]);
+            Assert.NotEqual("[CpuOptimizationHistoryEmpty]",vm.Localization["CpuOptimizationHistoryEmpty"]);
+            Assert.NotEqual("[GpuSensorUnavailable]",vm.Localization["GpuSensorUnavailable"]);
+            Assert.NotEqual("[GameProfileAutoApplyUnavailable]",vm.Localization["GameProfileAutoApplyUnavailable"]);
+            Assert.NotEqual("[GameProfileHistoryEmpty]",vm.Localization["GameProfileHistoryEmpty"]);
+            Assert.DoesNotContain("90",vm.Localization["MemoryGuard"],StringComparison.Ordinal);
             Assert.Equal(vm.Localization["ImplementedStatus"],vm.RouteStatus);
             Assert.Equal(vm.Localization["ReadyStatus"],vm.Status);
             Assert.Equal(vm.Localization["Sampling"],vm.TelemetryStatus);
@@ -227,6 +525,8 @@ public sealed class ShellTests
         Assert.Contains(run.Results.Single(result=>result.TestId=="backup.integrity").Result,new[]{"PASS","SKIPPED"});
         var workerResult=run.Results.Single(result=>result.TestId=="privileged-worker.ipc");
         Assert.True(workerResult.Result=="PASS",workerResult.Evidence);
+        Assert.Contains("PowrProf",workerResult.Evidence,StringComparison.Ordinal);
+        Assert.Equal("PASS",run.Results.Single(result=>result.TestId=="privileged-worker.audit").Result);
         Assert.Equal("UNSUPPORTED",run.Results.Single(result=>result.TestId=="application.file-integrity").Result);
         Assert.Equal("UNSUPPORTED",run.Results.Single(result=>result.TestId=="repair.safe-workflows").Result);
         Assert.Equal("SKIPPED",run.Results.Single(result=>result.TestId=="ai.connection").Result);
@@ -257,13 +557,6 @@ public sealed class ShellTests
             var task=vm.RunFileAnalysis(default);var frame=new DispatcherFrame();var timer=new DispatcherTimer(DispatcherPriority.Background){Interval=TimeSpan.FromMilliseconds(20)};
             timer.Tick+=(_,_)=>{if(task.IsCompleted){frame.Continue=false;timer.Stop();}};timer.Start();Dispatcher.PushFrame(frame);task.GetAwaiter().GetResult();
             Assert.Single(vm.DuplicateGroups);Assert.Equal(2,vm.LargeFiles.Count);Assert.Empty(vm.FileAnalysisIssues);Assert.Contains("Cakupan lengkap",vm.FileAnalysisStatus);
-            // Pump queued progress callbacks after task completion: they must not
-            // overwrite the final coverage text with an intermediate progress status.
-            var lateFrame=new DispatcherFrame();
-            var lateTimer=new DispatcherTimer(DispatcherPriority.ApplicationIdle){Interval=TimeSpan.FromMilliseconds(150)};
-            lateTimer.Tick+=(_,_)=>{lateTimer.Stop();lateFrame.Continue=false;};
-            lateTimer.Start();Dispatcher.PushFrame(lateFrame);
-            Assert.Contains("Cakupan lengkap",vm.FileAnalysisStatus);
             Assert.Equal(bytes,File.ReadAllBytes(Path.Combine(root,"first.bin")));
         }
         finally{if(Directory.Exists(root))Directory.Delete(root,true);}

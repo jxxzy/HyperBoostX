@@ -44,7 +44,12 @@ public partial class MainWindow:Window
         }catch(Exception e)when(e is System.Text.Json.JsonException or ArgumentException){}
         if(initializeOnLoad)Loaded+=(_,_)=>{vm.Initialize();vm.StartTelemetry();};
         Closed+=(_,_)=>{vm.StopTelemetry();vm.Localization.PropertyChanged-=RefreshTrayLabels;_trayIcon.Visible=false;_trayIcon.Dispose();_trayMenu.Dispose();_trayImage.Dispose();};
-        PreviewKeyDown+=(_,e)=>{if(e.Key==Key.K&&Keyboard.Modifiers.HasFlag(ModifierKeys.Control)){SearchBox.Focus();SearchBox.SelectAll();e.Handled=true;}};
+        PreviewKeyDown+=(_,e)=>
+        {
+            if(e.Key==Key.K&&Keyboard.Modifiers.HasFlag(ModifierKeys.Control)){_vm.OpenCommandPaletteCommand.Execute(null);e.Handled=true;return;}
+            if(e.Key==Key.Escape&&_vm.IsCommandPaletteOpen){_vm.CloseCommandPaletteCommand.Execute(null);e.Handled=true;return;}
+            if(e.Key==Key.Enter&&_vm.IsCommandPaletteOpen&&_vm.ExecuteCommandPaletteCommand.CanExecute(null)){_vm.ExecuteCommandPaletteCommand.Execute(null);e.Handled=true;}
+        };
         Closing+=(_,e)=>
         {
             if(vm.Busy){e.Cancel=true;vm.Stop();vm.Status="Menunggu operasi berhenti pada batas aman. Tutup kembali setelah operasi selesai.";return;}

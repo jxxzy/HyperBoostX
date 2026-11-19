@@ -36,7 +36,10 @@
       <TextBlock Text="Unified Full Edition" Foreground="{DynamicResource AccentBrush}" FontSize="9"/>
      </StackPanel>
     </StackPanel>
-    <TextBox x:Name="SearchBox" Grid.Column="2" Text="{Binding Search,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Busy,Converter={StaticResource InverseBool}}" VerticalAlignment="Center" Height="38" Margin="10,0,14,0" ToolTip="{Binding Localization[Search]}" AutomationProperties.Name="{Binding Localization[Search]}" AutomationProperties.AutomationId="SearchFeatures"/>
+    <Grid Grid.Column="2" Margin="10,0,14,0">
+     <TextBox x:Name="SearchBox" Text="{Binding Search,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Busy,Converter={StaticResource InverseBool}}" VerticalAlignment="Center" Height="38" Padding="10,8,46,8" ToolTip="{Binding Localization[Search]}" AutomationProperties.Name="{Binding Localization[Search]}" AutomationProperties.AutomationId="SearchFeatures"/>
+     <Button Content="⌕" Command="{Binding OpenCommandPaletteCommand}" HorizontalAlignment="Right" VerticalAlignment="Center" Width="38" MinHeight="30" Padding="4" ToolTip="{Binding Localization[CommandPalette]}" AutomationProperties.Name="{Binding Localization[CommandPalette]}" AutomationProperties.AutomationId="OpenCommandPaletteButton"/>
+    </Grid>
     <ComboBox x:Name="LanguageSelector" Grid.Column="3" ItemsSource="{Binding LanguageOptions}" SelectedValuePath="Code" DisplayMemberPath="DisplayName" SelectedValue="{Binding Language,UpdateSourceTrigger=PropertyChanged}" Width="132" Margin="0,0,8,0" AutomationProperties.Name="{Binding Localization[Language]}" AutomationProperties.AutomationId="LanguageSelection"/>
     <ComboBox Grid.Column="4" ItemsSource="{Binding Modes}" SelectedItem="{Binding Mode}" Width="112" Margin="0,0,8,0" AutomationProperties.Name="{Binding Localization[UserMode]}"/>
     <ComboBox Grid.Column="5" ItemsSource="{Binding Themes}" SelectedItem="{Binding Theme}" Width="92" Margin="0,0,8,0" AutomationProperties.Name="{Binding Localization[Theme]}" AutomationProperties.AutomationId="ThemeSelection"/>
@@ -152,18 +155,332 @@
    </Grid>
    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
     <StackPanel>
-      <Border Visibility="{Binding IsRouteLimited,Converter={StaticResource BoolVisibility}}" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource WarningBrush}" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,0,14">
+      <Border Visibility="{Binding ShowsRouteDisclosure,Converter={StaticResource BoolVisibility}}" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource WarningBrush}" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,0,14">
        <StackPanel>
         <DockPanel>
          <TextBlock DockPanel.Dock="Right" Text="{Binding FeatureId}" Foreground="{DynamicResource MutedBrush}" FontSize="10" VerticalAlignment="Center" AutomationProperties.Name="{Binding Localization[StableFeatureIdentifier]}"/>
          <TextBlock Text="{Binding RouteStatus}" Foreground="{DynamicResource WarningBrush}" FontSize="11" FontWeight="Bold" AutomationProperties.AutomationId="RouteImplementationStatus"/>
         </DockPanel>
-        <TextBlock Text="{Binding RouteDetail}" Foreground="{DynamicResource MutedBrush}" Margin="0,5,0,0"/>
+        <TextBlock Text="{Binding RouteDetail}" Foreground="{DynamicResource MutedBrush}" Margin="0,5,0,0" AutomationProperties.AutomationId="RouteImplementationDetail"/>
         <ItemsControl ItemsSource="{Binding RouteFeatures}" Margin="0,8,0,0">
          <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
          <ItemsControl.ItemTemplate><DataTemplate><Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="5" Padding="7,3" Margin="0,0,6,5"><TextBlock Text="{Binding}" Foreground="{DynamicResource MutedBrush}" FontSize="10"/></Border></DataTemplate></ItemsControl.ItemTemplate>
         </ItemsControl>
        </StackPanel>
+      </Border>
+      <Border Visibility="{Binding IsSmartScan,Converter={StaticResource BoolVisibility}}" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="14" Margin="0,0,0,14" AutomationProperties.AutomationId="SmartScanWorkspace">
+       <TabControl AutomationProperties.AutomationId="SmartScanTabs" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" Foreground="{DynamicResource TextBrush}">
+        <TabControl.Resources>
+         <Style TargetType="{x:Type TabItem}">
+          <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+          <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+          <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+          <Setter Property="Padding" Value="10,6"/>
+          <Setter Property="Margin" Value="0,0,4,0"/>
+          <Setter Property="Template">
+           <Setter.Value>
+            <ControlTemplate TargetType="{x:Type TabItem}">
+             <Border x:Name="TabBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="6,6,0,0" Padding="{TemplateBinding Padding}">
+              <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+             </Border>
+             <ControlTemplate.Triggers>
+              <Trigger Property="IsSelected" Value="True"><Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource AccentSurfaceBrush}"/><Setter TargetName="TabBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/><Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/></Trigger>
+              <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource SurfaceBrush}"/></Trigger>
+              <Trigger Property="IsEnabled" Value="False"><Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/></Trigger>
+             </ControlTemplate.Triggers>
+            </ControlTemplate>
+           </Setter.Value>
+          </Setter>
+         </Style>
+        </TabControl.Resources>
+        <TabItem Header="{Binding Localization[SmartScanWorkspaceTab]}" AutomationProperties.AutomationId="SmartScanWorkspaceTab">
+         <Grid Margin="4,12,4,4">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="320"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+          <Border Grid.Column="0" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,10,0">
+           <StackPanel>
+            <TextBlock Text="{Binding Localization[SmartScanScopeTitle]}" FontSize="16" FontWeight="SemiBold" AutomationProperties.AutomationId="SmartScanScopeTitle"/>
+            <ItemsControl ItemsSource="{Binding SmartScanScopes}" Margin="0,8,0,0" AutomationProperties.AutomationId="SmartScanScopeList">
+             <ItemsControl.ItemTemplate>
+              <DataTemplate>
+               <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="7" Padding="9" Margin="0,0,0,7">
+                <StackPanel>
+                 <DockPanel>
+                  <TextBlock DockPanel.Dock="Right" Text="{Binding Status}" Foreground="{DynamicResource WarningBrush}" FontSize="9" FontWeight="Bold" VerticalAlignment="Center"/>
+                  <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected,Mode=TwoWay}" IsEnabled="{Binding IsSupported}" FontWeight="SemiBold" AutomationProperties.AutomationId="{Binding Center}"/>
+                 </DockPanel>
+                 <TextBlock Text="{Binding Description}" Foreground="{DynamicResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0"/>
+                </StackPanel>
+               </Border>
+              </DataTemplate>
+             </ItemsControl.ItemTemplate>
+            </ItemsControl>
+           </StackPanel>
+          </Border>
+          <Border Grid.Column="1" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+           <StackPanel>
+            <DockPanel>
+             <Button DockPanel.Dock="Right" Content="{Binding Localization[Cancel]}" Command="{Binding CancelCommand}" IsEnabled="{Binding Busy}" AutomationProperties.AutomationId="SmartScanCancel"/>
+             <TextBlock Text="{Binding Localization[FindingsRecommendations]}" FontSize="11" Foreground="{DynamicResource AccentBrush}" FontWeight="Bold" VerticalAlignment="Center"/>
+            </DockPanel>
+            <ProgressBar IsIndeterminate="True" Height="4" Margin="0,10,0,0" Visibility="{Binding Busy,Converter={StaticResource BoolVisibility}}"/>
+            <TextBlock Text="{Binding Status}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,9,0,0"/>
+            <TextBlock Text="{Binding SmartScanResultSummary}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+            <ItemsControl ItemsSource="{Binding Findings}" Margin="0,5,0,0" AutomationProperties.AutomationId="SmartScanRecommendations">
+             <ItemsControl.ItemTemplate>
+              <DataTemplate>
+               <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="7" Padding="10" Margin="0,8,0,0">
+                <StackPanel>
+                 <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+                 <TextBlock Text="{Binding Evidence}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                 <TextBlock Text="{Binding Recommendation}" TextWrapping="Wrap" Margin="0,5,0,0"/>
+                 <TextBlock Text="{Binding Confidence}" Foreground="{DynamicResource MutedBrush}" FontSize="10" Margin="0,5,0,0"/>
+                 <Button Content="{Binding DataContext.Localization[PreviewApply],RelativeSource={RelativeSource AncestorType=Window}}" Command="{Binding DataContext.ApplyFindingCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding ActionId}" HorizontalAlignment="Left" Margin="0,7,0,0"/>
+                </StackPanel>
+               </Border>
+              </DataTemplate>
+             </ItemsControl.ItemTemplate>
+            </ItemsControl>
+           </StackPanel>
+          </Border>
+         </Grid>
+        </TabItem>
+        <TabItem Header="{Binding Localization[SmartScanEvidenceTab]}" AutomationProperties.AutomationId="SmartScanEvidenceTab">
+         <Grid Margin="4,12,4,4">
+          <DataGrid ItemsSource="{Binding FactsView}" SelectedItem="{Binding SelectedFact,Mode=TwoWay}" Height="330" Visibility="{Binding HasSmartScanResults,Converter={StaticResource BoolVisibility}}" AutomationProperties.Name="{Binding Localization[Observations]}" AutomationProperties.AutomationId="SmartScanEvidenceGrid">
+           <DataGrid.Columns><DataGridTextColumn Header="{Binding Localization[Observation]}" Binding="{Binding Name}" Width="220"/><DataGridTextColumn Header="{Binding Localization[Value]}" Binding="{Binding Value}" Width="*"/><DataGridTextColumn Header="{Binding Localization[Evidence]}" Binding="{Binding Quality}" Width="100"/></DataGrid.Columns>
+          </DataGrid>
+          <TextBlock Text="{Binding Localization[SmartScanNoEvidence]}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="16">
+           <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding HasSmartScanResults}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+          </TextBlock>
+         </Grid>
+        </TabItem>
+        <TabItem Header="{Binding Localization[SmartScanHistoryTab]}" AutomationProperties.AutomationId="SmartScanHistoryTab">
+         <Grid Margin="4,12,4,4">
+          <DataGrid ItemsSource="{Binding SmartScanHistory}" SelectedItem="{Binding SelectedSmartScanReport,Mode=TwoWay}" Height="330" Visibility="{Binding HasSmartScanHistory,Converter={StaticResource BoolVisibility}}" AutomationProperties.Name="{Binding Localization[SavedReports]}" AutomationProperties.AutomationId="SmartScanHistoryGrid">
+           <DataGrid.Columns><DataGridTextColumn Header="{Binding Localization[SavedReports]}" Binding="{Binding DisplayName}" Width="*"/><DataGridTextColumn Header="{Binding Localization[Observations]}" Binding="{Binding Summary}" Width="2*"/></DataGrid.Columns>
+          </DataGrid>
+          <TextBlock Text="{Binding Localization[SmartScanHistoryEmpty]}" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" HorizontalAlignment="Center">
+           <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding HasSmartScanHistory}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+          </TextBlock>
+         </Grid>
+        </TabItem>
+        <TabItem Header="{Binding Localization[SmartScanMethodTab]}" AutomationProperties.AutomationId="SmartScanMethodTab">
+         <StackPanel Margin="10,14">
+          <TextBlock Text="{Binding Localization[SmartScanMethodTitle]}" FontSize="16" FontWeight="SemiBold"/>
+          <TextBlock Text="{Binding Localization[SmartScanMethodDescription]}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+          <TextBlock Text="{Binding RouteDetail}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,10,0,0"/>
+         </StackPanel>
+        </TabItem>
+       </TabControl>
+      </Border>
+      <Border Visibility="{Binding IsOneClickBoost,Converter={StaticResource BoolVisibility}}" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,0,0,14" AutomationProperties.AutomationId="OneClickBoostOverview">
+       <StackPanel>
+        <TextBlock Text="{Binding Localization[OneClickOverviewTitle]}" FontSize="18" FontWeight="SemiBold" AutomationProperties.AutomationId="OneClickBoostTitle"/>
+        <TextBlock Text="{Binding Localization[OneClickOverviewDescription]}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,5,0,12"/>
+        <UniformGrid Columns="3">
+         <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="12" Margin="0,0,8,8">
+          <StackPanel><TextBlock Text="{Binding Localization[OneClickSafeTitle]}" FontWeight="SemiBold"/><TextBlock Text="{Binding Localization[LimitedStatus]}" Foreground="{DynamicResource WarningBrush}" FontSize="10" FontWeight="Bold" Margin="0,5,0,0"/><TextBlock Text="{Binding Localization[OneClickSafeDescription]}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,5,0,0"/></StackPanel>
+         </Border>
+         <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="12" Margin="0,0,8,8">
+          <StackPanel><TextBlock Text="{Binding Localization[OneClickGamingTitle]}" FontWeight="SemiBold"/><TextBlock Text="{Binding Localization[LimitedStatus]}" Foreground="{DynamicResource WarningBrush}" FontSize="10" FontWeight="Bold" Margin="0,5,0,0"/><TextBlock Text="{Binding Localization[OneClickGamingDescription]}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,5,0,0"/></StackPanel>
+         </Border>
+         <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="12" Margin="0,0,0,8">
+          <StackPanel><TextBlock Text="{Binding Localization[OneClickLowEndTitle]}" FontWeight="SemiBold"/><TextBlock Text="{Binding Localization[UnavailableStatus]}" Foreground="{DynamicResource WarningBrush}" FontSize="10" FontWeight="Bold" Margin="0,5,0,0"/><TextBlock Text="{Binding Localization[OneClickUnavailableDetails]}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,5,0,0"/></StackPanel>
+         </Border>
+         <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="12" Margin="0,0,8,8">
+          <StackPanel><TextBlock Text="{Binding Localization[OneClickCreatorTitle]}" FontWeight="SemiBold"/><TextBlock Text="{Binding Localization[UnavailableStatus]}" Foreground="{DynamicResource WarningBrush}" FontSize="10" FontWeight="Bold" Margin="0,5,0,0"/><TextBlock Text="{Binding Localization[OneClickUnavailableDetails]}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,5,0,0"/></StackPanel>
+         </Border>
+         <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="12" Margin="0,0,8,8">
+          <StackPanel><TextBlock Text="{Binding Localization[OneClickCustomTitle]}" FontWeight="SemiBold"/><TextBlock Text="{Binding Localization[UnavailableStatus]}" Foreground="{DynamicResource WarningBrush}" FontSize="10" FontWeight="Bold" Margin="0,5,0,0"/><TextBlock Text="{Binding Localization[OneClickUnavailableDetails]}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,5,0,0"/></StackPanel>
+         </Border>
+        </UniformGrid>
+        <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="12" Margin="0,2,0,0">
+         <StackPanel>
+          <TextBlock Text="{Binding Localization[OneClickWorkflowTitle]}" FontWeight="SemiBold"/>
+          <TextBlock Text="{Binding Localization[OneClickWorkflowDescription]}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,5,0,0"/>
+          <TextBlock Text="{Binding Localization[OneClickBatchUnavailable]}" Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap" Margin="0,7,0,0"/>
+         </StackPanel>
+        </Border>
+       </StackPanel>
+      </Border>
+      <Border Visibility="{Binding IsCpuOptimization,Converter={StaticResource BoolVisibility}}" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="14" Margin="0,0,0,14" AutomationProperties.AutomationId="CpuOptimizationCenter">
+       <TabControl AutomationProperties.AutomationId="CpuOptimizationTabs" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" Foreground="{DynamicResource TextBrush}">
+        <TabControl.Resources>
+         <Style TargetType="{x:Type TabItem}">
+          <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+          <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+          <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+          <Setter Property="Padding" Value="10,6"/>
+          <Setter Property="Margin" Value="0,0,4,0"/>
+          <Setter Property="Template">
+           <Setter.Value>
+            <ControlTemplate TargetType="{x:Type TabItem}">
+             <Border x:Name="TabBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="6,6,0,0" Padding="{TemplateBinding Padding}">
+              <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+             </Border>
+             <ControlTemplate.Triggers>
+              <Trigger Property="IsSelected" Value="True"><Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource AccentSurfaceBrush}"/><Setter TargetName="TabBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/><Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/></Trigger>
+              <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource SurfaceBrush}"/></Trigger>
+              <Trigger Property="IsEnabled" Value="False"><Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/></Trigger>
+             </ControlTemplate.Triggers>
+            </ControlTemplate>
+           </Setter.Value>
+          </Setter>
+         </Style>
+        </TabControl.Resources>
+        <TabItem Header="{Binding Localization[SmartScanWorkspaceTab]}" AutomationProperties.AutomationId="CpuOptimizationWorkspaceTab">
+         <StackPanel Margin="4,12,4,4">
+          <UniformGrid Columns="4" Margin="0,0,0,12">
+           <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="13" Margin="0,0,8,0">
+            <StackPanel><TextBlock Text="{Binding Localization[CpuLoad]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="{Binding LiveCpu}" FontSize="25" FontWeight="SemiBold" Margin="0,8,0,4" AutomationProperties.AutomationId="CpuCurrentUsage"/><TextBlock Text="{Binding Localization[TwoSecondSystemSample]}" Foreground="{DynamicResource MutedBrush}" FontSize="10"/></StackPanel>
+           </Border>
+           <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="13" Margin="0,0,8,0">
+            <StackPanel><TextBlock Text="{Binding Localization[CpuClock]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="{Binding Localization[Unavailable]}" FontSize="22" FontWeight="SemiBold" Margin="0,8,0,4" AutomationProperties.AutomationId="CpuClock"/><TextBlock Text="{Binding Localization[CpuSensorUnavailable]}" Foreground="{DynamicResource WarningBrush}" FontSize="10" TextWrapping="Wrap"/></StackPanel>
+           </Border>
+           <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="13" Margin="0,0,8,0">
+            <StackPanel><TextBlock Text="{Binding Localization[CpuTemperature]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="{Binding Localization[Unavailable]}" FontSize="22" FontWeight="SemiBold" Margin="0,8,0,4" AutomationProperties.AutomationId="CpuTemperature"/><TextBlock Text="{Binding Localization[CpuSensorUnavailable]}" Foreground="{DynamicResource WarningBrush}" FontSize="10" TextWrapping="Wrap"/></StackPanel>
+           </Border>
+           <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="13">
+            <StackPanel><TextBlock Text="{Binding Localization[LogicalProcessors]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="{Binding CpuLogicalProcessorCount}" FontSize="25" FontWeight="SemiBold" Margin="0,8,0,4" AutomationProperties.AutomationId="CpuLogicalProcessors"/><TextBlock Text="{Binding Localization[LogicalProcessorsMethod]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" TextWrapping="Wrap"/></StackPanel>
+           </Border>
+          </UniformGrid>
+          <UniformGrid Columns="2" Margin="0,0,0,12">
+           <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="13" Margin="0,0,8,0">
+            <StackPanel><TextBlock Text="{Binding Localization[PhysicalMemory]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="{Binding LiveMemory}" FontSize="19" FontWeight="SemiBold" Margin="0,7,0,4"/><TextBlock Text="{Binding LiveCommit}" Foreground="{DynamicResource MutedBrush}" FontSize="11"/></StackPanel>
+           </Border>
+           <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="13">
+            <StackPanel><TextBlock Text="{Binding Localization[Uptime]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="{Binding LiveUptime}" FontSize="19" FontWeight="SemiBold" Margin="0,7,0,4"/><TextBlock Text="{Binding TelemetryStatus}" Foreground="{DynamicResource MutedBrush}" FontSize="10" TextWrapping="Wrap"/></StackPanel>
+           </Border>
+          </UniformGrid>
+          <TextBlock Text="{Binding CpuOptimizationSummary}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,10" AutomationProperties.AutomationId="CpuOptimizationSummary"/>
+          <Grid>
+           <Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+           <Border Grid.Column="0" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="13" Margin="0,0,8,0">
+            <Grid>
+             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="150"/></Grid.RowDefinitions>
+             <DockPanel><TextBlock DockPanel.Dock="Right" Text="{Binding TelemetryStatus}" Foreground="{DynamicResource MutedBrush}" FontSize="9" VerticalAlignment="Center"/><TextBlock Text="{Binding Localization[SystemTelemetryCpu]}" FontSize="11" Foreground="{DynamicResource MutedBrush}" FontWeight="Bold"/></DockPanel>
+             <Grid Grid.Row="1" Margin="0,8,0,0" AutomationProperties.AutomationId="CpuActivityChart">
+              <Viewbox Stretch="Fill"><Canvas Width="300" Height="100"><Polyline Points="{Binding CpuChart}" Stroke="{DynamicResource AccentBrush}" StrokeThickness="2"/></Canvas></Viewbox>
+              <TextBlock Text="{Binding Localization[CollectingCpuSample]}" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center" VerticalAlignment="Center">
+               <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding HasCpuSamples}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+              </TextBlock>
+             </Grid>
+            </Grid>
+           </Border>
+           <StackPanel Grid.Column="1">
+            <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="13" Margin="0,0,0,8">
+             <StackPanel><TextBlock Text="{Binding Localization[CpuPolicyUnavailableTitle]}" FontWeight="SemiBold"/><TextBlock Text="{Binding Localization[CpuPolicyUnavailableDetail]}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,5,0,0" AutomationProperties.AutomationId="CpuPolicyStatus"/><Button Content="{Binding Localization[CpuPerGamePriorityAction]}" Command="{Binding NavigateCommand}" CommandParameter="Game Library" HorizontalAlignment="Left" Margin="0,9,0,0" AutomationProperties.AutomationId="CpuGameLibraryButton"/></StackPanel>
+            </Border>
+            <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="13">
+             <Grid>
+              <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+              <CheckBox Content="{Binding Localization[MemoryGuard]}" IsChecked="{Binding MemoryGuardEnabled}" Foreground="{DynamicResource TextBrush}" FontSize="11" AutomationProperties.AutomationId="CpuMemoryGuardEnabled"/>
+              <Grid Grid.Row="1" Margin="0,9,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Slider Minimum="70" Maximum="95" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding MemoryGuardThresholdPercent,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding MemoryGuardEnabled}" AutomationProperties.Name="{Binding Localization[MemoryGuardThreshold]}" AutomationProperties.AutomationId="CpuMemoryGuardThreshold"/><TextBlock Grid.Column="1" Text="{Binding MemoryGuardThresholdText}" Foreground="{DynamicResource MutedBrush}" FontSize="10" VerticalAlignment="Center" Margin="8,0,0,0"/></Grid>
+              <Grid Grid.Row="2" Margin="0,7,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Slider Minimum="1" Maximum="60" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding MemoryGuardCooldownMinutes,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding MemoryGuardEnabled}" AutomationProperties.Name="{Binding Localization[MemoryGuardCooldown]}" AutomationProperties.AutomationId="CpuMemoryGuardCooldown"/><TextBlock Grid.Column="1" Text="{Binding MemoryGuardCooldownText}" Foreground="{DynamicResource MutedBrush}" FontSize="10" VerticalAlignment="Center" Margin="8,0,0,0"/></Grid>
+             </Grid>
+            </Border>
+           </StackPanel>
+          </Grid>
+         </StackPanel>
+        </TabItem>
+        <TabItem Header="{Binding Localization[SmartScanEvidenceTab]}" AutomationProperties.AutomationId="CpuOptimizationEvidenceTab">
+         <Grid Margin="4,12,4,4">
+          <DataGrid ItemsSource="{Binding FactsView}" SelectedItem="{Binding SelectedFact,Mode=TwoWay}" Height="330" Visibility="{Binding HasCpuOptimizationResults,Converter={StaticResource BoolVisibility}}" AutomationProperties.Name="{Binding Localization[Observations]}" AutomationProperties.AutomationId="CpuScanEvidenceGrid">
+           <DataGrid.Columns><DataGridTextColumn Header="{Binding Localization[Observation]}" Binding="{Binding Name}" Width="240"/><DataGridTextColumn Header="{Binding Localization[Value]}" Binding="{Binding Value}" Width="*"/><DataGridTextColumn Header="{Binding Localization[Evidence]}" Binding="{Binding Quality}" Width="100"/></DataGrid.Columns>
+          </DataGrid>
+          <TextBlock Text="{Binding Localization[CpuOptimizationNoEvidence]}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="16">
+           <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding HasCpuOptimizationResults}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+          </TextBlock>
+         </Grid>
+        </TabItem>
+        <TabItem Header="{Binding Localization[SmartScanHistoryTab]}" AutomationProperties.AutomationId="CpuOptimizationHistoryTab">
+         <Grid Margin="4,12,4,4">
+          <DataGrid ItemsSource="{Binding CpuOptimizationHistory}" SelectedItem="{Binding SelectedCpuOptimizationReport,Mode=TwoWay}" Height="330" Visibility="{Binding HasCpuOptimizationHistory,Converter={StaticResource BoolVisibility}}" AutomationProperties.Name="{Binding Localization[CpuOptimizationHistoryTitle]}" AutomationProperties.AutomationId="CpuScanHistoryGrid">
+           <DataGrid.Columns><DataGridTextColumn Header="{Binding Localization[CpuOptimizationHistoryTitle]}" Binding="{Binding DisplayName}" Width="*"/><DataGridTextColumn Header="{Binding Localization[Observations]}" Binding="{Binding Summary}" Width="2*"/></DataGrid.Columns>
+          </DataGrid>
+          <TextBlock Text="{Binding Localization[CpuOptimizationHistoryEmpty]}" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" HorizontalAlignment="Center">
+           <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding HasCpuOptimizationHistory}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+          </TextBlock>
+         </Grid>
+        </TabItem>
+        <TabItem Header="{Binding Localization[Help]}" AutomationProperties.AutomationId="CpuOptimizationHelpTab">
+         <StackPanel Margin="10,14">
+          <TextBlock Text="{Binding Localization[CpuPolicyUnavailableTitle]}" FontSize="16" FontWeight="SemiBold"/>
+          <TextBlock Text="{Binding RouteDetail}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+          <TextBlock Text="{Binding Localization[CpuOptimizationReadOnly]}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+          <TextBlock Text="{Binding Localization[CpuPolicyUnavailableDetail]}" Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+         </StackPanel>
+        </TabItem>
+       </TabControl>
+      </Border>
+      <Border Visibility="{Binding IsGpuCenter,Converter={StaticResource BoolVisibility}}" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16" Margin="0,0,0,16">
+       <TabControl Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" Foreground="{DynamicResource TextBrush}" AutomationProperties.AutomationId="GPUCenterTabs">
+        <TabControl.Resources><Style TargetType="TabItem"><Setter Property="Padding" Value="14,8"/><Setter Property="Margin" Value="0,0,5,0"/><Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/><Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/><Style.Triggers><Trigger Property="IsSelected" Value="True"><Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/><Setter Property="Background" Value="{DynamicResource AccentSurfaceBrush}"/></Trigger></Style.Triggers></Style></TabControl.Resources>
+        <TabItem Header="{Binding Localization[Workspace]}" AutomationProperties.AutomationId="GPUCenterWorkspaceTab">
+         <StackPanel Margin="4,12,4,4">
+          <UniformGrid Columns="4" Margin="0,0,0,12">
+           <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,8,0"><StackPanel><TextBlock Text="{Binding Localization[GpuUsage]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="N/A" FontSize="25" FontWeight="SemiBold" Margin="0,7,0,3"/><TextBlock Text="{Binding Localization[GpuProviderNotAvailable]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" TextWrapping="Wrap"/></StackPanel></Border>
+           <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,8,0"><StackPanel><TextBlock Text="{Binding Localization[GpuVram]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="N/A" FontSize="25" FontWeight="SemiBold" Margin="0,7,0,3"/><TextBlock Text="{Binding Localization[GpuProviderNotAvailable]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" TextWrapping="Wrap"/></StackPanel></Border>
+           <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,8,0"><StackPanel><TextBlock Text="{Binding Localization[GpuTemperature]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="N/A" FontSize="25" FontWeight="SemiBold" Margin="0,7,0,3"/><TextBlock Text="{Binding Localization[GpuProviderNotAvailable]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" TextWrapping="Wrap"/></StackPanel></Border>
+           <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14"><StackPanel><TextBlock Text="{Binding Localization[GpuClock]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="N/A" FontSize="25" FontWeight="SemiBold" Margin="0,7,0,3"/><TextBlock Text="{Binding Localization[GpuProviderNotAvailable]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" TextWrapping="Wrap"/></StackPanel></Border>
+          </UniformGrid>
+          <Grid MinHeight="220">
+           <Grid.ColumnDefinitions><ColumnDefinition Width="1.15*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+           <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,8,0">
+            <StackPanel VerticalAlignment="Center">
+             <TextBlock Text="{Binding Localization[GpuTelemetryTitle]}" FontSize="17" FontWeight="SemiBold"/>
+             <TextBlock Text="{Binding Localization[GpuSensorUnavailable]}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+             <TextBlock Text="{Binding GpuScanSummary}" Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap" Margin="0,12,0,0"/>
+            </StackPanel>
+           </Border>
+           <Border Grid.Column="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="16">
+            <StackPanel>
+             <TextBlock Text="{Binding Localization[GpuAdapterInventory]}" FontSize="14" FontWeight="SemiBold"/>
+             <TextBlock Text="{Binding GpuAdapterSummary}" TextWrapping="Wrap" Margin="0,7,0,0"/>
+             <TextBlock Text="{Binding Localization[GpuDriverVersionEvidence]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold" Margin="0,12,0,0"/>
+             <TextBlock Text="{Binding GpuDriverSummary}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+             <TextBlock Text="{Binding Localization[GpuVendorFilterLabel]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold" Margin="0,12,0,4"/>
+             <ComboBox SelectedValue="{Binding GpuVendorFilter,Mode=TwoWay}" SelectedValuePath="Tag" AutomationProperties.Name="{Binding Localization[GpuVendorFilterLabel]}" AutomationProperties.AutomationId="GPUVendorNameFilter">
+              <ComboBoxItem Content="{Binding Localization[GpuAutoDetect]}" Tag="auto"/>
+              <ComboBoxItem Content="NVIDIA" Tag="nvidia"/>
+              <ComboBoxItem Content="AMD" Tag="amd"/>
+              <ComboBoxItem Content="Intel" Tag="intel"/>
+             </ComboBox>
+             <TextBlock Text="{Binding Localization[GpuFilterDescription]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" TextWrapping="Wrap" Margin="0,6,0,0"/>
+            </StackPanel>
+           </Border>
+          </Grid>
+         </StackPanel>
+        </TabItem>
+        <TabItem Header="{Binding Localization[Evidence]}" AutomationProperties.AutomationId="GPUCenterEvidenceTab">
+         <Grid Margin="4,12,4,4">
+          <DataGrid ItemsSource="{Binding FactsView}" SelectedItem="{Binding SelectedFact,Mode=TwoWay}" Height="330" Visibility="{Binding HasGpuResults,Converter={StaticResource BoolVisibility}}" AutomationProperties.Name="{Binding Localization[GpuAdapterInventory]}" AutomationProperties.AutomationId="GPUCenterEvidenceGrid">
+           <DataGrid.Columns><DataGridTextColumn Header="{Binding Localization[Name]}" Binding="{Binding Name}" Width="2*"/><DataGridTextColumn Header="{Binding Localization[Value]}" Binding="{Binding Value}" Width="2*"/><DataGridTextColumn Header="{Binding Localization[Source]}" Binding="{Binding Source}" Width="*"/><DataGridTextColumn Header="{Binding Localization[Availability]}" Binding="{Binding Availability}" Width="*"/></DataGrid.Columns>
+          </DataGrid>
+          <TextBlock Text="{Binding Localization[GpuNoEvidence]}" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" HorizontalAlignment="Center">
+           <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding HasGpuResults}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+          </TextBlock>
+         </Grid>
+        </TabItem>
+        <TabItem Header="{Binding Localization[SmartScanHistoryTab]}" AutomationProperties.AutomationId="GPUCenterHistoryTab">
+         <Grid Margin="4,12,4,4">
+          <DataGrid ItemsSource="{Binding GpuHistory}" SelectedItem="{Binding SelectedGpuReport,Mode=TwoWay}" Height="330" Visibility="{Binding HasGpuHistory,Converter={StaticResource BoolVisibility}}" AutomationProperties.Name="{Binding Localization[GpuHistoryTitle]}" AutomationProperties.AutomationId="GPUCenterHistoryGrid">
+           <DataGrid.Columns><DataGridTextColumn Header="{Binding Localization[GpuHistoryTitle]}" Binding="{Binding DisplayName}" Width="*"/><DataGridTextColumn Header="{Binding Localization[Observations]}" Binding="{Binding Summary}" Width="2*"/></DataGrid.Columns>
+          </DataGrid>
+          <TextBlock Text="{Binding Localization[GpuHistoryEmpty]}" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" HorizontalAlignment="Center">
+           <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding HasGpuHistory}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+          </TextBlock>
+         </Grid>
+        </TabItem>
+        <TabItem Header="{Binding Localization[Help]}" AutomationProperties.AutomationId="GPUCenterHelpTab">
+         <StackPanel Margin="10,14">
+          <TextBlock Text="{Binding Localization[GpuTelemetryTitle]}" FontSize="16" FontWeight="SemiBold"/>
+          <TextBlock Text="{Binding RouteDetail}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+          <TextBlock Text="{Binding Localization[GpuSensorUnavailable]}" Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+          <TextBlock Text="{Binding Localization[GpuFilterDescription]}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+         </StackPanel>
+        </TabItem>
+       </TabControl>
       </Border>
      <StackPanel Visibility="{Binding IsDashboard,Converter={StaticResource BoolVisibility}}" Margin="0,0,0,16">
       <Border Background="{DynamicResource AccentSurfaceBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="12" Padding="24" Margin="0,0,0,14">
@@ -188,13 +505,16 @@
         </Border>
        </Grid>
       </Border>
-      <UniformGrid Columns="4" Margin="0,0,0,14">
+      <UniformGrid Columns="5" Margin="0,0,0,14">
        <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="15" Margin="0,0,10,0">
         <StackPanel><TextBlock Text="{Binding Localization[CpuLoad]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="{Binding LiveCpu}" FontSize="27" FontWeight="SemiBold" Margin="0,8,0,5"/><TextBlock Text="{Binding Localization[TwoSecondSystemSample]}" Foreground="{DynamicResource MutedBrush}" FontSize="11"/></StackPanel>
        </Border>
        <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="15" Margin="0,0,10,0">
-        <StackPanel><TextBlock Text="{Binding Localization[PhysicalMemory]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="{Binding LiveMemory}" FontSize="20" FontWeight="SemiBold" Margin="0,11,0,8"/><TextBlock Text="GlobalMemoryStatusEx" Foreground="{DynamicResource MutedBrush}" FontSize="11"/></StackPanel>
+        <StackPanel><TextBlock Text="{Binding Localization[PhysicalMemory]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="{Binding LiveMemory}" FontSize="20" FontWeight="SemiBold" Margin="0,11,0,4"/><TextBlock Text="{Binding LiveCommit}" Foreground="{DynamicResource TextBrush}" FontSize="11" Margin="0,0,0,4"/><TextBlock Text="GlobalMemoryStatusEx" Foreground="{DynamicResource MutedBrush}" FontSize="10"/></StackPanel>
        </Border>
+      <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="15" Margin="0,0,10,0">
+       <StackPanel><TextBlock Text="{Binding Localization[SystemStorage]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="{Binding LiveStorage}" FontSize="24" FontWeight="SemiBold" Margin="0,11,0,8"/><TextBlock Text="{Binding Localization[WindowsSystemVolume]}" Foreground="{DynamicResource MutedBrush}" FontSize="11"/></StackPanel>
+      </Border>
        <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="15" Margin="0,0,10,0">
         <StackPanel><TextBlock Text="{Binding Localization[NetworkTraffic]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="{Binding LiveNetwork}" FontSize="17" FontWeight="SemiBold" Margin="0,13,0,10"/><TextBlock Text="{Binding Localization[AggregateActiveInterfaces]}" Foreground="{DynamicResource MutedBrush}" FontSize="11"/></StackPanel>
        </Border>
@@ -204,7 +524,7 @@
       </UniformGrid>
       <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="17" Margin="0,0,0,4">
        <Grid>
-        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
         <DockPanel>
          <TextBlock DockPanel.Dock="Right" Text="{Binding TelemetryStatus}" Foreground="{DynamicResource MutedBrush}" FontSize="10" VerticalAlignment="Center"/>
          <TextBlock Text="{Binding Localization[SystemTelemetryCpu]}" FontSize="11" Foreground="{DynamicResource MutedBrush}" FontWeight="Bold"/>
@@ -219,19 +539,23 @@
          <CheckBox DockPanel.Dock="Right" Content="{Binding Localization[MemoryGuard]}" IsChecked="{Binding MemoryGuardEnabled}" Foreground="{DynamicResource TextBrush}" FontSize="11"/>
          <TextBlock Text="{Binding UptimeText}" Foreground="{DynamicResource MutedBrush}" FontSize="11" VerticalAlignment="Center"/>
         </DockPanel>
+        <Grid Grid.Row="3" Margin="0,9,0,0">
+         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+         <Slider Minimum="70" Maximum="95" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding MemoryGuardThresholdPercent,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding MemoryGuardEnabled}" AutomationProperties.Name="{Binding Localization[MemoryGuardThreshold]}"/>
+         <TextBlock Grid.Column="1" Text="{Binding MemoryGuardThresholdText}" Foreground="{DynamicResource MutedBrush}" FontSize="11" VerticalAlignment="Center" Margin="12,0,0,0"/>
+        </Grid>
+        <Grid Grid.Row="4" Margin="0,6,0,0">
+         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+         <Slider Minimum="1" Maximum="60" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding MemoryGuardCooldownMinutes,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding MemoryGuardEnabled}" AutomationProperties.Name="{Binding Localization[MemoryGuardCooldown]}"/>
+         <TextBlock Grid.Column="1" Text="{Binding MemoryGuardCooldownText}" Foreground="{DynamicResource MutedBrush}" FontSize="11" VerticalAlignment="Center" Margin="12,0,0,0"/>
+        </Grid>
        </Grid>
       </Border>
      </StackPanel>
      <local:IntegrationsPanel Visibility="{Binding IsIntegration,Converter={StaticResource BoolVisibility}}"/>
      <local:TestCenterPanel Visibility="{Binding IsTestCenter,Converter={StaticResource BoolVisibility}}"/>
      <local:GameLibraryPanel Visibility="{Binding IsGameLibrary,Converter={StaticResource BoolVisibility}}"/>
-     <StackPanel Visibility="{Binding IsOneClickBoost,Converter={StaticResource BoolVisibility}}" Margin="0,0,0,16">
-      <TextBlock Text="Safe Boost — pilih perubahan" FontSize="16" FontWeight="SemiBold"/>
-      <TextBlock Text="Perubahan bersifat persisten dan dapat dipulihkan melalui Restore. Game capture dapat memengaruhi rekaman Windows; pilih hanya jika diperlukan. Tidak menjanjikan kenaikan FPS." TextWrapping="Wrap" Margin="0,6,0,8"/>
-      <CheckBox Content="Disable transparency" IsChecked="{Binding BoostTransparency}" Foreground="{DynamicResource TextBrush}" Margin="0,4"/>
-      <CheckBox Content="Disable Windows game capture preference" IsChecked="{Binding BoostCapture}" Foreground="{DynamicResource TextBrush}" Margin="0,4"/>
-      <Button Content="Preview &amp; Apply Safe Boost" AutomationProperties.AutomationId="SafeBoostButton" Command="{Binding SafeBoostCommand}" HorizontalAlignment="Left" Margin="0,8,0,0"/>
-     </StackPanel>
+     <local:GameProfilesPanel Visibility="{Binding IsPerGameProfiles,Converter={StaticResource BoolVisibility}}"/>
      <local:BenchmarkPanel Visibility="{Binding IsBenchmark,Converter={StaticResource BoolVisibility}}"/>
      <StackPanel Visibility="{Binding IsCleanup,Converter={StaticResource BoolVisibility}}" Margin="0,0,0,16">
       <TextBlock Text="{Binding Localization[CleanupExplanation]}" Margin="0,0,0,12"/>
@@ -291,8 +615,9 @@
       </StackPanel>
      </Border>
      <WrapPanel Margin="0,0,0,16" Visibility="{Binding IsNetwork,Converter={StaticResource BoolVisibility}}"><TextBox Text="{Binding Host,UpdateSourceTrigger=PropertyChanged}" Width="230" Margin="0,0,10,0" AutomationProperties.Name="{Binding Localization[HostOrIp]}" AutomationProperties.AutomationId="NetworkTestHost"/><Button Content="{Binding Localization[MeasurePing]}" Command="{Binding PingCommand}"/><Button Content="{Binding Localization[ResolveDns]}" Command="{Binding ResolveDnsCommand}" AutomationProperties.AutomationId="ResolveDnsButton"/></WrapPanel>
-     <Border Visibility="{Binding HasFindings,Converter={StaticResource BoolVisibility}}" Background="{DynamicResource SurfaceBrush}" CornerRadius="10" Padding="18" Margin="0,0,0,16">
-      <StackPanel><TextBlock Text="{Binding Localization[FindingsRecommendations]}" FontSize="11" Foreground="{DynamicResource AccentBrush}" FontWeight="Bold"/><ItemsControl ItemsSource="{Binding Findings}"><ItemsControl.ItemTemplate><DataTemplate><StackPanel Margin="0,14,0,4"><TextBlock Text="{Binding Title}" FontWeight="SemiBold"/><TextBlock Text="{Binding Evidence}" Foreground="{DynamicResource MutedBrush}" Margin="0,4"/><TextBlock Text="{Binding Recommendation}"/><TextBlock Text="{Binding Confidence}" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,5,0,0"/></StackPanel></DataTemplate></ItemsControl.ItemTemplate></ItemsControl></StackPanel>
+     <Border Visibility="{Binding IsNetworkProfiles,Converter={StaticResource BoolVisibility}}" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,0,16"><StackPanel><TextBlock Text="Network profile and DNS" FontSize="16" FontWeight="SemiBold"/><TextBlock Text="Scan reads current network evidence. An optional DNS change applies only to the explicitly selected adapter and preset, requires Administrator approval, and is journaled for rollback. No latency improvement is promised." Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,5,0,8"/><TextBlock Text="Diagnostics policy" Foreground="{DynamicResource MutedBrush}"/><ComboBox ItemsSource="{Binding NetworkProfileModes}" SelectedItem="{Binding NetworkProfileMode}" Width="220" HorizontalAlignment="Left" AutomationProperties.AutomationId="NetworkProfileMode"/><TextBlock Text="DNS adapter" Foreground="{DynamicResource MutedBrush}" Margin="0,10,0,0"/><ComboBox ItemsSource="{Binding DnsAdapters}" SelectedItem="{Binding SelectedDnsAdapter}" Width="520" HorizontalAlignment="Left" AutomationProperties.AutomationId="DnsAdapter"/><TextBlock Text="DNS preset" Foreground="{DynamicResource MutedBrush}" Margin="0,10,0,0"/><ComboBox ItemsSource="{Binding DnsPresets}" SelectedItem="{Binding SelectedDnsPreset}" Width="220" HorizontalAlignment="Left" AutomationProperties.AutomationId="DnsPreset"/></StackPanel></Border>
+     <Border Visibility="{Binding HasFindingsOutsideSmartScan,Converter={StaticResource BoolVisibility}}" Background="{DynamicResource SurfaceBrush}" CornerRadius="10" Padding="18" Margin="0,0,0,16">
+      <StackPanel><TextBlock Text="{Binding Localization[FindingsRecommendations]}" FontSize="11" Foreground="{DynamicResource AccentBrush}" FontWeight="Bold"/><ItemsControl ItemsSource="{Binding Findings}"><ItemsControl.ItemTemplate><DataTemplate><StackPanel Margin="0,14,0,4"><TextBlock Text="{Binding Title}" FontWeight="SemiBold"/><TextBlock Text="{Binding Evidence}" Foreground="{DynamicResource MutedBrush}" Margin="0,4"/><TextBlock Text="{Binding Recommendation}"/><TextBlock Text="{Binding Confidence}" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,5,0,0"/><Button Content="{Binding DataContext.Localization[PreviewApply],RelativeSource={RelativeSource AncestorType=Window}}" Command="{Binding DataContext.ApplyFindingCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding ActionId}" Margin="0,6,0,0" HorizontalAlignment="Left" AutomationProperties.AutomationId="ApplyRecommendation"><Button.Style><Style TargetType="Button"><Setter Property="Visibility" Value="Visible"/><Style.Triggers><DataTrigger Binding="{Binding ActionId}" Value="{x:Null}"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></Button.Style></Button></StackPanel></DataTemplate></ItemsControl.ItemTemplate></ItemsControl></StackPanel>
      </Border>
      <StackPanel Visibility="{Binding IsRestore,Converter={StaticResource BoolVisibility}}">
       <WrapPanel Margin="0,0,0,14"><Button Content="{Binding Localization[VerifyCurrentState]}" Command="{Binding VerifyCommand}"/><Button Content="{Binding Localization[RestoreSelected]}" Command="{Binding RollbackCommand}"/></WrapPanel>
@@ -314,6 +639,35 @@
       </WrapPanel>
       <TextBlock Text="{Binding Localization[BuildInfo]}" Foreground="{DynamicResource MutedBrush}" Margin="0,24,0,0"/>
      </StackPanel>
+     <StackPanel Visibility="{Binding IsAutomation,Converter={StaticResource BoolVisibility}}">
+      <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,0,14">
+       <StackPanel>
+        <TextBlock Text="Opt-in local automation" FontSize="16" FontWeight="SemiBold"/><TextBlock Text="Rules run only while HyperBoostX is open. Approved actions are read-only Smart Scan, cleanup discovery, and local reminders. No arbitrary command, script, deletion, or unattended Windows mutation is allowed." Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,5,0,10"/>
+        <WrapPanel><TextBlock Text="Name" VerticalAlignment="Center"/><TextBox Text="{Binding AutomationName,UpdateSourceTrigger=PropertyChanged}" Width="150" AutomationProperties.AutomationId="AutomationName"/><TextBlock Text="Action" VerticalAlignment="Center" Margin="8,0,0,0"/><ComboBox ItemsSource="{Binding AutomationActions}" SelectedItem="{Binding AutomationAction}" Width="125" AutomationProperties.AutomationId="AutomationAction"/><TextBlock Text="Condition" VerticalAlignment="Center" Margin="8,0,0,0"/><ComboBox ItemsSource="{Binding AutomationConditions}" SelectedItem="{Binding AutomationCondition}" Width="110" AutomationProperties.AutomationId="AutomationCondition"/></WrapPanel>
+        <WrapPanel Margin="0,8,0,0"><TextBlock Text="Interval (minutes)" VerticalAlignment="Center"/><TextBox Text="{Binding AutomationIntervalMinutes,UpdateSourceTrigger=PropertyChanged}" Width="70" AutomationProperties.AutomationId="AutomationInterval"/><TextBlock Text="Cooldown (minutes)" VerticalAlignment="Center" Margin="8,0,0,0"/><TextBox Text="{Binding AutomationCooldownMinutes,UpdateSourceTrigger=PropertyChanged}" Width="70" AutomationProperties.AutomationId="AutomationCooldown"/><Button Content="Create paused rule" Command="{Binding AddAutomationRuleCommand}" AutomationProperties.AutomationId="AddAutomationRuleButton"/></WrapPanel>
+       </StackPanel>
+      </Border>
+      <DataGrid ItemsSource="{Binding AutomationRuleItems}" SelectedItem="{Binding SelectedAutomationRule}" Height="180" AutomationProperties.AutomationId="AutomationRulesGrid"><DataGrid.Columns><DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/><DataGridTextColumn Header="Action" Binding="{Binding Action}" Width="120"/><DataGridTextColumn Header="Condition" Binding="{Binding Condition}" Width="100"/><DataGridCheckBoxColumn Header="Enabled" Binding="{Binding Enabled}" Width="70"/><DataGridTextColumn Header="Last run" Binding="{Binding LastRunAt}" Width="150"/></DataGrid.Columns></DataGrid>
+      <WrapPanel Margin="0,8,0,12"><Button Content="Enable selected" Command="{Binding EnableAutomationRuleCommand}" AutomationProperties.AutomationId="EnableAutomationRuleButton"/><Button Content="Pause selected" Command="{Binding PauseAutomationRuleCommand}"/><Button Content="Remove selected" Command="{Binding RemoveAutomationRuleCommand}"/><Button Content="Emergency stop all" Command="{Binding EmergencyStopAutomationCommand}" AutomationProperties.AutomationId="EmergencyStopAutomationButton"/></WrapPanel>
+      <DataGrid ItemsSource="{Binding AutomationHistory}" Height="180" AutomationProperties.AutomationId="AutomationHistoryGrid"><DataGrid.Columns><DataGridTextColumn Header="Started" Binding="{Binding StartedAt}" Width="160"/><DataGridTextColumn Header="Rule" Binding="{Binding RuleName}" Width="*"/><DataGridTextColumn Header="Action" Binding="{Binding Action}" Width="110"/><DataGridTextColumn Header="Result" Binding="{Binding Result}" Width="80"/><DataGridTextColumn Header="Evidence" Binding="{Binding Evidence}" Width="2*"/></DataGrid.Columns></DataGrid>
+     </StackPanel>
+     <StackPanel Visibility="{Binding IsUpdateCenter,Converter={StaticResource BoolVisibility}}">
+      <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,0,14">
+       <StackPanel>
+        <TextBlock Text="Signed release package inspection" FontSize="16" FontWeight="SemiBold"/><TextBlock Text="Inspect the running executable or a local candidate package. HyperBoostX calculates SHA-256 and asks Windows to verify Authenticode trust. It never downloads, executes, installs, or replaces a package automatically." Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,5,0,10"/>
+        <Button Content="Inspect current executable" Command="{Binding InspectCurrentPackageCommand}" HorizontalAlignment="Left" AutomationProperties.AutomationId="InspectCurrentPackageButton"/>
+        <DockPanel Margin="0,8,0,0"><Button DockPanel.Dock="Right" Content="Select package" Command="{Binding SelectUpdatePackageCommand}" Margin="8,0,0,0"/><TextBox Text="{Binding UpdatePackagePath,UpdateSourceTrigger=PropertyChanged}" AutomationProperties.AutomationId="UpdatePackagePath"/></DockPanel>
+        <Button Content="Inspect selected package" Command="{Binding InspectUpdatePackageCommand}" HorizontalAlignment="Left" Margin="0,8,0,0" AutomationProperties.AutomationId="InspectUpdatePackageButton"/>
+       </StackPanel>
+      </Border>
+      <TextBlock Text="Inspection history" FontWeight="SemiBold"/><ListBox ItemsSource="{Binding UpdateInspectionHistory}" DisplayMemberPath="DisplayName" MaxHeight="150" Margin="0,6,0,14" AutomationProperties.AutomationId="UpdateInspectionHistory"/>
+     </StackPanel>
+     <Border Visibility="{Binding IsPluginManager,Converter={StaticResource BoolVisibility}}" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,0,14">
+      <StackPanel>
+       <TextBlock Text="Fail-closed plugin manifest review" FontSize="16" FontWeight="SemiBold"/><TextBlock Text="Place each package in its own folder below the local Plugins directory. HyperBoostX validates schema, compatibility, SHA-256, allowlisted permissions, and Windows Authenticode trust. Plugin code is never loaded or executed by this build." Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,5,0,8"/>
+       <TextBlock Text="{Binding PluginDirectory}" TextWrapping="Wrap" AutomationProperties.AutomationId="PluginDirectory"/><Button Content="Review plugin packages" Command="{Binding ReviewPluginsCommand}" HorizontalAlignment="Left" Margin="0,8,0,0" AutomationProperties.AutomationId="ReviewPluginsButton"/>
+      </StackPanel>
+     </Border>
      <StackPanel Visibility="{Binding IsReports,Converter={StaticResource BoolVisibility}}">
       <TextBlock Text="{Binding Localization[LocalReports]}" FontSize="24" FontWeight="SemiBold"/><TextBlock Text="{Binding Localization[SupportBundleConsent]}" Foreground="{DynamicResource MutedBrush}" Margin="0,12,0,20"/>
       <ComboBox ItemsSource="{Binding Reports}" SelectedItem="{Binding SelectedReport}" DisplayMemberPath="DisplayName" AutomationProperties.Name="{Binding Localization[SavedReports]}" Margin="0,0,0,12"/>
@@ -323,7 +677,7 @@
      <Border Visibility="{Binding HasTools,Converter={StaticResource BoolVisibility}}" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,0,16">
       <StackPanel><TextBlock Text="{Binding Localization[WindowsTools]}" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,12"/><WrapPanel><ComboBox ItemsSource="{Binding Tools}" SelectedItem="{Binding SelectedHandoff}" Width="300" AutomationProperties.Name="{Binding Localization[WindowsTools]}"/><Button Content="{Binding Localization[OpenWindowsTool]}" Command="{Binding OpenToolCommand}"/></WrapPanel></StackPanel>
      </Border>
-     <StackPanel Visibility="{Binding HasFacts,Converter={StaticResource BoolVisibility}}">
+     <StackPanel Visibility="{Binding HasFactsOutsideSmartScan,Converter={StaticResource BoolVisibility}}">
       <DockPanel Margin="0,0,0,10"><Button DockPanel.Dock="Right" Content="{Binding Localization[Export]}" Command="{Binding ExportCommand}" Padding="12,5" MinHeight="30"/><TextBlock DockPanel.Dock="Right" Text="{Binding Localization[Search]}" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/><TextBox DockPanel.Dock="Right" Text="{Binding FactFilter,UpdateSourceTrigger=PropertyChanged}" Width="220" Margin="0,0,8,0" ToolTip="{Binding Localization[Search]}" AutomationProperties.Name="{Binding Localization[Search]}" AutomationProperties.AutomationId="ObservationFilter"/><TextBlock Text="{Binding Localization[Observations]}" Foreground="{DynamicResource MutedBrush}" FontSize="11" VerticalAlignment="Center"/></DockPanel>
       <DataGrid ItemsSource="{Binding FactsView}" SelectedItem="{Binding SelectedFact,Mode=TwoWay}" Height="340" AutomationProperties.Name="{Binding Localization[Observations]}" AutomationProperties.AutomationId="ObservationFacts"><DataGrid.Columns><DataGridTextColumn Header="{Binding Localization[Observation]}" Binding="{Binding Name}" Width="220"/><DataGridTextColumn Header="{Binding Localization[Value]}" Binding="{Binding Value}" Width="*"/><DataGridTextColumn Header="{Binding Localization[Evidence]}" Binding="{Binding Quality}" Width="100"/></DataGrid.Columns><DataGrid.RowStyle><Style TargetType="DataGridRow"><Setter Property="ToolTip"><Setter.Value><TextBlock Text="{Binding Source}" MaxWidth="600"/></Setter.Value></Setter></Style></DataGrid.RowStyle></DataGrid>
       <Border Visibility="{Binding HasFactDetails,Converter={StaticResource BoolVisibility}}" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,10,0,0"><TextBlock Text="{Binding FactDetails}" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" AutomationProperties.Name="{Binding FactDetails}" AutomationProperties.AutomationId="FactDetailsText"/></Border>
@@ -339,5 +693,69 @@
     </DockPanel>
    </Border>
   </Grid>
+  <Border Grid.RowSpan="2" Grid.ColumnSpan="2" Background="#B8000000" Visibility="{Binding IsCommandPaletteOpen,Converter={StaticResource BoolVisibility}}" Panel.ZIndex="100" AutomationProperties.AutomationId="CommandPaletteOverlay">
+   <Grid Margin="24">
+    <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="12" Padding="24" Width="640" MaxHeight="620" VerticalAlignment="Center" HorizontalAlignment="Center">
+     <Grid>
+      <Grid.RowDefinitions>
+       <RowDefinition Height="Auto"/>
+       <RowDefinition Height="Auto"/>
+       <RowDefinition Height="Auto"/>
+       <RowDefinition Height="*"/>
+       <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <DockPanel Grid.Row="0" Margin="0,0,0,10">
+       <Button DockPanel.Dock="Right" Content="×" Command="{Binding CloseCommandPaletteCommand}" Padding="10,5" MinHeight="30" AutomationProperties.Name="{Binding Localization[Dismiss]}" AutomationProperties.AutomationId="CloseCommandPaletteButton"/>
+       <TextBlock Text="{Binding Localization[CommandPalette]}" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center"/>
+      </DockPanel>
+      <TextBlock Grid.Row="1" Text="{Binding Localization[SearchAllModules]}" Foreground="{DynamicResource MutedBrush}" FontSize="11" Margin="0,0,0,4"/>
+      <TextBox Grid.Row="2" x:Name="CommandPaletteSearchBox" Text="{Binding CommandPaletteQuery,UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="{Binding Localization[SearchAllModules]}" AutomationProperties.AutomationId="CommandPaletteSearch"/>
+      <ListBox Grid.Row="3" ItemsSource="{Binding CommandPaletteResults}" SelectedItem="{Binding SelectedCommandPaletteEntry,Mode=TwoWay}" MaxHeight="390" Margin="0,8,0,8" Background="Transparent" BorderThickness="0" AutomationProperties.Name="{Binding Localization[CommandPalette]}" AutomationProperties.AutomationId="CommandPaletteResults">
+       <ListBox.ItemContainerStyle>
+        <Style TargetType="{x:Type ListBoxItem}">
+         <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+         <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+         <Setter Property="BorderThickness" Value="1"/>
+         <Setter Property="Padding" Value="12,8"/>
+         <Setter Property="Margin" Value="0,3"/>
+         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+         <Setter Property="AutomationProperties.Name" Value="{Binding Name}"/>
+         <Setter Property="Template">
+          <Setter.Value>
+           <ControlTemplate TargetType="{x:Type ListBoxItem}">
+            <Border x:Name="Card" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+            </Border>
+            <ControlTemplate.Triggers>
+             <Trigger Property="IsSelected" Value="True">
+              <Setter TargetName="Card" Property="Background" Value="{DynamicResource AccentSurfaceBrush}"/>
+              <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+             </Trigger>
+             <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+             </Trigger>
+            </ControlTemplate.Triggers>
+           </ControlTemplate>
+          </Setter.Value>
+         </Setter>
+        </Style>
+       </ListBox.ItemContainerStyle>
+       <ListBox.ItemTemplate>
+        <DataTemplate>
+         <StackPanel>
+          <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+          <TextBlock Text="{Binding Group}" Foreground="{DynamicResource MutedBrush}" FontSize="11"/>
+         </StackPanel>
+        </DataTemplate>
+       </ListBox.ItemTemplate>
+      </ListBox>
+      <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+       <Button Content="{Binding Localization[Dismiss]}" Command="{Binding CloseCommandPaletteCommand}" AutomationProperties.AutomationId="DismissCommandPaletteButton"/>
+       <Button Content="{Binding Localization[OpenSelectedPage]}" Command="{Binding ExecuteCommandPaletteCommand}" Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource AccentForegroundBrush}" BorderBrush="{DynamicResource AccentBrush}" AutomationProperties.AutomationId="ExecuteCommandPalette"/>
+      </StackPanel>
+     </Grid>
+    </Border>
+   </Grid>
+  </Border>
  </Grid>
 </Window>

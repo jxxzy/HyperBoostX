@@ -69,7 +69,7 @@ public static class VendorSoftwareDetection
         }
         try
         {
-            using var searcher=new ManagementObjectSearcher("SELECT Name,DisplayName,State,PathName FROM Win32_Service");using var rows=searcher.Get();
+            using var searcher=new ManagementObjectSearcher(new ManagementScope(@"\\.\root\cimv2"),new ObjectQuery("SELECT Name,DisplayName,State,PathName FROM Win32_Service"),new System.Management.EnumerationOptions{ReturnImmediately=false,Rewindable=false,Timeout=TimeSpan.FromSeconds(10)});using var rows=searcher.Get();
             foreach(ManagementObject row in rows){using(row){token.ThrowIfCancellationRequested();var name=$"{row["Name"]} {row["DisplayName"]} {row["PathName"]}";Observe("Windows service",name,$"{row["State"]??"Unknown"} · {row["DisplayName"]??row["Name"]}");}}
         }
         catch(Exception exception) when(exception is ManagementException or UnauthorizedAccessException or System.Runtime.InteropServices.COMException)

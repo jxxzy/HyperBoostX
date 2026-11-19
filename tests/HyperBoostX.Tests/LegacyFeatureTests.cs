@@ -21,10 +21,16 @@ public sealed class LegacyFeatureTests:IDisposable
     {
         var fixture=Game();var library=new GameLibrary(_documents);var game=library.Add(fixture.Name,fixture.Executable);
         Assert.Throws<HbxException>(()=>library.Add("Duplicate",fixture.Executable));
-        library.SaveProfile(game.Id,new(DisableCapture:true));var reopened=new GameLibrary(new DocumentStore(_journal,new WindowsProtector()));
+        library.SaveProfile(game.Id,new(DisableCapture:true,RaisePriority:true));var reopened=new GameLibrary(new DocumentStore(_journal,new WindowsProtector()));
         Assert.True(reopened.List().Single().Profile.DisableCapture);
+        Assert.True(reopened.List().Single().Profile.RaisePriority);
         Assert.DoesNotContain(fixture.Executable,Encoding.UTF8.GetString(File.ReadAllBytes(Path.Combine(_root,"Documents","games.hbx"))));
         reopened.Remove(game.Id);Assert.Empty(reopened.List());Assert.True(File.Exists(fixture.Executable));
+    }
+    [Fact]public void ExistingGameProfileJsonDefaultsPriorityOptInToDisabled()
+    {
+        var profile=Json.Read<GameProfile>("{\"PowerPlan\":null,\"DisableCapture\":true,\"DisableTransparency\":false}");
+        Assert.True(profile.DisableCapture);Assert.False(profile.RaisePriority);
     }
     [Fact]public void InvalidGamePathAndDocumentTraversalAreRejected()
     {
@@ -34,10 +40,10 @@ public sealed class LegacyFeatureTests:IDisposable
     [Fact]public void GameLibraryImportValidatesAllEntriesAndMergesWithoutOverwriting()
     {
         var fixture=Game();var library=new GameLibrary(_documents);var existing=library.Add(fixture.Name,fixture.Executable);
-        var additional=Game() with{Name="Imported",Profile=new(DisableCapture:true)};
+        var additional=Game() with{Name="Imported",Profile=new(DisableCapture:true,RaisePriority:true)};
         Assert.Equal(1,library.Import([existing,additional]));
         var imported=library.List().Single(game=>game.Name=="Imported");
-        Assert.True(imported.Profile.DisableCapture);Assert.NotEqual(additional.Id,imported.Id);
+        Assert.True(imported.Profile.DisableCapture);Assert.True(imported.Profile.RaisePriority);Assert.NotEqual(additional.Id,imported.Id);
         Assert.Equal(0,library.Import([existing]));Assert.Equal(2,library.List().Count);
         var invalid=Game() with{Executable=Path.Combine(_root,"missing.exe")};
         Assert.Throws<HbxException>(()=>library.Import([GameEntryForImport(additional),invalid]));
@@ -59,6 +65,42 @@ public sealed class LegacyFeatureTests:IDisposable
         var restarted=new GameSessions(engine,_journal,_documents);Assert.True(restarted.Active);
         Assert.Equal("Restored",(await restarted.RestoreAsync(true,default)).Status);Assert.Equal("1",action.Value.Value);
         Assert.All(_journal.History(),c=>Assert.Equal(started.Id,c.Session));
+    }
+    [Fact]public async Task GameSessionPersistsExactProcessIdentityForRestartRecovery()
+    {
+        var fixture=Game(new(DisableCapture:true));var library=new GameLibrary(_documents);var game=library.Add(fixture.Name,fixture.Executable);
+        library.SaveProfile(game.Id,fixture.Profile);game=library.List().Single();
+        var action=new Preference("gaming.capture.disable");var engine=Engine(action);var preview=await engine.PreviewAsync(action.Info.Id,"",default);
+        var sessions=new GameSessions(engine,_journal,_documents);var started=await sessions.StartAsync(game,[preview],true,default);
+        var identity=new GameProcessIdentity(73124,DateTimeOffset.UtcNow.UtcDateTime.Ticks);
+
+        var attached=sessions.AttachProcess(started.Id,identity);
+        var reopened=new GameSessions(engine,_journal,new DocumentStore(_journal,new WindowsProtector()));
+
+        Assert.Equal(identity.ProcessId,reopened.Current?.ProcessId);
+        Assert.Equal(identity.StartTimeUtcTicks,reopened.Current?.ProcessStartTimeUtcTicks);
+        Assert.Contains("exact game process",attached.Message);
+        Assert.Throws<HbxException>(()=>reopened.AttachProcess(Guid.NewGuid().ToString("N"),identity));
+        Assert.Throws<HbxException>(()=>reopened.AttachProcess(started.Id,identity with{ProcessId=identity.ProcessId+1}));
+        Assert.Equal("Restored",(await reopened.RestoreAsync(true,default)).Status);
+        Assert.Equal("1",action.Value.Value);
+    }
+    [Fact]public void OlderGamingSessionRecordsRemainUntrackedInsteadOfInventingProcessIdentity()
+    {
+        var session=Json.Read<GamingSession>("{\"Id\":\"legacy-session\",\"GameId\":\"legacy-game\",\"GameName\":\"Legacy\",\"Status\":\"Active\",\"StartedAt\":\"2026-01-01T00:00:00+00:00\",\"Message\":\"\"}");
+        Assert.Null(session.ProcessId);Assert.Null(session.ProcessStartTimeUtcTicks);
+    }
+    [Fact]public async Task InterruptedSessionRestoreResumesFromPersistedJournalState()
+    {
+        var action=new Preference("gaming.capture.disable");var engine=Engine(action);var game=Game(new(DisableCapture:true));
+        var sessions=new GameSessions(engine,_journal,_documents);
+        var started=await sessions.StartAsync(game,[await engine.PreviewAsync(action.Info.Id,"",default)],true,default);
+        _documents.Update<GamingSession?>("gaming-session",null,current=>current! with{Status="Restoring"});
+
+        var reopened=new GameSessions(engine,_journal,new DocumentStore(_journal,new WindowsProtector()));
+        Assert.Equal("Restored",(await reopened.RestoreAsync(true,default)).Status);
+        Assert.Equal("1",action.Value.Value);
+        Assert.Equal(started.Id,reopened.Current?.Id);
     }
     [Fact]public async Task SessionPartialFailureRestoresEarlierActions()
     {

@@ -105,7 +105,8 @@ public sealed class PrivilegedRequestValidator:IDisposable
         byte[] nonce;
         try{nonce=Convert.FromBase64String(request.Nonce);}
         catch(FormatException){return PrivilegedRequestValidation.Deny("HBX-IPC-NONCE","Request nonce is invalid.");}
-        if(nonce.Length!=32||!string.Equals(request.Nonce,Convert.ToBase64String(nonce),StringComparison.Ordinal))return PrivilegedRequestValidation.Deny("HBX-IPC-NONCE","Request nonce must be canonical base64 containing 256 bits.");
+        if(nonce.Length!=32)return PrivilegedRequestValidation.Deny("HBX-IPC-NONCE","Request nonce must contain 256 bits.");
+        var canonicalNonce=Convert.ToBase64String(nonce);
         byte[] suppliedTag;
         try{suppliedTag=Convert.FromBase64String(request.AuthenticationTag);}
         catch(FormatException){return PrivilegedRequestValidation.Deny("HBX-IPC-AUTH","Authentication tag is invalid.");}
@@ -116,7 +117,7 @@ public sealed class PrivilegedRequestValidator:IDisposable
         try{if(!validatePayload(request.Target,request.Body))return PrivilegedRequestValidation.Deny("HBX-IPC-PAYLOAD","Action payload validation failed.");}
         catch{return PrivilegedRequestValidation.Deny("HBX-IPC-PAYLOAD","Action payload validation failed.");}
         RemoveExpiredNonces(now.ToUnixTimeSeconds());
-        if(!_seenNonces.TryAdd(Convert.ToBase64String(nonce),request.IssuedAtUnixSeconds))return PrivilegedRequestValidation.Deny("HBX-IPC-REPLAY","Request nonce has already been used.");
+        if(!_seenNonces.TryAdd(canonicalNonce,request.IssuedAtUnixSeconds))return PrivilegedRequestValidation.Deny("HBX-IPC-REPLAY","Request nonce has already been used.");
         return PrivilegedRequestValidation.Allow();
     }
 

@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Media;
+using System.IO;
 using HyperBoostX.Core;
 using HyperBoostX.Windows;
 
@@ -14,8 +15,32 @@ public sealed partial class ShellViewModel
     private string? _telemetryError;
     private DateTimeOffset _lastMemoryNotice;
     private bool _memoryGuard;
+    private int _memoryGuardThresholdPercent=90;
+    private int _memoryGuardCooldownMinutes=5;
     public string LiveCpu=>_liveSample?.CpuPercent is {} cpu?$"{cpu:F1}%":Localization[_liveSample?.CpuAvailability==MeasurementAvailability.Unavailable?"Unavailable":"Sampling"];
     public string LiveMemory=>_liveSample is {} s?$"{(s.TotalMemory-s.AvailableMemory)/1073741824d:F1} / {s.TotalMemory/1073741824d:F1} GiB ({s.MemoryPercent:F1}%)":Localization["Unavailable"];
+    public string LiveCommit=>_liveSample is {} sample&&sample.CommitUsedBytes is {} used&&sample.CommitLimitBytes is {} limit
+        ?$"{Localization["CommitCharge"]}: {used/1073741824d:F1} / {limit/1073741824d:F1} GiB"
+        :$"{Localization["CommitCharge"]}: {Localization[_liveSample is null?"Sampling":AvailabilityKey(_liveSample.CommitAvailability)]}";
+    public string LiveStorage
+    {
+        get
+        {
+            try
+            {
+                var root=Path.GetPathRoot(Environment.SystemDirectory);
+                if(string.IsNullOrEmpty(root))return Localization["Unavailable"];
+                var drive=new DriveInfo(root);
+                if(!drive.IsReady||drive.TotalSize<=0)return Localization["Unavailable"];
+                var available=Math.Clamp(drive.AvailableFreeSpace,0,drive.TotalSize);
+                return $"{100d*(drive.TotalSize-available)/drive.TotalSize:F0}%";
+            }
+            catch(Exception exception) when(exception is IOException or UnauthorizedAccessException or ArgumentException)
+            {
+                return Localization["Unavailable"];
+            }
+        }
+    }
     public string LiveNetwork
     {
         get
@@ -40,7 +65,9 @@ public sealed partial class ShellViewModel
             if(sample.NetworkFailureCount>0)network+=$" ({sample.NetworkFailureCount})";
             var cpu=Localization["CPU"]+": "+Localization[AvailabilityKey(sample.CpuAvailability)];
             if(sample.CpuWin32Error is {} error)cpu+=$" (Win32 {error})";
-            return $"{sample.ObservedAt.ToLocalTime():HH:mm:ss} · {network} · {cpu}";
+            var commit=Localization["CommitCharge"]+": "+Localization[AvailabilityKey(sample.CommitAvailability)];
+            if(sample.CommitWin32Error is {} commitError)commit+=$" (Win32 {commitError})";
+            return $"{sample.ObservedAt.ToLocalTime():HH:mm:ss} · {network} · {cpu} · {commit}";
         }
     }
     private static string AvailabilityKey(MeasurementAvailability availability)=>availability switch
@@ -53,10 +80,46 @@ public sealed partial class ShellViewModel
     public PointCollection CpuChart {get;private set;}=[];
     public bool HasCpuSamples=>_cpuPoints.Count>1;
     public bool MemoryGuardEnabled{get=>_memoryGuard;set{Runtime.Journal.SetSetting("memory-guard",value.ToString());_memoryGuard=value;Notify();}}
+    public int MemoryGuardThresholdPercent
+    {
+        get=>_memoryGuardThresholdPercent;
+        set
+        {
+            var threshold=Math.Clamp(value,70,95);
+            if(_memoryGuardThresholdPercent==threshold)return;
+            _memoryGuardThresholdPercent=threshold;
+            Runtime.Journal.SetSetting("memory-guard-threshold",threshold.ToString());
+            Notify();Notify(nameof(MemoryGuardThresholdText));
+        }
+    }
+    public string MemoryGuardThresholdText=>$"{Localization["MemoryGuardThreshold"]}: {MemoryGuardThresholdPercent}%";
+    public int MemoryGuardCooldownMinutes
+    {
+        get=>_memoryGuardCooldownMinutes;
+        set
+        {
+            var cooldown=Math.Clamp(value,1,60);
+            if(_memoryGuardCooldownMinutes==cooldown)return;
+            _memoryGuardCooldownMinutes=cooldown;
+            Runtime.Journal.SetSetting("memory-guard-cooldown-minutes",cooldown.ToString());
+            Notify();Notify(nameof(MemoryGuardCooldownText));
+        }
+    }
+    public string MemoryGuardCooldownText=>$"{Localization["MemoryGuardCooldown"]}: {MemoryGuardCooldownMinutes} min";
+    public static bool ShouldNotifyMemoryGuard(double memoryPercent,int thresholdPercent,DateTimeOffset lastNotice,DateTimeOffset now,int cooldownMinutes)
+    {
+        var threshold=Math.Clamp(thresholdPercent,70,95);
+        var cooldown=Math.Clamp(cooldownMinutes,1,60);
+        return memoryPercent>=threshold&&now-lastNotice>=TimeSpan.FromMinutes(cooldown);
+    }
     public void StartTelemetry()
     {
         if(_telemetryStop!=null)return;
         _memoryGuard=bool.TryParse(Runtime.Journal.GetSetting("memory-guard"),out var enabled)&&enabled;Notify(nameof(MemoryGuardEnabled));
+        _memoryGuardThresholdPercent=int.TryParse(Runtime.Journal.GetSetting("memory-guard-threshold"),out var threshold)?Math.Clamp(threshold,70,95):90;
+        Notify(nameof(MemoryGuardThresholdPercent));Notify(nameof(MemoryGuardThresholdText));
+        _memoryGuardCooldownMinutes=int.TryParse(Runtime.Journal.GetSetting("memory-guard-cooldown-minutes"),out var cooldown)?Math.Clamp(cooldown,1,60):5;
+        Notify(nameof(MemoryGuardCooldownMinutes));Notify(nameof(MemoryGuardCooldownText));
         _telemetryStop=new CancellationTokenSource();_ = PollTelemetry(_telemetryStop.Token);
     }
     private async Task PollTelemetry(CancellationToken token)
@@ -66,15 +129,16 @@ public sealed partial class ShellViewModel
             using var timer=new PeriodicTimer(TimeSpan.FromSeconds(2));var ticks=0;
             while(await timer.WaitForNextTickAsync(token))
             {
-                if(!IsDashboard&&!MemoryGuardEnabled){_telemetry.ResetBaseline();continue;}
+                if(!IsDashboard&&!IsCpuOptimization&&!MemoryGuardEnabled){_telemetry.ResetBaseline();continue;}
                 try
                 {
                     var sample=await Task.Run(_telemetry.Sample,token);_liveSample=sample;_telemetryError=null;
                     if(sample.CpuPercent is {} cpu){_cpuPoints.Enqueue(cpu);while(_cpuPoints.Count>60)_cpuPoints.Dequeue();CpuChart=new PointCollection(_cpuPoints.Select((v,i)=>new Point(i*5,100-v)));}
-                    if(MemoryGuardEnabled&&sample.MemoryPercent>=90&&DateTimeOffset.UtcNow-_lastMemoryNotice>TimeSpan.FromMinutes(5))
-                    {Status=$"Memory Guard: RAM {sample.MemoryPercent:F1}%. Simpan pekerjaan dan tinjau Processes. Tidak ada proses yang ditutup atau RAM yang dipurge otomatis.";_lastMemoryNotice=DateTimeOffset.UtcNow;}
+                    var observedAt=DateTimeOffset.UtcNow;
+                    if(MemoryGuardEnabled&&ShouldNotifyMemoryGuard(sample.MemoryPercent,MemoryGuardThresholdPercent,_lastMemoryNotice,observedAt,MemoryGuardCooldownMinutes))
+                    {Status=$"Memory Guard: RAM {sample.MemoryPercent:F1}%. Simpan pekerjaan dan tinjau Processes. Tidak ada proses yang ditutup atau RAM yang dipurge otomatis.";_lastMemoryNotice=observedAt;}
                     if(++ticks%15==0)await Task.Run(()=>Runtime.Documents.Update("telemetry",new List<TelemetrySample>(),items=>items.Append(sample).TakeLast(600).ToList()),token);
-                    foreach(var name in new[]{nameof(LiveCpu),nameof(LiveMemory),nameof(LiveNetwork),nameof(LiveUptime),nameof(TelemetryStatus),nameof(CpuChart),nameof(HasCpuSamples)})Notify(name);
+                    foreach(var name in new[]{nameof(LiveCpu),nameof(LiveMemory),nameof(LiveCommit),nameof(LiveStorage),nameof(LiveNetwork),nameof(LiveUptime),nameof(TelemetryStatus),nameof(CpuChart),nameof(HasCpuSamples)})Notify(name);
                 }
                 catch(OperationCanceledException)when(token.IsCancellationRequested){break;}
                 catch(Exception e){_telemetryError=ReportExport.Redact(e.Message);Notify(nameof(TelemetryStatus));}

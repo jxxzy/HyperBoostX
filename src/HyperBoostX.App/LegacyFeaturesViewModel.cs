@@ -10,7 +10,10 @@ namespace HyperBoostX.App;
 
 public sealed partial class ShellViewModel
 {
-    public bool IsGameLibrary=>SurfaceTitle=="Game Library";
+    public bool IsGameLibrary=>Title=="Game Library";
+    public bool IsPerGameProfiles=>Title=="Per-Game Profiles";
+    public bool HasRegisteredGames=>Games.Count>0;
+    public bool HasGameProfileHistory=>GameProfileHistory.Count>0;
     public bool IsBenchmark=>SurfaceTitle=="Benchmark Lab";
     public bool IsStutterAnalyzer=>Title=="Stutter Analyzer";
     public bool IsResearchMode=>Title=="Research Mode";
@@ -20,18 +23,23 @@ public sealed partial class ShellViewModel
     public CleanupCandidate? SelectedCleanup{get=>_selectedCleanup;set{_selectedCleanup=value;Notify();CommandManager.InvalidateRequerySuggested();}}
     public ICommand ScanCleanupCommand{get;private set;}=null!;
     public ObservableCollection<GameEntry> Games {get;}=[];
+    public ObservableCollection<GameProcesses.InstalledGameCandidate> DiscoveredGames {get;}=[];
+    public ObservableCollection<Change> GameProfileHistory {get;}=[];
     public ObservableCollection<BenchmarkEntry> BenchmarkHistory {get;}=[];
     public ObservableCollection<ResearchTrial> ResearchHistory {get;}=[];
     private GameEntry? _selectedGame;
+    private GameProcesses.InstalledGameCandidate? _selectedDiscoveredGame;
+    public GameProcesses.InstalledGameCandidate? SelectedDiscoveredGame{get=>_selectedDiscoveredGame;set{_selectedDiscoveredGame=value;Notify();CommandManager.InvalidateRequerySuggested();}}
     public GameEntry? SelectedGame
     {
         get=>_selectedGame;
-        set{_selectedGame=value;Notify();if(value!=null){ProfileUsePowerPlan=value.Profile.PowerPlan!=null;ProfileDisableCapture=value.Profile.DisableCapture;ProfileDisableTransparency=value.Profile.DisableTransparency;SelectedPlan=Plans.FirstOrDefault(p=>p.Id==value.Profile.PowerPlan)??Plans.FirstOrDefault();}CommandManager.InvalidateRequerySuggested();}
+        set{_selectedGame=value;Notify();if(value!=null){ProfileUsePowerPlan=value.Profile.PowerPlan!=null;ProfileDisableCapture=value.Profile.DisableCapture;ProfileDisableTransparency=value.Profile.DisableTransparency;ProfileRaisePriority=value.Profile.RaisePriority;SelectedPlan=Plans.FirstOrDefault(p=>p.Id==value.Profile.PowerPlan)??Plans.FirstOrDefault();}else{ProfileUsePowerPlan=false;ProfileDisableCapture=false;ProfileDisableTransparency=false;ProfileRaisePriority=false;SelectedPlan=null;}CommandManager.InvalidateRequerySuggested();}
     }
-    private bool _profileUsePowerPlan,_profileDisableCapture,_profileDisableTransparency;
+    private bool _profileUsePowerPlan,_profileDisableCapture,_profileDisableTransparency,_profileRaisePriority;
     public bool ProfileUsePowerPlan{get=>_profileUsePowerPlan;set{_profileUsePowerPlan=value;Notify();}}
     public bool ProfileDisableCapture{get=>_profileDisableCapture;set{_profileDisableCapture=value;Notify();}}
     public bool ProfileDisableTransparency{get=>_profileDisableTransparency;set{_profileDisableTransparency=value;Notify();}}
+    public bool ProfileRaisePriority{get=>_profileRaisePriority;set{_profileRaisePriority=value;Notify();}}
     public string GamingSessionStatus=>Runtime.GamingSessions.Current is {} session?$"{session.GameName}: {session.Status} · {session.Message}":"Tidak ada sesi gaming.";
     public bool HasGamingSession=>Runtime.GamingSessions.Active;
     public string BenchmarkGame{get;set;}="";
@@ -57,8 +65,9 @@ public sealed partial class ShellViewModel
     public ICommand StartGameCommand{get;private set;}=null!;
     public ICommand RestoreGameCommand{get;private set;}=null!;
     public ICommand ScanGamesCommand{get;private set;}=null!;
-    public ICommand DiscoverInstalledGamesCommand{get;private set;}=null!;
     public ICommand ExportGamesCommand{get;private set;}=null!;
+    public ICommand DiscoverGamesCommand{get;private set;}=null!;
+    public ICommand RegisterDiscoveredGameCommand{get;private set;}=null!;
     public ICommand AddBenchmarkCommand{get;private set;}=null!;
     public ICommand ImportBenchmarkCommand{get;private set;}=null!;
     public ICommand CompareBenchmarksCommand{get;private set;}=null!;
@@ -103,8 +112,28 @@ public sealed partial class ShellViewModel
         StartGameCommand=new Command(()=>Run(StartGame),()=>!Busy&&SelectedGame!=null&&!HasGamingSession);
         RestoreGameCommand=new Command(()=>Run(async t=>{if(Confirm("Pulihkan perubahan sesi gaming? Game yang berjalan tidak akan ditutup.","Restore session"))await RestoreGaming(t);}),()=>!Busy&&HasGamingSession);
         ScanGamesCommand=new Command(()=>Run(async t=>{var games=Runtime.Games.List();var report=await Task.Run(()=>GameProcesses.Scan(games,t),t);Runtime.Journal.SaveReport(report);Show(report);Status="Pencocokan executable game selesai.";}),()=>!Busy);
-        DiscoverInstalledGamesCommand=new Command(()=>Run(async t=>{var result=await Task.Run(()=>InstalledGameDetection.Scan(t),t);t.ThrowIfCancellationRequested();var report=result.Report();Runtime.Journal.SaveReport(report);Show(report);Status=$"{result.Games.Count} kandidat game ditemukan. Pilih Add executable untuk menyimpan game; discovery tidak menjalankan game.";}),()=>!Busy&&IsGameLibrary);
         ExportGamesCommand=new Command(()=>Run(_=>{ExportGameLibrary();return Task.CompletedTask;}),()=>!Busy&&Games.Count>0);
+        DiscoverGamesCommand=new Command(()=>Run(async t=>
+        {
+            var candidates=await Task.Run(()=>GameProcesses.DiscoverInstalledGames(t),t);
+            DiscoveredGames.Clear();
+            foreach(var candidate in candidates)DiscoveredGames.Add(candidate);
+            SelectedDiscoveredGame=DiscoveredGames.FirstOrDefault();
+            Status=candidates.Count>0
+                ?$"{candidates.Count} registered game executable(s) found. Review before adding to the library."
+                :"No registered Steam or Epic game executable was found.";
+        }),()=>!Busy);
+        RegisterDiscoveredGameCommand=new Command(()=>Run(_=>
+        {
+            if(SelectedDiscoveredGame is not {} candidate)return Task.CompletedTask;
+            if(!Confirm($"Register {candidate.Name}?\n{candidate.Executable}\n\nSource: {candidate.Source}\n\nThis adds the executable only; no Windows setting is changed.","Register discovered game"))return Task.CompletedTask;
+            var game=Runtime.Games.Add(candidate.Name,candidate.Executable);
+            DiscoveredGames.Remove(candidate);
+            SelectedDiscoveredGame=DiscoveredGames.FirstOrDefault();
+            RefreshGames(game.Id);
+            Status="Discovered game registered locally. Configure and save its profile when ready.";
+            return Task.CompletedTask;
+        }),()=>!Busy&&SelectedDiscoveredGame!=null&&!HasGamingSession);
         AddBenchmarkCommand=new Command(()=>Run(_=>{var item=Runtime.Benchmarks.Add(BenchmarkGame,ParseNumber(BenchmarkAverage),ParseNumber(BenchmarkLow),ParseNumber(BenchmarkFrametime),BenchmarkNotes);RefreshBenchmarks(item.Id);Runtime.Journal.SaveReport(Benchmarks.Report(item));Status="Hasil benchmark tersimpan sebagai data yang dimasukkan pengguna.";return Task.CompletedTask;}),()=>!Busy);
         ImportBenchmarkCommand=new Command(()=>Run(_=>{var dialog=new OpenFileDialog{Filter="Benchmark CSV|*.csv"};if(dialog.ShowDialog()==true){if(new FileInfo(dialog.FileName).Length>4*1024*1024)throw new HbxException("CSV maksimal 4 MiB.");var count=Runtime.Benchmarks.ImportCsv(File.ReadAllText(dialog.FileName));RefreshBenchmarks();Status=$"{count} benchmark diimpor.";}return Task.CompletedTask;}),()=>!Busy);
         CompareBenchmarksCommand=new Command(()=>Run(_=>{if(BaselineBenchmark!=null&&SelectedBenchmark!=null){var report=Benchmarks.Compare(BaselineBenchmark,SelectedBenchmark);Runtime.Journal.SaveReport(report);Show(report);}return Task.CompletedTask;}),()=>!Busy&&BaselineBenchmark!=null&&SelectedBenchmark!=null&&BaselineBenchmark.Id!=SelectedBenchmark.Id);
@@ -112,11 +141,12 @@ public sealed partial class ShellViewModel
     private static double ParseNumber(string text)=>double.TryParse(text,NumberStyles.Float,CultureInfo.CurrentCulture,out var value)||double.TryParse(text,NumberStyles.Float,CultureInfo.InvariantCulture,out value)?value:throw new HbxException("Masukkan angka FPS/frametime yang valid.");
     private void LoadLegacyPage()
     {
-        if(IsGameLibrary)
+        if(IsGameLibrary||IsPerGameProfiles)
         {
             Plans.Clear();try{foreach(var plan in PowerAction.Plans())Plans.Add(plan);}catch(Exception e){Status=e.Message;}
-            RefreshGames();Notify(nameof(GamingSessionStatus));Notify(nameof(HasGamingSession));
+            RefreshGames();Notify(nameof(GamingSessionStatus));Notify(nameof(HasGamingSession));Notify(nameof(HasRegisteredGames));
         }
+        if(IsPerGameProfiles)RefreshGameProfileHistory();
         if(IsBenchmark)RefreshBenchmarks();
         if(IsResearchMode)RefreshResearch();
         if(IsNotifications)RefreshNotifications();
@@ -127,18 +157,26 @@ public sealed partial class ShellViewModel
              new("Cloud sync","Not implemented; local data is not uploaded automatically.","Application policy"),
              new("Protected storage","Game profiles, benchmarks, reports and recovery metadata use Windows DPAPI for this user. Quarantine preserves file bytes locally.","Storage implementation"),
              new("Release status","Development — full master release gates are not yet met.","Release policy")],[]));
-        Notify(nameof(IsGameLibrary));Notify(nameof(IsBenchmark));Notify(nameof(IsStutterAnalyzer));Notify(nameof(IsResearchMode));Notify(nameof(IsCleanup));
+        Notify(nameof(IsGameLibrary));Notify(nameof(IsPerGameProfiles));Notify(nameof(HasRegisteredGames));Notify(nameof(HasGameProfileHistory));Notify(nameof(IsBenchmark));Notify(nameof(IsStutterAnalyzer));Notify(nameof(IsResearchMode));Notify(nameof(IsCleanup));
     }
     private void RefreshGames(string? selectedId=null)
     {
         selectedId??=SelectedGame?.Id;Games.Clear();foreach(var game in Runtime.Games.List())Games.Add(game);
         SelectedGame=Games.FirstOrDefault(g=>g.Id==selectedId)??Games.FirstOrDefault();
+        Notify(nameof(HasRegisteredGames));
+    }
+    private void RefreshGameProfileHistory()
+    {
+        GameProfileHistory.Clear();
+        foreach(var change in Runtime.Journal.History(10000).Where(change=>change.ActionId.StartsWith("gaming.",StringComparison.Ordinal)))
+            GameProfileHistory.Add(change);
+        Notify(nameof(HasGameProfileHistory));
     }
     private void SaveGameProfile()
     {
         if(SelectedGame is not {} game)return;
         if(ProfileUsePowerPlan&&SelectedPlan==null)throw new HbxException("Pilih power plan yang tersedia.");
-        Runtime.Games.SaveProfile(game.Id,new(ProfileUsePowerPlan?SelectedPlan?.Id:null,ProfileDisableCapture,ProfileDisableTransparency));RefreshGames(game.Id);
+        Runtime.Games.SaveProfile(game.Id,new(ProfileUsePowerPlan?SelectedPlan?.Id:null,ProfileDisableCapture,ProfileDisableTransparency,ProfileRaisePriority));RefreshGames(game.Id);
     }
     private async Task StartGame(CancellationToken token)
     {
@@ -146,12 +184,45 @@ public sealed partial class ShellViewModel
         var previews=new List<Preview>();
         foreach(var action in GameLibrary.Actions(game.Profile))previews.Add(await Task.Run(()=>Runtime.Engine.PreviewAsync(action.ActionId,action.Target,token),token));
         var changes=previews.Count==0?"Tidak ada perubahan Windows.":string.Join("\n",previews.Select(p=>$"{p.ActionId}: {p.Before} → {p.Desired}"));
-        if(!Confirm($"Jalankan {game.Name}?\n{game.Executable}\n\n{changes}\n\nPerubahan dipulihkan saat executable ini keluar, selama HyperBoostX tetap terbuka. Gunakan executable game langsung; launcher dapat keluar sebelum game selesai.\n\nSetujui profil dan auto-restore sesi ini?","Preview gaming session"))return;
+        if(game.Profile.RaisePriority)changes+="\nGame process priority: separate post-launch review required; only the selected executable can be changed to AboveNormal.";
+        if(!Confirm($"Jalankan {game.Name}?\n{game.Executable}\n\n{changes}\n\nPerubahan dipulihkan saat executable ini keluar. Identitas proses persisten memungkinkan pemantauan dilanjutkan setelah HyperBoostX restart; jika identitas tidak dapat diverifikasi, pemulihan manual diperlukan. Gunakan executable game langsung; launcher dapat keluar sebelum game selesai.\n\nSetujui profil dan pemulihan sesi ini?","Preview gaming session"))return;
         var session=await Task.Run(()=>Runtime.GamingSessions.StartAsync(game,previews,true,token),token);
         NotifyGamingSession();
         if(session.Status!="Active"){Status=session.Status+": "+session.Message;return;}
-        try{var process=GameProcesses.Launch(game);Status="Game dijalankan. Auto-restore menunggu executable game selesai.";WatchGame(process,session.Id);}
+        System.Diagnostics.Process process;
+        try{process=GameProcesses.Launch(game);}
         catch{await RestoreGaming(CancellationToken.None);throw;}
+        WatchGame(process,session.Id);
+        try
+        {
+            var identity=GameProcesses.CaptureIdentity(game,process);
+            Runtime.GamingSessions.AttachProcess(session.Id,identity);
+        }
+        catch(Exception exception)
+        {
+            Status="Game launched, but durable process identity could not be saved. Automatic restore requires HyperBoostX to remain open. "+ReportExport.Redact(exception.Message);
+            NotifyGamingSession();return;
+        }
+        Status="Game launched. The exact process identity is saved for automatic restore after exit or app restart.";
+        NotifyGamingSession();
+        if(game.Profile.RaisePriority)await ApplyGamePriority(process,game,session.Id,token);
+    }
+    private async Task ApplyGamePriority(System.Diagnostics.Process process,GameEntry game,string sessionId,CancellationToken token)
+    {
+        var actionId="gaming.process.priority.above_normal";
+        var target=GameProcessPriorityAction.Target(game,process);
+        var preview=await Task.Run(()=>Runtime.Engine.PreviewAsync(actionId,target,token),token);
+        if(preview.Before==preview.Desired){Status="Game priority is already AboveNormal; no change was needed.";return;}
+        var approved=Confirm($"Set {game.Name} process (PID {process.Id}) from {preview.Before.Value} to AboveNormal?\n\nOnly this registered executable is targeted. The original priority is journaled and restored with the gaming session. This does not guarantee higher FPS.","Review game process priority");
+        if(!approved){Status="Game launched; process priority was left unchanged. Session auto-restore remains active.";return;}
+        var change=await Task.Run(()=>Runtime.Engine.ApplyAsync(preview.Token,true,sessionId,token),token);
+        Status=change.Status switch
+        {
+            "Verified"=>"Game priority set to AboveNormal and verified; it will be restored with the session.",
+            "AlreadyDesiredState"=>"Game priority was already AboveNormal; no change was needed.",
+            _=>$"Game launched, but priority was not changed: {change.Status}. {change.Message}"
+        };
+        RefreshHistory();
     }
     private async void WatchGame(System.Diagnostics.Process process,string sessionId)
     {
@@ -167,7 +238,7 @@ public sealed partial class ShellViewModel
     {
         var session=await Task.Run(()=>Runtime.GamingSessions.RestoreAsync(true,token),token);Status=session.Status+": "+session.Message;NotifyGamingSession();RefreshHistory();
     }
-    private void NotifyGamingSession(){Notify(nameof(GamingSessionStatus));Notify(nameof(HasGamingSession));CommandManager.InvalidateRequerySuggested();}
+    private void NotifyGamingSession(){Notify(nameof(GamingSessionStatus));Notify(nameof(HasGamingSession));if(IsPerGameProfiles)RefreshGameProfileHistory();CommandManager.InvalidateRequerySuggested();}
     private void RefreshBenchmarks(string? selectedId=null)
     {
         var baselineId=BaselineBenchmark?.Id;BenchmarkHistory.Clear();foreach(var entry in Runtime.Benchmarks.History())BenchmarkHistory.Add(entry);

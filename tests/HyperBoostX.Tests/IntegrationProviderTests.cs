@@ -12,6 +12,45 @@ namespace HyperBoostX.Tests;
 
 public sealed class IntegrationProviderTests:IDisposable
 {
+    [Fact]public void CommitPageCountsConvertUsingProviderPageSize()
+    {
+        var result=Telemetry.ConvertCommitPages(4,10,4096);
+        Assert.Equal((16384UL,40960UL),result);
+        Assert.Throws<ArgumentOutOfRangeException>(()=>Telemetry.ConvertCommitPages(1,2,0));
+        Assert.Throws<OverflowException>(()=>Telemetry.ConvertCommitPages(ulong.MaxValue,1,4096));
+    }
+    [Fact]public void TelemetryReadsActualWindowsCommitCharge()
+    {
+        var sample=new Telemetry().Sample();
+        Assert.Equal(MeasurementAvailability.Available,sample.CommitAvailability);
+        Assert.True(sample.CommitUsedBytes>0);
+        Assert.True(sample.CommitLimitBytes>=sample.CommitUsedBytes);
+        Assert.Null(sample.CommitWin32Error);
+    }
+    [Fact]public void HealthScoreUsesOnlyAvailableMeasuredComponents()
+    {
+        var sample=new TelemetrySample(DateTimeOffset.UnixEpoch,20,1000,250,null,null,1000,"fixture") {CpuAvailability=MeasurementAvailability.Available,NetworkAvailability=MeasurementAvailability.Unavailable};var result=SystemHealthScore.Calculate(sample);
+        Assert.Equal(52.5,result.Score,1);Assert.Equal(2,result.AvailableComponents);Assert.Contains(result.Facts,f=>f.Name=="HyperBoost Score"&&f.Availability=="Limited");Assert.Contains(result.Facts,f=>f.Name=="Network component"&&f.Value=="Not scored");
+    }
+    [Fact]public void HealthScoreReportsFullCoverageWithoutInventingWeights()
+    {
+        var sample=new TelemetrySample(DateTimeOffset.UnixEpoch,10,1000,500,1,1,1000,"fixture") {CpuAvailability=MeasurementAvailability.Available,NetworkAvailability=MeasurementAvailability.Available};var result=SystemHealthScore.Calculate(sample);
+        Assert.Equal(80,result.Score,1);Assert.Equal(3,result.AvailableComponents);Assert.Empty(result.Findings);Assert.Contains(result.Facts,f=>f.Name=="Method"&&f.Source=="HBX-HEALTH-SCORE-2");
+    }
+    [Fact]public void HealthScoreIncludesAllSixDocumentedComponentsWhenEvidenceExists()
+    {
+        var sample=new TelemetrySample(DateTimeOffset.UnixEpoch,10,1000,250,1,1,1000,"fixture") {CpuAvailability=MeasurementAvailability.Available,NetworkAvailability=MeasurementAvailability.Available};
+        var result=SystemHealthScore.Calculate(sample,new HealthScoreEvidence(100,"gpu",80,"storage",90,"reliability"));
+        Assert.Equal(6,result.TotalComponents);Assert.Equal(6,result.AvailableComponents);Assert.Contains(result.Facts,f=>f.Name=="HyperBoost Score"&&f.Availability=="Available");Assert.Contains(result.Facts,f=>f.Name=="Method"&&f.Source=="HBX-HEALTH-SCORE-2");
+    }
+    [Fact]public async Task HealthScoreMeasurementPublishesSixComponentCoverageWithoutInventedValues()
+    {
+        var report=await SystemHealthScore.MeasureAsync(CancellationToken.None);
+        Assert.Contains(report.Facts,f=>f.Name=="HyperBoost Score"&&f.Source.Contains("/6 available components",StringComparison.Ordinal));
+        Assert.Contains(report.Facts,f=>f.Name=="GPU component");Assert.Contains(report.Facts,f=>f.Name=="Storage component");Assert.Contains(report.Facts,f=>f.Name=="Reliability component");
+        Assert.All(report.Facts.Where(f=>f.Name.EndsWith("component",StringComparison.Ordinal)),fact=>Assert.Contains(fact.Availability,new[]{"Available","Limited","Unavailable"}));
+    }
+
     private readonly string _root=Path.Combine(Path.GetTempPath(),"HyperBoostX-tests",Guid.NewGuid().ToString("N"));
     public IntegrationProviderTests()=>Directory.CreateDirectory(_root);
     private DocumentStore Store=>new(new Journal(_root,new WindowsProtector()),new WindowsProtector());
@@ -36,6 +75,13 @@ public sealed class IntegrationProviderTests:IDisposable
         Assert.Contains(report.Facts,fact=>fact.Name.StartsWith("Optimize schedule",StringComparison.Ordinal));
         Assert.Contains(report.Facts,fact=>fact.Name=="TRIM delete notification");
         Assert.All(report.Facts,fact=>Assert.Contains(fact.Availability,new[]{"Available","Unavailable"}));
+    }
+    [Fact]public async Task SmartScanReportsVisualEffectsStateOrExplicitUnavailability()
+    {
+        var report=await new Diagnostics().ScanAsync("Smart Scan",default);
+        var preset=Assert.Single(report.Facts,fact=>fact.Name=="Visual effects preset");
+        Assert.Contains(preset.Availability,new[]{"Available","Unavailable"});
+        if(preset.Availability=="Available")Assert.Contains("HKCU VisualFXSetting",preset.Source,StringComparison.Ordinal);
     }
     [Theory]
     [InlineData("iCUE.exe",true)]
@@ -81,9 +127,35 @@ public sealed class IntegrationProviderTests:IDisposable
     {
         var report=await InstalledApplicationDetection.ScanAsync(default);
         Assert.Equal("App Load Optimizer",report.Center);Assert.NotEmpty(report.Facts);
-        var coverage=Assert.Single(report.Facts,fact=>fact.Name=="Inventory coverage");Assert.Contains("records",coverage.Value,StringComparison.OrdinalIgnoreCase);
+        var coverage=Assert.Single(report.Facts,fact=>fact.Name=="Inventory coverage");Assert.Contains("MSIX",coverage.Value,StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(report.Facts,fact=>fact.Name.StartsWith("MSIX package:",StringComparison.Ordinal)||fact.Name=="MSIX application inventory");
         Assert.True(report.Facts.Count<=2001);Assert.All(report.Facts,fact=>Assert.Contains(fact.Availability,new[]{"Available","Unavailable"}));
     }
+    [Fact]public async Task ReleasePackageInspectionHashesAndTrustChecksWithoutExecutingTheCandidate()
+    {
+        var candidate=Path.Combine(_root,"candidate.exe");File.Copy(Path.Combine(Environment.SystemDirectory,"where.exe"),candidate);var before=File.GetLastWriteTimeUtc(candidate);
+        var report=await ReleasePackageInspection.InspectAsync(candidate,new Version(3,0),default);
+        Assert.Equal("Update Center",report.Center);Assert.Equal(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(candidate))),report.Facts.Single(f=>f.Name=="SHA-256").Value);Assert.Contains(report.Facts,f=>f.Name=="Authenticode trust");Assert.Contains(report.Facts,f=>f.Name=="Execution policy"&&f.Value.Contains("did not execute",StringComparison.Ordinal));Assert.Equal(before,File.GetLastWriteTimeUtc(candidate));
+    }
+    [Theory][InlineData("")][InlineData("relative.exe")][InlineData(@"\\server\share\candidate.exe")][InlineData(@"C:\missing-candidate.exe")]
+    public void ReleasePackageInspectionRejectsUnsafePaths(string path)=>Assert.ThrowsAny<Exception>(()=>ReleasePackageInspection.ValidatePath(path));
+
+    [Fact]public async Task PluginManifestInspectionValidatesHashPermissionsCompatibilityAndNeverLoadsCode()
+    {
+        var root=Path.Combine(_root,"plugins");var plugin=Path.Combine(root,"fixture");Directory.CreateDirectory(plugin);var assembly=Path.Combine(plugin,"fixture.dll");File.Copy(Path.Combine(Environment.SystemDirectory,"where.exe"),assembly);var hash=Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(assembly)));
+        File.WriteAllText(Path.Combine(plugin,"plugin.json"),Json.Write(new PluginManifest(1,"fixture.plugin","1.0.0","1.0.0","Fixture Publisher","fixture.dll",hash,["Diagnostics.Read"])));
+        var report=await PluginManifestInspection.ScanAsync(root,new Version(3,0),default);Assert.Equal("Plugin Manager",report.Center);Assert.Contains(report.Facts,f=>f.Name=="fixture.plugin"&&f.Value.Contains("hash True",StringComparison.Ordinal));Assert.Contains(report.Facts,f=>f.Name=="fixture.plugin activity"&&f.Value.Contains("Never executed",StringComparison.Ordinal));
+    }
+    [Fact]public async Task PluginManifestInspectionRejectsUnknownPermissionsAndPathTraversal()
+    {
+        var root=Path.Combine(_root,"bad-plugins");var plugin=Path.Combine(root,"bad");Directory.CreateDirectory(plugin);File.WriteAllText(Path.Combine(plugin,"plugin.json"),Json.Write(new PluginManifest(1,"bad.plugin","1.0","1.0","Bad","..\\outside.dll",new string('0',64),["Process.Execute"])));
+        var report=await PluginManifestInspection.ScanAsync(root,new Version(3,0),default);Assert.Contains(report.Facts,f=>f.Name=="bad"&&f.Value.StartsWith("Rejected:",StringComparison.Ordinal));
+    }
+    [Fact]public async Task NetworkProfilePreviewReturnsAdaptersDnsPolicyProfilesAndExplicitNoChangeState()
+    {
+        var report=await NetworkProfileDiagnostics.ScanAsync("Balanced",default);Assert.Equal("Network Profiles",report.Center);Assert.Contains(report.Facts,f=>f.Name=="Selected profile"&&f.Value=="Balanced");Assert.Contains(report.Facts,f=>f.Name=="Change policy"&&f.Value.Contains("No DNS server",StringComparison.Ordinal));Assert.Contains(report.Facts,f=>f.Name=="Restore state"&&f.Value.Contains("No HyperBoostX-managed",StringComparison.Ordinal));Assert.Contains(report.Facts,f=>f.Name.StartsWith("DNS policy",StringComparison.Ordinal)||f.Name=="DNS policy provider");
+    }
+    [Fact]public async Task NetworkProfilePreviewRejectsUnknownProfiles()=>await Assert.ThrowsAsync<HbxException>(()=>NetworkProfileDiagnostics.ScanAsync("Ultra magic",default));
     [Theory]
     [InlineData("iCUE.exe","Corsair")]
     [InlineData("LightingService","ASUS")]
@@ -91,6 +163,18 @@ public sealed class IntegrationProviderTests:IDisposable
     [InlineData("Razer Synapse Service","Razer")]
     [InlineData("OpenRGB","OpenRGB")]
     public void RgbVendorSignaturesClassifyKnownSoftware(string value,string vendor)=>Assert.Equal(vendor,VendorSoftwareDetection.ClassifyRgb(value)?.Vendor);
+
+    [Theory][InlineData("MSI Center.exe")][InlineData("Mystic Light")][InlineData("LEDKeeper2")][InlineData("Dragon Center")]
+    public void MsiUtilitySignaturesClassifySupportedSoftware(string value)=>Assert.True(MsiSoftwareDetection.IsMsiUtility(value));
+    [Theory][InlineData("MSI Center Service")][InlineData("Frozr Cooling Service")][InlineData("Pump Controller")]
+    public void MsiCoolingExclusionsAreConservative(string value)=>Assert.True(MsiSoftwareDetection.IsCoolingCritical(value));
+    [Fact]public async Task MsiSafeOptimizerMeasuresARealNamedProcessWithoutStoppingIt()
+    {
+        var executable=Path.Combine(_root,"MSICenter.exe");File.Copy(Path.Combine(Environment.SystemDirectory,"ping.exe"),executable);
+        using var process=Process.Start(new ProcessStartInfo(executable,"127.0.0.1 -n 4"){UseShellExecute=false,CreateNoWindow=true})!;
+        try{var report=await MsiSoftwareDetection.ScanAsync(default);Assert.Equal("MSI Safe Optimizer",report.Center);Assert.Contains(report.Facts,f=>f.Value.Contains($"PID {process.Id}",StringComparison.Ordinal)&&f.Value.Contains("protected from termination",StringComparison.Ordinal));Assert.False(process.HasExited);}
+        finally{if(!process.HasExited)process.Kill(true);await process.WaitForExitAsync();}
+    }
 
     [Fact]public void RgbVendorSignaturesDoNotGuessUnknownSoftware()=>Assert.Null(VendorSoftwareDetection.ClassifyRgb("ordinary-unrelated-application"));
 

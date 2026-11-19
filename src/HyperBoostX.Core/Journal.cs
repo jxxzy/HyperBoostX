@@ -48,14 +48,15 @@ public sealed class Journal
         if (!string.Equals(cmd.ExecuteScalar()?.ToString(), "ok", StringComparison.Ordinal))
             throw new SqliteException("HBX-DATA-0002: Database integrity failed.",11);
         cmd.CommandText = "PRAGMA user_version";
-        if (Convert.ToInt32(cmd.ExecuteScalar()) > 1) throw new HbxException("HBX-DATA-0003: Database is newer than this application.");
+        if (Convert.ToInt32(cmd.ExecuteScalar()) > 2) throw new HbxException("HBX-DATA-0003: Database is newer than this application.");
         cmd.CommandText = """
             PRAGMA journal_mode=WAL;
             CREATE TABLE IF NOT EXISTS changes(sequence INTEGER PRIMARY KEY AUTOINCREMENT,id TEXT NOT NULL UNIQUE,payload BLOB NOT NULL);
             CREATE TABLE IF NOT EXISTS events(sequence INTEGER PRIMARY KEY AUTOINCREMENT,change_id TEXT NOT NULL,status TEXT NOT NULL,utc TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY,value TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS reports(id TEXT PRIMARY KEY,utc TEXT NOT NULL,payload BLOB NOT NULL);
-            PRAGMA user_version=1;
+            CREATE TABLE IF NOT EXISTS worker_audit(sequence INTEGER PRIMARY KEY AUTOINCREMENT,id TEXT NOT NULL UNIQUE,utc TEXT NOT NULL,payload BLOB NOT NULL);
+            PRAGMA user_version=2;
             """;
         cmd.ExecuteNonQuery();
     }
@@ -188,6 +189,36 @@ public sealed class Journal
         using var reader=cmd.ExecuteReader();var reports=new List<DiagnosticReport>();
         while(reader.Read())reports.Add(Json.Read<DiagnosticReport>(Encoding.UTF8.GetString(_protector.Unprotect((byte[])reader[0]))));
         return reports;
+    }
+    public WorkerAuditRecord SaveWorkerAudit(string operation,string subject,bool success,string code)
+    {
+        if(string.IsNullOrWhiteSpace(operation)||operation.Length>128||string.IsNullOrWhiteSpace(code)||code.Length>128)
+            throw new HbxException("HBX-AUDIT-0001: Worker audit fields are invalid.");
+        using var gate=Acquire();using var c=Open();using var tx=c.BeginTransaction();
+        var previous="GENESIS";using(var last=c.CreateCommand())
+        {
+            last.Transaction=tx;last.CommandText="SELECT payload FROM worker_audit ORDER BY sequence DESC LIMIT 1";
+            if(last.ExecuteScalar() is byte[] payload)previous=Json.Read<WorkerAuditRecord>(Encoding.UTF8.GetString(_protector.Unprotect(payload))).Hash;
+        }
+        var id=Guid.NewGuid().ToString("N");var observed=DateTimeOffset.UtcNow;var subjectHash=Json.Hash(subject??"");
+        var hash=Json.Hash($"HBX-WORKER-AUDIT-V1\n{id}\n{observed:O}\n{operation}\n{subjectHash}\n{success}\n{code}\n{previous}");
+        var record=new WorkerAuditRecord(id,observed,operation,subjectHash,success,code,previous,hash);
+        using var cmd=c.CreateCommand();cmd.Transaction=tx;cmd.CommandText="INSERT INTO worker_audit(id,utc,payload) VALUES($id,$utc,$payload)";
+        cmd.Parameters.AddWithValue("$id",id);cmd.Parameters.AddWithValue("$utc",observed.ToString("O"));cmd.Parameters.AddWithValue("$payload",_protector.Protect(Encoding.UTF8.GetBytes(Json.Write(record))));cmd.ExecuteNonQuery();tx.Commit();
+        return record;
+    }
+    public IReadOnlyList<WorkerAuditRecord> WorkerAuditHistory(int limit=200)
+    {
+        using var c=Open();using var cmd=c.CreateCommand();cmd.CommandText="SELECT payload FROM worker_audit ORDER BY sequence ASC";
+        using var reader=cmd.ExecuteReader();var all=new List<WorkerAuditRecord>();var previous="GENESIS";
+        while(reader.Read())
+        {
+            var record=Json.Read<WorkerAuditRecord>(Encoding.UTF8.GetString(_protector.Unprotect((byte[])reader[0])));
+            var expected=Json.Hash($"HBX-WORKER-AUDIT-V1\n{record.Id}\n{record.ObservedAt:O}\n{record.Operation}\n{record.SubjectHash}\n{record.Success}\n{record.Code}\n{previous}");
+            if(record.PreviousHash!=previous||record.Hash!=expected)throw new HbxException("HBX-AUDIT-0002: Worker audit chain integrity failed.");
+            all.Add(record);previous=record.Hash;
+        }
+        return all.TakeLast(Math.Clamp(limit,1,10000)).Reverse().ToArray();
     }
     public void Backup()
     {

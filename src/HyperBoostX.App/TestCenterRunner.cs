@@ -132,7 +132,19 @@ public static class TestCenterRunner
             await using var worker=await PrivilegedWorkerClient.StartAsync(workerPath,false,cancellation);
             var response=await worker.SendAsync("worker.health","","{}",cancellation);
             if(!response.Success||response.Code!="HBX-WORKER-HEALTH")return new Check("FAIL",$"Authenticated worker health returned {response.Code}.",response.Code);
-            return new Check("PASS",$"Separate worker process {worker.ProcessId} completed peer-bound ECDH and authenticated health IPC, then accepted secure shutdown. This safe check did not request elevation or mutate Windows.");
+            var power=await worker.SendAsync("worker.power.inspect","","{}",cancellation);
+            if(!power.Success||power.Code!="HBX-WORKER-POWER")return new Check("FAIL",$"Authenticated worker power inspection returned {power.Code}.",power.Code);
+            using var powerBody=System.Text.Json.JsonDocument.Parse(power.Body);
+            var activePlan=powerBody.RootElement.GetProperty("ActivePlanId").GetString();
+            var planCount=powerBody.RootElement.GetProperty("PlanCount").GetInt32();
+            var activeEnumerated=powerBody.RootElement.GetProperty("ActivePlanEnumerated").GetBoolean();
+            if(string.IsNullOrWhiteSpace(activePlan)||planCount<1||!activeEnumerated)return new Check("FAIL","Power inspection result was incomplete or inconsistent.", "HBX-WORKER-POWER-INCONSISTENT");
+            return new Check("PASS",$"Separate worker process {worker.ProcessId} completed peer-bound ECDH and authenticated health/power inspection IPC. PowrProf returned {planCount} plan(s); active plan was enumerated. This safe check did not request elevation or mutate Windows.");
+        });
+        await Add("privileged-worker.audit","Privileged worker audit integrity",_ =>
+        {
+            var audit=runtime.Journal.WorkerAuditHistory(10000);
+            return Task.FromResult(new Check("PASS",$"{audit.Count} encrypted worker audit record(s) passed hash-chain verification; raw targets are stored only as SHA-256 subject identifiers."));
         });
         await Add("application.file-integrity","Application file integrity",_ =>
             Task.FromResult(new Check("UNSUPPORTED","No signed file-integrity manifest is installed; runtime trust is not asserted.")));

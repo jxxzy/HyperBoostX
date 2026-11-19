@@ -92,19 +92,19 @@ public static class FeatureRouteCatalog
         }
 
         Add(RouteSupport.Implemented, "Dashboard",
-            "Live CPU, physical memory and network readings are available. GPU sensors and a readiness score are not provided by a validated source.",
+            "Live CPU, physical memory, system-volume usage and network readings are available. GPU sensors and a readiness score are not provided by a validated source; storage health is not inferred from capacity usage.",
             "Dashboard");
         Add(RouteSupport.Implemented, "Smart Scan",
             "Runs the local diagnostic centers that are implemented in this build; no Windows setting is changed by a scan.",
             "Smart Scan");
-        Add(RouteSupport.Limited, "Dashboard",
-            "The reference health/readiness score is not calculated. Only available, timestamped CPU, memory and network measurements are shown; unsupported values remain unavailable.",
+        Add(RouteSupport.Implemented, "Dashboard",
+            "Calculates a timestamped, transparent six-component score from measured CPU and memory headroom, network sampling readiness, Windows GPU/driver readiness, system-volume free-space readiness, and bounded 24-hour System reliability events. Missing providers are excluded and coverage is reported.",
             "HyperBoost Score");
         Add(RouteSupport.Implemented, "Notifications",
             "Shows local notification history. Optional webhook delivery requires an explicit preview and consent.",
             "Activity & Notifications");
         Add(RouteSupport.Implemented, "Game Library",
-            "Executable registration, bounded Steam/Epic manifest discovery, profile CRUD, validated import/export, approved session changes and restore are available. Discovery lists candidates without launching games.",
+            "Executable registration, profile CRUD, validated import/export, approved session changes and restore are available.",
             "Game Library");
         Add(RouteSupport.Implemented, "Restore",
             "Managed action history, state verification and conflict-aware rollback are available.",
@@ -123,13 +123,10 @@ public static class FeatureRouteCatalog
             "License Center", "About HyperBoostX");
 
         Add(RouteSupport.Limited, "Optimize",
-            "Only registered reversible actions are exposed. The reference profile/tweak catalog is not treated as an implemented action list.",
-            "Safe Tweak Library", "Advanced Tweaks", "Windows Optimization");
-        Add(RouteSupport.Limited,"Optimize",
-            "Safe Boost composes explicitly selected existing transparency and Windows game-capture preferences, with before/after approval, durable recovery, read-back and compensating rollback on failure. Broader presets and measured gains remain unverified.",
-            "One Click Boost");
+            "Registered reversible actions include the current-user visual-effects preset and transparency preferences. The broader reference profile/tweak catalog is not treated as implemented.",
+            "One Click Boost", "Safe Tweak Library", "Advanced Tweaks", "Windows Optimization");
         Add(RouteSupport.Limited, "Dashboard",
-            "The supported Memory Guard only notifies; it does not purge memory or terminate processes.",
+            "Memory Guard provides persisted 70-95% notification threshold and 1-60 minute cooldown controls and displays measured system commit usage. It only notifies; it does not purge memory or terminate processes. Process exclusions, commit-pressure recommendations and emergency workload handling are not implemented.",
             "Smart Memory Guard");
         Add(RouteSupport.Limited, "Power",
             "Existing Windows power plans can be inspected and selected with backup and verification. Processor, sleep and AC/DC policies are not changed.",
@@ -141,7 +138,7 @@ public static class FeatureRouteCatalog
             "Available Windows hardware properties are read; temperature, clocks and vendor sensor data remain unavailable.",
             "CPU Turbo Diagnostics", "Hardware Tuner", "Hardware Inventory");
         Add(RouteSupport.Limited, "GPU",
-            "GPU identity and driver details plus available WDDM per-engine and adapter-memory snapshots can be scanned. Live dashboard GPU polling, VRAM capacity and thermal sensors remain unavailable.",
+            "GPU presence and supported Windows properties may be inspected; real-time utilization, VRAM and thermal vendor telemetry are unavailable.",
             "GPU AI Assistant", "GPU Center");
         Add(RouteSupport.Limited, "Gaming",
             "Game Library can launch a registered executable with an approved, reversible profile. Automatic detection, overlays and FPS capture are not implemented.",
@@ -177,13 +174,22 @@ public static class FeatureRouteCatalog
             "Interface/IP/DNS configuration can be inspected, with ICMP and system-resolver timing tests. Resolver selection and network profile mutations are not implemented.",
             "Network Center", "DNS & Latency");
         Add(RouteSupport.Limited, "Creator",
-            "Audio/camera settings can be opened in Windows. Encoder analysis, capture and device controls are not implemented.",
-            "Streaming Center", "Audio & DJ Performance", "Webcam Diagnostics");
+            "Windows settings handoffs are available. Encoder analysis, capture and device controls are not implemented.",
+            "Streaming Center");
+        Add(RouteSupport.Limited, "Creator",
+            "Windows audio settings can be opened. Advanced Mic Mixer and Voicemeeter integration are not implemented.",
+            "Audio & DJ Performance");
+        Add(RouteSupport.Limited, "Creator",
+            "Windows camera and microphone settings can be opened. Camera tracking, driver-state analysis and permission auditing are not implemented.",
+            "Webcam Diagnostics");
         Add(RouteSupport.Limited, "Security",
-            "Security state is read-only. HyperBoostX does not disable security controls.",
-            "Privacy Center", "Security Health");
+            "Local privacy preferences and consent are available. Complete Windows privacy-policy coverage and enterprise policy management are not implemented.",
+            "Privacy Center");
+        Add(RouteSupport.Implemented, "Security",
+            "Reads real Windows Defender, Domain/Private/Public firewall, UAC, Secure Boot, and pending-update/restart indicators through WMI, Windows Firewall policy, and registry providers. Defender Scan Guard is not implemented. The route is intentionally diagnostic and never weakens a protection.",
+            "Security Health");
         Add(RouteSupport.Limited, "License Center",
-            "Local trust/release information is available. Plugin isolation, publisher trust validation and signed update verification are not implemented.",
+            "Local release information, signed update-package inspection, and fail-closed plugin manifest/trust review are available. Plugins are deliberately never loaded; System Reality Guard, Protected Apps, online update discovery, installation, rollback, revocation feeds, and process isolation remain unavailable.",
             "Trust Center");
         Add(RouteSupport.Limited, "Restore",
             "The local action journal and database backup are available; crash/reboot recovery is limited to persisted managed-action state.",
@@ -216,8 +222,8 @@ public static class FeatureRouteCatalog
         Add(RouteSupport.Implemented, "Devices",
             "Enumerates supported RGB controller signatures from running processes, Windows services and installed-application records. It reports possible controller conflicts and never stops or reconfigures vendor software.",
             "RGB Software Detector");
-        Add(RouteSupport.Unsupported, "Devices",
-            "MSI hardware-specific tuning and cooling controls require validated MSI hardware/provider support and are not modified by this build.",
+        Add(RouteSupport.Implemented, "Devices",
+            "Inventories MSI Center, Mystic Light and Dragon Center signatures across processes, services and installed applications, measures running-process overhead, reports service dependencies, and enforces cooling/fan/pump exclusions. It never stops services or changes hardware.",
             "MSI Safe Optimizer");
         Add(RouteSupport.Implemented, "Startup",
             "Reads up to ten Windows Diagnostics-Performance Event 100 boot records, Event 101–110 startup degradation evidence, and automatic-service dependencies when available. This analysis route does not change boot, service, or task configuration.",
@@ -237,23 +243,23 @@ public static class FeatureRouteCatalog
         Add(RouteSupport.Implemented, "Storage",
             "Inventories physical media, volumes, health, TRIM delete-notification policy, and the Windows ScheduledDefrag task using read-only providers. Windows Optimize Drives is available as an explicit external handoff; HyperBoostX does not start maintenance automatically.",
             "Drive Optimization");
-        Add(RouteSupport.Unsupported, "Network",
-            "Network profile and DNS mutation workflows are not implemented.",
+        Add(RouteSupport.Implemented, "Network",
+            "Previews Balanced or Gaming diagnostics profiles using real adapter, Windows profile, DHCP/DNS policy and optional gateway latency evidence. An optional per-adapter DNS profile uses compiled resolver presets, explicit review and Administrator consent, durable backup, read-back verification and rollback; no QoS, MTU or offload tweak is applied.",
             "Network Profiles");
         Add(RouteSupport.Implemented, "Security",
             "Measures supported LCD/sensor utility process CPU and memory against user-configured thresholds. Gaming-only alert gating is available, and processes that may control cooling, fans, or pumps are explicitly protected; no process is stopped.",
             "LCD Performance Guard");
-        Add(RouteSupport.Unsupported, "Settings",
-            "Opt-in scheduling, trigger evaluation and rule conflict handling are not implemented.",
+        Add(RouteSupport.Implemented, "Settings",
+            "Provides opt-in in-app schedules for allowlisted read-only Smart Scan, cleanup discovery, and reminders. Rules support bounded intervals, conditions, cooldowns, pause/remove, emergency stop, and encrypted local history; no command, script, or unattended mutation is accepted.",
             "Scheduled Automation", "Task & Rule System");
         Add(RouteSupport.Implemented, "Benchmark Lab",
             "Records repeat A/B/C/D trials with explicit workload, metric, unit and notes in encrypted local storage, then calculates per-variant means and deltas against A without claiming causation or simulating unmeasured hardware.",
             "Research Mode");
-        Add(RouteSupport.Unsupported, "License Center",
-            "Plugin execution, isolation and trust revocation are not implemented.",
+        Add(RouteSupport.Implemented, "License Center",
+            "Reviews bounded local plugin packages using strict manifests, app-version compatibility, SHA-256, an explicit permission allowlist and Windows Authenticode trust. Plugin execution is fail-closed and disabled; untrusted code is never loaded.",
             "Plugin Manager");
-        Add(RouteSupport.Unsupported, "License Center",
-            "Signed update discovery, validation and rollback are not implemented.",
+        Add(RouteSupport.Implemented, "License Center",
+            "Inspects the current executable or a user-selected local release package using SHA-256, Windows Authenticode trust, signer and version metadata, and retains report history. It never downloads, executes or installs a package automatically.",
             "Update Center");
 
         var catalogNames = Routes.Select(route => route.Name).ToHashSet(StringComparer.Ordinal);

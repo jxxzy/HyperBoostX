@@ -1,0 +1,15 @@
+HyperBoostX v1.1.2
+
+Stable hotfix release focused on AI Copilot reliability and Feature Audit accuracy.
+
+Highlights
+- Fixed HyperBoostX Copilot request reliability with a safer OpenAI fallback flow
+- Improved OpenAI response parsing so Ask AI is less likely to fail or return empty output
+- Added visible Last Test status for Test AI Connection in Settings
+- Persisted the latest AI connection-test result across restart
+- Improved Feature Audit runtime error tracking and stale-failure cleanup
+- Synced installer, launcher, backend, and update metadata to `1.1.2`
+
+Validation
+- dotnet build wpf\HyperBoostX.csproj
+- dotnet build wpf\HyperBoostX.csproj -c Release

@@ -754,7 +754,8 @@
       "Ableton",
       "FL Studio",
       "Serato",
-      "Audio endpoints",
+      "Advanced Mic Mixer",
+      "Voicemeeter",
       "USB audio"
     ]
   },
@@ -769,7 +770,8 @@
       "Webcam inventory",
       "Microphones",
       "Driver status",
-      "Permissions"
+      "Permissions",
+      "Camera tracking"
     ]
   },
   {
@@ -798,7 +800,8 @@
       "Firewall",
       "UAC",
       "Secure Boot",
-      "Update health"
+      "Update health",
+      "Defender Scan Guard"
     ]
   },
   {
@@ -826,7 +829,9 @@
       "Permissions",
       "Signed components",
       "Integrations",
-      "Data sharing"
+      "Data sharing",
+      "System Reality Guard",
+      "Protected Apps"
     ]
   },
   {

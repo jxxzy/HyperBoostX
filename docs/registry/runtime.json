@@ -25,6 +25,17 @@
       "Reversible": true
     },
     {
+      "Id": "windows.visual.effects.best_performance",
+      "Name": "Set visual effects to best performance",
+      "Center": "Optimize",
+      "Description": "Set the existing current-user Windows visual-effects preset to best performance. This changes appearance and may reduce animation or visual effects; review accessibility preferences. No FPS gain is promised.",
+      "Scope": "Current user",
+      "Risk": "Medium \u00B7 reversible",
+      "Restart": "Sign out or restart affected apps",
+      "Source": "Windows HKCU VisualFXSetting",
+      "Reversible": true
+    },
+    {
       "Id": "gaming.capture.disable",
       "Name": "Disable game capture preference",
       "Center": "Gaming",
@@ -77,6 +88,29 @@
       "Risk": "Moderate \u00B7 reversible",
       "Restart": "None",
       "Source": "Native filesystem + SHA-256",
+      "Reversible": true
+    },
+    {
+      "Id": "network.dns.set_profile",
+      "Name": "Set adapter DNS profile",
+      "Center": "Network",
+      "Description": "Set an explicitly selected adapter to automatic DNS or a compiled public-resolver preset. This does not promise lower latency and may affect name resolution.",
+      "Scope": "Selected PC network adapter",
+      "Risk": "Medium \u00B7 reversible",
+      "Restart": "Reconnect the adapter if applications retain cached results",
+      "Source": "Win32_NetworkAdapterConfiguration WMI",
+      "Reversible": true,
+      "RequiresElevation": true
+    },
+    {
+      "Id": "gaming.process.priority.above_normal",
+      "Name": "Set game process priority to AboveNormal",
+      "Center": "Gaming",
+      "Description": "Raise only the selected, registered game process from Normal or BelowNormal to AboveNormal for this session. This does not promise higher FPS; the original priority is journaled and restored when the session ends.",
+      "Scope": "Selected game process in the current Windows session",
+      "Risk": "Moderate · reversible",
+      "Restart": "Restore when the game session ends",
+      "Source": "Windows Process API",
       "Reversible": true
     }
   ],

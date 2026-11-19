@@ -37,6 +37,78 @@ public sealed class RegistryAction(string id,string name,string center,string pa
     }
 }
 
+public interface IVisualEffectsPreferenceProvider
+{
+    State Read();
+    void Write(State state);
+}
+
+public sealed class WindowsVisualEffectsPreferenceProvider:IVisualEffectsPreferenceProvider
+{
+    private const string Path=@"Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects";
+    private const string ValueName="VisualFXSetting";
+
+    public State Read()
+    {
+        using var key=Registry.CurrentUser.OpenSubKey(Path);
+        if(key?.GetValue(ValueName)==null)throw new HbxException("HBX-VFX-0003: Windows does not expose a stored per-user visual-effects preset; no value will be created.");
+        if(key.GetValueKind(ValueName)!=RegistryValueKind.DWord)throw new HbxException("HBX-VFX-0004: The stored visual-effects preset has an unexpected registry type.");
+        return new State(true,"DWord",Convert.ToString(key.GetValue(ValueName),System.Globalization.CultureInfo.InvariantCulture)!);
+    }
+
+    public void Write(State state)
+    {
+        var value=VisualEffectsAction.ParseSetting(state);
+        using var key=Registry.CurrentUser.OpenSubKey(Path,true)??throw new HbxException("HBX-VFX-0006: The visual-effects preference key disappeared.");
+        key.SetValue(ValueName,value,RegistryValueKind.DWord);key.Flush();
+    }
+}
+
+public sealed class VisualEffectsAction:ISystemAction
+{
+    private const int BestPerformance=2;
+    private readonly IVisualEffectsPreferenceProvider _provider;
+    public VisualEffectsAction():this(new WindowsVisualEffectsPreferenceProvider()){}
+    public VisualEffectsAction(IVisualEffectsPreferenceProvider provider)=>_provider=provider??throw new ArgumentNullException(nameof(provider));
+
+    public ActionInfo Info {get;}=new("windows.visual.effects.best_performance","Set visual effects to best performance","Optimize",
+        "Set the existing current-user Windows visual-effects preset to best performance. This changes appearance and may reduce animation or visual effects; review accessibility preferences. No FPS gain is promised.",
+        "Current user","Medium · reversible","Sign out or restart affected apps","Windows HKCU VisualFXSetting");
+
+    public void Validate(string target)
+    {
+        if(target!="")throw new HbxException("HBX-VFX-0001: This action does not accept a custom target.");
+        if(!OperatingSystem.IsWindowsVersionAtLeast(10,0,19045))throw new HbxException("HBX-VFX-0002: This action requires Windows build 19045 or newer.");
+    }
+
+    public void ValidateRestore(string target,State before)
+    {
+        Validate(target);_ = ParseSetting(before);
+    }
+
+    public Task<State> ReadAsync(string target,CancellationToken token)
+    {
+        Validate(target);token.ThrowIfCancellationRequested();var state=_provider.Read();_ = ParseSetting(state);return Task.FromResult(state);
+    }
+
+    public State Desired(string target,State before)
+    {
+        Validate(target);_ = ParseSetting(before);return new State(true,"DWord",BestPerformance.ToString(System.Globalization.CultureInfo.InvariantCulture));
+    }
+
+    public Task WriteAsync(string target,State state,CancellationToken token)
+    {
+        Validate(target);token.ThrowIfCancellationRequested();_ = ParseSetting(state);_provider.Write(state);return Task.CompletedTask;
+    }
+
+    internal static int ParseSetting(State state)
+    {
+        if(!state.Exists||state.Kind!="DWord"||!int.TryParse(state.Value,System.Globalization.NumberStyles.None,System.Globalization.CultureInfo.InvariantCulture,out var value)||value is <0 or >3)
+            throw new HbxException("HBX-VFX-0005: The saved visual-effects preset is invalid or unavailable.");
+        return value;
+    }
+}
+
 public sealed class StartupDisableAction:ISystemAction
 {
     public const string RunPath=@"Software\Microsoft\Windows\CurrentVersion\Run";

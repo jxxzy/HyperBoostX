@@ -17,7 +17,7 @@ public sealed record State(bool Exists, string Kind, string Value)
     public override string ToString() => Exists ? $"{Value} ({Kind})" : "Value absent";
 }
 public sealed record ActionInfo(string Id, string Name, string Center, string Description, string Scope,
-    string Risk, string Restart, string Source, bool Reversible = true)
+    string Risk, string Restart, string Source, bool Reversible = true, bool RequiresElevation = false)
 {
     public override string ToString()=>Name;
 }
@@ -27,6 +27,7 @@ public interface ISystemAction
     void Validate(string target);
     // Recovery must validate the saved state, not require the old apply target to still exist.
     void ValidateRestore(string target, State before) => Validate(target);
+    bool IsRestoreSatisfied(State current,State before)=>false;
     Task<State> ReadAsync(string target, CancellationToken token);
     State Desired(string target, State before);
     Task WriteAsync(string target, State state, CancellationToken token);
@@ -51,6 +52,7 @@ public sealed record Change
     public bool Recoverable => Status is "Verified" or "Applying" or "IntentPersisted" or "RecoveryRequired" or "ConflictDetected" or "RollbackFailed" or "RollingBack" or "RollbackCancelled";
     public bool NeedsRecovery => Status is "Applying" or "IntentPersisted" or "RecoveryRequired" or "ConflictDetected" or "RollbackFailed" or "RollingBack" or "RollbackCancelled";
 }
+public sealed record WorkerAuditRecord(string Id,DateTimeOffset ObservedAt,string Operation,string SubjectHash,bool Success,string Code,string PreviousHash,string Hash);
 public interface IStateProtector
 {
     byte[] Protect(byte[] data);

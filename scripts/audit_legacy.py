@@ -3,7 +3,7 @@ import json, re, subprocess
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
-legacy = root.parent / 'V1'
+legacy = root / 'old'
 out = root / 'docs' / 'audit'
 out.mkdir(parents=True, exist_ok=True)
 def git(*args):
@@ -13,7 +13,7 @@ entries = []
 for menu in actionmap['menus']:
     for action in menu['actions']:
         entries.append(dict(legacy_version='2.10.0', legacy_id=action['id'], name=action['label'],
-            legacy_menu=menu['key'], source='V1/wpf/Data/ui_action_map_v2_10.json',
+            legacy_menu=menu['key'], source='old/wpf/Data/ui_action_map_v2_10.json',
             endpoint=action.get('path'), center=menu.get('category'), status='NOT_STARTED',
             verification='Not yet established', rollback='Not yet established'))
 history = []

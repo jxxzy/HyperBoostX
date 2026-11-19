@@ -1,0 +1,20 @@
+{
+  "schema_version": "2.10.0",
+  "title": "HyperBoostX v2.10 Feature Error",
+  "default_enabled": false,
+  "allowed_hosts": ["discord.com", "discordapp.com", "canary.discord.com", "ptb.discord.com"],
+  "allowed_mentions": { "parse": [] },
+  "attachments_enabled_default": false,
+  "rate_limit_seconds_min": 30,
+  "dedupe_window_minutes": 30,
+  "retry_max": 3,
+  "queue_retention_hours": 24,
+  "classes": [
+    { "id": "backend_disconnected", "severity": "warning", "sendable": true },
+    { "id": "token_mismatch", "severity": "warning", "sendable": true },
+    { "id": "installer_stale", "severity": "warning", "sendable": true },
+    { "id": "test_failed", "severity": "warning", "sendable": true },
+    { "id": "safety_blocked", "severity": "info", "sendable": true },
+    { "id": "discord_send_failed", "severity": "warning", "sendable": false }
+  ]
+}

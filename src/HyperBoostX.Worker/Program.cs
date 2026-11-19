@@ -25,11 +25,14 @@ internal static class Program
             try
             {
                 var shutdown=false;
-                using var endpoint=new PrivilegedPipeEndpoint(sessionKey,new Dictionary<string,Func<string,string,bool>>(StringComparer.Ordinal)
+                Runtime? runtime=null;PrivilegedActionDispatcher? actionDispatcher=null;
+                var allowlist=new Dictionary<string,Func<string,string,bool>>(PrivilegedActionDispatcher.PayloadValidators,StringComparer.Ordinal)
                 {
                     ["worker.health"]=(target,body)=>target.Length==0&&body=="{}",
-                    ["worker.shutdown"]=(target,body)=>target.Length==0&&body=="{}"
-                });
+                    ["worker.shutdown"]=(target,body)=>target.Length==0&&body=="{}",
+                    ["worker.power.inspect"]=(target,body)=>target.Length==0&&body=="{}"
+                };
+                using var endpoint=new PrivilegedPipeEndpoint(sessionKey,allowlist);
                 for(var requestNumber=0;requestNumber<MaximumRequests&&!shutdown;requestNumber++)
                 {
                     using var idleTimeout=new CancellationTokenSource(TimeSpan.FromSeconds(30));
@@ -37,9 +40,23 @@ internal static class Program
                 }
                 return shutdown?0:3;
 
-                Task<PrivilegedDispatchResult> Dispatch(PrivilegedRequestEnvelope request,CancellationToken _)
+                Task<PrivilegedDispatchResult> Dispatch(PrivilegedRequestEnvelope request,CancellationToken cancellation)
                 {
                     if(request.ActionId=="worker.shutdown"){shutdown=true;return Task.FromResult(new PrivilegedDispatchResult(true,"HBX-WORKER-SHUTDOWN","Worker shutdown accepted and will complete after this response."));}
+                    if(request.ActionId=="worker.power.inspect")
+                    {
+                        cancellation.ThrowIfCancellationRequested();
+                        var currentPlanId=PowerAction.Current();
+                        var availablePlans=PowerAction.Plans();
+                        var found=availablePlans.Any(plan=>string.Equals(plan.Id,currentPlanId,StringComparison.OrdinalIgnoreCase));
+                        var resultBody=JsonSerializer.Serialize(new{ActivePlanId=currentPlanId,PlanCount=availablePlans.Count,ActivePlanEnumerated=found});
+                        return Task.FromResult(new PrivilegedDispatchResult(true,"HBX-WORKER-POWER","Active power plan and plan inventory were read from Windows PowrProf.",resultBody));
+                    }
+                    if(request.ActionId.StartsWith("action.",StringComparison.Ordinal))
+                    {
+                        runtime??=new Runtime();actionDispatcher??=new PrivilegedActionDispatcher(runtime.CreatePrivilegedWorkerEngine(),runtime.Journal);
+                        return actionDispatcher.DispatchAsync(request,cancellation);
+                    }
                     using var process=Process.GetCurrentProcess();var principal=new WindowsPrincipal(identity);
                     var body=JsonSerializer.Serialize(new{ProcessId=Environment.ProcessId,SessionId=process.SessionId,UserSid=currentSid.Value,Elevated=principal.IsInRole(WindowsBuiltInRole.Administrator),Protocol=PrivilegedRequestValidator.ProtocolVersion});
                     return Task.FromResult(new PrivilegedDispatchResult(true,"HBX-WORKER-HEALTH","Worker identity and authenticated IPC are available.",body));

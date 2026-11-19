@@ -1,8 +1,9 @@
 <UserControl x:Class="HyperBoostX.App.GameLibraryPanel" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
  <StackPanel>
   <TextBlock Text="GAME LIBRARY &amp; PROFILES" Foreground="{DynamicResource AccentBrush}" FontWeight="Bold"/>
-  <TextBlock Text="Simpan executable game langsung. Profil hanya mengubah opsi yang Anda pilih, dengan backup dan verifikasi. Auto-restore berjalan selama HyperBoostX terbuka." Margin="0,10,0,15"/>
-  <WrapPanel Margin="0,0,0,12"><Button Content="Add executable" Command="{Binding AddGameCommand}"/><Button Content="Remove from library" Command="{Binding RemoveGameCommand}"/><Button Content="Scan running games" Command="{Binding ScanGamesCommand}"/><Button Content="Discover installed games" AutomationProperties.AutomationId="DiscoverInstalledGames" Command="{Binding DiscoverInstalledGamesCommand}"/><Button Content="Import library" Command="{Binding ImportGamesCommand}"/><Button Content="Export library" Command="{Binding ExportGamesCommand}"/></WrapPanel>
+  <TextBlock Text="Simpan executable game langsung. Profil hanya mengubah opsi yang Anda pilih, dengan backup dan verifikasi. HyperBoostX memantau sesi setelah restart hanya jika identitas proses cocok; jika tidak, pemulihan manual tetap tersedia." Margin="0,10,0,15"/>
+  <WrapPanel Margin="0,0,0,12"><Button Content="Add executable" Command="{Binding AddGameCommand}"/><Button Content="Discover Steam and Epic games" Command="{Binding DiscoverGamesCommand}"/><Button Content="Remove from library" Command="{Binding RemoveGameCommand}"/><Button Content="Scan running games" Command="{Binding ScanGamesCommand}"/><Button Content="Import library" Command="{Binding ImportGamesCommand}"/><Button Content="Export library" Command="{Binding ExportGamesCommand}"/></WrapPanel>
+  <Grid Margin="0,0,0,12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><ComboBox ItemsSource="{Binding DiscoveredGames}" SelectedItem="{Binding SelectedDiscoveredGame}" DisplayMemberPath="Name" AutomationProperties.Name="Discovered games"/><Button Grid.Column="1" Content="Register discovered game" Command="{Binding RegisterDiscoveredGameCommand}" Margin="8,0,0,0"/></Grid>
   <ComboBox ItemsSource="{Binding Games}" SelectedItem="{Binding SelectedGame}" DisplayMemberPath="Name" AutomationProperties.Name="Saved games" Margin="0,0,0,12"/>
   <TextBlock Text="{Binding SelectedGame.Executable}" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,16"/>
   <StackPanel IsEnabled="{Binding Busy,Converter={StaticResource InverseBool}}">
@@ -10,6 +11,7 @@
    <ComboBox ItemsSource="{Binding Plans}" SelectedItem="{Binding SelectedPlan}" AutomationProperties.Name="Gaming profile power plan" IsEnabled="{Binding ProfileUsePowerPlan}"/>
    <CheckBox Content="Disable Windows game capture preference during session" IsChecked="{Binding ProfileDisableCapture}" Foreground="{DynamicResource TextBrush}" Margin="0,12"/>
    <CheckBox Content="Disable transparency during session" IsChecked="{Binding ProfileDisableTransparency}" Foreground="{DynamicResource TextBrush}" Margin="0,0,0,12"/>
+   <CheckBox Content="Offer AboveNormal priority for the game process (separate approval after launch; no FPS guarantee)" IsChecked="{Binding ProfileRaisePriority}" Foreground="{DynamicResource TextBrush}" Margin="0,0,0,12"/>
   </StackPanel>
   <WrapPanel Margin="0,4,0,16"><Button Content="Save profile" Command="{Binding SaveGameProfileCommand}"/><Button Content="Preview &amp; launch game" Command="{Binding StartGameCommand}"/><Button Content="Restore session" Command="{Binding RestoreGameCommand}"/></WrapPanel>
   <TextBlock Text="{Binding GamingSessionStatus}" Margin="0,0,0,20" AutomationProperties.Name="Gaming session status"/>

@@ -34,7 +34,7 @@ public sealed class Diagnostics
                     {
                         token.ThrowIfCancellationRequested();if(++count>400){Add("Inventory limit","First 400 entries shown",query);break;}
                         var name=fields.Length>0?Format(row[fields[0]]):$"Entry {count}";
-                        if(fields.Length>0 && row[fields[0]] is bool)Add(fields[0],row[fields[0]],query);
+                        if(fields.Length>0 && (row[fields[0]] is bool||center=="GPU"&&fields[0]=="Name"))Add(fields[0],row[fields[0]],query);
                         foreach(var field in fields.Skip(1))Add($"{name} · {field}",row[field] is {} value?Format(value):null,query);
                     }
                 }
@@ -59,6 +59,21 @@ public sealed class Diagnostics
                         if(state.Value=="1")findings.Add(new(action.Info.Name,state.ToString(),action.Info.Description,"Direct configuration evidence; optional preference",action.Info.Id));
                     }
                     catch(HbxException e){Add(action.Info.Name,null,e.Message);}
+                }
+                if(center=="Smart Scan")
+                {
+                    var visualEffects=new VisualEffectsAction();
+                    try
+                    {
+                        var state=await visualEffects.ReadAsync("",token);
+                        var preset=state.Value switch{"0"=>"Windows chooses","1"=>"Best appearance","2"=>"Best performance","3"=>"Custom",_=>state.Value};
+                        Add("Visual effects preset",$"{preset} · DWORD {state.Value}",visualEffects.Info.Source);
+                        if(state.Value!="2")
+                            findings.Add(new("Optional visual-effects preference",preset,"Review the best-performance preset only if its appearance trade-off suits you. No FPS gain is promised.","Direct current-user setting; optional preference",visualEffects.Info.Id));
+                    }
+                    catch(HbxException e){facts.Add(new("Visual effects preset","Unavailable",e.Message,"Unavailable","Unavailable"));}
+                    catch(Exception e) when(e is UnauthorizedAccessException or IOException)
+                    {facts.Add(new("Visual effects preset","Unavailable",e.GetType().Name,"Unavailable","Unavailable"));}
                 }
                 Add("Network",NetworkInterface.GetIsNetworkAvailable()?"Online interface available":"Offline Mode","NetworkInterface");
                 Add("Safety Guard",Runtime.EnvironmentBlock()??"Enabled · registered actions only","Runtime policy");
@@ -88,8 +103,7 @@ public sealed class Diagnostics
                 break;
             case "GPU":
                 await Query(@"root\cimv2","SELECT Name,DriverVersion,DriverDate,VideoProcessor,CurrentHorizontalResolution,CurrentVerticalResolution,CurrentRefreshRate,ConfigManagerErrorCode FROM Win32_VideoController","Name","DriverVersion","DriverDate","VideoProcessor","CurrentHorizontalResolution","CurrentVerticalResolution","CurrentRefreshRate","ConfigManagerErrorCode");
-                facts.AddRange(await GpuCounters.ScanAsync(token));
-                Add("VRAM capacity",null,"Win32_VideoController.AdapterRAM is not reliable for modern VRAM sizes; dedicated usage is not capacity");
+                Add("VRAM",null,"Win32_VideoController.AdapterRAM is not reliable for modern VRAM sizes");
                 Add("GPU temperature / power",null,"No validated vendor sensor provider");
                 break;
             case "Storage":

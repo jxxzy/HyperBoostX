@@ -1,0 +1,29 @@
+{
+  "schema_version": "2.10.0",
+  "required_fields": [
+    "id",
+    "timestamp",
+    "test_run_id",
+    "suite_id",
+    "test_id",
+    "feature",
+    "menu",
+    "action_id",
+    "endpoint",
+    "action",
+    "status",
+    "severity",
+    "started_at",
+    "finished_at",
+    "duration_ms",
+    "error",
+    "discord_status",
+    "report_path",
+    "restore_status",
+    "safety_status",
+    "details"
+  ],
+  "redaction_required": true,
+  "local_first": true,
+  "cloud_sync": false
+}

@@ -26,7 +26,20 @@ public static class InstalledApplicationDetection
             catch(Exception exception) when(exception is UnauthorizedAccessException or SecurityException or IOException)
             {facts.Add(new("Application inventory provider","Unavailable",$"{hive} {view}: {exception.GetType().Name}","Unavailable","Unavailable"));}
         }
-        facts.Insert(0,new("Inventory coverage",truncated?$"Truncated at 2,000 records":$"{seen.Count:N0} unique installed application records","Windows uninstall registry","Direct",truncated?"Unavailable":"Available"));
+        try
+        {
+            using var packages=Registry.CurrentUser.OpenSubKey(@"Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\Repository\Packages");
+            if(packages is null)facts.Add(new("MSIX application inventory","Unavailable","Current-user AppModel package repository is absent","Unavailable","Unavailable"));
+            else foreach(var packageFullName in packages.GetSubKeyNames())
+            {
+                token.ThrowIfCancellationRequested();if(facts.Count>=2000){truncated=true;break;}
+                var parts=packageFullName.Split('_');var name=parts.FirstOrDefault()?.Trim();if(string.IsNullOrWhiteSpace(name))continue;var version=parts.Length>1?parts[1]:"Unavailable";var identity=$"MSIX|{packageFullName}";if(!seen.Add(identity))continue;
+                facts.Add(new($"MSIX package: {name}",$"version {version} · package {packageFullName}","Current-user AppModel package repository","Direct","Available"));
+            }
+        }
+        catch(Exception exception) when(exception is UnauthorizedAccessException or SecurityException or IOException)
+        {facts.Add(new("MSIX application inventory","Unavailable",$"AppModel repository: {exception.GetType().Name}","Unavailable","Unavailable"));}
+        facts.Insert(0,new("Inventory coverage",truncated?$"Truncated at 2,000 records":$"{seen.Count:N0} unique installed application and MSIX package records","Windows uninstall registry and current-user AppModel repository","Direct",truncated?"Unavailable":"Available"));
         return new DiagnosticReport("App Load Optimizer",DateTimeOffset.UtcNow,facts.OrderBy(f=>f.Name,StringComparer.CurrentCultureIgnoreCase).ToArray(),[]);
     },token);
 }

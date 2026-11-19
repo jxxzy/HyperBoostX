@@ -16,9 +16,12 @@ public sealed class Runtime
 {
     public Journal Journal {get;}
     public ActionEngine Engine {get;}
+    private readonly ISystemAction[] _registeredActions;
+    private readonly string _owner;
     public Diagnostics Diagnostics {get;} = new();
     public DocumentStore Documents {get;}
     public ResearchExperiments Research {get;}
+    public AutomationRules Automation {get;}
     public GameLibrary Games {get;}
     public GameSessions GamingSessions {get;}
     public Benchmarks Benchmarks {get;}
@@ -32,13 +35,17 @@ public sealed class Runtime
         Journal.Reconcile();
         using var identity=WindowsIdentity.GetCurrent();
         using var machine=Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Cryptography");
-        var owner=Json.Hash($"{identity.User?.Value}|{machine?.GetValue("MachineGuid")}");
+        _owner=Json.Hash($"{identity.User?.Value}|{machine?.GetValue("MachineGuid")}");
         Cleanup=new TempCleanupAction(Path.GetTempPath(),Journal.Root);
-        Engine=new ActionEngine(RegistryAction.CreateAll().Concat<ISystemAction>([new PowerAction(),new StartupDisableAction(),Cleanup]),Journal,new SafetyGuard(EnvironmentBlock),owner);
-        Documents=new DocumentStore(Journal,new WindowsProtector());Research=new ResearchExperiments(Documents);Games=new GameLibrary(Documents);GamingSessions=new GameSessions(Engine,Journal,Documents);
+        Documents=new DocumentStore(Journal,new WindowsProtector());Research=new ResearchExperiments(Documents);Automation=new AutomationRules(Documents);Games=new GameLibrary(Documents);
+        _registeredActions=RegistryAction.CreateAll().Concat<ISystemAction>([new VisualEffectsAction(),new PowerAction(),new StartupDisableAction(),Cleanup,new DnsProfileAction(),new GameProcessPriorityAction(Games)]).ToArray();
+        Engine=new ActionEngine(_registeredActions,Journal,new SafetyGuard(EnvironmentBlock),_owner);
+        GamingSessions=new GameSessions(Engine,Journal,Documents);
         Benchmarks=new Benchmarks(Documents);
         Notifications=new Notifications(Documents,ProviderHttp);
     }
+    public ActionEngine CreatePrivilegedWorkerEngine()=>
+        new(_registeredActions.Where(action=>action.Info.RequiresElevation),Journal,new SafetyGuard(EnvironmentBlock),_owner);
     public static string? EnvironmentBlock()
     {
         if(!OperatingSystem.IsWindowsVersionAtLeast(10,0,19045))return "HBX-COMPAT-0001: Changes require Windows build 19045 or newer.";

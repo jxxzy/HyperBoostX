@@ -1,0 +1,163 @@
+﻿{
+    "generated_at":  "2026-07-03T14:56:56.9705663Z",
+    "expected_version":  "2.10.0",
+    "final_status":  "OWNER_LAB_PASS",
+    "checks":  [
+                   {
+                       "name":  "version consistency",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  685
+                   },
+                   {
+                       "name":  "UI release gate",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  9374
+                   },
+                   {
+                       "name":  "no template UI regression",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  346
+                   },
+                   {
+                       "name":  "UI page body markers",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  221
+                   },
+                   {
+                       "name":  "UI button labels",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  296
+                   },
+                   {
+                       "name":  "no placement notes",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  197
+                   },
+                   {
+                       "name":  "dense page content",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  218
+                   },
+                   {
+                       "name":  "page action rows",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  235
+                   },
+                   {
+                       "name":  "right log/evidence panel",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  242
+                   },
+                   {
+                       "name":  "button state machine",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  483
+                   },
+                   {
+                       "name":  "report/restore schema",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  333
+                   },
+                   {
+                       "name":  "AI Assistant contract",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  2335
+                   },
+                   {
+                       "name":  "AI universal layer",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  764
+                   },
+                   {
+                       "name":  "AI 10-model registry",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  194
+                   },
+                   {
+                       "name":  "AI model router",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  189
+                   },
+                   {
+                       "name":  "AI redaction",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  189
+                   },
+                   {
+                       "name":  "AI action mapper",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  285
+                   },
+                   {
+                       "name":  "AI no auto apply",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  275
+                   },
+                   {
+                       "name":  "AI feature panels",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  214
+                   },
+                   {
+                       "name":  "Expert mode surface",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  358
+                   },
+                   {
+                       "name":  "feature maturity labels",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  475
+                   },
+                   {
+                       "name":  "no gimmick features",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  290
+                   },
+                   {
+                       "name":  "Expert pages not dead",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  281
+                   },
+                   {
+                       "name":  "P0 competitor-gap modules",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  225
+                   },
+                   {
+                       "name":  "release docs consistency",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  2327
+                   },
+                   {
+                       "name":  "installer runtime evidence",
+                       "status":  "PASS",
+                       "exit_code":  0,
+                       "duration_ms":  1820
+                   }
+               ]
+}

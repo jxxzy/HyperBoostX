@@ -37,9 +37,9 @@ public sealed class RenderTests
                     var languageSelector=(System.Windows.Controls.ComboBox)window.FindName("LanguageSelector")!;
                     Assert.Equal(6,languageSelector.Items.Count);
                     languageSelector.SelectedValue="en-US";content.UpdateLayout();
-                    Assert.Equal("en-US",vm.Language);Assert.Equal("Search modules and aliases · Ctrl+K",searchBox.ToolTip);
+                    Assert.Equal("en-US",vm.Language);Assert.Equal("Search modules and aliases",searchBox.ToolTip);
                     languageSelector.SelectedValue="ja-JP";content.UpdateLayout();
-                    Assert.Equal("ja-JP",vm.Language);Assert.Equal("モジュールと別名を検索 · Ctrl+K",searchBox.ToolTip);
+                    Assert.Equal("ja-JP",vm.Language);Assert.Equal("モジュールと別名を検索",searchBox.ToolTip);
                     languageSelector.SelectedValue="id-ID";content.UpdateLayout();
                     ((System.Windows.Controls.Grid)content).Background=window.Background;
                     foreach(var page in ShellViewModel.AllNavigation)
