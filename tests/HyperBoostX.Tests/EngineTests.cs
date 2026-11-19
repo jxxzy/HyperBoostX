@@ -28,6 +28,19 @@ public sealed class EngineTests:IDisposable
         research.Add("Storage upgrade","Level load","A","Load time",10,"seconds","baseline");research.Add("Storage upgrade","Level load","A","Load time",12,"seconds","repeat");research.Add("Storage upgrade","Level load","C","Load time",7,"seconds","SSD");
         Assert.Equal(3,research.History().Count);var report=research.Report("Storage upgrade");Assert.Contains(report.Facts,f=>f.Name=="Load time · variant A"&&f.Value.Contains("n=2",StringComparison.Ordinal));Assert.Contains(report.Facts,f=>f.Name=="Load time · variant C"&&f.Value.Contains("Δ vs A -4",StringComparison.Ordinal));
     }
+    [Fact]public void ResearchTrialsNeverPoolDifferentWorkloadsOrBorrowTheirBaselines()
+    {
+        var research=new ResearchExperiments(new DocumentStore(Store,new TestProtector()));
+        research.Add("Experiment","Boot","A","Time",10,"seconds","");
+        research.Add("Experiment","Boot","B","Time",7,"seconds","");
+        research.Add("Experiment","Game load","A","Time",100,"seconds","");
+        research.Add("Experiment","Game load","B","Time",80,"seconds","");
+        research.Add("Experiment","File copy","C","Time",1,"seconds","");
+        var report=research.Report("Experiment");
+        Assert.Contains(report.Facts,f=>f.Name=="Boot / Time · variant B"&&f.Value.Contains("n=1 · Δ vs A -3",StringComparison.Ordinal));
+        Assert.Contains(report.Facts,f=>f.Name=="Game load / Time · variant B"&&f.Value.Contains("n=1 · Δ vs A -20",StringComparison.Ordinal));
+        Assert.Contains(report.Facts,f=>f.Name=="File copy / Time · variant C"&&f.Value.Contains("no baseline A for this workload",StringComparison.Ordinal)&&!f.Value.Contains("Δ vs A",StringComparison.Ordinal));
+    }
     [Fact]public void ResearchTrialsRejectInvalidVariantsAndNonFiniteValues()
     {
         var research=new ResearchExperiments(new DocumentStore(Store,new TestProtector()));

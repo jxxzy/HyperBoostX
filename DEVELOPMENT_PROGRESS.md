@@ -179,3 +179,11 @@ Run `dotnet test HyperBoostX.sln -c Release` after feature tests and use the iso
 - Experiment reports calculate means and sample counts per variant and deltas against measured variant A. SSD/RAM variants are never simulated; users must record actual measurements, and reports explicitly reject causal conclusions without controlled methodology.
 - Core persistence/report validation and route tests bring the suite to 174/174. Packaged UI smoke saved a variant A trial, waited for analysis availability, rendered the summary, and passed 73/73 routes. Evidence: `artifacts/ui-research-smoke-7fd53e99464041c1a84329c1188b6af2`.
 - Traceability contains 4,051 requirements, 78 `IMPLEMENTED_VERIFIED`, 5 `PARTIAL_VERIFIED`, and 3,973 mandatory requirements not verified.
+
+
+## Continuation (2026-11-19) — personal repository migration and Research Mode correction
+
+- Imported all 143 tracked source files from the organization repository at 2ab5b4bf3a7049b898c64e322339e8398a3bcca7 into jxxzy/HyperBoostX branch v3-development. Compared every source blob SHA; no missing or changed original file at the migration commit 82e973fd796d64fc90266fb7c33a37ed18327812. Legacy main remains untouched. Removed the temporary write-enabled migration job after the import; routine CI has contents:read only.
+- Fixed Research Mode grouping: repeat-trial means and A baseline deltas are now isolated by workload, metric and unit within an experiment. Multiple workload labels are distinguished, missing matching baselines are reported, and numeric deltas use invariant culture. Added a regression test for two different workload baselines and a third workload without baseline. Windows test result pending; do not count it as verified yet.
+- Hardened Stable requirement gate against empty/deleted/demoted inventory, malformed flags/evidence and inconsistent metadata. Added twelve synthetic Python regression tests; the local patch suite passed 12/12. CI runs them before checking the actual matrix. No increase in implemented-verified requirement counts is claimed.
+- Migration Actions job succeeded; initial Stable requirement gate failed as expected; Windows build was in progress when this checkpoint was authored. See Actions for actual execution evidence. Signing, real Windows UI/VM/hardware and remaining requirement implementation continue to block Stable.
