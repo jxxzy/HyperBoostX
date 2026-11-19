@@ -211,3 +211,9 @@ Run `dotnet test HyperBoostX.sln -c Release` after feature tests and use the iso
 - Independently observed successful Windows CI at 19796bc: 175/175 tests passed, 0 build warnings/errors, unchanged lock files, installer and portable ZIP with verified hashes. Artifacts from run 44453637972 remain unsigned development packages. The two subsequent feature commits and this batch are not included in that result.
 
 - Safe Boost failure handling now reconciles durable recovery files before enumerating database history, and reports RecoveryRequired if the journal cannot confirm complete recovery. This closes a potential falsely successful rollback report after a database-write failure; CI execution pending.
+
+
+## Continuation (2026-11-19) — fix late file-analysis progress race
+
+- Windows CI run 44454086330 at 213bbe2 compiled with zero warnings/errors and passed 183/184 tests, including the new GPU and installed-game tests; the existing DuplicateAndLargeFileRouteRunsRealReadOnlyAnalysis test failed because an intermediate progress message overwrote the final coverage label. No package was promoted from that run.
+- Serialize progress and completion on the WPF Dispatcher and close the local progress callback on completion/failure/cancellation. Added a delayed dispatcher pump to the existing regression test without weakening its final-coverage assertions. New CI validation pending.

@@ -335,15 +335,38 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
     public async Task RunFileAnalysis(CancellationToken token)
     {
         DuplicateGroups.Clear();LargeFiles.Clear();FileAnalysisIssues.Clear();
-        var progress=new Progress<FileAnalysisProgress>(value=>FileAnalysisStatus=$"{value.FilesExamined:N0} file diperiksa · {FileAnalysisFormatting.Size(value.BytesHashed)} di-hash"+(string.IsNullOrWhiteSpace(value.CurrentPath)?"":$" · {value.CurrentPath}"));
-        var threshold=checked(MinimumLargeFileMiB*1024L*1024L);
-        var result=await FileAnalysis.ScanAsync(FileAnalysisRoot,threshold,progress,token);
-        foreach(var group in result.Duplicates)DuplicateGroups.Add(group);
-        foreach(var file in result.LargeFiles)LargeFiles.Add(file);
-        foreach(var issue in result.Issues)FileAnalysisIssues.Add(issue);
-        FileAnalysisStatus=$"Selesai: {result.FilesExamined:N0} file, {result.Duplicates.Count:N0} grup duplikat, {result.LargeFiles.Count:N0} file besar, potensi duplikat {FileAnalysisFormatting.Size(result.Duplicates.Sum(group=>group.PotentialDuplicateBytes))}. "+
-            (result.CoverageComplete?"Cakupan lengkap.":$"Cakupan tidak lengkap: skipped={result.Skipped}, truncated={result.Truncated}, cancelled={result.Cancelled}.");
-        Status="Analisis file selesai. Tidak ada file yang diubah atau dihapus.";
+        var dispatcher=System.Windows.Threading.Dispatcher.CurrentDispatcher;
+        // Progress<T> may deliver queued callbacks after ScanAsync completes. Serialize
+        // both progress and the terminal state on the UI dispatcher; close the reporter
+        // before publishing the final result, including on cancellation or failure.
+        var acceptingProgress=true;
+        var progress=new Progress<FileAnalysisProgress>(value=>
+        {
+            _=dispatcher.InvokeAsync(()=>
+            {
+                if(!acceptingProgress)return;
+                FileAnalysisStatus=$"{value.FilesExamined:N0} file diperiksa · {FileAnalysisFormatting.Size(value.BytesHashed)} di-hash"+(string.IsNullOrWhiteSpace(value.CurrentPath)?"":$" · {value.CurrentPath}");
+            });
+        });
+        try
+        {
+            var threshold=checked(MinimumLargeFileMiB*1024L*1024L);
+            var result=await FileAnalysis.ScanAsync(FileAnalysisRoot,threshold,progress,token);
+            await dispatcher.InvokeAsync(()=>
+            {
+                acceptingProgress=false;
+                foreach(var group in result.Duplicates)DuplicateGroups.Add(group);
+                foreach(var file in result.LargeFiles)LargeFiles.Add(file);
+                foreach(var issue in result.Issues)FileAnalysisIssues.Add(issue);
+                FileAnalysisStatus=$"Selesai: {result.FilesExamined:N0} file, {result.Duplicates.Count:N0} grup duplikat, {result.LargeFiles.Count:N0} file besar, potensi duplikat {FileAnalysisFormatting.Size(result.Duplicates.Sum(group=>group.PotentialDuplicateBytes))}. "+
+                    (result.CoverageComplete?"Cakupan lengkap.":$"Cakupan tidak lengkap: skipped={result.Skipped}, truncated={result.Truncated}, cancelled={result.Cancelled}.");
+                Status="Analisis file selesai. Tidak ada file yang diubah atau dihapus.";
+            });
+        }
+        finally
+        {
+            await dispatcher.InvokeAsync(()=>{acceptingProgress=false;});
+        }
     }
     private void SelectAppLoadExecutable()
     {
