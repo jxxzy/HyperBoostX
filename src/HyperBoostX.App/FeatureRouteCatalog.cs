@@ -92,7 +92,7 @@ public static class FeatureRouteCatalog
         }
 
         Add(RouteSupport.Implemented, "Dashboard",
-            "Live CPU, physical memory, system-volume usage, network and bounded WDDM busiest-observed-engine readings are available on supported providers. Missing or partial GPU data is explicit. Dashboard readiness and vendor thermal sensors remain unavailable; storage health is not inferred from capacity.",
+            "Live CPU, physical memory, system-volume usage, network and bounded WDDM busiest-observed-engine readings are available on supported providers. Missing or partial GPU data is explicit. The on-demand readiness score displays measured component coverage and timestamp; the OS low-memory signal is distinct from RAM usage. Vendor thermal sensors remain unavailable; storage health is not inferred from capacity.",
             "Dashboard");
         Add(RouteSupport.Implemented, "Smart Scan",
             "Runs six selectable local diagnostic scopes, including bounded driver inventory and documented machine privacy policies. Missing providers stay explicit; no Windows setting is changed by a scan.",

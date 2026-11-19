@@ -63,8 +63,26 @@ public sealed class ShellTests
             Assert.EndsWith("%",vm.LiveCpu);Assert.Contains("GiB",vm.LiveMemory);
             Assert.True(vm.LiveGpu.Contains("%",StringComparison.Ordinal)||vm.LiveGpu==vm.Localization["Unavailable"]);
             Assert.NotEmpty(vm.LiveGpuDetail);
+            Assert.Contains(vm.LiveMemoryPressure,new[]{vm.Localization["MemoryLowSignaled"],vm.Localization["MemoryLowNotSignaled"]});
         }
         finally{vm.StopTelemetry();}
+    });
+
+    [Fact]public void DashboardReadinessRunsRealScoreAndPersistsTheSnapshot()=>Run(vm=>
+    {
+        vm.Navigate("Dashboard");Assert.Equal(vm.Localization["NotScored"],vm.DashboardReadinessValue);
+        Assert.True(vm.RefreshReadinessCommand.CanExecute(null));
+        vm.RefreshReadinessCommand.Execute(null);
+        var deadline=DateTime.UtcNow.AddSeconds(25);var frame=new DispatcherFrame();
+        var timer=new DispatcherTimer(DispatcherPriority.Background){Interval=TimeSpan.FromMilliseconds(50)};
+        timer.Tick+=(_,_)=>{if(!vm.Busy||DateTime.UtcNow>=deadline){timer.Stop();frame.Continue=false;}};
+        timer.Start();Dispatcher.PushFrame(frame);timer.Stop();
+        Assert.False(vm.Busy);Assert.Contains("/ 100",vm.DashboardReadinessValue);
+        Assert.Contains("/6",vm.DashboardReadinessCoverage);
+        var report=Assert.Single(vm.Runtime.Journal.Reports().Where(x=>x.Center=="HyperBoost Score"));
+        Assert.Contains(report.Facts,x=>x.Name=="Method"&&x.Source=="HBX-HEALTH-SCORE-2");
+        var reopened=new ShellViewModel(vm.Runtime);reopened.Navigate("Dashboard");
+        Assert.Equal(vm.DashboardReadinessValue,reopened.DashboardReadinessValue);
     });
 
     [Fact]public void DashboardStorageMetricReflectsTheActualWindowsSystemVolume()=>Run(vm=>

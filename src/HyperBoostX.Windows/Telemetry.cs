@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using HyperBoostX.Core;
+using Microsoft.Win32.SafeHandles;
 
 namespace HyperBoostX.Windows;
 
@@ -16,6 +17,9 @@ public sealed record TelemetrySample(DateTimeOffset ObservedAt,double? CpuPercen
     public ulong? CommitLimitBytes{get;init;}
     public MeasurementAvailability CommitAvailability{get;init;}=MeasurementAvailability.Unavailable;
     public int? CommitWin32Error{get;init;}
+    public bool? LowMemorySignaled{get;init;}
+    public int? MemoryNotificationWin32Error{get;init;}
+    public int CpuProcessorGroups{get;init;}=1;
     public double MemoryPercent=>TotalMemory==0?0:100d*(TotalMemory-AvailableMemory)/TotalMemory;
 }
 public sealed class Telemetry
@@ -41,7 +45,9 @@ public sealed class Telemetry
         if(!GlobalMemoryStatusEx(ref memory))throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
         if(memory.TotalPhysical==0||memory.AvailablePhysical>memory.TotalPhysical)throw new HbxException("HBX-TELEMETRY-MEMORY: Invalid physical-memory counters.");
         double? usage=null;var cpuAvailability=MeasurementAvailability.Sampling;int? cpuWin32Error=null;
-        if(GetSystemTimes(out var idle,out var kernel,out var user))
+        var processorGroups=GetActiveProcessorGroupCount();
+        if(processorGroups!=1){_cpu=null;cpuAvailability=MeasurementAvailability.Limited;}
+        else if(GetSystemTimes(out var idle,out var kernel,out var user))
         {
             var current=(idle.Value,kernel.Value,user.Value);
             if(_cpu is {} previous){usage=CpuUsage(previous,current);if(usage.HasValue)cpuAvailability=MeasurementAvailability.Available;}
@@ -68,11 +74,23 @@ public sealed class Telemetry
             :seen.Count==0?MeasurementAvailability.Unavailable
             :sampled>0?MeasurementAvailability.Available:MeasurementAvailability.Sampling;
         var commit=ReadCommitUsage(out var commitWin32Error);
+        var lowMemory=ReadLowMemorySignal(out var memoryNotificationError);
         return new TelemetrySample(DateTimeOffset.UtcNow,usage,memory.TotalPhysical,memory.AvailablePhysical,seconds>0&&sampled>0?receive/seconds:null,seconds>0&&sampled>0?send/seconds:null,Environment.TickCount64,
             failures>0?$"Limited: {failures} adapter(s) unavailable":seen.Count==0?"No active supported adapter":"Active interfaces; aggregate traffic may include virtual adapters")
         {CpuAvailability=cpuAvailability,CpuWin32Error=cpuWin32Error,NetworkAvailability=networkAvailability,NetworkFailureCount=failures,
-            CommitUsedBytes=commit?.UsedBytes,CommitLimitBytes=commit?.LimitBytes,CommitAvailability=commit is null?MeasurementAvailability.Unavailable:MeasurementAvailability.Available,CommitWin32Error=commitWin32Error};
+            CommitUsedBytes=commit?.UsedBytes,CommitLimitBytes=commit?.LimitBytes,CommitAvailability=commit is null?MeasurementAvailability.Unavailable:MeasurementAvailability.Available,CommitWin32Error=commitWin32Error,LowMemorySignaled=lowMemory,MemoryNotificationWin32Error=memoryNotificationError,CpuProcessorGroups=processorGroups};
     }
+    private static bool? ReadLowMemorySignal(out int? win32Error)
+    {
+        using var signal=CreateMemoryResourceNotification(0); // LowMemoryResourceNotification
+        if(signal.IsInvalid){win32Error=Marshal.GetLastWin32Error();return null;}
+        if(!QueryMemoryResourceNotification(signal,out var lowMemory))
+        {win32Error=Marshal.GetLastWin32Error();return null;}
+        win32Error=null;return lowMemory;
+    }
+    [DllImport("kernel32.dll",SetLastError=true)]private static extern SafeWaitHandle CreateMemoryResourceNotification(int type);
+    [DllImport("kernel32.dll",SetLastError=true)][return:MarshalAs(UnmanagedType.Bool)]private static extern bool QueryMemoryResourceNotification(SafeWaitHandle signal,[MarshalAs(UnmanagedType.Bool)]out bool state);
+    [DllImport("kernel32.dll")]private static extern ushort GetActiveProcessorGroupCount();
     private static CommitUsage? ReadCommitUsage(out int? win32Error)
     {
         var info=new PerformanceInformation{Size=(uint)Marshal.SizeOf<PerformanceInformation>()};

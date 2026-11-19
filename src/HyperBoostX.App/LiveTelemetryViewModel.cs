@@ -18,7 +18,7 @@ public sealed partial class ShellViewModel
     private bool _memoryGuard;
     private int _memoryGuardThresholdPercent=90;
     private int _memoryGuardCooldownMinutes=5;
-    public string LiveCpu=>_liveSample?.CpuPercent is {} cpu?$"{cpu:F1}%":Localization[_liveSample?.CpuAvailability==MeasurementAvailability.Unavailable?"Unavailable":"Sampling"];
+    public string LiveCpu=>_liveSample?.CpuPercent is {} cpu?$"{cpu:F1}%":Localization[_liveSample is {} sample?AvailabilityKey(sample.CpuAvailability):"Sampling"];
     public string LiveGpu=>_liveGpu is {Percent:{} value} sample&&DateTimeOffset.UtcNow-sample.ObservedAt<=TimeSpan.FromSeconds(30)
         ?$"{value:F0}% · {Localization[AvailabilityKey(sample.Availability)]}"
         :Localization[_liveGpu is null?"Sampling":"Unavailable"];
@@ -26,6 +26,7 @@ public sealed partial class ShellViewModel
         ?$"{Localization["GpuBusiestEngine"]} · {sample.EngineCount} · {sample.ObservedAt.ToLocalTime():HH:mm:ss}"
         :Localization["GpuLoadUnavailableDetail"];
     public string LiveMemory=>_liveSample is {} s?$"{(s.TotalMemory-s.AvailableMemory)/1073741824d:F1} / {s.TotalMemory/1073741824d:F1} GiB ({s.MemoryPercent:F1}%)":Localization["Unavailable"];
+    public string LiveMemoryPressure=>Localization[_liveSample?.LowMemorySignaled switch{true=>"MemoryLowSignaled",false=>"MemoryLowNotSignaled",_=>"MemoryPressureUnavailable"}];
     public string LiveCommit=>_liveSample is {} sample&&sample.CommitUsedBytes is {} used&&sample.CommitLimitBytes is {} limit
         ?$"{Localization["CommitCharge"]}: {used/1073741824d:F1} / {limit/1073741824d:F1} GiB"
         :$"{Localization["CommitCharge"]}: {Localization[_liveSample is null?"Sampling":AvailabilityKey(_liveSample.CommitAvailability)]}";
@@ -72,9 +73,11 @@ public sealed partial class ShellViewModel
             if(sample.NetworkFailureCount>0)network+=$" ({sample.NetworkFailureCount})";
             var cpu=Localization["CPU"]+": "+Localization[AvailabilityKey(sample.CpuAvailability)];
             if(sample.CpuWin32Error is {} error)cpu+=$" (Win32 {error})";
+            if(sample.CpuProcessorGroups!=1)cpu+=$" ({sample.CpuProcessorGroups} processor groups; aggregate unavailable)";
             var commit=Localization["CommitCharge"]+": "+Localization[AvailabilityKey(sample.CommitAvailability)];
             if(sample.CommitWin32Error is {} commitError)commit+=$" (Win32 {commitError})";
-            return $"{sample.ObservedAt.ToLocalTime():HH:mm:ss} · {network} · {cpu} · {commit}";
+            var pressure=LiveMemoryPressure;if(sample.MemoryNotificationWin32Error is {} pressureError)pressure+=$" (Win32 {pressureError})";
+            return $"{sample.ObservedAt.ToLocalTime():HH:mm:ss} · {network} · {cpu} · {commit} · {pressure}";
         }
     }
     private static string AvailabilityKey(MeasurementAvailability availability)=>availability switch
@@ -169,10 +172,10 @@ public sealed partial class ShellViewModel
                     if(MemoryGuardEnabled&&ShouldNotifyMemoryGuard(sample.MemoryPercent,MemoryGuardThresholdPercent,_lastMemoryNotice,observedAt,MemoryGuardCooldownMinutes))
                     {Status=$"Memory Guard: RAM {sample.MemoryPercent:F1}%. Simpan pekerjaan dan tinjau Processes. Tidak ada proses yang ditutup atau RAM yang dipurge otomatis.";_lastMemoryNotice=observedAt;}
                     if(++ticks%15==0)await Task.Run(()=>Runtime.Documents.Update("telemetry",new List<TelemetrySample>(),items=>items.Append(sample).TakeLast(600).ToList()),token);
-                    foreach(var name in new[]{nameof(LiveCpu),nameof(LiveMemory),nameof(LiveCommit),nameof(LiveGpu),nameof(LiveGpuDetail),nameof(LiveStorage),nameof(LiveNetwork),nameof(LiveUptime),nameof(TelemetryStatus),nameof(CpuChart),nameof(HasCpuSamples)})Notify(name);
+                    foreach(var name in new[]{nameof(LiveCpu),nameof(LiveMemory),nameof(LiveMemoryPressure),nameof(LiveCommit),nameof(LiveGpu),nameof(LiveGpuDetail),nameof(LiveStorage),nameof(LiveNetwork),nameof(LiveUptime),nameof(TelemetryStatus),nameof(CpuChart),nameof(HasCpuSamples)})Notify(name);
                 }
                 catch(OperationCanceledException)when(token.IsCancellationRequested){break;}
-                catch(Exception e){_liveSample=null;_telemetry.ResetBaseline();_telemetryError=ReportExport.Redact(e.Message);foreach(var name in new[]{nameof(LiveCpu),nameof(LiveMemory),nameof(LiveCommit),nameof(LiveNetwork),nameof(LiveUptime),nameof(TelemetryStatus)})Notify(name);}
+                catch(Exception e){_liveSample=null;_telemetry.ResetBaseline();_telemetryError=ReportExport.Redact(e.Message);foreach(var name in new[]{nameof(LiveCpu),nameof(LiveMemory),nameof(LiveMemoryPressure),nameof(LiveCommit),nameof(LiveNetwork),nameof(LiveUptime),nameof(TelemetryStatus)})Notify(name);}
             }
         }
         catch(OperationCanceledException)when(token.IsCancellationRequested){}

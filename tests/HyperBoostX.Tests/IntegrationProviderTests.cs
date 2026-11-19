@@ -21,10 +21,22 @@ public sealed class IntegrationProviderTests:IDisposable
         Assert.InRange(first.UptimeMilliseconds,0,long.MaxValue);
         await Task.Delay(250);
         var second=telemetry.Sample();
-        Assert.Equal(MeasurementAvailability.Available,second.CpuAvailability);
-        Assert.NotNull(second.CpuPercent);Assert.InRange(second.CpuPercent.Value,0,100);
+        if(second.CpuProcessorGroups==1){Assert.Equal(MeasurementAvailability.Available,second.CpuAvailability);Assert.NotNull(second.CpuPercent);Assert.InRange(second.CpuPercent.Value,0,100);}
+        else{Assert.Equal(MeasurementAvailability.Limited,second.CpuAvailability);Assert.Null(second.CpuPercent);}
         Assert.InRange(second.MemoryPercent,0,100);Assert.True(second.ObservedAt>=first.ObservedAt);
         telemetry.ResetBaseline();Assert.Null(telemetry.Sample().CpuPercent);
+    }
+    [Fact]public void TelemetryReadsWindowsLowMemorySignalWithoutInducingPressure()
+    {
+        var sample=new Telemetry().Sample();
+        Assert.NotNull(sample.LowMemorySignaled);
+        Assert.Null(sample.MemoryNotificationWin32Error);
+    }
+    [Fact]public void HealthScoreRejectsNonFiniteAndInvalidMeasuredComponents()
+    {
+        var sample=new TelemetrySample(DateTimeOffset.UnixEpoch,double.NaN,1000,1200,null,null,0,"fixture"){CpuAvailability=MeasurementAvailability.Available,NetworkAvailability=MeasurementAvailability.Unavailable};
+        var score=SystemHealthScore.Calculate(sample,new HealthScoreEvidence(double.PositiveInfinity,"gpu",-1,"storage",50,"reliability"));
+        Assert.Equal(1,score.AvailableComponents);Assert.Equal(50,score.Score);
     }
     [Fact]public void CommitPageCountsConvertUsingProviderPageSize()
     {

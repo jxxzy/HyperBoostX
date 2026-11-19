@@ -497,13 +497,14 @@
           <Button Content="{Binding Localization[RunSmartScan]}" Command="{Binding SmartScanCommand}" Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource AccentForegroundBrush}" BorderBrush="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
           <Button Content="{Binding Localization[ReviewOptimizations]}" Command="{Binding OptimizeCommand}"/>
           <Button Content="{Binding Localization[RestoreHistory]}" Command="{Binding RestoreCommand}"/>
+          <Button Content="{Binding Localization[RefreshReadiness]}" Command="{Binding RefreshReadinessCommand}" AutomationProperties.AutomationId="RefreshDashboardReadiness"/>
          </WrapPanel>
         </StackPanel>
         <Border Grid.Column="1" Width="120" Height="120" CornerRadius="60" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="5" Background="{DynamicResource SurfaceBrush}" VerticalAlignment="Center" Margin="18,0,0,0">
          <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-          <TextBlock Text="N/A" FontSize="23" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+          <TextBlock Text="{Binding DashboardReadinessValue}" AutomationProperties.AutomationId="DashboardReadinessValue" TextWrapping="Wrap" FontSize="17" FontWeight="SemiBold" HorizontalAlignment="Center" TextAlignment="Center"/>
           <TextBlock Text="{Binding Localization[Readiness]}" Foreground="{DynamicResource MutedBrush}" FontSize="9" HorizontalAlignment="Center"/>
-          <TextBlock Text="{Binding Localization[NotScored]}" Foreground="{DynamicResource WarningBrush}" FontSize="9" HorizontalAlignment="Center"/>
+          <TextBlock Text="{Binding DashboardReadinessCoverage}" Foreground="{DynamicResource MutedBrush}" FontSize="9" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="100"/>
          </StackPanel>
         </Border>
        </Grid>
@@ -513,7 +514,7 @@
         <StackPanel><TextBlock Text="{Binding Localization[CpuLoad]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="{Binding LiveCpu}" AutomationProperties.AutomationId="DashboardCpuLoad" FontSize="27" FontWeight="SemiBold" Margin="0,8,0,5"/><TextBlock Text="{Binding Localization[TwoSecondSystemSample]}" Foreground="{DynamicResource MutedBrush}" FontSize="11"/></StackPanel>
        </Border>
        <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="15" Margin="0,0,10,0">
-        <StackPanel><TextBlock Text="{Binding Localization[PhysicalMemory]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="{Binding LiveMemory}" AutomationProperties.AutomationId="DashboardMemoryPressure" FontSize="20" FontWeight="SemiBold" Margin="0,11,0,4"/><TextBlock Text="{Binding LiveCommit}" Foreground="{DynamicResource TextBrush}" FontSize="11" Margin="0,0,0,4"/><TextBlock Text="GlobalMemoryStatusEx" Foreground="{DynamicResource MutedBrush}" FontSize="10"/></StackPanel>
+        <StackPanel><TextBlock Text="{Binding Localization[PhysicalMemory]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="{Binding LiveMemory}" AutomationProperties.AutomationId="DashboardMemoryPressure" FontSize="20" FontWeight="SemiBold" Margin="0,11,0,4"/><TextBlock Text="{Binding LiveCommit}" Foreground="{DynamicResource TextBrush}" FontSize="11" Margin="0,0,0,4"/><TextBlock Text="{Binding LiveMemoryPressure}" AutomationProperties.AutomationId="DashboardMemoryLowSignal" Foreground="{DynamicResource MutedBrush}" FontSize="10" TextWrapping="Wrap"/></StackPanel>
        </Border>
       <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="15" Margin="0,0,10,0">
        <StackPanel><TextBlock Text="{Binding Localization[SystemStorage]}" Foreground="{DynamicResource MutedBrush}" FontSize="10" FontWeight="Bold"/><TextBlock Text="{Binding LiveStorage}" FontSize="24" FontWeight="SemiBold" Margin="0,11,0,8"/><TextBlock Text="{Binding Localization[WindowsSystemVolume]}" Foreground="{DynamicResource MutedBrush}" FontSize="11"/></StackPanel>

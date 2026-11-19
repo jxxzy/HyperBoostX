@@ -168,7 +168,7 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
             Runtime.Journal.SetSetting("language",_language);
             Notify();
             if(wasReady)Status=Localization["ReadyStatus"];
-            foreach(var name in new[]{nameof(RouteStatus),nameof(SafetyStatus),nameof(SafetyDetail),nameof(ActionDescription),nameof(ObservationSummary),nameof(FactDetails),nameof(LiveCpu),nameof(LiveMemory),nameof(LiveGpu),nameof(LiveGpuDetail),nameof(LiveNetwork),nameof(LiveUptime),nameof(UptimeText),nameof(TelemetryStatus),nameof(SmartScanResultSummary),nameof(CpuOptimizationSummary),nameof(GpuAdapterSummary),nameof(GpuDriverSummary),nameof(GpuScanSummary)})Notify(name);
+            foreach(var name in new[]{nameof(RouteStatus),nameof(SafetyStatus),nameof(SafetyDetail),nameof(ActionDescription),nameof(ObservationSummary),nameof(FactDetails),nameof(LiveCpu),nameof(LiveMemory),nameof(LiveMemoryPressure),nameof(DashboardReadinessValue),nameof(DashboardReadinessCoverage),nameof(LiveGpu),nameof(LiveGpuDetail),nameof(LiveNetwork),nameof(LiveUptime),nameof(UptimeText),nameof(TelemetryStatus),nameof(SmartScanResultSummary),nameof(CpuOptimizationSummary),nameof(GpuAdapterSummary),nameof(GpuDriverSummary),nameof(GpuScanSummary)})Notify(name);
         }
     }
     public bool Expert=>Mode=="Expert";
@@ -314,6 +314,7 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
     public bool HasCpuOptimizationHistory=>CpuOptimizationHistory.Count>0;
     public string DataLocation=>Runtime.Journal.Root;
     public ICommand ScanCommand{get;}
+    public ICommand RefreshReadinessCommand{get;}
     public ICommand CancelCommand{get;}
     public ICommand ApplyCommand{get;}
     public ICommand SafeBoostCommand{get;}
@@ -365,6 +366,7 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
         SmartScanScopes.Add(new(Localization,"Drivers","SmartScanDriversName","SmartScanDriversDescription",true,false));
         foreach(var scope in SmartScanScopes)scope.SelectionChanged+=(_,_)=>CommandManager.InvalidateRequerySuggested();
         ScanCommand=new Command(()=>Run(Scan),()=>!Busy&&IsDiagnostic&&RouteBinding.Support!=RouteSupport.Unsupported&&(!IsSmartScan||SmartScanScopes.Any(scope=>scope.IsSupported&&scope.IsSelected)));
+        RefreshReadinessCommand=new Command(()=>Run(RefreshDashboardReadiness),()=>!Busy&&IsDashboard);
         CancelCommand=new Command(()=>_cts?.Cancel(),()=>Busy);
         ApplyCommand=new Command(()=>Run(Apply),()=>!Busy&&RouteBinding.Support!=RouteSupport.Unsupported&&SelectedAction!=null&&(!IsStartup||SelectedStartup!=null)&&(!IsPower||SelectedPlan!=null)&&(!IsCleanup||SelectedCleanup!=null));
         SafeBoostCommand=new Command(()=>Run(ApplySafeBoost),()=>!Busy&&IsOneClickBoost&&!HasGamingSession&&(BoostTransparency||BoostCapture));
@@ -518,6 +520,7 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
         if(IsNetworkProfiles){DnsAdapters.Clear();try{foreach(var adapter in DnsProfileAction.Adapters())DnsAdapters.Add(adapter);SelectedDnsAdapter=DnsAdapters.FirstOrDefault();}catch(Exception e){Status=e.Message;}}
         if(IsRestore)RefreshHistory();
         if(IsReports){Reports.Clear();foreach(var report in Runtime.Journal.Reports())Reports.Add(report);if(Reports.FirstOrDefault() is {} latest)SelectedReport=latest;else{_report=null;Notify(nameof(SelectedReport));}}
+        if(IsDashboard)RestoreDashboardReadiness();
         if(IsSmartScan)
         {
             RefreshSmartScanHistory();
@@ -701,6 +704,7 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
     }
     private void Show(DiagnosticReport report)
     {
+        if(report.Center=="HyperBoost Score")SetDashboardReadiness(report);
         _report=report;_pageReport=report;SelectedFact=null;Facts.Clear();foreach(var f in report.Facts)Facts.Add(f);Findings.Clear();foreach(var f in report.Findings.OrderBy(f=>Goal=="Gaming"&&f.ActionId?.StartsWith("gaming.",StringComparison.Ordinal)==true?0:1))Findings.Add(f);
         Notify(nameof(HasFindings));Notify(nameof(HasFindingsOutsideSmartScan));Notify(nameof(HasFactsOutsideSmartScan));Notify(nameof(ObservationSummary));Notify(nameof(SmartScanResultSummary));Notify(nameof(HasSmartScanResults));Notify(nameof(HasCpuOptimizationResults));Notify(nameof(CpuOptimizationSummary));Notify(nameof(HasGpuResults));Notify(nameof(GpuAdapterSummary));Notify(nameof(GpuDriverSummary));Notify(nameof(GpuScanSummary));CommandManager.InvalidateRequerySuggested();
     }
