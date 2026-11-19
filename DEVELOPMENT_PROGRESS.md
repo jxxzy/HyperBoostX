@@ -217,3 +217,10 @@ Run `dotnet test HyperBoostX.sln -c Release` after feature tests and use the iso
 
 - Windows CI run 44454086330 at 213bbe2 compiled with zero warnings/errors and passed 183/184 tests, including the new GPU and installed-game tests; the existing DuplicateAndLargeFileRouteRunsRealReadOnlyAnalysis test failed because an intermediate progress message overwrote the final coverage label. No package was promoted from that run.
 - Serialize progress and completion on the WPF Dispatcher and close the local progress callback on completion/failure/cancellation. Added a delayed dispatcher pump to the existing regression test without weakening its final-coverage assertions. New CI validation pending.
+
+
+## Continuation (2026-11-19) — IPC fail-closed framing and lifecycle
+
+- Independently verified Windows CI at 920d6b5: 188/188 tests passed, 0 compiler errors/warnings, installer and portable package created with verified checksums (run 44454458264). Stable gate still failed; these are development artifacts, not a Stable release.
+- Hardened authenticated nonce validation against alternate base64 encodings; both request and response JSON frames now reject duplicate, missing, null or unknown fields rather than relying on CLR defaults. The worker client uses a 15-second request deadline and permanently invalidates a transport after interrupted or unauthenticated exchanges; callers must start a fresh worker. Pre-send cancellation and ordinary authenticated denial remain safe to reuse. Added three regression tests. Windows verification pending on this commit; no elevated mutations or cross-elevation validation claimed.
+- Owner confirmed all 15 acceptance targets in the current conversation; preserve the canonical master task and 4,051-item traceability baseline. See docs/FINAL_ACCEPTANCE.md for the release acceptance mapping and evidence policy.

@@ -32,6 +32,7 @@ public static class PrivilegedFrameCodec
         var payload=new byte[length];await ReadExactlyAsync(stream,payload,token);
         try
         {
+            ValidateEnvelope<PrivilegedRequestEnvelope>(payload);
             return JsonSerializer.Deserialize<PrivilegedRequestEnvelope>(payload,JsonOptions)
                 ??throw new HbxException("HBX-IPC-FRAME-JSON: Request frame is empty.");
         }
@@ -60,8 +61,24 @@ public static class PrivilegedFrameCodec
         var length=BinaryPrimitives.ReadInt32LittleEndian(header);
         if(length<=0||length>MaximumFrameBytes)throw new HbxException("HBX-IPC-FRAME-SIZE: IPC frame length is invalid.");
         var payload=new byte[length];await ReadExactlyAsync(stream,payload,token);
-        try{return JsonSerializer.Deserialize<T>(payload,JsonOptions)??throw new HbxException("HBX-IPC-FRAME-JSON: IPC frame is empty.");}
+        try{ValidateEnvelope<T>(payload);return JsonSerializer.Deserialize<T>(payload,JsonOptions)??throw new HbxException("HBX-IPC-FRAME-JSON: IPC frame is empty.");}
         catch(JsonException exception){throw new HbxException($"HBX-IPC-FRAME-JSON: IPC frame is malformed: {ReportExport.Redact(exception.Message)}");}
+    }
+
+    private static void ValidateEnvelope<T>(byte[] payload)
+    {
+        // JsonSerializer otherwise allows duplicate property names (last value wins),
+        // and omitted primitive fields silently receive CLR defaults.
+        using var doc=JsonDocument.Parse(payload,new JsonDocumentOptions{MaxDepth=8});
+        if(doc.RootElement.ValueKind!=JsonValueKind.Object)
+            throw new JsonException("IPC envelope must be a JSON object.");
+        var expected=typeof(T).GetProperties().Select(p=>p.Name).ToHashSet(StringComparer.Ordinal);
+        foreach(var property in doc.RootElement.EnumerateObject())
+        {
+            if(!expected.Remove(property.Name)||property.Value.ValueKind==JsonValueKind.Null)
+                throw new JsonException("IPC envelope contains unknown, duplicate or null fields.");
+        }
+        if(expected.Count!=0)throw new JsonException("IPC envelope is missing required fields.");
     }
 
     private static async Task ReadExactlyAsync(Stream stream,Memory<byte> buffer,CancellationToken token)

@@ -83,3 +83,8 @@ Game Library now offers bounded Steam/Epic manifest discovery in addition to exi
 ## Safe Boost and CI continuation (2026-11-19)
 
 One Click Boost now composes two explicit existing current-user preferences with approval, journaled verification and compensating recovery. Tests use isolated fake actions; the broader preset catalog, actual performance measurements and Windows mutation/UI qualification remain outstanding. Windows CI at 19796bc independently passed 175 tests, compiled without warnings/errors and packaged unsigned development artifacts with matching SHA-256; this checkpoint is not evidence for later GPU/game discovery/Safe Boost commits. Stable remains blocked.
+
+
+## IPC continuation (2026-11-19)
+
+Windows CI at 920d6b5 passed 188/188 tests, compiled without warnings/errors and produced verified-checksum unsigned development packages. Hardened canonical nonce handling, strict frame schema and the client request deadline/faulted transport lifecycle in the subsequent IPC patch. Added regression tests pending CI. Elevated operation handlers, cross-elevation authorization and qualification, signed release packages and all remaining mandatory requirements remain blockers; this patch does not promote traceability status.
