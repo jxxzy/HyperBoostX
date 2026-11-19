@@ -501,3 +501,9 @@ This is a source-level and Windows Server CI qualification for the specific feat
 
 - Wired the measured commit-charge ratio and independent Windows low-memory notification signal into the existing opt-in Memory Guard alert flow, alongside physical memory utilization. Invalid or unavailable counters remain unscored. The existing threshold and cooldown apply; the Windows low-memory signal can alert independently. All six language catalogs carry the safe local recommendation. No automatic purge, termination or system mutation is introduced.
 - Added six test cases for independent signals, invalid/unavailable measurements and cooldown. New CI pending; no requirement is promoted to verified before evidence. Process exclusions and emergency workload handling remain open. References: https://learn.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-getperformanceinfo and https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-querymemoryresourcenotification .
+
+
+## CI regression repair (2026-11-19)
+
+- CI run 44549073685 compiled successfully; 310/311 tests passed. The one failing shell test requires the Smart Memory Guard route to identify system commit usage explicitly. Restored that wording without weakening the test or changing the pressure logic. Fresh Windows CI required before qualification. Prior run 44548013551 passed 305/305 tests. Stable gate still reports 3,924 mandatory requirements outstanding; unchanged.
+- Next checkpoint: confirm Windows build/test/package/lifecycle success, then continue privileged worker and action recovery implementation. No release published.
