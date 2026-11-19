@@ -137,3 +137,8 @@ DNS configuration now uses a new static IPv4 state schema; older effective-serve
 ## Dashboard telemetry increment
 
 933f009 Windows CI: 274/274 passing, unsigned packages created, Stable gate failed (3,935 mandatory requirements). New Dashboard GPU load binding uses a bounded busiest-observed-engine calculation and explicit coverage/staleness, with live CPU/RAM and shell tests. GPU hardware acceptance and updated packaged UI smoke are pending; no verified feature or Stable status is claimed from the new code alone.
+
+
+## Installer qualification increment
+
+Windows CI now runs real NSIS install/repair/uninstall and portable extraction with complete payload SHA-256 comparison, isolated recovery CLI and telemetry, preserving unrelated files and the recovery database. Interactive UI is separately marked NOT_RUN in hosted CI. Results are pending and are not client Windows compatibility, signed upgrade, or full Stable acceptance.

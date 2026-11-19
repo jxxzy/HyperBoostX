@@ -12,3 +12,5 @@
 Capabilities are probed: existing Registry values/types, enumerated power plans, provider availability. Missing/denied sensor values are unavailable, never zero by default. Windows-tool URI support can vary by build; launch failures are surfaced.
 
 Native power API reference: https://learn.microsoft.com/en-us/windows/win32/power/managing-power-schemes
+
+A hosted Windows Server 2022 CI package lifecycle test now exists. It is separate from real Windows 10/11 workstation acceptance and must not replace that matrix. Desktop GUI smoke and UAC mutation/recovery still require isolated client Windows environments.

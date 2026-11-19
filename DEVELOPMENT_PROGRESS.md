@@ -436,3 +436,8 @@ Local source from 121577d was used as the primary implementation basis, with bui
 
 - Previous commit 933f009: independently verified Windows CI run 44517742573 passed 274/274 tests with zero warnings/errors; unsigned setup/portable packages and checksums completed. Stable gate still rejected 3,935 mandatory requirements.
 - Dashboard now polls bounded WDDM formatted performance counters independently every ten seconds while the dashboard surface is active and idle. Usage derives the busiest observed physical engine by grouping counters by adapter LUID/physical node/engine and summing distinct processes only within that engine. Invalid, duplicated, over-100 and truncated observations cannot appear complete. Missing provider, stale data and partial coverage are explicit; no fabricated thermal values or hardware totals. Added three GPU tests, a live Windows CPU/RAM provider test, and a shell test that waits for measured CPU/RAM and resolved GPU state. Six locale packs add the same three keys. UI smoke now requires actual CPU/RAM values and a resolved GPU reading or explicit unavailable state. Fresh CI and Windows client GPU acceptance pending. No Stable status promotion.
+
+
+## Continuation — real package lifecycle in Windows CI
+
+Added an isolated per-account NSIS fresh-install, actual corrupted-file repair, hash-by-hash installed and portable payload comparison, recovery CLI/real telemetry checks, registration verification, uninstall/preservation checks, and commit/package-bound JSON evidence. The CI uses a disposable hosted Windows Server account and explicitly marks interactive UI NOT_RUN; it does not qualify Windows 10/11 desktops, signed upgrades or production release. Tests are pending fresh CI; no status promotion.
