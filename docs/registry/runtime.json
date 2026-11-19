@@ -1,0 +1,305 @@
+﻿{
+  "SchemaVersion": 1,
+  "ActionRegistryVersion": 1,
+  "Actions": [
+    {
+      "Id": "windows.visual.transparency.disable",
+      "Name": "Disable transparency",
+      "Center": "Optimize",
+      "Description": "Turn off Windows transparency. This changes appearance; an FPS gain is not promised.",
+      "Scope": "Current user",
+      "Risk": "Low \u00B7 reversible",
+      "Restart": "Sign out or restart affected app if needed",
+      "Source": "Windows HKCU Registry",
+      "Reversible": true
+    },
+    {
+      "Id": "windows.visual.transparency.enable",
+      "Name": "Enable transparency",
+      "Center": "Optimize",
+      "Description": "Enable Windows transparency for this user.",
+      "Scope": "Current user",
+      "Risk": "Low \u00B7 reversible",
+      "Restart": "Sign out or restart affected app if needed",
+      "Source": "Windows HKCU Registry",
+      "Reversible": true
+    },
+    {
+      "Id": "gaming.capture.disable",
+      "Name": "Disable game capture preference",
+      "Center": "Gaming",
+      "Description": "Disable the current user\u0027s game capture preference. Other capture applications remain independent. Restart the game to evaluate behavior.",
+      "Scope": "Current user",
+      "Risk": "Low \u00B7 reversible",
+      "Restart": "Sign out or restart affected app if needed",
+      "Source": "Windows HKCU Registry",
+      "Reversible": true
+    },
+    {
+      "Id": "gaming.capture.enable",
+      "Name": "Enable game capture preference",
+      "Center": "Gaming",
+      "Description": "Enable the current user\u0027s Windows game capture preference.",
+      "Scope": "Current user",
+      "Risk": "Low \u00B7 reversible",
+      "Restart": "Sign out or restart affected app if needed",
+      "Source": "Windows HKCU Registry",
+      "Reversible": true
+    },
+    {
+      "Id": "windows.power.set_plan",
+      "Name": "Set active power plan",
+      "Center": "Power",
+      "Description": "Select an existing Windows power plan. Higher performance plans can increase heat and battery use. OEM software may override this setting.",
+      "Scope": "Current user / PC power policy",
+      "Risk": "Medium \u00B7 reversible",
+      "Restart": "No restart",
+      "Source": "PowrProf API",
+      "Reversible": true
+    },
+    {
+      "Id": "startup.current_user.disable",
+      "Name": "Disable selected startup entry",
+      "Center": "Startup",
+      "Description": "Remove the selected HKCU Run value after backing up its exact command and type. Restore is blocked if another program recreates it differently.",
+      "Scope": "Current user",
+      "Risk": "Medium \u00B7 reversible",
+      "Restart": "Next sign-in",
+      "Source": "HKCU Run",
+      "Reversible": true
+    },
+    {
+      "Id": "storage.temp.quarantine",
+      "Name": "Quarantine selected old temporary file",
+      "Center": "Cleanup",
+      "Description": "Move one selected .tmp file older than 7 days into local recovery quarantine. Contents are preserved, not erased. Restore verifies SHA-256 and never overwrites a new file. Quarantine does not reclaim disk space until separately managed.",
+      "Scope": "Current user's temporary folder",
+      "Risk": "Moderate \u00B7 reversible",
+      "Restart": "None",
+      "Source": "Native filesystem + SHA-256",
+      "Reversible": true
+    }
+  ],
+  "DiagnosticCenters": [
+    "Dashboard",
+    "Smart Scan",
+    "Optimize",
+    "Gaming",
+    "Processes",
+    "Hardware",
+    "GPU",
+    "Storage",
+    "Network",
+    "Startup",
+    "Apps",
+    "Devices",
+    "Security",
+    "Windows",
+    "Power",
+    "Creator",
+    "Reliability"
+  ],
+  "Handoffs": [
+    {
+      "Center": "Dashboard",
+      "Tools": []
+    },
+    {
+      "Center": "Smart Scan",
+      "Tools": []
+    },
+    {
+      "Center": "Optimize",
+      "Tools": []
+    },
+    {
+      "Center": "Gaming",
+      "Tools": [
+        {
+          "Name": "Windows Game Mode",
+          "Destination": "ms-settings:gaming-gamemode"
+        },
+        {
+          "Name": "Game captures",
+          "Destination": "ms-settings:gaming-gamedvr"
+        },
+        {
+          "Name": "Graphics preference",
+          "Destination": "ms-settings:display-advancedgraphics"
+        }
+      ]
+    },
+    {
+      "Center": "Processes",
+      "Tools": []
+    },
+    {
+      "Center": "Hardware",
+      "Tools": []
+    },
+    {
+      "Center": "GPU",
+      "Tools": [
+        {
+          "Name": "Graphics preference",
+          "Destination": "ms-settings:display-advancedgraphics"
+        },
+        {
+          "Name": "Display settings",
+          "Destination": "ms-settings:display"
+        }
+      ]
+    },
+    {
+      "Center": "Storage",
+      "Tools": [
+        {
+          "Name": "Windows Storage Settings",
+          "Destination": "ms-settings:storagesense"
+        },
+        {
+          "Name": "Disk Cleanup",
+          "Destination": "cleanmgr.exe"
+        }
+      ]
+    },
+    {
+      "Center": "Network",
+      "Tools": [
+        {
+          "Name": "Network settings",
+          "Destination": "ms-settings:network-status"
+        },
+        {
+          "Name": "Advanced network settings",
+          "Destination": "ms-settings:network-advancedsettings"
+        }
+      ]
+    },
+    {
+      "Center": "Startup",
+      "Tools": [
+        {
+          "Name": "Windows Startup Apps",
+          "Destination": "ms-settings:startupapps"
+        },
+        {
+          "Name": "Task Scheduler",
+          "Destination": "taskschd.msc"
+        }
+      ]
+    },
+    {
+      "Center": "Apps",
+      "Tools": [
+        {
+          "Name": "Installed apps / uninstall",
+          "Destination": "ms-settings:appsfeatures"
+        }
+      ]
+    },
+    {
+      "Center": "Devices",
+      "Tools": [
+        {
+          "Name": "Device Manager",
+          "Destination": "devmgmt.msc"
+        },
+        {
+          "Name": "Windows Update",
+          "Destination": "ms-settings:windowsupdate"
+        }
+      ]
+    },
+    {
+      "Center": "Security",
+      "Tools": [
+        {
+          "Name": "Windows Security / scan",
+          "Destination": "windowsdefender:"
+        },
+        {
+          "Name": "Firewall settings",
+          "Destination": "ms-settings:windowsdefender"
+        }
+      ]
+    },
+    {
+      "Center": "Windows",
+      "Tools": [
+        {
+          "Name": "Windows Update",
+          "Destination": "ms-settings:windowsupdate"
+        },
+        {
+          "Name": "Optional features",
+          "Destination": "optionalfeatures.exe"
+        },
+        {
+          "Name": "Services",
+          "Destination": "services.msc"
+        }
+      ]
+    },
+    {
+      "Center": "Power",
+      "Tools": [
+        {
+          "Name": "Power and battery settings",
+          "Destination": "ms-settings:powersleep"
+        }
+      ]
+    },
+    {
+      "Center": "Creator",
+      "Tools": [
+        {
+          "Name": "Sound settings",
+          "Destination": "ms-settings:sound"
+        },
+        {
+          "Name": "Volume mixer",
+          "Destination": "ms-settings:apps-volume"
+        },
+        {
+          "Name": "Microphone privacy",
+          "Destination": "ms-settings:privacy-microphone"
+        },
+        {
+          "Name": "Camera privacy",
+          "Destination": "ms-settings:privacy-webcam"
+        }
+      ]
+    },
+    {
+      "Center": "Reliability",
+      "Tools": [
+        {
+          "Name": "Event Viewer",
+          "Destination": "eventvwr.msc"
+        }
+      ]
+    },
+    {
+      "Center": "Repair",
+      "Tools": [
+        {
+          "Name": "Windows recovery options",
+          "Destination": "ms-settings:recovery"
+        },
+        {
+          "Name": "Troubleshooting settings",
+          "Destination": "ms-settings:troubleshoot"
+        },
+        {
+          "Name": "System Restore",
+          "Destination": "rstrui.exe"
+        },
+        {
+          "Name": "Windows Update",
+          "Destination": "ms-settings:windowsupdate"
+        }
+      ]
+    }
+  ]
+}

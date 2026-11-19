@@ -1,0 +1,9 @@
+**/bin/
+**/obj/
+artifacts/
+dist/
+packaging/payload-install.nsh
+packaging/payload-uninstall.nsh
+.tools/
+TestResults/
+*.user

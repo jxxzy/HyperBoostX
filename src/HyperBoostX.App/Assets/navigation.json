@@ -1,0 +1,1103 @@
+[
+  {
+    "group": "COMMAND CENTER",
+    "name": "Dashboard",
+    "short": "Overview",
+    "desc": "System performance, readiness, and recent activity",
+    "action": "Run Smart Scan",
+    "kind": "smart-scan",
+    "features": [
+      "CPU load",
+      "GPU load",
+      "Memory pressure",
+      "Storage health"
+    ]
+  },
+  {
+    "group": "COMMAND CENTER",
+    "name": "Smart Scan",
+    "short": "Scan",
+    "desc": "Inspect hardware, configuration, and performance findings",
+    "action": "Start scan",
+    "kind": "scan",
+    "features": [
+      "Quick scan",
+      "Deep scan",
+      "Gaming scan",
+      "Hardware scan",
+      "Privacy scan",
+      "Driver scan"
+    ]
+  },
+  {
+    "group": "COMMAND CENTER",
+    "name": "One Click Boost",
+    "short": "Boost",
+    "desc": "Compose compatible optimizations with safety preview",
+    "action": "Preview boost",
+    "kind": "apply",
+    "features": [
+      "Safe Boost",
+      "Gaming Boost",
+      "Low-End Boost",
+      "Creator Boost",
+      "Custom Boost"
+    ]
+  },
+  {
+    "group": "COMMAND CENTER",
+    "name": "HyperBoost Score",
+    "short": "Score",
+    "desc": "Explain readiness scores, measurement sources and confidence",
+    "action": "Recalculate score",
+    "kind": "scan",
+    "features": [
+      "CPU readiness",
+      "RAM readiness",
+      "GPU readiness",
+      "Storage readiness",
+      "Network readiness",
+      "Reliability"
+    ]
+  },
+  {
+    "group": "COMMAND CENTER",
+    "name": "Activity & Notifications",
+    "short": "Activity",
+    "desc": "Review notifications, action evidence, and pending restarts",
+    "action": "Review events",
+    "kind": "read",
+    "features": [
+      "Action history",
+      "Alerts",
+      "Pending restart",
+      "System notices"
+    ]
+  },
+  {
+    "group": "AI INTELLIGENCE",
+    "name": "AI Assistant",
+    "short": "AI",
+    "desc": "Hardware-aware assistance and safe action plans",
+    "action": "Open assistant",
+    "kind": "ai",
+    "features": [
+      "System diagnosis",
+      "Game recommendations",
+      "Hardware upgrades",
+      "Explain results"
+    ]
+  },
+  {
+    "group": "AI INTELLIGENCE",
+    "name": "AI Provider Center",
+    "short": "Provider",
+    "desc": "Configure NVIDIA AI, local rules or an authorized gateway",
+    "action": "Test connection",
+    "kind": "settings",
+    "features": [
+      "Offline rules",
+      "NVIDIA BYOK",
+      "Model discovery",
+      "Managed gateway"
+    ]
+  },
+  {
+    "group": "AI INTELLIGENCE",
+    "name": "GPU AI Assistant",
+    "short": "GPU AI",
+    "desc": "Analyze graphics workloads and configuration options",
+    "action": "Analyze GPU",
+    "kind": "scan",
+    "features": [
+      "Vendor detection",
+      "Driver health",
+      "VRAM pressure",
+      "Graphics recommendations"
+    ]
+  },
+  {
+    "group": "OPTIMIZATION",
+    "name": "Performance Profiles",
+    "short": "Profiles",
+    "desc": "Compose safe presets and restore previous settings",
+    "action": "Preview profile",
+    "kind": "profile",
+    "features": [
+      "Balanced Safe",
+      "Maximum Safe",
+      "Gaming",
+      "Streaming",
+      "Creator",
+      "Office",
+      "Low-End PC",
+      "High-End PC",
+      "Laptop Battery",
+      "Expert Custom"
+    ]
+  },
+  {
+    "group": "OPTIMIZATION",
+    "name": "Safe Tweak Library",
+    "short": "Tweaks",
+    "desc": "Search verified unique actions and inspect risks",
+    "action": "Preview selected",
+    "kind": "apply",
+    "features": [
+      "CPU tweaks",
+      "Memory tweaks",
+      "Graphics tweaks",
+      "Power",
+      "Windows",
+      "Network",
+      "Privacy",
+      "Storage",
+      "Repair"
+    ]
+  },
+  {
+    "group": "OPTIMIZATION",
+    "name": "Advanced Tweaks",
+    "short": "Expert",
+    "desc": "Inspect platform-dependent settings with explicit approval",
+    "action": "Review changes",
+    "kind": "apply",
+    "features": [
+      "Current values",
+      "Compatibility",
+      "Conflicts",
+      "Backups"
+    ]
+  },
+  {
+    "group": "OPTIMIZATION",
+    "name": "CPU Optimization",
+    "short": "CPU",
+    "desc": "Inspect processor activity and supported process policies",
+    "action": "Analyze CPU",
+    "kind": "scan",
+    "features": [
+      "CPU topology",
+      "Background usage",
+      "Priority",
+      "Affinity",
+      "Power policies"
+    ]
+  },
+  {
+    "group": "OPTIMIZATION",
+    "name": "CPU Turbo Diagnostics",
+    "short": "Turbo",
+    "desc": "Inspect frequency, thermal constraints and power policy",
+    "action": "Run diagnostics",
+    "kind": "scan",
+    "features": [
+      "Clock telemetry",
+      "Power policy",
+      "Thermal limits",
+      "Turbo indicators"
+    ]
+  },
+  {
+    "group": "OPTIMIZATION",
+    "name": "Smart Memory Guard",
+    "short": "RAM",
+    "desc": "Monitor pressure and manage approved background workloads",
+    "action": "Configure guard",
+    "kind": "settings",
+    "features": [
+      "Thresholds",
+      "Process exclusions",
+      "Commit charge",
+      "Notifications",
+      "Cooldown"
+    ]
+  },
+  {
+    "group": "OPTIMIZATION",
+    "name": "Power Optimization",
+    "short": "Power",
+    "desc": "Manage Windows power plans and AC/DC settings",
+    "action": "Preview plan",
+    "kind": "apply",
+    "features": [
+      "Current plan",
+      "Plan inventory",
+      "Processor policy",
+      "Sleep",
+      "Restore"
+    ]
+  },
+  {
+    "group": "OPTIMIZATION",
+    "name": "Hardware Tuner",
+    "short": "Tuner",
+    "desc": "Expose only supported OS-level tuning controls",
+    "action": "Inspect capabilities",
+    "kind": "scan",
+    "features": [
+      "CPU policy",
+      "GPU preference",
+      "Device power",
+      "Thermal awareness"
+    ]
+  },
+  {
+    "group": "GAMING",
+    "name": "Game Boost Engine",
+    "short": "Gaming",
+    "desc": "Combine game readiness, safe profiles and session restore",
+    "action": "Preview gaming boost",
+    "kind": "apply",
+    "features": [
+      "CPU pressure",
+      "VRAM",
+      "Network",
+      "Overlay",
+      "Background apps",
+      "Session restore"
+    ]
+  },
+  {
+    "group": "GAMING",
+    "name": "Game Library",
+    "short": "Library",
+    "desc": "Discover installed games and register executable paths",
+    "action": "Detect games",
+    "kind": "scan",
+    "features": [
+      "GTA V Legacy",
+      "GTA V Enhanced",
+      "FiveM",
+      "Roblox",
+      "Steam",
+      "Epic games",
+      "Manual game"
+    ]
+  },
+  {
+    "group": "GAMING",
+    "name": "Per-Game Profiles",
+    "short": "Game profiles",
+    "desc": "Create and manage reversible per-game configuration",
+    "action": "Create profile",
+    "kind": "profile",
+    "features": [
+      "Auto apply",
+      "Auto restore",
+      "Profile editor",
+      "Import",
+      "Export",
+      "History"
+    ]
+  },
+  {
+    "group": "GAMING",
+    "name": "Auto Gaming Mode",
+    "short": "Auto game",
+    "desc": "Detect game lifecycle and activate approved rules",
+    "action": "Configure trigger",
+    "kind": "settings",
+    "features": [
+      "Game detection",
+      "Profile conflict",
+      "Session exclusions",
+      "Recovery"
+    ]
+  },
+  {
+    "group": "GAMING",
+    "name": "FPS & Frame Time",
+    "short": "FPS",
+    "desc": "Capture supported real frame timing and session metrics",
+    "action": "Start capture",
+    "kind": "scan",
+    "features": [
+      "Average FPS",
+      "Frame time",
+      "1% low",
+      "0.1% low",
+      "Session history"
+    ]
+  },
+  {
+    "group": "GAMING",
+    "name": "Stutter Analyzer",
+    "short": "Stutter",
+    "desc": "Correlate frame spikes with CPU GPU memory and disk",
+    "action": "Analyze session",
+    "kind": "scan",
+    "features": [
+      "Frame-time spikes",
+      "GPU correlation",
+      "CPU load",
+      "Disk I/O",
+      "Thermal data"
+    ]
+  },
+  {
+    "group": "GAMING",
+    "name": "Overlay Conflict Detector",
+    "short": "Overlay",
+    "desc": "Detect overlay software and inspect resource correlations",
+    "action": "Scan overlays",
+    "kind": "scan",
+    "features": [
+      "Discord",
+      "Steam",
+      "NVIDIA",
+      "AMD",
+      "RTSS",
+      "Xbox Game Bar"
+    ]
+  },
+  {
+    "group": "HARDWARE",
+    "name": "Hardware Inventory",
+    "short": "Inventory",
+    "desc": "Identify system components, topology and capabilities",
+    "action": "Refresh inventory",
+    "kind": "scan",
+    "features": [
+      "Processor",
+      "GPU",
+      "Motherboard",
+      "RAM",
+      "Storage",
+      "BIOS read-only"
+    ]
+  },
+  {
+    "group": "HARDWARE",
+    "name": "GPU Center",
+    "short": "Graphics",
+    "desc": "Vendor-aware graphics diagnostics and supported settings",
+    "action": "Refresh GPU",
+    "kind": "scan",
+    "features": [
+      "NVIDIA",
+      "AMD",
+      "Intel",
+      "Hybrid graphics",
+      "Driver",
+      "VRAM"
+    ]
+  },
+  {
+    "group": "HARDWARE",
+    "name": "Hardware Vendor Center",
+    "short": "Vendors",
+    "desc": "Inspect supported vendor integration and utilities",
+    "action": "Detect vendors",
+    "kind": "scan",
+    "features": [
+      "NVIDIA",
+      "AMD",
+      "Intel",
+      "MSI",
+      "ASUS",
+      "Other vendors"
+    ]
+  },
+  {
+    "group": "HARDWARE",
+    "name": "Driver Health",
+    "short": "Drivers",
+    "desc": "Identify device errors and verified driver information",
+    "action": "Scan drivers",
+    "kind": "scan",
+    "features": [
+      "Graphics",
+      "Chipset",
+      "Audio",
+      "LAN",
+      "Wi-Fi",
+      "Bluetooth",
+      "USB"
+    ]
+  },
+  {
+    "group": "HARDWARE",
+    "name": "Device Manager",
+    "short": "Devices",
+    "desc": "Inspect device state and open supported controls",
+    "action": "Refresh devices",
+    "kind": "scan",
+    "features": [
+      "Device inventory",
+      "Device errors",
+      "USB",
+      "Bluetooth",
+      "Display",
+      "Audio"
+    ]
+  },
+  {
+    "group": "HARDWARE",
+    "name": "RGB Software Detector",
+    "short": "RGB",
+    "desc": "Measure overhead from vendor lighting applications",
+    "action": "Detect software",
+    "kind": "scan",
+    "features": [
+      "SignalRGB",
+      "Mystic Light",
+      "OpenRGB",
+      "iCUE",
+      "Armoury Crate"
+    ]
+  },
+  {
+    "group": "HARDWARE",
+    "name": "MSI Safe Optimizer",
+    "short": "MSI",
+    "desc": "Inspect MSI utilities without disrupting cooling services",
+    "action": "Analyze MSI tools",
+    "kind": "scan",
+    "features": [
+      "MSI Center",
+      "Mystic Light",
+      "Service dependencies",
+      "Exclusions"
+    ]
+  },
+  {
+    "group": "HARDWARE",
+    "name": "Laptop & Battery",
+    "short": "Battery",
+    "desc": "Inspect battery health and AC/DC policy",
+    "action": "Run battery report",
+    "kind": "scan",
+    "features": [
+      "Battery capacity",
+      "Charge",
+      "Power source",
+      "Health",
+      "Energy profile"
+    ]
+  },
+  {
+    "group": "WINDOWS",
+    "name": "Windows Optimization",
+    "short": "Windows",
+    "desc": "Inspect supported system preferences and settings",
+    "action": "Preview optimization",
+    "kind": "apply",
+    "features": [
+      "Visual effects",
+      "Notifications",
+      "Explorer",
+      "Storage Sense",
+      "Search indexing"
+    ]
+  },
+  {
+    "group": "WINDOWS",
+    "name": "Startup Manager",
+    "short": "Startup",
+    "desc": "Inspect startup entries and reversible controls",
+    "action": "Scan startup",
+    "kind": "scan",
+    "features": [
+      "Startup folder",
+      "Registry entries",
+      "App startup",
+      "Restore"
+    ]
+  },
+  {
+    "group": "WINDOWS",
+    "name": "Boot Optimizer",
+    "short": "Boot",
+    "desc": "Analyze recorded boot duration and startup impact",
+    "action": "Analyze boot",
+    "kind": "scan",
+    "features": [
+      "Boot events",
+      "Startup impact",
+      "Service dependencies",
+      "Boot history"
+    ]
+  },
+  {
+    "group": "WINDOWS",
+    "name": "App Load Optimizer",
+    "short": "App load",
+    "desc": "Measure application launch times under comparable conditions",
+    "action": "Start measurement",
+    "kind": "scan",
+    "features": [
+      "App inventory",
+      "Launch timing",
+      "Background load",
+      "History"
+    ]
+  },
+  {
+    "group": "WINDOWS",
+    "name": "Process & Task Manager",
+    "short": "Processes",
+    "desc": "Inspect resource consumption and protected processes",
+    "action": "Refresh processes",
+    "kind": "scan",
+    "features": [
+      "CPU usage",
+      "Memory usage",
+      "Process tree",
+      "Priority",
+      "Protected processes"
+    ]
+  },
+  {
+    "group": "WINDOWS",
+    "name": "Windows Services",
+    "short": "Services",
+    "desc": "Review service state, dependencies and approved controls",
+    "action": "Scan services",
+    "kind": "scan",
+    "features": [
+      "Service inventory",
+      "Startup types",
+      "Dependencies",
+      "Protection",
+      "Restore"
+    ]
+  },
+  {
+    "group": "WINDOWS",
+    "name": "Scheduled Tasks",
+    "short": "Tasks",
+    "desc": "Inspect task triggers and allowed reversible controls",
+    "action": "Refresh tasks",
+    "kind": "scan",
+    "features": [
+      "Task inventory",
+      "Triggers",
+      "Last result",
+      "Backup",
+      "Restore"
+    ]
+  },
+  {
+    "group": "WINDOWS",
+    "name": "Debloat Center",
+    "short": "Debloat",
+    "desc": "Review optional packages and restoration possibilities",
+    "action": "Scan applications",
+    "kind": "scan",
+    "features": [
+      "Win32 apps",
+      "Store packages",
+      "Dependencies",
+      "Exclusions",
+      "Uninstall preview"
+    ]
+  },
+  {
+    "group": "WINDOWS",
+    "name": "Windows Update",
+    "short": "Updates",
+    "desc": "Inspect update health and pending restart",
+    "action": "Check status",
+    "kind": "scan",
+    "features": [
+      "Installed updates",
+      "Pending updates",
+      "Restart status",
+      "Troubleshooting"
+    ]
+  },
+  {
+    "group": "WINDOWS",
+    "name": "Repair & Troubleshooting",
+    "short": "Repair",
+    "desc": "Run supported checks and verified repair workflows",
+    "action": "Start diagnostics",
+    "kind": "scan",
+    "features": [
+      "SFC",
+      "DISM",
+      "Disk diagnostics",
+      "Update diagnostics",
+      "Event logs"
+    ]
+  },
+  {
+    "group": "STORAGE",
+    "name": "Storage Center",
+    "short": "Storage",
+    "desc": "Inspect storage media, capacity and health",
+    "action": "Scan drives",
+    "kind": "scan",
+    "features": [
+      "HDD",
+      "SATA SSD",
+      "NVMe",
+      "Volumes",
+      "SMART",
+      "TRIM"
+    ]
+  },
+  {
+    "group": "STORAGE",
+    "name": "Cleanup Center",
+    "short": "Cleanup",
+    "desc": "Preview safe files and actual reclaimable storage",
+    "action": "Scan cleanup",
+    "kind": "scan",
+    "features": [
+      "Temp files",
+      "Caches",
+      "Recycle Bin",
+      "Crash dumps",
+      "Shader cache"
+    ]
+  },
+  {
+    "group": "STORAGE",
+    "name": "Duplicate & Large Files",
+    "short": "Files",
+    "desc": "Review duplicate candidates and unusually large files",
+    "action": "Analyze folders",
+    "kind": "scan",
+    "features": [
+      "Folder selection",
+      "Duplicate groups",
+      "Large files",
+      "Exclusions"
+    ]
+  },
+  {
+    "group": "STORAGE",
+    "name": "Drive Optimization",
+    "short": "Drives",
+    "desc": "Review supported drive maintenance operations",
+    "action": "Inspect drive policy",
+    "kind": "scan",
+    "features": [
+      "Media type",
+      "TRIM",
+      "Optimize drives",
+      "Schedule",
+      "Health"
+    ]
+  },
+  {
+    "group": "NETWORK",
+    "name": "Network Center",
+    "short": "Network",
+    "desc": "Inspect interfaces and connection diagnostics",
+    "action": "Diagnose connection",
+    "kind": "scan",
+    "features": [
+      "Adapters",
+      "IP configuration",
+      "Link speed",
+      "Wi-Fi",
+      "Traffic"
+    ]
+  },
+  {
+    "group": "NETWORK",
+    "name": "DNS & Latency",
+    "short": "DNS",
+    "desc": "Measure resolver timing and endpoint reachability",
+    "action": "Run latency test",
+    "kind": "scan",
+    "features": [
+      "Ping",
+      "Jitter",
+      "Loss",
+      "DNS response",
+      "Resolver selection"
+    ]
+  },
+  {
+    "group": "NETWORK",
+    "name": "Network Profiles",
+    "short": "Net profiles",
+    "desc": "Preview supported network configuration changes",
+    "action": "Preview network profile",
+    "kind": "apply",
+    "features": [
+      "Balanced",
+      "Gaming diagnostics",
+      "DNS policy",
+      "Restore"
+    ]
+  },
+  {
+    "group": "CREATOR",
+    "name": "Streaming Center",
+    "short": "Streaming",
+    "desc": "Inspect encoders and streaming resource availability",
+    "action": "Analyze streaming",
+    "kind": "scan",
+    "features": [
+      "OBS",
+      "Streamlabs",
+      "NVENC",
+      "AMF",
+      "Quick Sync",
+      "CPU encoder"
+    ]
+  },
+  {
+    "group": "CREATOR",
+    "name": "Audio & DJ Performance",
+    "short": "Audio",
+    "desc": "Inspect audio devices and production workloads",
+    "action": "Analyze audio",
+    "kind": "scan",
+    "features": [
+      "Rekordbox",
+      "Ableton",
+      "FL Studio",
+      "Serato",
+      "Audio endpoints",
+      "USB audio"
+    ]
+  },
+  {
+    "group": "CREATOR",
+    "name": "Webcam Diagnostics",
+    "short": "Webcam",
+    "desc": "Inspect camera and microphone device readiness",
+    "action": "Detect devices",
+    "kind": "scan",
+    "features": [
+      "Webcam inventory",
+      "Microphones",
+      "Driver status",
+      "Permissions"
+    ]
+  },
+  {
+    "group": "PRIVACY & SECURITY",
+    "name": "Privacy Center",
+    "short": "Privacy",
+    "desc": "Review supported privacy preferences and consent",
+    "action": "Review settings",
+    "kind": "settings",
+    "features": [
+      "Telemetry preferences",
+      "App permissions",
+      "Data export",
+      "Data deletion"
+    ]
+  },
+  {
+    "group": "PRIVACY & SECURITY",
+    "name": "Security Health",
+    "short": "Security",
+    "desc": "Read security state without weakening protections",
+    "action": "Check protections",
+    "kind": "scan",
+    "features": [
+      "Defender",
+      "Firewall",
+      "UAC",
+      "Secure Boot",
+      "Update health"
+    ]
+  },
+  {
+    "group": "PRIVACY & SECURITY",
+    "name": "LCD Performance Guard",
+    "short": "LCD",
+    "desc": "Measure LCD utility overhead without interrupting cooling",
+    "action": "Configure guard",
+    "kind": "settings",
+    "features": [
+      "Monitor only",
+      "Gaming guard",
+      "Thresholds",
+      "Fan and pump exclusions"
+    ]
+  },
+  {
+    "group": "PRIVACY & SECURITY",
+    "name": "Trust Center",
+    "short": "Trust",
+    "desc": "Inspect permissions, integrations and trusted components",
+    "action": "Review permissions",
+    "kind": "read",
+    "features": [
+      "Permissions",
+      "Signed components",
+      "Integrations",
+      "Data sharing"
+    ]
+  },
+  {
+    "group": "AUTOMATION",
+    "name": "Scheduled Automation",
+    "short": "Automation",
+    "desc": "Create opt-in maintenance schedules and inspect history",
+    "action": "Create rule",
+    "kind": "settings",
+    "features": [
+      "Scheduled scans",
+      "Cleanup",
+      "Reminders",
+      "Pause",
+      "Emergency stop"
+    ]
+  },
+  {
+    "group": "AUTOMATION",
+    "name": "Task & Rule System",
+    "short": "Rules",
+    "desc": "Define allowed triggers, conditions and conflict policies",
+    "action": "Create rule",
+    "kind": "settings",
+    "features": [
+      "Triggers",
+      "Conditions",
+      "Approved actions",
+      "Cooldown",
+      "History"
+    ]
+  },
+  {
+    "group": "BACKUP & RECOVERY",
+    "name": "Backup Snapshot Center",
+    "short": "Backup",
+    "desc": "Inspect snapshots, integrity, and recoverable settings",
+    "action": "Create snapshot",
+    "kind": "apply",
+    "features": [
+      "Registry",
+      "Services",
+      "Power plan",
+      "Startup",
+      "Network",
+      "Restore point"
+    ]
+  },
+  {
+    "group": "BACKUP & RECOVERY",
+    "name": "Restore & Rollback",
+    "short": "Restore",
+    "desc": "Restore verified previous settings and resolve conflicts",
+    "action": "Review restore",
+    "kind": "apply",
+    "features": [
+      "Last action",
+      "Snapshot",
+      "Profile rollback",
+      "Conflict",
+      "History"
+    ]
+  },
+  {
+    "group": "BACKUP & RECOVERY",
+    "name": "Emergency Recovery",
+    "short": "Recovery",
+    "desc": "Inspect interrupted transactions and recovery options",
+    "action": "Inspect recovery",
+    "kind": "scan",
+    "features": [
+      "Pending transaction",
+      "Safe startup",
+      "Disable automation",
+      "Export diagnostics"
+    ]
+  },
+  {
+    "group": "REPORTS & TESTS",
+    "name": "Benchmark Center",
+    "short": "Benchmark",
+    "desc": "Record real repeated measurements and conditions",
+    "action": "Configure benchmark",
+    "kind": "benchmark",
+    "features": [
+      "CPU",
+      "Storage",
+      "Memory",
+      "Boot",
+      "FPS",
+      "Network"
+    ]
+  },
+  {
+    "group": "REPORTS & TESTS",
+    "name": "Before / After Report",
+    "short": "Compare",
+    "desc": "Compare comparable measurements with observed regressions",
+    "action": "Compare sessions",
+    "kind": "read",
+    "features": [
+      "CPU idle",
+      "RAM idle",
+      "Boot",
+      "FPS",
+      "Frame time",
+      "Reclaimed space"
+    ]
+  },
+  {
+    "group": "REPORTS & TESTS",
+    "name": "Research Mode",
+    "short": "Research",
+    "desc": "Record A/B/C/D experimental configurations and repeat trials",
+    "action": "New experiment",
+    "kind": "benchmark",
+    "features": [
+      "A Windows default",
+      "B HyperBoostX",
+      "C SSD upgrade",
+      "D RAM upgrade",
+      "Run history"
+    ]
+  },
+  {
+    "group": "REPORTS & TESTS",
+    "name": "Reports Center",
+    "short": "Reports",
+    "desc": "Export privacy-aware diagnostic reports and evidence",
+    "action": "Create report",
+    "kind": "read",
+    "features": [
+      "System scan",
+      "Hardware",
+      "Gaming",
+      "Network",
+      "Benchmark",
+      "Action history"
+    ]
+  },
+  {
+    "group": "REPORTS & TESTS",
+    "name": "Test Center",
+    "short": "Tests",
+    "desc": "Check actual application health and supported integrations",
+    "action": "Run self-test",
+    "kind": "scan",
+    "features": [
+      "UI binding",
+      "Backend",
+      "Database",
+      "Permissions",
+      "Backup",
+      "Runtime",
+      "AI",
+      "Webhook"
+    ]
+  },
+  {
+    "group": "REPORTS & TESTS",
+    "name": "Application Health",
+    "short": "Health",
+    "desc": "Inspect worker lifecycle, dependencies and integrity",
+    "action": "Run self-check",
+    "kind": "scan",
+    "features": [
+      "Runtime",
+      "Worker status",
+      "Database",
+      "File integrity",
+      "Recovery"
+    ]
+  },
+  {
+    "group": "TOOLS & SETTINGS",
+    "name": "Plugin Manager",
+    "short": "Plugins",
+    "desc": "Review trusted manifests and plugin permissions",
+    "action": "Review plugins",
+    "kind": "settings",
+    "features": [
+      "Plugin inventory",
+      "Compatibility",
+      "Permissions",
+      "Activity"
+    ]
+  },
+  {
+    "group": "TOOLS & SETTINGS",
+    "name": "Discord Webhook",
+    "short": "Webhook",
+    "desc": "Configure opt-in redacted error reporting",
+    "action": "Configure webhook",
+    "kind": "settings",
+    "features": [
+      "Connection",
+      "Payload preview",
+      "Rate limit",
+      "Categories",
+      "Local fallback"
+    ]
+  },
+  {
+    "group": "TOOLS & SETTINGS",
+    "name": "License Center",
+    "short": "License",
+    "desc": "Review unified edition and local license information",
+    "action": "View license",
+    "kind": "read",
+    "features": [
+      "Edition",
+      "Third-party licenses",
+      "Local state",
+      "Privacy"
+    ]
+  },
+  {
+    "group": "TOOLS & SETTINGS",
+    "name": "Update Center",
+    "short": "App update",
+    "desc": "Inspect signed release packages and update history",
+    "action": "Check release",
+    "kind": "scan",
+    "features": [
+      "Current version",
+      "Trusted source",
+      "Integrity",
+      "Update history"
+    ]
+  },
+  {
+    "group": "TOOLS & SETTINGS",
+    "name": "Knowledge Base",
+    "short": "Help",
+    "desc": "Read offline explanations and recovery instructions",
+    "action": "Browse guides",
+    "kind": "read",
+    "features": [
+      "Getting started",
+      "Optimizing safely",
+      "Troubleshooting",
+      "Recovery"
+    ]
+  },
+  {
+    "group": "TOOLS & SETTINGS",
+    "name": "Settings",
+    "short": "Settings",
+    "desc": "Manage appearance, language, privacy and application behavior",
+    "action": "Edit settings",
+    "kind": "settings",
+    "features": [
+      "Theme",
+      "Language",
+      "User mode",
+      "Monitoring",
+      "Privacy"
+    ]
+  },
+  {
+    "group": "TOOLS & SETTINGS",
+    "name": "About HyperBoostX",
+    "short": "About",
+    "desc": "Product identity and developer attribution",
+    "action": "View credits",
+    "kind": "read",
+    "features": [
+      "HyperBoostX V3",
+      "NEXORAID",
+      "MR.4NONY",
+      "Third-party acknowledgements"
+    ]
+  }
+]

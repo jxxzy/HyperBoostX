@@ -1,0 +1,1578 @@
+[
+  {
+    "source": "app\\api\\boost.py",
+    "route": "/plan"
+  },
+  {
+    "source": "app\\api\\boost.py",
+    "route": "/apply"
+  },
+  {
+    "source": "app\\api\\boost.py",
+    "route": "/undo"
+  },
+  {
+    "source": "app\\api\\booster.py",
+    "route": "/profiles"
+  },
+  {
+    "source": "app\\api\\booster.py",
+    "route": "/apply"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/status"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/settings"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/dashboard/summary"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/dashboard/score"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/dashboard/alerts"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/dashboard/activity"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/scan/system"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/scan/quick"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/scan/full"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/boost/preview"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/boost/last-result"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/boost/history"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/performance/summary"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/performance/plan"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/performance/apply"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/startup/summary"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/processes"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/processes/summary"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/processes/preview-close"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/processes/close-selected"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/cleanup/history"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/storage/drives"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/storage/scan"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/storage/analyze"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/storage/cleanup-preview"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/gaming/detect"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/gaming/profiles"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/gaming/profile/apply"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/gaming/profile/restore"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/gaming/overlay/scan"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/gaming/boost/preview"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/gaming/boost/apply"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/gpu/info"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/gpu/health"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/network/status"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/network/ping-test"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/network/dns-preview"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/network/dns-apply"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/network/reset-preview"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/security/health"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/apps/uninstall"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/windows/features/apply"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/windows/services/apply"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/repair/sfc-preview"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/repair/dism-preview"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/repair/sfc-run"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/repair/dism-run"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/restore/create"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/restore/undo-last"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/automation/create"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/automation/dry-run"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/automation/enable"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/automation/disable"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/automation/delete"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/ai/status"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/ai/ask"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/ai/plan"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/ai/approve"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/ai/reject"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/audit/features"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/audit/run"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/audit/report"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/update/download-preview"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/update/download"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/update/install-preview"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/reports"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/reports/<report_id>"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/logs/recent"
+  },
+  {
+    "source": "app\\api\\contract_v21.py",
+    "route": "/logs/export"
+  },
+  {
+    "source": "app\\api\\drivers.py",
+    "route": "/list"
+  },
+  {
+    "source": "app\\api\\drivers.py",
+    "route": "/check-updates"
+  },
+  {
+    "source": "app\\api\\hardware.py",
+    "route": "/gpu"
+  },
+  {
+    "source": "app\\api\\hardware.py",
+    "route": "/vendors"
+  },
+  {
+    "source": "app\\api\\hardware.py",
+    "route": "/overlays"
+  },
+  {
+    "source": "app\\api\\hardware.py",
+    "route": "/profile"
+  },
+  {
+    "source": "app\\api\\health.py",
+    "route": "/health"
+  },
+  {
+    "source": "app\\api\\health.py",
+    "route": "/version"
+  },
+  {
+    "source": "app\\api\\health.py",
+    "route": "/release/readiness"
+  },
+  {
+    "source": "app\\api\\jobs.py",
+    "route": "/start"
+  },
+  {
+    "source": "app\\api\\jobs.py",
+    "route": "/<job_id>"
+  },
+  {
+    "source": "app\\api\\jobs.py",
+    "route": "/<job_id>/cancel"
+  },
+  {
+    "source": "app\\api\\monitoring.py",
+    "route": "/stats"
+  },
+  {
+    "source": "app\\api\\monitoring.py",
+    "route": "/processes"
+  },
+  {
+    "source": "app\\api\\network.py",
+    "route": "/dns-test"
+  },
+  {
+    "source": "app\\api\\network.py",
+    "route": "/flush-dns"
+  },
+  {
+    "source": "app\\api\\network.py",
+    "route": "/optimize-tcp"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/scan/smart"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/smart-scan/run"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/smart-scan/latest"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/system/telemetry"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/advisor/performance"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/advisor/plan"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/advisor/safe-actions"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/knowledge/terms"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/knowledge/terms/<term_id>"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/kb/topics"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/kb/search"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/kb/topic/<term_id>"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/history/scans"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/history/timeline"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/history/reports"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/history/compare"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/history/trends"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/history/export"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/report/latest"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/report/export"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/score/engine"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/games/library"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/games/running"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/games/scan"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/games/add"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/games/remove"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/games/profile/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/games/profile/apply"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/games/profile/restore"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/games/session/latest"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/games/session/history"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/games/session/export"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/overlays/status"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/overlays/recommendations"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/protection/processes"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/protection/add"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/protection/remove"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/protection/reset-defaults"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/protection/evaluate-action"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/processes/heavy"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/processes/startup-impact"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/processes/recommendations"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/processes/background-pressure"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/processes/export-report"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/benchmark/manual"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/benchmark/import-csv"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/benchmark/latest"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/benchmark/history"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/benchmark/export"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/gpu/vendor-guide"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/gpu/status"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/gpu/recommendations"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/gpu/export-report"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/gpu/hardware-database"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/drivers/recommendation"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/startup/items"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/startup/list"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/startup/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/startup/apply"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/startup/restore"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/startup/export-report"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/cleanup/scan"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/cleanup/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/cleanup/apply"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/cleanup/report"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/cleanup/export-report"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/network/diagnostics"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/network/ping"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/network/dns-test"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/network/dns"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/network/export-report"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/essentials/list"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/essentials/check"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/essentials/install-preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/essentials/install"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/streaming/status"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/streaming/export-profile"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/streaming/recommendations"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/creator/status"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/creator/recommendations"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/rgb/status"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/plugins/registry"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/settings/ui"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/restore/sessions"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/restore/session/<session_id>"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/restore/session/<session_id>/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/restore/session/<session_id>/apply"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/restore/session/<session_id>/verify"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/restore/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/restore/apply"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/restore/verify"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/restore/export"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/recovery/incomplete-jobs"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/recovery/resolve"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/auto-gaming/settings"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/auto-gaming/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/auto-gaming/apply"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/auto-gaming/restore"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/feature-audit/run"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/feature-audit/status"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/features"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/features/stable-visible"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/features/non-real"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/features/audit"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/update/check"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/update/latest"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/webhooks/test-error"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/webhooks/test-update"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/nvidia/test-connection"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/storage/status"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/privacy/status"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/privacy/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/privacy/apply"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/security/status"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/apps/list"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/apps/impact"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/apps/uninstall-preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/system-config/tweaks"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/system-config/tweaks/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/windows/features"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/windows/features/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/windows/services"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/windows/services/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/update-control/status"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/update-control/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/repair/status"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/repair/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/power/status"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/power/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/visual-effects/status"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/visual-effects/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/restore-points/status"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/restore-points/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/automation/rules"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/automation/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/utilities/status"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/master-test/status"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/master-test/run"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/feature-audit/matrix"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/camera-tracking/status"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/camera-tracking/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/product/storage"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/product/action-log"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/action-log"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/product/v2-roadmap"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/system/scan"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/processes/analyze"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/processes/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/processes/apply"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/network/preview"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/network/apply"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/gaming-essentials/check"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/performance/history"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/reports/list"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/product/roadmap"
+  },
+  {
+    "source": "app\\api\\product_v14.py",
+    "route": "/rgb/detect"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/scan/latest"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/system/cpu"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/system/ram"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/system/processes"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/process/close-selected"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/startup/disable"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/startup/enable"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/storage/summary"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/network/adapters"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/network/dns/benchmark"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/network/dns/apply"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/network/dns/restore"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/power/plans"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/power/active"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/power/apply"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/power/restore"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/visual-effects/apply"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/visual-effects/restore"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/apps/installed"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/apps/uninstall/plan"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/apps/uninstall/apply"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/automation/tasks"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/automation/tasks/<task_id>/enable"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/automation/tasks/<task_id>/disable"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/automation/tasks/<task_id>"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/restore/status"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/restore/metadata"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/restore/rollback"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/repair/sfc-scan"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/repair/dism-checkhealth"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/repair/dism-scanhealth"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/repair/dism-restorehealth"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/repair/chkdsk-check"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/windows/features/plan"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/services"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/services/start"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/services/stop"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/security/defender-status"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/security/firewall-status"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/security/update-status"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/drivers/summary"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/drivers/recommendations"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/drivers/export-report"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/rgb/software"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/rgb/conflicts"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/rgb/restart-app"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/reports/export-json"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/reports/export-txt"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/reports/export-md"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/logs/export"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/license/status"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/license/activate-local"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/license/deactivate-local"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/license/refresh-local"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/plugins/catalog"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/plugins/validate"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/plugins/install"
+  },
+  {
+    "source": "app\\api\\real_features_v210.py",
+    "route": "/plugins/uninstall"
+  },
+  {
+    "source": "app\\api\\repair.py",
+    "route": "/run-sfc"
+  },
+  {
+    "source": "app\\api\\repair.py",
+    "route": "/run-dism"
+  },
+  {
+    "source": "app\\api\\repair.py",
+    "route": "/cleanup"
+  },
+  {
+    "source": "app\\api\\repair.py",
+    "route": "/reset-network"
+  },
+  {
+    "source": "app\\api\\reports.py",
+    "route": "/latest"
+  },
+  {
+    "source": "app\\api\\reports.py",
+    "route": "/export"
+  },
+  {
+    "source": "app\\api\\reports.py",
+    "route": "/crash-export"
+  },
+  {
+    "source": "app\\api\\startup.py",
+    "route": "/list"
+  },
+  {
+    "source": "app\\api\\system_info.py",
+    "route": "/info"
+  },
+  {
+    "source": "app\\api\\system_info.py",
+    "route": "/startup"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/system-reality/overview"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/system-reality/scan"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/system-reality/report"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/system-reality/before-after/start"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/system-reality/before-after/stop"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/apps"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/modes"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/roles"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/vendors"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/vendors/<vendor>/status"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/vendors/trcc/helpers"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/vendors/<vendor>/open"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/vendors/trcc/restart-preview"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/vendors/trcc/restart-apply"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/vendors/protect"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/wallpaper/analyze"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/wallpaper/convert-preview"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/wallpaper/convert-apply"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/hybrid/preview"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/hybrid/apply"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/native/compatibility"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/native/test-preview"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/safe-mode/preview"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/lcd/safe-mode/apply"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/defender/status"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/defender/performance/start"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/defender/performance/stop"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/defender/performance/report"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/defender/exclusions/advice"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/defender/exclusions/preview"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/defender/exclusions/apply"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/defender/exclusions/undo"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/cpu/turbo/status"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/cpu/turbo/stress-sample"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/cpu/power-plan"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/cpu/power-plan/preview"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/cpu/power-plan/apply"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/cpu/turbo/bios-checklist"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/msi/status"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/msi/recommendations"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/security/reality-audit"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/security/reality-audit/run"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/security/wsl/status"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/security/remote-access/status"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/security/startup/status"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/security/powershell/activity"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/security/vendor-services/classify"
+  },
+  {
+    "source": "app\\api\\system_reality_guard.py",
+    "route": "/system-reality/safety/evaluate"
+  },
+  {
+    "source": "app\\api\\test_center.py",
+    "route": "/status"
+  },
+  {
+    "source": "app\\api\\test_center.py",
+    "route": "/run"
+  },
+  {
+    "source": "app\\api\\test_center.py",
+    "route": "/run-suite"
+  },
+  {
+    "source": "app\\api\\test_center.py",
+    "route": "/cancel"
+  },
+  {
+    "source": "app\\api\\test_center.py",
+    "route": "/results"
+  },
+  {
+    "source": "app\\api\\test_center.py",
+    "route": "/report/latest"
+  },
+  {
+    "source": "app\\api\\test_center.py",
+    "route": "/report/generate"
+  },
+  {
+    "source": "app\\api\\test_center.py",
+    "route": "/action-history"
+  },
+  {
+    "source": "app\\api\\test_center.py",
+    "route": "/feature-integrity/run"
+  },
+  {
+    "source": "app\\api\\test_center.py",
+    "route": "/discord/test"
+  },
+  {
+    "source": "app\\api\\test_center.py",
+    "route": "/discord/send-latest-failures"
+  },
+  {
+    "source": "app\\api\\test_center.py",
+    "route": "/discord/history"
+  },
+  {
+    "source": "app\\api\\test_center.py",
+    "route": "/discord/settings"
+  },
+  {
+    "source": "app\\api\\test_center.py",
+    "route": "/discord/settings"
+  },
+  {
+    "source": "app\\api\\test_center.py",
+    "route": "/discord/settings"
+  },
+  {
+    "source": "app\\api\\test_center.py",
+    "route": "/suites"
+  },
+  {
+    "source": "app\\api\\test_center.py",
+    "route": "/suites/<suite_id>"
+  },
+  {
+    "source": "app\\api\\test_center.py",
+    "route": "/suites/<suite_id>/run"
+  },
+  {
+    "source": "app\\api\\tweaks.py",
+    "route": "/list"
+  },
+  {
+    "source": "app\\api\\tweaks.py",
+    "route": "/apply"
+  },
+  {
+    "source": "app\\api\\tweaks.py",
+    "route": "/revert"
+  },
+  {
+    "source": "app\\api\\tweaks.py",
+    "route": "/info/<tweak_id>"
+  },
+  {
+    "source": "app\\api\\websocket.py",
+    "route": "/system-stats"
+  },
+  {
+    "source": "app\\venv\\Lib\\site-packages\\flask\\ctx.py",
+    "route": "/"
+  },
+  {
+    "source": "app\\venv\\Lib\\site-packages\\flask\\ctx.py",
+    "route": "/"
+  },
+  {
+    "source": "app\\venv\\Lib\\site-packages\\flask\\helpers.py",
+    "route": "/stream"
+  },
+  {
+    "source": "app\\venv\\Lib\\site-packages\\flask\\helpers.py",
+    "route": "/stream"
+  },
+  {
+    "source": "app\\venv\\Lib\\site-packages\\flask\\helpers.py",
+    "route": "/uploads/<path:name>"
+  },
+  {
+    "source": "app\\venv\\Lib\\site-packages\\flask_sock\\__init__.py",
+    "route": "/ws"
+  },
+  {
+    "source": "app\\venv\\Lib\\site-packages\\flask\\sansio\\scaffold.py",
+    "route": "/"
+  },
+  {
+    "source": "app\\venv\\Lib\\site-packages\\flask\\sansio\\scaffold.py",
+    "route": "/"
+  }
+]

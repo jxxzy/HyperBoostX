@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-11-16",
+  "sourceOfTruth": "docs/registry/requirement-traceability.json",
+  "nextExecutableDevelopmentTask": "Complete per-assignment API signature, license, supported-Windows, dependency, provider-limit, and acceptance-evidence validation for all 365 reference assignments; source-level retrieval is not implementation validation.",
+  "requirements": [
+    {
+      "requirementId": "implementation.configuration.settings-import-export",
+      "priority": "P1",
+      "dependencies": [
+        "implementation.configuration.schema-validation",
+        "implementation.configuration.transactional-update"
+      ],
+      "implementationStatus": "IMPLEMENTED_VERIFIED",
+      "verificationStatus": "PASS",
+      "remainingWork": "No remaining work for the bounded version-1 preference document. Profile/rule transfer, schema migration and broader configuration conflict handling remain separate requirements.",
+      "blockingConditions": [],
+      "evidence": [
+        "dotnet test HyperBoostX.sln -c Release --no-restore: Passed 103/103",
+        "Published UI Automation passed 73/73 routes and exercised settings export, privacy field allowlist, import cancellation, approved import, and persistence after application restart using isolated data."
+      ],
+      "nextExecutableTask": "None for this bounded requirement."
+    },
+    {
+      "requirementId": "implementation.configuration.reset-defaults",
+      "priority": "P1",
+      "dependencies": [
+        "implementation.configuration.transactional-update"
+      ],
+      "implementationStatus": "IMPLEMENTED_VERIFIED",
+      "verificationStatus": "PASS",
+      "remainingWork": "No remaining work for local application-preference reset; factory reset and broader application-data deletion are distinct requirements and remain out of scope.",
+      "blockingConditions": [],
+      "evidence": [
+        "Reset command is wired and its confirmation states explicitly that Windows settings and recovery history are retained.",
+        "Published UI Automation verified declining reset preserves the changed theme, accepting restores defaults, and the defaults survive application restart in isolated data."
+      ],
+      "nextExecutableTask": "None for this bounded requirement."
+    },
+    {
+      "requirementId": "req.addendum.0043-single-instance-application-management",
+      "priority": "P0",
+      "dependencies": [],
+      "implementationStatus": "IMPLEMENTED_VERIFIED",
+      "verificationStatus": "PASS",
+      "remainingWork": "No remaining work for same-user duplicate launch, activation, original-instance shutdown/relaunch, or distinct isolated data-directory startup covered by the published UI smoke. The secondary test process is stopped by test cleanup.",
+      "blockingConditions": [],
+      "evidence": [
+        "Published UI Automation verified a second launch against the same isolated data directory exits successfully and restores the minimized existing window.",
+        "Published UI Automation verified a distinct isolated data directory launches an independent instance and leaves the original instance running; the isolated secondary process is stopped by test cleanup.",
+        "The original instance then shut down cleanly; startup uses a per-user mutex and a narrow activation event without arbitrary command payloads."
+      ],
+      "nextExecutableTask": "None for the verified single-instance lifecycle."
+    },
+    {
+      "requirementId": "implementation.technical-reference-validation",
+      "priority": "P1",
+      "dependencies": [],
+      "implementationStatus": "PARTIAL_VERIFIED",
+      "verificationStatus": "PARTIAL",
+      "remainingWork": "The supplied 73-menu × 5-reference matrix is a canonical 365-assignment requirement source with 158 distinct URLs. All 49 candidate-direct-link URLs and all 109 source-tagged web-confirmed URLs have limited source-level checks. Complete API signatures/versions, licenses, supported Windows versions, dependencies, provider limitations, and acceptance-evidence validation for every source and assignment before implementation.",
+      "blockingConditions": [
+        "No complete API/license/platform/dependency compatibility review has been completed; current source-level checks are partial and do not establish implementation suitability."
+      ],
+      "evidence": [
+        "scripts/generate_traceability.py imported all 365 assignments and verified 73 route names, five references per menu, unique assignment IDs, and 158 distinct URLs.",
+        "docs/registry/technical-reference-validation.json records 158 limited source-level checks across all distinct URLs, including all 109 web-confirmed references and 49 candidate-direct-link references. Five supplied URLs returned 404; alternate official pages were found for three and two remain unresolved. One vendor URL returned 403. No integration suitability is asserted.",
+        "Reference source tags are recorded as provenance only; they do not establish API, license, platform, or dependency compatibility."
+      ],
+      "nextExecutableTask": "Validate APIs, licenses, platform support, dependencies, provider limitations, and evidence requirements for each of the 365 assignments; document unsupported and unresolved references without inferring compatibility."
+    },
+    {
+      "requirementId": "implementation.application-health.privileged-worker",
+      "priority": "P0",
+      "dependencies": [
+        "Threat model and least-privilege protocol",
+        "Authenticated allowlisted IPC design",
+        "Durable mutation recovery and rollback design"
+      ],
+      "implementationStatus": "PARTIAL_VERIFIED",
+      "verificationStatus": "PARTIAL",
+      "remainingWork": "The separate restricted worker, peer-bound ECDH bootstrap, authenticated allowlisted IPC, bounded framing, health, and shutdown are implemented and verified without elevation. Add user-consented UAC launch integration, protected audit persistence, and narrowly typed mutation handlers connected to the durable ActionEngine lifecycle; verify denial, crash, timeout, rollback, and cross-elevation attacks in disposable Windows images.",
+      "blockingConditions": [
+        "No isolated disposable Windows environment is available for privileged mutation, access-denial, crash, and rollback testing.",
+        "Do not add a generic elevated command runner or execute privileged mutations on the user's host."
+      ],
+      "evidence": [
+        "Full test suite passed 131/131, including separate worker process health/shutdown, PID/session/SID peer verification, ECDH session-key agreement, replay/tamper rejection, bounded framing, authenticated response binding, and production-client cleanup.",
+        "Published self-contained UI smoke passed 73/73 routes and Test Center using the packaged worker; installer and portable artifacts contain HyperBoostX.Worker.exe and their SHA-256 values match dist/SHA256SUMS.txt.",
+        "Worker allowlist currently contains only worker.health and worker.shutdown. No UAC prompt, elevated action, or Windows mutation was performed; worker signature remains NotSigned."
+      ],
+      "nextExecutableTask": "Integrate explicit user-consented runas launch and protected audit persistence, then provision a disposable Windows environment to test cross-elevation identity/ACL behavior and one narrowly scoped reversible mutation; do not run mutation tests on the user's host."
+    },
+    {
+      "requirementId": "implementation.application-health.safe-repair",
+      "priority": "P1",
+      "dependencies": [
+        "implementation.application-health.privileged-worker",
+        "Recovery and configuration integrity checks"
+      ],
+      "implementationStatus": "UNSUPPORTED",
+      "verificationStatus": "BLOCKED",
+      "remainingWork": "Provide narrowly scoped repair workflows with preview, consent, durable backup, safe cancellation, verification, and rollback; keep unsupported repairs explicit.",
+      "blockingConditions": [
+        "No safe repair handler exists.",
+        "Privileged worker and isolated integration-test environment are not available."
+      ],
+      "evidence": [
+        "Test Center reports safe application repair as UNSUPPORTED and does not attempt a repair."
+      ],
+      "nextExecutableTask": "After authenticated broker and recovery validation exist, define one reversible application-data repair action and test it only in an isolated disposable profile."
+    },
+    {
+      "requirementId": "req.addendum.0267-installer-lifecycle",
+      "priority": "P1",
+      "dependencies": [
+        "Published executable and installer payload"
+      ],
+      "implementationStatus": "NOT_STARTED",
+      "verificationStatus": "NOT RUN",
+      "remainingWork": "Exercise fresh install, upgrade, repair, uninstall, data retention, and interrupted install recovery on disposable Windows images; verify installer signatures when an authorized certificate exists.",
+      "blockingConditions": [
+        "No disposable Windows VM is available.",
+        "Installer is unsigned; no signing certificate or release authorization is available."
+      ],
+      "evidence": [
+        "Self-contained win-x64 executable, installer, portable ZIP, and SHA-256 manifest built; UI smoke passed against the published executable.",
+        "Installer was not run and is not signed."
+      ],
+      "nextExecutableTask": "Provision disposable Windows test images and run the documented non-production installer lifecycle matrix."
+    }
+  ]
+}

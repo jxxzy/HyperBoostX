@@ -1,0 +1,3152 @@
+{
+  "scope": {
+    "menus": 73,
+    "references_per_menu": 5,
+    "assignments": 365,
+    "distinct_reference_entries": 158,
+    "web_confirmed_distinct": 109,
+    "source": "https://github.com/NEXORAID-ID/hyperboostx-v3-prototype/blob/main/navigation.json"
+  },
+  "verification_note": "candidate-direct-link sources must be individually opened and verified before implementing; no Windows execution performed",
+  "menus": [
+    {
+      "number": 1,
+      "menu": "Dashboard",
+      "references": [
+        {
+          "id": "times",
+          "title": "GetSystemTimes",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getsystemtimes",
+          "purpose": "Calculate CPU utilization from interval deltas.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "mem",
+          "title": "GlobalMemoryStatusEx",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-globalmemorystatusex",
+          "purpose": "Read physical and available memory.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "perf",
+          "title": "Windows Performance Counters",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/perfctrs/about-performance-counters",
+          "purpose": "Polling counters; avoid high-frequency sampling.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "dxgi",
+          "title": "IDXGIAdapter3::QueryVideoMemoryInfo",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_4/nf-dxgi1_4-idxgiadapter3-queryvideomemoryinfo",
+          "purpose": "Query process video-memory budget/usage; not total system GPU use.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "smart",
+          "title": "Get-StorageReliabilityCounter",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/storage/get-storagereliabilitycounter?view=windowsserver2025-ps",
+          "purpose": "Read storage health counters where supported.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Implement timestamped CPU/RAM/GPU-budget/storage measurements; do not label process VRAM budget as whole-device usage.",
+      "acceptance": "Compare idle/load samples with independent Windows tools and show N/A for missing sensors."
+    },
+    {
+      "number": 2,
+      "menu": "Smart Scan",
+      "references": [
+        {
+          "id": "wmi",
+          "title": "WMI reference",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/wmisdk/wmi-reference",
+          "purpose": "Query typed hardware/OS capabilities; handle missing properties.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "wql",
+          "title": "WQL (SQL for WMI)",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/wmisdk/wql-sql-for-wmi",
+          "purpose": "Filter scans and subscribe where supported.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "devices",
+          "title": "SetupAPI",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/setupapi/setupapi",
+          "purpose": "Enumerate present devices and device properties.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "event",
+          "title": "Windows Event Log",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/winevt/windows-event-log",
+          "purpose": "Read structured Windows event data and timestamps.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "defender",
+          "title": "Get-MpComputerStatus",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/defender/get-mpcomputerstatus",
+          "purpose": "Read Defender health only.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Implement scoped asynchronous scan with provider findings, severity, progress, cancellation and provenance.",
+      "acceptance": "Quick/deep/hardware/privacy/driver scans return differentiated evidence; denied access remains explicit."
+    },
+    {
+      "number": 3,
+      "menu": "One Click Boost",
+      "references": [
+        {
+          "id": "winutil",
+          "title": "Chris Titus Tech WinUtil",
+          "url": "https://github.com/ChrisTitusTech/winutil",
+          "purpose": "Study categorization and preset/Windows task implementations; audit each action independently, never execute a downloaded script blindly.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "reg",
+          "title": "RegistryKey",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.win32.registrykey?view=net-8.0",
+          "purpose": "Read/modify typed registry values only after backup and validation.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "pwrset",
+          "title": "PowerSetActiveScheme",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powersetactivescheme",
+          "purpose": "Change a supported power plan with read-back and rollback.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "sqlite",
+          "title": "SQLite transaction documentation",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "purpose": "Use durable transactional writes; treat external OS mutations separately.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "uac",
+          "title": "How User Account Control works",
+          "url": "https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/how-it-works",
+          "purpose": "Use on-demand consent; do not bypass UAC.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Compose allowlisted verified actions into a conflict-aware preview, approve, backup, apply, verify, compensate.",
+      "acceptance": "Apply mixed supported actions in VM; simulate partial failure and confirm rollback/evidence."
+    },
+    {
+      "number": 4,
+      "menu": "HyperBoost Score",
+      "references": [
+        {
+          "id": "perf",
+          "title": "Windows Performance Counters",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/perfctrs/about-performance-counters",
+          "purpose": "Polling counters; avoid high-frequency sampling.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "commit",
+          "title": "GetPerformanceInfo",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-getperformanceinfo",
+          "purpose": "Read system commit and physical memory counters.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "smart",
+          "title": "Get-StorageReliabilityCounter",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/storage/get-storagereliabilitycounter?view=windowsserver2025-ps",
+          "purpose": "Read storage health counters where supported.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "ping",
+          "title": "Ping",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.net.networkinformation.ping?view=net-8.0",
+          "purpose": "Collect ICMP samples; explicitly document loss/jitter methodology.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "nist",
+          "title": "NIST Engineering Statistics Handbook",
+          "url": "https://www.itl.nist.gov/div898/handbook/",
+          "purpose": "Design controlled experiments and analyze variability.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Calculate transparent versioned readiness rubric from available metric streams; report coverage/confidence.",
+      "acceptance": "Known fixture produces reproducible scores; missing GPU data never becomes zero or fabricated score."
+    },
+    {
+      "number": 5,
+      "menu": "Activity & Notifications",
+      "references": [
+        {
+          "id": "event",
+          "title": "Windows Event Log",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/winevt/windows-event-log",
+          "purpose": "Read structured Windows event data and timestamps.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "loggingguide",
+          "title": "Logging in .NET guide",
+          "url": "https://learn.microsoft.com/en-us/dotnet/core/extensions/logging/overview",
+          "purpose": "Configure categories, redaction and bounded logs.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "sqlite",
+          "title": "SQLite transaction documentation",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "purpose": "Use durable transactional writes; treat external OS mutations separately.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "timer",
+          "title": "PeriodicTimer",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.periodictimer?view=net-8.0",
+          "purpose": "Schedule cancellable monitoring, serialize sampling.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "notify",
+          "title": "NotifyIcon",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.notifyicon?view=net-8.0",
+          "purpose": "Use tray lifecycle and disposal via Windows Forms interop.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Persist structured action alerts, pending restart, history, deduplication and tray notifications.",
+      "acceptance": "Restart application and verify history/pending state; repeated events are rate limited."
+    },
+    {
+      "number": 6,
+      "menu": "AI Assistant",
+      "references": [
+        {
+          "id": "nimhost",
+          "title": "NVIDIA hosted LLM APIs",
+          "url": "https://docs.api.nvidia.com/nim/reference/llm-apis",
+          "purpose": "Configure valid hosted model endpoint and BYOK.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "nim",
+          "title": "NVIDIA NIM API reference",
+          "url": "https://docs.nvidia.com/nim/large-language-models/latest/api-reference.html",
+          "purpose": "Model discovery and OpenAI-compatible requests for supported NIM deployments.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "http",
+          "title": "HttpClient",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.net.http.httpclient?view=net-8.0",
+          "purpose": "Use reusable clients, timeout, error handling and cancellation.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "json",
+          "title": "System.Text.Json",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.text.json?view=net-8.0",
+          "purpose": "Typed configuration, profile and evidence serialization.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "mvvm",
+          "title": "MVVM Toolkit introduction",
+          "url": "https://learn.microsoft.com/en-us/dotnet/communitytoolkit/mvvm/",
+          "purpose": "Typed observable state and commands.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Build consent-based assistant, structured action IDs and offline fallback; never execute arbitrary AI text.",
+      "acceptance": "Valid provider response maps only to allowlisted actions; offline/401 path remains usable."
+    },
+    {
+      "number": 7,
+      "menu": "AI Provider Center",
+      "references": [
+        {
+          "id": "nvcatalog",
+          "title": "NVIDIA API Catalog",
+          "url": "https://build.nvidia.com/",
+          "purpose": "Discover available models and provider terms.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "nimhost",
+          "title": "NVIDIA hosted LLM APIs",
+          "url": "https://docs.api.nvidia.com/nim/reference/llm-apis",
+          "purpose": "Configure valid hosted model endpoint and BYOK.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "nimquick",
+          "title": "NVIDIA NIM quickstart",
+          "url": "https://docs.nvidia.com/nim/large-language-models/latest/get-started/quickstart.html",
+          "purpose": "Use deployment-specific model IDs and requests.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "dpapi",
+          "title": "ProtectedData",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.protecteddata?view=net-8.0",
+          "purpose": "Protect user-scoped secrets and backups; verify user context.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "http",
+          "title": "HttpClient",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.net.http.httpclient?view=net-8.0",
+          "purpose": "Use reusable clients, timeout, error handling and cancellation.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Implement hosted BYOK, secure secret storage, endpoint validation, model discovery, optional gateway.",
+      "acceptance": "Live credential test only with user consent; 401/429/timeouts handled without secret exposure."
+    },
+    {
+      "number": 8,
+      "menu": "GPU AI Assistant",
+      "references": [
+        {
+          "id": "nvml",
+          "title": "NVIDIA NVML API",
+          "url": "https://docs.nvidia.com/deploy/nvml-api/latest/",
+          "purpose": "Query supported NVIDIA GPU telemetry; detect unsupported fields.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "adlx",
+          "title": "AMD ADLX SDK",
+          "url": "https://gpuopen.com/adlx/",
+          "purpose": "AMD graphics monitoring and documented capabilities.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "igcl",
+          "title": "Intel Graphics Control Library",
+          "url": "https://github.com/intel/drivers.gpu.control-library",
+          "purpose": "Intel GPU capability and sensor integration using approved interfaces.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "dxgi",
+          "title": "IDXGIAdapter3::QueryVideoMemoryInfo",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_4/nf-dxgi1_4-idxgiadapter3-queryvideomemoryinfo",
+          "purpose": "Query process video-memory budget/usage; not total system GPU use.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "nimhost",
+          "title": "NVIDIA hosted LLM APIs",
+          "url": "https://docs.api.nvidia.com/nim/reference/llm-apis",
+          "purpose": "Configure valid hosted model endpoint and BYOK.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Use GPU capability data as redacted context; separate measured sensors from advice.",
+      "acceptance": "NVIDIA/AMD/Intel fixtures and missing metrics yield evidence-based recommendations."
+    },
+    {
+      "number": 9,
+      "menu": "Performance Profiles",
+      "references": [
+        {
+          "id": "json",
+          "title": "System.Text.Json",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.text.json?view=net-8.0",
+          "purpose": "Typed configuration, profile and evidence serialization.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "pwrset",
+          "title": "PowerSetActiveScheme",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powersetactivescheme",
+          "purpose": "Change a supported power plan with read-back and rollback.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "priority",
+          "title": "Process.PriorityClass",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.priorityclass?view=net-8.0",
+          "purpose": "Manage approved process priority; restore previous value.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "reg",
+          "title": "RegistryKey",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.win32.registrykey?view=net-8.0",
+          "purpose": "Read/modify typed registry values only after backup and validation.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "sqlite",
+          "title": "SQLite transaction documentation",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "purpose": "Use durable transactional writes; treat external OS mutations separately.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Typed profile CRUD, conflict rules, real action composition and batch restoration.",
+      "acceptance": "Export/import profiles without secrets; apply and restore on isolated Windows."
+    },
+    {
+      "number": 10,
+      "menu": "Safe Tweak Library",
+      "references": [
+        {
+          "id": "reg",
+          "title": "RegistryKey",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.win32.registrykey?view=net-8.0",
+          "purpose": "Read/modify typed registry values only after backup and validation.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "regbackup",
+          "title": "Registry Functions",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-functions",
+          "purpose": "Supported native registry operations; preserve value type/existence.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "policy",
+          "title": "Policy CSP",
+          "url": "https://learn.microsoft.com/en-us/windows/client-management/mdm/policy-configuration-service-provider",
+          "purpose": "Inspect documented policy applicability and edition restrictions; avoid bypassing policy.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "powercfg",
+          "title": "Powercfg command-line options",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/powercfg-command-line-options",
+          "purpose": "Enumerate plans, export reports and documented policy controls.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "winutil",
+          "title": "Chris Titus Tech WinUtil",
+          "url": "https://github.com/ChrisTitusTech/winutil",
+          "purpose": "Study categorization and preset/Windows task implementations; audit each action independently, never execute a downloaded script blindly.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Build typed tweaks only when documented, applicable, verifiable and reversible where feasible.",
+      "acceptance": "Each action has unique ID, compatibility check and acceptance test; no numeric padding."
+    },
+    {
+      "number": 11,
+      "menu": "Advanced Tweaks",
+      "references": [
+        {
+          "id": "reg",
+          "title": "RegistryKey",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.win32.registrykey?view=net-8.0",
+          "purpose": "Read/modify typed registry values only after backup and validation.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "regbackup",
+          "title": "Registry Functions",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-functions",
+          "purpose": "Supported native registry operations; preserve value type/existence.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "policy",
+          "title": "Policy CSP",
+          "url": "https://learn.microsoft.com/en-us/windows/client-management/mdm/policy-configuration-service-provider",
+          "purpose": "Inspect documented policy applicability and edition restrictions; avoid bypassing policy.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "uac",
+          "title": "How User Account Control works",
+          "url": "https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/how-it-works",
+          "purpose": "Use on-demand consent; do not bypass UAC.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "sqlite",
+          "title": "SQLite transaction documentation",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "purpose": "Use durable transactional writes; treat external OS mutations separately.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Show exact current/desired state, policy/permission constraints, backup and conflicts.",
+      "acceptance": "Deny UAC or introduce external drift; no unauthorized change or blind restore."
+    },
+    {
+      "number": 12,
+      "menu": "CPU Optimization",
+      "references": [
+        {
+          "id": "topology",
+          "title": "GetLogicalProcessorInformationEx",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getlogicalprocessorinformationex",
+          "purpose": "Read processor topology and groups.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "proctime",
+          "title": "Process.TotalProcessorTime",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.totalprocessortime?view=net-8.0",
+          "purpose": "Calculate normalized per-process CPU from two observations.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "priority",
+          "title": "Process.PriorityClass",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.priorityclass?view=net-8.0",
+          "purpose": "Manage approved process priority; restore previous value.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "affinity",
+          "title": "Process.ProcessorAffinity",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.processoraffinity?view=net-8.0",
+          "purpose": "Manage affinity only with topology/processor-group validation.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "powerpolicy",
+          "title": "Processor power management options",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/customize/power-settings/configure-processor-power-management-options",
+          "purpose": "Read supported Windows processor power policies; do not force unsupported settings.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Read CPU topology and per-process load; implement approved process priority/affinity and supported policies.",
+      "acceptance": "Apply/restore priority and affinity to own fixture process; reject protected process."
+    },
+    {
+      "number": 13,
+      "menu": "CPU Turbo Diagnostics",
+      "references": [
+        {
+          "id": "cpu",
+          "title": "Win32_Processor",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-processor",
+          "purpose": "Read CPU identity, cores and available frequency fields.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "procpower",
+          "title": "CallNtPowerInformation",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/powerbase/nf-powerbase-callntpowerinformation",
+          "purpose": "Query supported power information levels, including processor data.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "powercfg",
+          "title": "Powercfg command-line options",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/powercfg-command-line-options",
+          "purpose": "Enumerate plans, export reports and documented policy controls.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "lhm",
+          "title": "LibreHardwareMonitor",
+          "url": "https://github.com/LibreHardwareMonitor/LibreHardwareMonitor",
+          "purpose": "C# sensor provider; review driver signing, privilege, licenses and device accuracy.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "wpr",
+          "title": "Windows Performance Recorder",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/test/wpt/windows-performance-recorder",
+          "purpose": "Collect reproducible boot/workload traces.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Read measured clocks and available thermal/power indicators; no automatic multiplier or voltage change.",
+      "acceptance": "Compare idle/load samples; missing sensor yields unavailable, not invented turbo frequency."
+    },
+    {
+      "number": 14,
+      "menu": "Smart Memory Guard",
+      "references": [
+        {
+          "id": "mem",
+          "title": "GlobalMemoryStatusEx",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-globalmemorystatusex",
+          "purpose": "Read physical and available memory.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "commit",
+          "title": "GetPerformanceInfo",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-getperformanceinfo",
+          "purpose": "Read system commit and physical memory counters.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "proc",
+          "title": "System.Diagnostics.Process",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process?view=net-8.0",
+          "purpose": "Enumerate processes, track lifetimes, inspect access failures.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "timer",
+          "title": "PeriodicTimer",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.periodictimer?view=net-8.0",
+          "purpose": "Schedule cancellable monitoring, serialize sampling.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "cancel",
+          "title": "CancellationToken",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken?view=net-8.0",
+          "purpose": "Pass cancellation through read and mutation phases safely.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Monitor memory pressure, thresholds and cooldown; offer safe approved workload actions.",
+      "acceptance": "Synthetic pressure fixture triggers one alert per cooldown; exclusions respected."
+    },
+    {
+      "number": 15,
+      "menu": "Power Optimization",
+      "references": [
+        {
+          "id": "powercfg",
+          "title": "Powercfg command-line options",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/powercfg-command-line-options",
+          "purpose": "Enumerate plans, export reports and documented policy controls.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "pwrread",
+          "title": "PowerReadACValueIndex",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powerreadacvalueindex",
+          "purpose": "Read AC setting for backup/preview.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "pwrset",
+          "title": "PowerSetActiveScheme",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powersetactivescheme",
+          "purpose": "Change a supported power plan with read-back and rollback.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "powerpolicy",
+          "title": "Processor power management options",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/customize/power-settings/configure-processor-power-management-options",
+          "purpose": "Read supported Windows processor power policies; do not force unsupported settings.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "battery",
+          "title": "GetSystemPowerStatus",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getsystempowerstatus",
+          "purpose": "Read AC state and battery charge.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Enumerate schemes and supported AC/DC settings; snapshot current values and apply verified policy.",
+      "acceptance": "Select existing plan, verify and restore; unsupported settings remain unavailable."
+    },
+    {
+      "number": 16,
+      "menu": "Hardware Tuner",
+      "references": [
+        {
+          "id": "powerpolicy",
+          "title": "Processor power management options",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/customize/power-settings/configure-processor-power-management-options",
+          "purpose": "Read supported Windows processor power policies; do not force unsupported settings.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "video",
+          "title": "DXGI",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/dx-graphics-dxgi",
+          "purpose": "Enumerate adapters and graphics capabilities.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "devices",
+          "title": "SetupAPI",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/setupapi/setupapi",
+          "purpose": "Enumerate present devices and device properties.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "lhm",
+          "title": "LibreHardwareMonitor",
+          "url": "https://github.com/LibreHardwareMonitor/LibreHardwareMonitor",
+          "purpose": "C# sensor provider; review driver signing, privilege, licenses and device accuracy.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "gfxpref",
+          "title": "Windows graphics settings support",
+          "url": "https://support.microsoft.com/windows",
+          "purpose": "Locate version-specific graphics preference documentation; do not assume registry hacks are supported.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Expose supported OS-level device/power and graphics capabilities; no BIOS/voltage tweaks.",
+      "acceptance": "Compare hardware capabilities against real OS; block unsupported writes and preserve baseline."
+    },
+    {
+      "number": 17,
+      "menu": "Game Boost Engine",
+      "references": [
+        {
+          "id": "proc",
+          "title": "System.Diagnostics.Process",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process?view=net-8.0",
+          "purpose": "Enumerate processes, track lifetimes, inspect access failures.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "priority",
+          "title": "Process.PriorityClass",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.priorityclass?view=net-8.0",
+          "purpose": "Manage approved process priority; restore previous value.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "pwrset",
+          "title": "PowerSetActiveScheme",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powersetactivescheme",
+          "purpose": "Change a supported power plan with read-back and rollback.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "present",
+          "title": "Intel PresentMon",
+          "url": "https://github.com/GameTechDev/PresentMon",
+          "purpose": "Use non-injection frame timing capture and inspect metric definitions.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "sqlite",
+          "title": "SQLite transaction documentation",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "purpose": "Use durable transactional writes; treat external OS mutations separately.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Create approved game session with reversible profile and telemetry, restore after verified exit.",
+      "acceptance": "Game fixture start/exit and crash paths restore prior state without injection."
+    },
+    {
+      "number": 18,
+      "menu": "Game Library",
+      "references": [
+        {
+          "id": "steam",
+          "title": "Steamworks API overview",
+          "url": "https://partner.steamgames.com/doc/sdk/api",
+          "purpose": "Reference Steam integration only if authorized; local manifests need separate validation.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "playnite",
+          "title": "Playnite game library manager",
+          "url": "https://github.com/JosefNemec/Playnite",
+          "purpose": "Study local library integration architecture and provider-specific manifests; respect licenses.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "packages",
+          "title": "Windows.Management.Deployment.PackageManager",
+          "url": "https://learn.microsoft.com/en-us/uwp/api/windows.management.deployment.packagemanager",
+          "purpose": "Inventory supported installed packaged apps; handle access rights.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "watch",
+          "title": "FileSystemWatcher",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.io.filesystemwatcher?view=net-8.0",
+          "purpose": "Detect manifest changes; debounce and rescan after buffer overflow.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "processstart",
+          "title": "ProcessStartInfo",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.processstartinfo?view=net-8.0",
+          "purpose": "Launch known executables with structured arguments; no arbitrary shell.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Read local launcher metadata with format/version checks; validate executable paths and allow manual registration.",
+      "acceptance": "Discover games in validated manifest fixtures; no account tokens; renamed/missing executable handled."
+    },
+    {
+      "number": 19,
+      "menu": "Per-Game Profiles",
+      "references": [
+        {
+          "id": "json",
+          "title": "System.Text.Json",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.text.json?view=net-8.0",
+          "purpose": "Typed configuration, profile and evidence serialization.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "proc",
+          "title": "System.Diagnostics.Process",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process?view=net-8.0",
+          "purpose": "Enumerate processes, track lifetimes, inspect access failures.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "pwrset",
+          "title": "PowerSetActiveScheme",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powersetactivescheme",
+          "purpose": "Change a supported power plan with read-back and rollback.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "sqlite",
+          "title": "SQLite transaction documentation",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "purpose": "Use durable transactional writes; treat external OS mutations separately.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "priority",
+          "title": "Process.PriorityClass",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.priorityclass?view=net-8.0",
+          "purpose": "Manage approved process priority; restore previous value.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Persist per-game actions, validated import/export and recovery; bind to exact executable.",
+      "acceptance": "Two games have independent profiles; import malformed profile rejected; restore verified."
+    },
+    {
+      "number": 20,
+      "menu": "Auto Gaming Mode",
+      "references": [
+        {
+          "id": "proc",
+          "title": "System.Diagnostics.Process",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process?view=net-8.0",
+          "purpose": "Enumerate processes, track lifetimes, inspect access failures.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "etw",
+          "title": "Event Tracing for Windows",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/etw/about-event-tracing",
+          "purpose": "Collect timestamped system events and workload correlation.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "trace",
+          "title": "Microsoft PerfView / TraceEvent",
+          "url": "https://github.com/microsoft/perfview",
+          "purpose": "Consume ETW traces and analyze CPU/disk/process activity.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "sqlite",
+          "title": "SQLite transaction documentation",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "purpose": "Use durable transactional writes; treat external OS mutations separately.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "timer",
+          "title": "PeriodicTimer",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.periodictimer?view=net-8.0",
+          "purpose": "Schedule cancellable monitoring, serialize sampling.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Detect exact process lifecycle; opt-in triggers, overlapping sessions and crash recovery.",
+      "acceptance": "Launch/exit fixture, duplicate events and restart; profile applies once and reverts safely."
+    },
+    {
+      "number": 21,
+      "menu": "FPS & Frame Time",
+      "references": [
+        {
+          "id": "present",
+          "title": "Intel PresentMon",
+          "url": "https://github.com/GameTechDev/PresentMon",
+          "purpose": "Use non-injection frame timing capture and inspect metric definitions.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "presentintel",
+          "title": "Intel PresentMon SDK / product",
+          "url": "https://game.intel.com/us/intel-presentmon/",
+          "purpose": "Check supported SDK and releases; no in-game injection.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "etw",
+          "title": "Event Tracing for Windows",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/etw/about-event-tracing",
+          "purpose": "Collect timestamped system events and workload correlation.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "trace",
+          "title": "Microsoft PerfView / TraceEvent",
+          "url": "https://github.com/microsoft/perfview",
+          "purpose": "Consume ETW traces and analyze CPU/disk/process activity.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "stopwatch",
+          "title": "Stopwatch",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.stopwatch?view=net-8.0",
+          "purpose": "Measure monotonic elapsed times.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Integrate documented non-injection PresentMon capture, frame duration and defined percentile metrics.",
+      "acceptance": "Capture active compatible game; compare raw samples, derived FPS and missing-data states."
+    },
+    {
+      "number": 22,
+      "menu": "Stutter Analyzer",
+      "references": [
+        {
+          "id": "present",
+          "title": "Intel PresentMon",
+          "url": "https://github.com/GameTechDev/PresentMon",
+          "purpose": "Use non-injection frame timing capture and inspect metric definitions.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "etw",
+          "title": "Event Tracing for Windows",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/etw/about-event-tracing",
+          "purpose": "Collect timestamped system events and workload correlation.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "trace",
+          "title": "Microsoft PerfView / TraceEvent",
+          "url": "https://github.com/microsoft/perfview",
+          "purpose": "Consume ETW traces and analyze CPU/disk/process activity.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "wpa",
+          "title": "Windows Performance Analyzer",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/test/wpt/windows-performance-analyzer",
+          "purpose": "Analyze timings and bottleneck evidence.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "lhm",
+          "title": "LibreHardwareMonitor",
+          "url": "https://github.com/LibreHardwareMonitor/LibreHardwareMonitor",
+          "purpose": "C# sensor provider; review driver signing, privilege, licenses and device accuracy.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Correlate timestamped frame spikes with measured CPU/disk/GPU/thermal metrics; distinguish correlation from causality.",
+      "acceptance": "Known trace fixture with spikes produces accurate timing correlation, not fabricated cause."
+    },
+    {
+      "number": 23,
+      "menu": "Overlay Conflict Detector",
+      "references": [
+        {
+          "id": "proc",
+          "title": "System.Diagnostics.Process",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process?view=net-8.0",
+          "purpose": "Enumerate processes, track lifetimes, inspect access failures.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "version",
+          "title": "FileVersionInfo",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.fileversioninfo?view=net-8.0",
+          "purpose": "Inspect actual product/publisher/version metadata; verify signature separately.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "trust",
+          "title": "WinVerifyTrust",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/wintrust/nf-wintrust-winverifytrust",
+          "purpose": "Verify trusted publisher signatures; fail closed.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "present",
+          "title": "Intel PresentMon",
+          "url": "https://github.com/GameTechDev/PresentMon",
+          "purpose": "Use non-injection frame timing capture and inspect metric definitions.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "etw",
+          "title": "Event Tracing for Windows",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/etw/about-event-tracing",
+          "purpose": "Collect timestamped system events and workload correlation.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Identify known overlay processes by path/publisher, compare measured workload; do not inject or auto-kill.",
+      "acceptance": "Detect installed/running overlay fixtures; distinguish observed presence from performance impact."
+    },
+    {
+      "number": 24,
+      "menu": "Hardware Inventory",
+      "references": [
+        {
+          "id": "cpu",
+          "title": "Win32_Processor",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-processor",
+          "purpose": "Read CPU identity, cores and available frequency fields.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "board",
+          "title": "Win32_BaseBoard",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-baseboard",
+          "purpose": "Read motherboard manufacturer and product.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "ram",
+          "title": "Win32_PhysicalMemory",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-physicalmemory",
+          "purpose": "Read installed memory modules and capacities.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "bios",
+          "title": "Win32_BIOS",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-bios",
+          "purpose": "Read BIOS version only.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "gpuwmi",
+          "title": "Win32_VideoController",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-videocontroller",
+          "purpose": "Inventory graphics identity and drivers; avoid trusting AdapterRAM for large VRAM.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Read typed WMI fields with unknown values explicitly marked; join per-device identifiers.",
+      "acceptance": "Compare inventory with system tools; absent BIOS/board property not fabricated."
+    },
+    {
+      "number": 25,
+      "menu": "GPU Center",
+      "references": [
+        {
+          "id": "nvml",
+          "title": "NVIDIA NVML API",
+          "url": "https://docs.nvidia.com/deploy/nvml-api/latest/",
+          "purpose": "Query supported NVIDIA GPU telemetry; detect unsupported fields.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "adlx",
+          "title": "AMD ADLX SDK",
+          "url": "https://gpuopen.com/adlx/",
+          "purpose": "AMD graphics monitoring and documented capabilities.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "igcl",
+          "title": "Intel Graphics Control Library",
+          "url": "https://github.com/intel/drivers.gpu.control-library",
+          "purpose": "Intel GPU capability and sensor integration using approved interfaces.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "dxgi",
+          "title": "IDXGIAdapter3::QueryVideoMemoryInfo",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_4/nf-dxgi1_4-idxgiadapter3-queryvideomemoryinfo",
+          "purpose": "Query process video-memory budget/usage; not total system GPU use.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "video",
+          "title": "DXGI",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/dx-graphics-dxgi",
+          "purpose": "Enumerate adapters and graphics capabilities.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Enumerate adapters by stable identity; develop vendor-specific telemetry and DXGI fallback.",
+      "acceptance": "Exercise multiple adapters and unsupported sensor response; verify no wrong GPU mapping."
+    },
+    {
+      "number": 26,
+      "menu": "Hardware Vendor Center",
+      "references": [
+        {
+          "id": "nvml",
+          "title": "NVIDIA NVML API",
+          "url": "https://docs.nvidia.com/deploy/nvml-api/latest/",
+          "purpose": "Query supported NVIDIA GPU telemetry; detect unsupported fields.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "adlx",
+          "title": "AMD ADLX SDK",
+          "url": "https://gpuopen.com/adlx/",
+          "purpose": "AMD graphics monitoring and documented capabilities.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "igcl",
+          "title": "Intel Graphics Control Library",
+          "url": "https://github.com/intel/drivers.gpu.control-library",
+          "purpose": "Intel GPU capability and sensor integration using approved interfaces.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "msi",
+          "title": "MSI Center official product",
+          "url": "https://www.msi.com/Landing/MSI-Center",
+          "purpose": "Identify officially supported utility; not a public control SDK.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "asus",
+          "title": "ASUS Armoury Crate support",
+          "url": "https://www.asus.com/support/",
+          "purpose": "Discover official device/software docs; not a generic control API.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Detect vendor capabilities and official SDK/support paths; avoid assuming universal control APIs.",
+      "acceptance": "Show only provider-supported functions; uninstalled SDK gives specific dependency reason."
+    },
+    {
+      "number": 27,
+      "menu": "Driver Health",
+      "references": [
+        {
+          "id": "devices",
+          "title": "SetupAPI",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/setupapi/setupapi",
+          "purpose": "Enumerate present devices and device properties.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "cm",
+          "title": "CM_Get_DevNode_Status",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/cfgmgr32/nf-cfgmgr32-cm_get_devnode_status",
+          "purpose": "Read device status and problem code.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "pnp",
+          "title": "PnPUtil command syntax",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/pnputil-command-syntax",
+          "purpose": "Read driver inventory and supported driver package backup; avoid unsafe removal.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "event",
+          "title": "Windows Event Log",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/winevt/windows-event-log",
+          "purpose": "Read structured Windows event data and timestamps.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "version",
+          "title": "FileVersionInfo",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.fileversioninfo?view=net-8.0",
+          "purpose": "Inspect actual product/publisher/version metadata; verify signature separately.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Read driver/device version, problems and official backup/support workflows.",
+      "acceptance": "Fixture missing driver and device error reports accurate IDs; no unknown driver installation."
+    },
+    {
+      "number": 28,
+      "menu": "Device Manager",
+      "references": [
+        {
+          "id": "devices",
+          "title": "SetupAPI",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/setupapi/setupapi",
+          "purpose": "Enumerate present devices and device properties.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "cm",
+          "title": "CM_Get_DevNode_Status",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/cfgmgr32/nf-cfgmgr32-cm_get_devnode_status",
+          "purpose": "Read device status and problem code.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "pnp",
+          "title": "PnPUtil command syntax",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/pnputil-command-syntax",
+          "purpose": "Read driver inventory and supported driver package backup; avoid unsafe removal.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "wmi",
+          "title": "WMI reference",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/wmisdk/wmi-reference",
+          "purpose": "Query typed hardware/OS capabilities; handle missing properties.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "event",
+          "title": "Windows Event Log",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/winevt/windows-event-log",
+          "purpose": "Read structured Windows event data and timestamps.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Enumerate device classes (USB, audio, display, Bluetooth), status and event evidence.",
+      "acceptance": "Attach/remove approved test peripheral; refresh correctly; protected operations denied."
+    },
+    {
+      "number": 29,
+      "menu": "RGB Software Detector",
+      "references": [
+        {
+          "id": "proc",
+          "title": "System.Diagnostics.Process",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process?view=net-8.0",
+          "purpose": "Enumerate processes, track lifetimes, inspect access failures.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "version",
+          "title": "FileVersionInfo",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.fileversioninfo?view=net-8.0",
+          "purpose": "Inspect actual product/publisher/version metadata; verify signature separately.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "trust",
+          "title": "WinVerifyTrust",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/wintrust/nf-wintrust-winverifytrust",
+          "purpose": "Verify trusted publisher signatures; fail closed.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "openrgb",
+          "title": "OpenRGB SDK",
+          "url": "https://gitlab.com/CalcProgrammer1/OpenRGB",
+          "purpose": "Use documented SDK only if installed/compatible; no direct unsafe hardware writes.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "corsair",
+          "title": "Corsair iCUE SDK",
+          "url": "https://github.com/CorsairOfficial/cue-sdk",
+          "purpose": "Detect approved RGB integration; does not establish fan/pump access.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Detect known vendor software using signed identity and supported SDK discovery; monitor overhead only by default.",
+      "acceptance": "Installed and running states distinguished; never issue undocumented controller commands."
+    },
+    {
+      "number": 30,
+      "menu": "MSI Safe Optimizer",
+      "references": [
+        {
+          "id": "msi",
+          "title": "MSI Center official product",
+          "url": "https://www.msi.com/Landing/MSI-Center",
+          "purpose": "Identify officially supported utility; not a public control SDK.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "svc",
+          "title": "ServiceController",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.serviceprocess.servicecontroller?view=net-8.0",
+          "purpose": "Enumerate/manage approved services; observe status and dependencies.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "scm",
+          "title": "Service Control Manager",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/services/service-control-manager",
+          "purpose": "Use SCM for dependency-aware service configuration.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "proc",
+          "title": "System.Diagnostics.Process",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process?view=net-8.0",
+          "purpose": "Enumerate processes, track lifetimes, inspect access failures.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "lhm",
+          "title": "LibreHardwareMonitor",
+          "url": "https://github.com/LibreHardwareMonitor/LibreHardwareMonitor",
+          "purpose": "C# sensor provider; review driver signing, privilege, licenses and device accuracy.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Identify MSI utility and dependency/cooling risks; only approved reversible actions, no fan/pump shutdown.",
+      "acceptance": "Dependency fixture blocks critical services; show CPU/RAM observations before recommendation."
+    },
+    {
+      "number": 31,
+      "menu": "Laptop & Battery",
+      "references": [
+        {
+          "id": "battery",
+          "title": "GetSystemPowerStatus",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getsystempowerstatus",
+          "purpose": "Read AC state and battery charge.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "powercfg",
+          "title": "Powercfg command-line options",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/powercfg-command-line-options",
+          "purpose": "Enumerate plans, export reports and documented policy controls.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "powerpolicy",
+          "title": "Processor power management options",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/customize/power-settings/configure-processor-power-management-options",
+          "purpose": "Read supported Windows processor power policies; do not force unsupported settings.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "pwrread",
+          "title": "PowerReadACValueIndex",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powerreadacvalueindex",
+          "purpose": "Read AC setting for backup/preview.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "wmi",
+          "title": "WMI reference",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/wmisdk/wmi-reference",
+          "purpose": "Query typed hardware/OS capabilities; handle missing properties.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Read charge/AC state and battery report if supported; manage safe AC/DC policies.",
+      "acceptance": "AC/battery switching and missing battery (desktop) are handled; original policy restored."
+    },
+    {
+      "number": 32,
+      "menu": "Windows Optimization",
+      "references": [
+        {
+          "id": "reg",
+          "title": "RegistryKey",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.win32.registrykey?view=net-8.0",
+          "purpose": "Read/modify typed registry values only after backup and validation.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "policy",
+          "title": "Policy CSP",
+          "url": "https://learn.microsoft.com/en-us/windows/client-management/mdm/policy-configuration-service-provider",
+          "purpose": "Inspect documented policy applicability and edition restrictions; avoid bypassing policy.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "powercfg",
+          "title": "Powercfg command-line options",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/powercfg-command-line-options",
+          "purpose": "Enumerate plans, export reports and documented policy controls.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "winutil",
+          "title": "Chris Titus Tech WinUtil",
+          "url": "https://github.com/ChrisTitusTech/winutil",
+          "purpose": "Study categorization and preset/Windows task implementations; audit each action independently, never execute a downloaded script blindly.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "uac",
+          "title": "How User Account Control works",
+          "url": "https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/how-it-works",
+          "purpose": "Use on-demand consent; do not bypass UAC.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Implement version-aware supported UI/desktop/background and power settings; prefer documented APIs.",
+      "acceptance": "Verify each supported config; enterprise policy and access restrictions respected."
+    },
+    {
+      "number": 33,
+      "menu": "Startup Manager",
+      "references": [
+        {
+          "id": "run",
+          "title": "Run and RunOnce Registry Keys",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys",
+          "purpose": "Inventory supported user/machine startup values.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "known",
+          "title": "Known Folder IDs",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/shell/knownfolderid",
+          "purpose": "Resolve official Windows folder locations, including startup.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "reg",
+          "title": "RegistryKey",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.win32.registrykey?view=net-8.0",
+          "purpose": "Read/modify typed registry values only after backup and validation.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "svc",
+          "title": "ServiceController",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.serviceprocess.servicecontroller?view=net-8.0",
+          "purpose": "Enumerate/manage approved services; observe status and dependencies.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "task",
+          "title": "Task Scheduler",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-start-page",
+          "purpose": "Use Task Scheduler 2.0 interfaces for inventory and approved actions.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Inventory startup sources; apply only typed approved disable/enable; back up exact value/task/service.",
+      "acceptance": "Disable and restore disposable HKCU entry; include read-only other startup types until verified."
+    },
+    {
+      "number": 34,
+      "menu": "Boot Optimizer",
+      "references": [
+        {
+          "id": "boot",
+          "title": "Windows Performance Toolkit",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/test/wpt/",
+          "purpose": "Use boot and app-start traces; distinguish event provider availability.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "wpr",
+          "title": "Windows Performance Recorder",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/test/wpt/windows-performance-recorder",
+          "purpose": "Collect reproducible boot/workload traces.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "eventreader",
+          "title": "EventLogReader",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.eventing.reader.eventlogreader?view=net-8.0",
+          "purpose": "Read event records with queries and dispose resources.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "run",
+          "title": "Run and RunOnce Registry Keys",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys",
+          "purpose": "Inventory supported user/machine startup values.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "task",
+          "title": "Task Scheduler",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-start-page",
+          "purpose": "Use Task Scheduler 2.0 interfaces for inventory and approved actions.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Read boot events and histories, correlate startup evidence; no hazardous boot edits.",
+      "acceptance": "Collect actual reboot timing and compare repeated baseline; no event gives explicit N/A."
+    },
+    {
+      "number": 35,
+      "menu": "App Load Optimizer",
+      "references": [
+        {
+          "id": "proc",
+          "title": "System.Diagnostics.Process",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process?view=net-8.0",
+          "purpose": "Enumerate processes, track lifetimes, inspect access failures.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "processstart",
+          "title": "ProcessStartInfo",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.processstartinfo?view=net-8.0",
+          "purpose": "Launch known executables with structured arguments; no arbitrary shell.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "stopwatch",
+          "title": "Stopwatch",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.stopwatch?view=net-8.0",
+          "purpose": "Measure monotonic elapsed times.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "etw",
+          "title": "Event Tracing for Windows",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/etw/about-event-tracing",
+          "purpose": "Collect timestamped system events and workload correlation.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "wpa",
+          "title": "Windows Performance Analyzer",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/test/wpt/windows-performance-analyzer",
+          "purpose": "Analyze timings and bottleneck evidence.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Measure launch-to-defined-readiness with app-specific or trace instrumentation; preserve launch args.",
+      "acceptance": "Repeated launches report defined endpoint and variance; do not confuse process start with readiness."
+    },
+    {
+      "number": 36,
+      "menu": "Process & Task Manager",
+      "references": [
+        {
+          "id": "proc",
+          "title": "System.Diagnostics.Process",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process?view=net-8.0",
+          "purpose": "Enumerate processes, track lifetimes, inspect access failures.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "proctime",
+          "title": "Process.TotalProcessorTime",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.totalprocessortime?view=net-8.0",
+          "purpose": "Calculate normalized per-process CPU from two observations.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "priority",
+          "title": "Process.PriorityClass",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.priorityclass?view=net-8.0",
+          "purpose": "Manage approved process priority; restore previous value.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "affinity",
+          "title": "Process.ProcessorAffinity",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.processoraffinity?view=net-8.0",
+          "purpose": "Manage affinity only with topology/processor-group validation.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "informer",
+          "title": "System Informer",
+          "url": "https://github.com/winsiderss/systeminformer",
+          "purpose": "Study process inventory and performance observation; do not copy privileged drivers or bypass protected processes.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Build process tree/interval metrics and approved priority/affinity controls; handle groups and permissions.",
+      "acceptance": "Test own process only; protected/access-denied processes cannot be changed."
+    },
+    {
+      "number": 37,
+      "menu": "Windows Services",
+      "references": [
+        {
+          "id": "svc",
+          "title": "ServiceController",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.serviceprocess.servicecontroller?view=net-8.0",
+          "purpose": "Enumerate/manage approved services; observe status and dependencies.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "scm",
+          "title": "Service Control Manager",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/services/service-control-manager",
+          "purpose": "Use SCM for dependency-aware service configuration.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "svcconfig",
+          "title": "ChangeServiceConfigW",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/winsvc/nf-winsvc-changeserviceconfigw",
+          "purpose": "Set approved service startup type; preserve original config.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "uac",
+          "title": "How User Account Control works",
+          "url": "https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/how-it-works",
+          "purpose": "Use on-demand consent; do not bypass UAC.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "sqlite",
+          "title": "SQLite transaction documentation",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "purpose": "Use durable transactional writes; treat external OS mutations separately.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Inventory status, dependencies and startup type; allowlisted elevated start/stop/config changes with recovery.",
+      "acceptance": "Disposable VM service fixture verifies dependency protection, change and restore."
+    },
+    {
+      "number": 38,
+      "menu": "Scheduled Tasks",
+      "references": [
+        {
+          "id": "task",
+          "title": "Task Scheduler",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-start-page",
+          "purpose": "Use Task Scheduler 2.0 interfaces for inventory and approved actions.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "taskxml",
+          "title": "Task Scheduler schema",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-schema",
+          "purpose": "Export/import task definitions for supported backup workflows.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "uac",
+          "title": "How User Account Control works",
+          "url": "https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/how-it-works",
+          "purpose": "Use on-demand consent; do not bypass UAC.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "eventreader",
+          "title": "EventLogReader",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.eventing.reader.eventlogreader?view=net-8.0",
+          "purpose": "Read event records with queries and dispose resources.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "sqlite",
+          "title": "SQLite transaction documentation",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "purpose": "Use durable transactional writes; treat external OS mutations separately.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Use Task Scheduler interfaces for inventory, export, enable/disable and approved edits.",
+      "acceptance": "Create disposable task, export, disable/restore; protect critical system tasks."
+    },
+    {
+      "number": 39,
+      "menu": "Debloat Center",
+      "references": [
+        {
+          "id": "appx",
+          "title": "Get-AppxPackage",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/appx/get-appxpackage",
+          "purpose": "Inventory installed Store packages and identities.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "removeappx",
+          "title": "Remove-AppxPackage",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/appx/remove-appxpackage",
+          "purpose": "Explicit per-user uninstall after dependency and essential-app checks.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "winget",
+          "title": "Windows Package Manager uninstall",
+          "url": "https://learn.microsoft.com/en-us/windows/package-manager/winget/uninstall",
+          "purpose": "Use supported uninstall mechanisms with explicit selection.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "debloat",
+          "title": "Raphire Win11Debloat",
+          "url": "https://github.com/Raphire/Win11Debloat",
+          "purpose": "Study app-removal selection/exclusions; verify each operation against official Windows APIs and protect essential apps.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "packages",
+          "title": "Windows.Management.Deployment.PackageManager",
+          "url": "https://learn.microsoft.com/en-us/uwp/api/windows.management.deployment.packagemanager",
+          "purpose": "Inventory supported installed packaged apps; handle access rights.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Inventory Win32/Store apps; show dependency/exclusion, explicit removal and realistic reinstall options.",
+      "acceptance": "VM uninstall only disposable apps; protected package rejected; no claim of universal rollback."
+    },
+    {
+      "number": 40,
+      "menu": "Windows Update",
+      "references": [
+        {
+          "id": "wua",
+          "title": "Windows Update Agent API",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/wua_sdk/portal-client",
+          "purpose": "Query installed/pending updates and documented operations.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "eventreader",
+          "title": "EventLogReader",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.eventing.reader.eventlogreader?view=net-8.0",
+          "purpose": "Read event records with queries and dispose resources.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "dism",
+          "title": "Repair a Windows image (DISM)",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/repair-a-windows-image",
+          "purpose": "Use official repair flow; record logs and reboot state.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "sfc",
+          "title": "sfc command",
+          "url": "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/sfc",
+          "purpose": "Use elevated verification/repair with real exit/log evidence.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "uac",
+          "title": "How User Account Control works",
+          "url": "https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/how-it-works",
+          "purpose": "Use on-demand consent; do not bypass UAC.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Read update status, detect documented repair paths and reboot; do not disable updates.",
+      "acceptance": "Offline/missing updates and pending restart produce factual state; repair verified separately."
+    },
+    {
+      "number": 41,
+      "menu": "Repair & Troubleshooting",
+      "references": [
+        {
+          "id": "sfc",
+          "title": "sfc command",
+          "url": "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/sfc",
+          "purpose": "Use elevated verification/repair with real exit/log evidence.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "dism",
+          "title": "Repair a Windows image (DISM)",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/repair-a-windows-image",
+          "purpose": "Use official repair flow; record logs and reboot state.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "chkdsk",
+          "title": "chkdsk command",
+          "url": "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/chkdsk",
+          "purpose": "Run safe read-only diagnostics first; require separate repair consent.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "event",
+          "title": "Windows Event Log",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/winevt/windows-event-log",
+          "purpose": "Read structured Windows event data and timestamps.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "uac",
+          "title": "How User Account Control works",
+          "url": "https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/how-it-works",
+          "purpose": "Use on-demand consent; do not bypass UAC.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Provide approved repair operations through worker, bounded output, logs and post-checks.",
+      "acceptance": "Run non-destructive scans in VM; repair cancellation/failure never reported as success."
+    },
+    {
+      "number": 42,
+      "menu": "Storage Center",
+      "references": [
+        {
+          "id": "disk",
+          "title": "Get-PhysicalDisk",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/storage/get-physicaldisk",
+          "purpose": "Identify media type and physical disk details when provider supports it.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "smart",
+          "title": "Get-StorageReliabilityCounter",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/storage/get-storagereliabilitycounter?view=windowsserver2025-ps",
+          "purpose": "Read storage health counters where supported.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "volume",
+          "title": "Get-Volume",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/storage/get-volume",
+          "purpose": "Inventory volumes and size/free space.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "drive",
+          "title": "DriveInfo",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.io.driveinfo?view=net-8.0",
+          "purpose": "Query logical drive info and capacity.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "space",
+          "title": "GetDiskFreeSpaceExW",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getdiskfreespaceexw",
+          "purpose": "Measure actual free space and distinguish from quarantine.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Inventory physical disks and volumes, media type, capacity and available health counters.",
+      "acceptance": "HDD/SSD/NVMe fixtures and missing SMART data rendered without false healthy state."
+    },
+    {
+      "number": 43,
+      "menu": "Cleanup Center",
+      "references": [
+        {
+          "id": "temp",
+          "title": "Path.GetTempPath",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.io.path.gettemppath?view=net-8.0",
+          "purpose": "Locate current user temp folder; validate canonical paths.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "dir",
+          "title": "Directory.EnumerateFiles",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.io.directory.enumeratefiles?view=net-8.0",
+          "purpose": "Stream file discovery and handle inaccessible folders.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "reparse",
+          "title": "Reparse Points",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/fileio/reparse-points",
+          "purpose": "Prevent unsafe traversal of links and junctions.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "recycle",
+          "title": "SHEmptyRecycleBinW",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shemptyrecyclebinw",
+          "purpose": "Explicit irreversible recycle-bin emptying; confirm scope.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "space",
+          "title": "GetDiskFreeSpaceExW",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getdiskfreespaceexw",
+          "purpose": "Measure actual free space and distinguish from quarantine.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Scan safe cleanup paths; preview and exclude linked/protected paths; measure actual reclaimed bytes.",
+      "acceptance": "Fixture temp/cache cleanup; preserve outside-target data and verify free-space methodology."
+    },
+    {
+      "number": 44,
+      "menu": "Duplicate & Large Files",
+      "references": [
+        {
+          "id": "dir",
+          "title": "Directory.EnumerateFiles",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.io.directory.enumeratefiles?view=net-8.0",
+          "purpose": "Stream file discovery and handle inaccessible folders.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "czkawka",
+          "title": "Czkawka duplicate file tools",
+          "url": "https://github.com/qarmin/czkawka",
+          "purpose": "Study staged hashing, size grouping and safe discovery; reimplement with C# and license review.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "sha",
+          "title": "SHA256",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.sha256?view=net-8.0",
+          "purpose": "Hash files and evidence; compare byte contents when necessary.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "reparse",
+          "title": "Reparse Points",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/fileio/reparse-points",
+          "purpose": "Prevent unsafe traversal of links and junctions.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "space",
+          "title": "GetDiskFreeSpaceExW",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getdiskfreespaceexw",
+          "purpose": "Measure actual free space and distinguish from quarantine.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Stream user-selected file discovery; group by size/hash and confirm byte equality; preview deletes.",
+      "acceptance": "Identical/different same-size fixtures, junction loops, denied files, cancel and no auto delete."
+    },
+    {
+      "number": 45,
+      "menu": "Drive Optimization",
+      "references": [
+        {
+          "id": "disk",
+          "title": "Get-PhysicalDisk",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/storage/get-physicaldisk",
+          "purpose": "Identify media type and physical disk details when provider supports it.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "trim",
+          "title": "Optimize-Volume",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/storage/optimize-volume",
+          "purpose": "Use media-aware supported maintenance; distinguish analyze/retrim/defrag.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "smart",
+          "title": "Get-StorageReliabilityCounter",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/storage/get-storagereliabilitycounter?view=windowsserver2025-ps",
+          "purpose": "Read storage health counters where supported.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "volume",
+          "title": "Get-Volume",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/storage/get-volume",
+          "purpose": "Inventory volumes and size/free space.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "uac",
+          "title": "How User Account Control works",
+          "url": "https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/how-it-works",
+          "purpose": "Use on-demand consent; do not bypass UAC.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Select analysis/retrim/defrag by supported media and OS policies; no SSD forced defrag.",
+      "acceptance": "VM or supported physical media checks; destructive maintenance not automatically executed."
+    },
+    {
+      "number": 46,
+      "menu": "Network Center",
+      "references": [
+        {
+          "id": "net",
+          "title": "NetworkInterface",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.net.networkinformation.networkinterface?view=net-8.0",
+          "purpose": "Enumerate adapters and inspect network capabilities.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "iphelper",
+          "title": "IP Helper",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/iphlp/ip-helper-start-page",
+          "purpose": "Read native IP/adapters/interface statistics.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "wlan",
+          "title": "Native Wifi",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/nativewifi/portal",
+          "purpose": "Read Wi-Fi properties and state without changing profiles by default.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "ping",
+          "title": "Ping",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.net.networkinformation.ping?view=net-8.0",
+          "purpose": "Collect ICMP samples; explicitly document loss/jitter methodology.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "perf",
+          "title": "Windows Performance Counters",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/perfctrs/about-performance-counters",
+          "purpose": "Polling counters; avoid high-frequency sampling.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Read adapter/IP/link speed/Wi-Fi and interval traffic with stable adapters.",
+      "acceptance": "Compare adapter counters with OS; reconnect and counter reset correctly handled."
+    },
+    {
+      "number": 47,
+      "menu": "DNS & Latency",
+      "references": [
+        {
+          "id": "ping",
+          "title": "Ping",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.net.networkinformation.ping?view=net-8.0",
+          "purpose": "Collect ICMP samples; explicitly document loss/jitter methodology.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "dnsquery",
+          "title": "DnsQueryEx",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/windns/nf-windns-dnsqueryex",
+          "purpose": "DNS queries with explicit options; check target OS and API struct support.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "dnsget",
+          "title": "Get-DnsClientServerAddress",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientserveraddress",
+          "purpose": "Read current DNS and compare with selected configuration.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "dnsset",
+          "title": "Set-DnsClientServerAddress",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/dnsclient/set-dnsclientserveraddress",
+          "purpose": "Set static DNS or restore DHCP on approved adapter.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "dnsclear",
+          "title": "Clear-DnsClientCache",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/dnsclient/clear-dnsclientcache",
+          "purpose": "Clear resolver cache when approved; note nonreversible cache operation.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Measure resolver-specific DNS queries and ICMP samples; separate DNS from game latency; confirm approved changes.",
+      "acceptance": "Test multiple resolvers and timeout; VM DNS change, read-back and DHCP restore."
+    },
+    {
+      "number": 48,
+      "menu": "Network Profiles",
+      "references": [
+        {
+          "id": "dnsget",
+          "title": "Get-DnsClientServerAddress",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientserveraddress",
+          "purpose": "Read current DNS and compare with selected configuration.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "dnsset",
+          "title": "Set-DnsClientServerAddress",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/dnsclient/set-dnsclientserveraddress",
+          "purpose": "Set static DNS or restore DHCP on approved adapter.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "tcp",
+          "title": "Get-NetTCPSetting",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-nettcpsetting",
+          "purpose": "Inspect TCP profiles; avoid unproven gaming tweaks.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "net",
+          "title": "NetworkInterface",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.net.networkinformation.networkinterface?view=net-8.0",
+          "purpose": "Enumerate adapters and inspect network capabilities.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "sqlite",
+          "title": "SQLite transaction documentation",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "purpose": "Use durable transactional writes; treat external OS mutations separately.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Compose reversible per-adapter DNS policy and diagnostics; avoid unvalidated TCP tweaks.",
+      "acceptance": "Apply in isolated network, restore previous static/DHCP mode; warn remote session disruption."
+    },
+    {
+      "number": 49,
+      "menu": "Streaming Center",
+      "references": [
+        {
+          "id": "obs",
+          "title": "OBS WebSocket 5.x protocol",
+          "url": "https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md?plain=1",
+          "purpose": "Read authenticated OBS runtime stats and available controls with opt-in.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "nvenc",
+          "title": "NVIDIA Video Codec SDK",
+          "url": "https://developer.nvidia.com/video-codec-sdk",
+          "purpose": "Query supported NVIDIA encoding capability; verify driver requirements.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "amf",
+          "title": "AMD Advanced Media Framework",
+          "url": "https://github.com/GPUOpen-LibrariesAndSDKs/AMF",
+          "purpose": "Detect AMD encoder support via SDK samples.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "vpl",
+          "title": "Intel oneVPL",
+          "url": "https://github.com/intel/libvpl",
+          "purpose": "Query compatible video encoder runtime; validate renamed/moved project if needed.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "perf",
+          "title": "Windows Performance Counters",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/perfctrs/about-performance-counters",
+          "purpose": "Polling counters; avoid high-frequency sampling.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Detect streaming app and available encoder capabilities; query OBS stats with opt-in auth.",
+      "acceptance": "OBS test instance and unsupported hardware paths; no secret leakage or fabricated encoder support."
+    },
+    {
+      "number": 50,
+      "menu": "Audio & DJ Performance",
+      "references": [
+        {
+          "id": "audio",
+          "title": "Core Audio APIs",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/coreaudio/core-audio-apis-in-windows-vista",
+          "purpose": "Enumerate Windows audio endpoints, sessions and controls.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "meter",
+          "title": "IAudioMeterInformation",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nn-endpointvolume-iaudiometerinformation",
+          "purpose": "Read supported endpoint peak levels, with consent.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "wasapi",
+          "title": "Windows Audio Session API (WASAPI)",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/coreaudio/wasapi",
+          "purpose": "Inspect audio stream modes and latency limits.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "midi",
+          "title": "MIDI",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/multimedia/midi",
+          "purpose": "Inventory supported MIDI devices without changing mappings.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "devices",
+          "title": "SetupAPI",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/setupapi/setupapi",
+          "purpose": "Enumerate present devices and device properties.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Read audio endpoints/session meters, MIDI/USB identity and approved DJ profile actions.",
+      "acceptance": "Test audio endpoint fixture and consent; do not claim round-trip latency without valid measurement."
+    },
+    {
+      "number": 51,
+      "menu": "Webcam Diagnostics",
+      "references": [
+        {
+          "id": "camera",
+          "title": "Enumerating video capture devices",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/medfound/enumerating-video-capture-devices",
+          "purpose": "Enumerate camera devices through Media Foundation.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "mf",
+          "title": "Media Foundation",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/medfound/microsoft-media-foundation-sdk",
+          "purpose": "Use documented capture/format capabilities; no background access.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "privacy",
+          "title": "Windows camera, microphone and privacy",
+          "url": "https://support.microsoft.com/windows/windows-camera-microphone-and-privacy-a83257bc-e990-d54a-df1c-29097f7d3a6c",
+          "purpose": "Explain and respect OS permissions; no bypass.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "devices",
+          "title": "SetupAPI",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/setupapi/setupapi",
+          "purpose": "Enumerate present devices and device properties.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "audio",
+          "title": "Core Audio APIs",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/coreaudio/core-audio-apis-in-windows-vista",
+          "purpose": "Enumerate Windows audio endpoints, sessions and controls.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Enumerate capture interfaces, supported modes and permission states; no automatic camera/mic activation.",
+      "acceptance": "No camera, denied access and approved camera tests yield accurate state."
+    },
+    {
+      "number": 52,
+      "menu": "Privacy Center",
+      "references": [
+        {
+          "id": "appprivacy",
+          "title": "Windows app privacy permissions",
+          "url": "https://learn.microsoft.com/en-us/windows/privacy/",
+          "purpose": "Locate supported privacy controls, respect enterprise policies.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "policy",
+          "title": "Policy CSP",
+          "url": "https://learn.microsoft.com/en-us/windows/client-management/mdm/policy-configuration-service-provider",
+          "purpose": "Inspect documented policy applicability and edition restrictions; avoid bypassing policy.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "dpapi",
+          "title": "ProtectedData",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.protecteddata?view=net-8.0",
+          "purpose": "Protect user-scoped secrets and backups; verify user context.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "appdirs",
+          "title": "Environment.GetFolderPath",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.environment.getfolderpath?view=net-8.0",
+          "purpose": "Resolve local application data directories; avoid path assumptions.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "json",
+          "title": "System.Text.Json",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.text.json?view=net-8.0",
+          "purpose": "Typed configuration, profile and evidence serialization.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Provide supported privacy preferences, local data export/deletion, consent and retention; respect policy.",
+      "acceptance": "Export excludes secrets; deletion preserves required recovery unless separately confirmed."
+    },
+    {
+      "number": 53,
+      "menu": "Security Health",
+      "references": [
+        {
+          "id": "defender",
+          "title": "Get-MpComputerStatus",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/defender/get-mpcomputerstatus",
+          "purpose": "Read Defender health only.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "firewall",
+          "title": "Get-NetFirewallProfile",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/netsecurity/get-netfirewallprofile",
+          "purpose": "Read Windows Firewall profiles; never disable for performance.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "secureboot",
+          "title": "Confirm-SecureBootUEFI",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/secureboot/confirm-securebootuefi",
+          "purpose": "Read Secure Boot state where supported.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "tpm",
+          "title": "Get-Tpm",
+          "url": "https://learn.microsoft.com/en-us/powershell/module/trustedplatformmodule/get-tpm",
+          "purpose": "Read TPM status; do not change ownership.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "wua",
+          "title": "Windows Update Agent API",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/wua_sdk/portal-client",
+          "purpose": "Query installed/pending updates and documented operations.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Read Windows security indicators with provider/permission provenance; never weaken protection.",
+      "acceptance": "Unavailable provider/access denial differs from disabled; compare actual supported settings."
+    },
+    {
+      "number": 54,
+      "menu": "LCD Performance Guard",
+      "references": [
+        {
+          "id": "proc",
+          "title": "System.Diagnostics.Process",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process?view=net-8.0",
+          "purpose": "Enumerate processes, track lifetimes, inspect access failures.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "proctime",
+          "title": "Process.TotalProcessorTime",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.totalprocessortime?view=net-8.0",
+          "purpose": "Calculate normalized per-process CPU from two observations.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "version",
+          "title": "FileVersionInfo",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.fileversioninfo?view=net-8.0",
+          "purpose": "Inspect actual product/publisher/version metadata; verify signature separately.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "svc",
+          "title": "ServiceController",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.serviceprocess.servicecontroller?view=net-8.0",
+          "purpose": "Enumerate/manage approved services; observe status and dependencies.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "lhm",
+          "title": "LibreHardwareMonitor",
+          "url": "https://github.com/LibreHardwareMonitor/LibreHardwareMonitor",
+          "purpose": "C# sensor provider; review driver signing, privilege, licenses and device accuracy.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Measure identified LCD utilities, thresholds and cooldowns; protect cooling dependencies.",
+      "acceptance": "High-usage fixture triggers notice; pump/fan service always excluded; user approval for reversible changes."
+    },
+    {
+      "number": 55,
+      "menu": "Trust Center",
+      "references": [
+        {
+          "id": "trust",
+          "title": "WinVerifyTrust",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/wintrust/nf-wintrust-winverifytrust",
+          "purpose": "Verify trusted publisher signatures; fail closed.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "signtool",
+          "title": "SignTool",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/signtool",
+          "purpose": "Sign/verify releases using a legitimate certificate.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "uac",
+          "title": "How User Account Control works",
+          "url": "https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/how-it-works",
+          "purpose": "Use on-demand consent; do not bypass UAC.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "dpapi",
+          "title": "ProtectedData",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.protecteddata?view=net-8.0",
+          "purpose": "Protect user-scoped secrets and backups; verify user context.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "sbom",
+          "title": "Microsoft SBOM Tool",
+          "url": "https://github.com/microsoft/sbom-tool",
+          "purpose": "Generate dependency/software inventory and verify release content.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Show signature/publisher, privilege model, integration consent and software inventory.",
+      "acceptance": "Unsigned/tampered fixture never marked trusted; secrets not exposed."
+    },
+    {
+      "number": 56,
+      "menu": "Scheduled Automation",
+      "references": [
+        {
+          "id": "task",
+          "title": "Task Scheduler",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-start-page",
+          "purpose": "Use Task Scheduler 2.0 interfaces for inventory and approved actions.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "timer",
+          "title": "PeriodicTimer",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.periodictimer?view=net-8.0",
+          "purpose": "Schedule cancellable monitoring, serialize sampling.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "cancel",
+          "title": "CancellationToken",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken?view=net-8.0",
+          "purpose": "Pass cancellation through read and mutation phases safely.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "sqlite",
+          "title": "SQLite transaction documentation",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "purpose": "Use durable transactional writes; treat external OS mutations separately.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "uac",
+          "title": "How User Account Control works",
+          "url": "https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/how-it-works",
+          "purpose": "Use on-demand consent; do not bypass UAC.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Implement opt-in scans and approved action schedules, pause/emergency stop, durable state.",
+      "acceptance": "Schedule fixture, suspend/resume and restart; canceled or disabled schedule does not execute."
+    },
+    {
+      "number": 57,
+      "menu": "Task & Rule System",
+      "references": [
+        {
+          "id": "json",
+          "title": "System.Text.Json",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.text.json?view=net-8.0",
+          "purpose": "Typed configuration, profile and evidence serialization.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "timer",
+          "title": "PeriodicTimer",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.periodictimer?view=net-8.0",
+          "purpose": "Schedule cancellable monitoring, serialize sampling.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "cancel",
+          "title": "CancellationToken",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken?view=net-8.0",
+          "purpose": "Pass cancellation through read and mutation phases safely.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "sqlite",
+          "title": "SQLite transaction documentation",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "purpose": "Use durable transactional writes; treat external OS mutations separately.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "mutex",
+          "title": "Mutex",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.mutex?view=net-8.0",
+          "purpose": "Enforce single-instance and coordinate resource writes.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Typed trigger-condition-action rule engine, cooldown, conflict detection and journal.",
+      "acceptance": "Repeated triggers, concurrent conflicts and invalid action IDs are rejected safely."
+    },
+    {
+      "number": 58,
+      "menu": "Backup Snapshot Center",
+      "references": [
+        {
+          "id": "regbackup",
+          "title": "Registry Functions",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-functions",
+          "purpose": "Supported native registry operations; preserve value type/existence.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "taskxml",
+          "title": "Task Scheduler schema",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-schema",
+          "purpose": "Export/import task definitions for supported backup workflows.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "powercfg",
+          "title": "Powercfg command-line options",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/powercfg-command-line-options",
+          "purpose": "Enumerate plans, export reports and documented policy controls.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "sqlitebackup",
+          "title": "SQLite Online Backup API",
+          "url": "https://www.sqlite.org/backup.html",
+          "purpose": "Create consistent SQLite backups; do not blindly copy live DB.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "restore",
+          "title": "System Restore",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/sr/system-restore-portal",
+          "purpose": "Check supported restore point availability; not a substitute for targeted backup.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Store typed registry/services/tasks/power/network snapshots via respective providers; optional restore point.",
+      "acceptance": "Backup integrity and scope checked; restore-point failure shown honestly."
+    },
+    {
+      "number": 59,
+      "menu": "Restore & Rollback",
+      "references": [
+        {
+          "id": "sqlite",
+          "title": "SQLite transaction documentation",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "purpose": "Use durable transactional writes; treat external OS mutations separately.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "regbackup",
+          "title": "Registry Functions",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-functions",
+          "purpose": "Supported native registry operations; preserve value type/existence.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "dpapi",
+          "title": "ProtectedData",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.protecteddata?view=net-8.0",
+          "purpose": "Protect user-scoped secrets and backups; verify user context.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "sha",
+          "title": "SHA256",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.sha256?view=net-8.0",
+          "purpose": "Hash files and evidence; compare byte contents when necessary.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "svcconfig",
+          "title": "ChangeServiceConfigW",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/winsvc/nf-winsvc-changeserviceconfigw",
+          "purpose": "Set approved service startup type; preserve original config.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Use immutable pre-action backups, drift detection and read-back; restore via typed provider.",
+      "acceptance": "Inject partial failure and external drift; retry/restore only applicable changes."
+    },
+    {
+      "number": 60,
+      "menu": "Emergency Recovery",
+      "references": [
+        {
+          "id": "sqlitepragma",
+          "title": "SQLite PRAGMA integrity_check",
+          "url": "https://www.sqlite.org/pragma.html#pragma_integrity_check",
+          "purpose": "Verify database integrity and recover safely.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "sqlitebackup",
+          "title": "SQLite Online Backup API",
+          "url": "https://www.sqlite.org/backup.html",
+          "purpose": "Create consistent SQLite backups; do not blindly copy live DB.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "dpapi",
+          "title": "ProtectedData",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.protecteddata?view=net-8.0",
+          "purpose": "Protect user-scoped secrets and backups; verify user context.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "mutex",
+          "title": "Mutex",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.mutex?view=net-8.0",
+          "purpose": "Enforce single-instance and coordinate resource writes.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "cancel",
+          "title": "CancellationToken",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken?view=net-8.0",
+          "purpose": "Pass cancellation through read and mutation phases safely.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Safe startup, disable automation, recover pending transactions and expose redacted CLI diagnostics.",
+      "acceptance": "Kill app mid-fixture action; restart detects pending state; corrupted backup never applied silently."
+    },
+    {
+      "number": 61,
+      "menu": "Benchmark Center",
+      "references": [
+        {
+          "id": "bench",
+          "title": "BenchmarkDotNet",
+          "url": "https://benchmarkdotnet.org/articles/overview.html",
+          "purpose": "Use warmup, repeated trials and uncertainty; not an FPS tool.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "diskspd",
+          "title": "Microsoft DiskSpd",
+          "url": "https://github.com/microsoft/diskspd",
+          "purpose": "Storage benchmark on disposable test file with bounded workload.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "present",
+          "title": "Intel PresentMon",
+          "url": "https://github.com/GameTechDev/PresentMon",
+          "purpose": "Use non-injection frame timing capture and inspect metric definitions.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "stopwatch",
+          "title": "Stopwatch",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.stopwatch?view=net-8.0",
+          "purpose": "Measure monotonic elapsed times.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "ping",
+          "title": "Ping",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.net.networkinformation.ping?view=net-8.0",
+          "purpose": "Collect ICMP samples; explicitly document loss/jitter methodology.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Use bounded workload and real frame/network samples, repeated trials and clear methods.",
+      "acceptance": "Run reference benchmarks, compare units and raw samples; no fake measurements."
+    },
+    {
+      "number": 62,
+      "menu": "Before / After Report",
+      "references": [
+        {
+          "id": "times",
+          "title": "GetSystemTimes",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getsystemtimes",
+          "purpose": "Calculate CPU utilization from interval deltas.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "mem",
+          "title": "GlobalMemoryStatusEx",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-globalmemorystatusex",
+          "purpose": "Read physical and available memory.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "present",
+          "title": "Intel PresentMon",
+          "url": "https://github.com/GameTechDev/PresentMon",
+          "purpose": "Use non-injection frame timing capture and inspect metric definitions.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "space",
+          "title": "GetDiskFreeSpaceExW",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getdiskfreespaceexw",
+          "purpose": "Measure actual free space and distinguish from quarantine.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "nist",
+          "title": "NIST Engineering Statistics Handbook",
+          "url": "https://www.itl.nist.gov/div898/handbook/",
+          "purpose": "Design controlled experiments and analyze variability.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Pair controlled baseline and post-treatment metrics; compute deltas with direction, variance and metadata.",
+      "acceptance": "Known raw fixture gives accurate paired differences; incomplete baseline flagged."
+    },
+    {
+      "number": 63,
+      "menu": "Research Mode",
+      "references": [
+        {
+          "id": "nist",
+          "title": "NIST Engineering Statistics Handbook",
+          "url": "https://www.itl.nist.gov/div898/handbook/",
+          "purpose": "Design controlled experiments and analyze variability.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "bench",
+          "title": "BenchmarkDotNet",
+          "url": "https://benchmarkdotnet.org/articles/overview.html",
+          "purpose": "Use warmup, repeated trials and uncertainty; not an FPS tool.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "wpr",
+          "title": "Windows Performance Recorder",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/test/wpt/windows-performance-recorder",
+          "purpose": "Collect reproducible boot/workload traces.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "present",
+          "title": "Intel PresentMon",
+          "url": "https://github.com/GameTechDev/PresentMon",
+          "purpose": "Use non-injection frame timing capture and inspect metric definitions.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "csv",
+          "title": "CsvHelper documentation",
+          "url": "https://joshclose.github.io/CsvHelper/",
+          "purpose": "Structured CSV exports with escaping and culture-aware format.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Record independent A/B/C/D configurations, repetitions, hardware fingerprint and raw measurements.",
+      "acceptance": "At least 3 trials per condition supported; incomplete data and physical upgrade requirements explicit."
+    },
+    {
+      "number": 64,
+      "menu": "Reports Center",
+      "references": [
+        {
+          "id": "json",
+          "title": "System.Text.Json",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.text.json?view=net-8.0",
+          "purpose": "Typed configuration, profile and evidence serialization.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "csv",
+          "title": "CsvHelper documentation",
+          "url": "https://joshclose.github.io/CsvHelper/",
+          "purpose": "Structured CSV exports with escaping and culture-aware format.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "html",
+          "title": "HtmlEncoder",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.text.encodings.web.htmlencoder?view=net-8.0",
+          "purpose": "Escape report HTML; avoid script injection.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "msqlite",
+          "title": "Microsoft.Data.Sqlite",
+          "url": "https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/",
+          "purpose": "Use parameterized SQL and supported connection lifecycle.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "loggingguide",
+          "title": "Logging in .NET guide",
+          "url": "https://learn.microsoft.com/en-us/dotnet/core/extensions/logging/overview",
+          "purpose": "Configure categories, redaction and bounded logs.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Typed reports and filters; export JSON/CSV/HTML with redaction and timestamps.",
+      "acceptance": "Open saved report; exports match source metrics, escape content and exclude credentials."
+    },
+    {
+      "number": 65,
+      "menu": "Test Center",
+      "references": [
+        {
+          "id": "testing",
+          "title": ".NET unit testing",
+          "url": "https://learn.microsoft.com/en-us/dotnet/core/testing/",
+          "purpose": "Create real test coverage and distinguish mock from integration.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "xunit",
+          "title": "xUnit.net",
+          "url": "https://github.com/xunit/xunit",
+          "purpose": "Use regression and functional test suites.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "uia",
+          "title": "UI Automation overview",
+          "url": "https://learn.microsoft.com/en-us/dotnet/framework/ui-automation/ui-automation-overview",
+          "purpose": "Automate actionable controls and accessibility checks.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "actions",
+          "title": "GitHub Actions: build and test .NET",
+          "url": "https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net",
+          "purpose": "Build/test on supported Windows runners; archive evidence.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "sqlitepragma",
+          "title": "SQLite PRAGMA integrity_check",
+          "url": "https://www.sqlite.org/pragma.html#pragma_integrity_check",
+          "purpose": "Verify database integrity and recover safely.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Expose safe runtime diagnostics and development test evidence with PASS/FAIL/BLOCKED/NOT RUN.",
+      "acceptance": "Real checks show timestamps; no dangerous tests launched from ordinary production UI."
+    },
+    {
+      "number": 66,
+      "menu": "Application Health",
+      "references": [
+        {
+          "id": "sqlitepragma",
+          "title": "SQLite PRAGMA integrity_check",
+          "url": "https://www.sqlite.org/pragma.html#pragma_integrity_check",
+          "purpose": "Verify database integrity and recover safely.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "pipes",
+          "title": "NamedPipeServerStream",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.io.pipes.namedpipeserverstream?view=net-8.0",
+          "purpose": "Secure least-privilege local IPC; validate identity and requests.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "sha",
+          "title": "SHA256",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.sha256?view=net-8.0",
+          "purpose": "Hash files and evidence; compare byte contents when necessary.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "runtime",
+          "title": "RuntimeInformation",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.runtimeinformation?view=net-8.0",
+          "purpose": "Expose OS/runtime architecture and compatibility.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "loggingguide",
+          "title": "Logging in .NET guide",
+          "url": "https://learn.microsoft.com/en-us/dotnet/core/extensions/logging/overview",
+          "purpose": "Configure categories, redaction and bounded logs.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Check database, worker IPC, dependencies, artifacts and recovery; provide safe repair paths.",
+      "acceptance": "Corrupt test DB or stop test worker; health accurately reports degraded and recovery options."
+    },
+    {
+      "number": 67,
+      "menu": "Plugin Manager",
+      "references": [
+        {
+          "id": "plugin",
+          "title": "Create a .NET application with plugins",
+          "url": "https://learn.microsoft.com/en-us/dotnet/core/tutorials/creating-app-with-plugin-support",
+          "purpose": "Use AssemblyLoadContext for assembly isolation; untrusted code needs process sandbox.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "job",
+          "title": "Job Objects",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects",
+          "purpose": "Contain worker-owned child processes; not a security sandbox by itself.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "trust",
+          "title": "WinVerifyTrust",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/wintrust/nf-wintrust-winverifytrust",
+          "purpose": "Verify trusted publisher signatures; fail closed.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "nuget",
+          "title": "NuGet package auditing",
+          "url": "https://learn.microsoft.com/en-us/nuget/concepts/auditing-packages",
+          "purpose": "Identify vulnerable dependencies, pin versions and record remediation.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "pipeacl",
+          "title": "Named Pipe Security and Access Rights",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/ipc/named-pipe-security-and-access-rights",
+          "purpose": "Limit pipe access to authorized identities.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Validate manifest/signature/permissions; isolate untrusted code in actual restricted process or do not run.",
+      "acceptance": "Unsigned or incompatible plugin rejected; permissions enforced; no claim ALC is sandbox."
+    },
+    {
+      "number": 68,
+      "menu": "Discord Webhook",
+      "references": [
+        {
+          "id": "discord",
+          "title": "Discord webhook resource",
+          "url": "https://docs.discord.com/developers/resources/webhook",
+          "purpose": "Execute webhook with user consent and sanitized payload.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "ratelimit",
+          "title": "Discord rate limits",
+          "url": "https://docs.discord.com/developers/topics/rate-limits",
+          "purpose": "Honor 429 and Retry-After; do not spam.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "http",
+          "title": "HttpClient",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.net.http.httpclient?view=net-8.0",
+          "purpose": "Use reusable clients, timeout, error handling and cancellation.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "dpapi",
+          "title": "ProtectedData",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.protecteddata?view=net-8.0",
+          "purpose": "Protect user-scoped secrets and backups; verify user context.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "loggingguide",
+          "title": "Logging in .NET guide",
+          "url": "https://learn.microsoft.com/en-us/dotnet/core/extensions/logging/overview",
+          "purpose": "Configure categories, redaction and bounded logs.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Implement opt-in redacted delivery, HTTPS endpoint validation, bounded retry and fallback.",
+      "acceptance": "Test mock 2xx/429/5xx and optional real authorized webhook; never log URL token."
+    },
+    {
+      "number": 69,
+      "menu": "License Center",
+      "references": [
+        {
+          "id": "spdx",
+          "title": "SPDX specification",
+          "url": "https://spdx.dev/use/specifications/",
+          "purpose": "Record license identifiers and notices; check redistribution obligations.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "sbom",
+          "title": "Microsoft SBOM Tool",
+          "url": "https://github.com/microsoft/sbom-tool",
+          "purpose": "Generate dependency/software inventory and verify release content.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "dpapi",
+          "title": "ProtectedData",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.protecteddata?view=net-8.0",
+          "purpose": "Protect user-scoped secrets and backups; verify user context.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "assembly",
+          "title": "AssemblyInformationalVersionAttribute",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.reflection.assemblyinformationalversionattribute?view=net-8.0",
+          "purpose": "Expose real build revision and app version.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "json",
+          "title": "System.Text.Json",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.text.json?view=net-8.0",
+          "purpose": "Typed configuration, profile and evidence serialization.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Show free unified edition, real local version and third-party notices; no artificial licensing restrictions.",
+      "acceptance": "Works offline; no secret export, no fabricated license activation."
+    },
+    {
+      "number": 70,
+      "menu": "Update Center",
+      "references": [
+        {
+          "id": "githubrelease",
+          "title": "GitHub REST API releases",
+          "url": "https://docs.github.com/en/rest/releases/releases",
+          "purpose": "Read releases from configured trusted repo; verify signed manifest separately.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "trust",
+          "title": "WinVerifyTrust",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/wintrust/nf-wintrust-winverifytrust",
+          "purpose": "Verify trusted publisher signatures; fail closed.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "signtool",
+          "title": "SignTool",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/signtool",
+          "purpose": "Sign/verify releases using a legitimate certificate.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "nsis",
+          "title": "NSIS documentation",
+          "url": "https://nsis.sourceforge.io/Docs/",
+          "purpose": "Build installer, uninstall and upgrade flows; test in VM.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "attest",
+          "title": "GitHub artifact attestations",
+          "url": "https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds",
+          "purpose": "Establish provenance; verify distribution trust separately.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Discover trusted releases, verify signed manifest/package, stage and rollback safely; no auto install without consent.",
+      "acceptance": "Tampered/unsigned update rejected; interrupted update recovers in VM."
+    },
+    {
+      "number": 71,
+      "menu": "Knowledge Base",
+      "references": [
+        {
+          "id": "docs",
+          "title": "Microsoft Writing Style Guide",
+          "url": "https://learn.microsoft.com/en-us/style-guide/welcome/",
+          "purpose": "Write clear user guidance and explain risk/restore.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "wpfres",
+          "title": "WPF resources overview",
+          "url": "https://learn.microsoft.com/en-us/dotnet/desktop/wpf/systems/xaml-resources-overview",
+          "purpose": "Reuse theme and resource dictionaries.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "json",
+          "title": "System.Text.Json",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.text.json?view=net-8.0",
+          "purpose": "Typed configuration, profile and evidence serialization.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "html",
+          "title": "HtmlEncoder",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.text.encodings.web.htmlencoder?view=net-8.0",
+          "purpose": "Escape report HTML; avoid script injection.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "policy",
+          "title": "Policy CSP",
+          "url": "https://learn.microsoft.com/en-us/windows/client-management/mdm/policy-configuration-service-provider",
+          "purpose": "Inspect documented policy applicability and edition restrictions; avoid bypassing policy.",
+          "verification": "candidate-direct-link"
+        }
+      ],
+      "implementation": "Build versioned searchable guidance based on verified actions, safety and rollback.",
+      "acceptance": "Every article maps to real feature and current version; offline search works."
+    },
+    {
+      "number": 72,
+      "menu": "Settings",
+      "references": [
+        {
+          "id": "wpfres",
+          "title": "WPF resources overview",
+          "url": "https://learn.microsoft.com/en-us/dotnet/desktop/wpf/systems/xaml-resources-overview",
+          "purpose": "Reuse theme and resource dictionaries.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "wpflang",
+          "title": "WPF globalization and localization overview",
+          "url": "https://learn.microsoft.com/en-us/dotnet/desktop/wpf/advanced/wpf-globalization-and-localization-overview",
+          "purpose": "Resource localization and culture-aware formatting.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "powertoys",
+          "title": "Microsoft PowerToys",
+          "url": "https://github.com/microsoft/PowerToys",
+          "purpose": "Study native Windows utility configuration, UI and lifecycle patterns; review individual module licenses and dependencies.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "dpapi",
+          "title": "ProtectedData",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.protecteddata?view=net-8.0",
+          "purpose": "Protect user-scoped secrets and backups; verify user context.",
+          "verification": "web-confirmed"
+        },
+        {
+          "id": "json",
+          "title": "System.Text.Json",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.text.json?view=net-8.0",
+          "purpose": "Typed configuration, profile and evidence serialization.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Implement tested themes/languages, monitoring/consent, persistent settings and safe import/export.",
+      "acceptance": "Switch all supported languages/themes; restart persists and corrupt config recovers safely."
+    },
+    {
+      "number": 73,
+      "menu": "About HyperBoostX",
+      "references": [
+        {
+          "id": "assembly",
+          "title": "AssemblyInformationalVersionAttribute",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.reflection.assemblyinformationalversionattribute?view=net-8.0",
+          "purpose": "Expose real build revision and app version.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "version",
+          "title": "FileVersionInfo",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.fileversioninfo?view=net-8.0",
+          "purpose": "Inspect actual product/publisher/version metadata; verify signature separately.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "runtime",
+          "title": "RuntimeInformation",
+          "url": "https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.runtimeinformation?view=net-8.0",
+          "purpose": "Expose OS/runtime architecture and compatibility.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "spdx",
+          "title": "SPDX specification",
+          "url": "https://spdx.dev/use/specifications/",
+          "purpose": "Record license identifiers and notices; check redistribution obligations.",
+          "verification": "candidate-direct-link"
+        },
+        {
+          "id": "sbom",
+          "title": "Microsoft SBOM Tool",
+          "url": "https://github.com/microsoft/sbom-tool",
+          "purpose": "Generate dependency/software inventory and verify release content.",
+          "verification": "web-confirmed"
+        }
+      ],
+      "implementation": "Show actual build SHA/version, runtime, credit and third-party notices; no false stable badge.",
+      "acceptance": "Compare executable metadata with About page and release manifest."
+    }
+  ]
+}
