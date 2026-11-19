@@ -1,0 +1,125 @@
+name: V3 migration and Windows development build
+on:
+  push:
+    branches: [v3-development]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: v3-development-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  migration:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[bootstrap-v3]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      revision: ${{ steps.transfer.outputs.revision }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+      - name: Import exact V3 snapshot
+        id: transfer
+        shell: bash
+        env:
+          SOURCE_SHA: 2ab5b4bf3a7049b898c64e322339e8398a3bcca7
+          SOURCE_TREE: c588ff17fa643a4a47afd1f495bd68ffdd738640
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/v3-development
+          git fetch --no-tags --depth=1 https://github.com/NEXORAID-ID/hyperboostx-v3.git "$SOURCE_SHA"
+          test "$(git rev-parse FETCH_HEAD)" = "$SOURCE_SHA"
+          test "$(git rev-parse FETCH_HEAD^{tree})" = "$SOURCE_TREE"
+          cp .github/workflows/v3-development.yml "$RUNNER_TEMP/v3-development.yml"
+          git read-tree --reset -u "$SOURCE_SHA"
+          mkdir -p .github/workflows
+          cp "$RUNNER_TEMP/v3-development.yml" .github/workflows/v3-development.yml
+          git add -- .github/workflows/v3-development.yml
+          git diff --cached --exit-code "$SOURCE_SHA" -- . ':!.github/workflows/v3-development.yml'
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Import exact HyperBoostX V3 source at $SOURCE_SHA"
+          git push origin HEAD:refs/heads/v3-development
+          echo "revision=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+  windows-build:
+    needs: migration
+    if: always() && (needs.migration.result == 'success' || needs.migration.result == 'skipped')
+    runs-on: windows-2022
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.migration.outputs.revision || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Restore locked dependencies
+        run: dotnet restore HyperBoostX.sln --locked-mode
+      - name: Build
+        run: dotnet build HyperBoostX.sln -c Release --no-restore --nologo
+      - name: Install NSIS if needed
+        shell: powershell
+        run: |
+          if (!(Test-Path 'C:\Program Files (x86)\NSIS\makensis.exe')) {
+            choco install nsis -y --no-progress
+            if ($LASTEXITCODE -ne 0) { throw 'NSIS install failed.' }
+          }
+      - name: Test and package unsigned development build
+        shell: powershell
+        run: ./scripts/package.ps1
+      - name: Verify package hashes
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $names = @('HyperBoostX-v3-Setup-x64.exe','HyperBoostX-v3-Portable-x64.zip')
+          $lines = @(Get-Content -LiteralPath dist/SHA256SUMS.txt)
+          if ($lines.Count -ne $names.Count) { throw 'Checksum count mismatch.' }
+          foreach ($name in $names) {
+            $entry = @($lines | Where-Object { $_ -match ('^[a-fA-F0-9]{64}  ' + [regex]::Escape($name) + '$') })
+            if ($entry.Count -ne 1) { throw "Missing checksum: $name" }
+            if ((Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path dist $name)).Hash -ne $entry[0].Split(' ')[0]) { throw "Checksum mismatch: $name" }
+          }
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip = [IO.Compression.ZipFile]::OpenRead((Resolve-Path 'dist/HyperBoostX-v3-Portable-x64.zip').Path)
+          try {
+            foreach ($entry in @('HyperBoostX.exe','hbx.exe','HyperBoostX.Worker.exe','RELEASE_STATUS.md')) {
+              if (!($zip.Entries.FullName -contains $entry)) { throw "Missing portable entry: $entry" }
+            }
+          } finally { $zip.Dispose() }
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-test-evidence
+          path: artifacts/test-results/
+          if-no-files-found: warn
+      - name: Upload unsigned development packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: UNSIGNED-DEVELOPMENT-NOT-STABLE
+          path: |
+            dist/HyperBoostX-v3-Setup-x64.exe
+            dist/HyperBoostX-v3-Portable-x64.zip
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 14
+  stable-gate:
+    needs: migration
+    if: always() && (needs.migration.result == 'success' || needs.migration.result == 'skipped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.migration.outputs.revision || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify Stable requirement gate
+        run: python scripts/validate_stable_gate.py
