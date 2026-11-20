@@ -507,3 +507,10 @@ This is a source-level and Windows Server CI qualification for the specific feat
 
 - CI run 44549073685 compiled successfully; 310/311 tests passed. The one failing shell test requires the Smart Memory Guard route to identify system commit usage explicitly. Restored that wording without weakening the test or changing the pressure logic. Fresh Windows CI required before qualification. Prior run 44548013551 passed 305/305 tests. Stable gate still reports 3,924 mandatory requirements outstanding; unchanged.
 - Next checkpoint: confirm Windows build/test/package/lifecycle success, then continue privileged worker and action recovery implementation. No release published.
+
+
+## Privileged IPC lifecycle serialization (2026-11-20)
+
+- Reviewed CI 44557099512 at c9eaad3: 311/311 tests passed, zero compiler errors/warnings; Stable gate rejected 3,924 mandatory requirements. Archived V3 client has the same concurrent disposal race.
+- Atomically close admission before shutdown; serialize shutdown and secret/pipe/process cleanup with active authenticated exchanges; recheck closure after acquiring the request lock; concurrent disposers await the same completion. Keep the lightweight semaphore alive for queued callers rather than disposing it under them. Existing request deadlines and authentication are unchanged.
+- Added real non-elevated worker regression for in-flight health, concurrent disposal and post-close rejection. Fresh Windows CI pending; no requirement promoted. Reference: https://learn.microsoft.com/en-us/dotnet/api/system.threading.semaphoreslim.dispose (Dispose requires other operations to be complete). Next: review CI, then queued request and privileged recovery qualification. Elevated Windows 10/11 VM and signing evidence remain open.

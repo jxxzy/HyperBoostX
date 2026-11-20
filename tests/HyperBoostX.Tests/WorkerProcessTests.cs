@@ -73,6 +73,20 @@ public sealed class WorkerProcessTests
         Assert.False(denied.Success);Assert.Equal("HBX-IPC-PAYLOAD",denied.Code);
     }
 
+    [Fact]public async Task ConcurrentDisposeDrainsInFlightExchangeAndRejectsNewRequests()
+    {
+        if(!OperatingSystem.IsWindows())return;
+        await using var client=await PrivilegedWorkerClient.StartAsync(FindWorker(),false,default);
+        var inFlight=client.SendAsync("worker.health","","{}",default);
+        var first=client.DisposeAsync().AsTask();
+        var second=client.DisposeAsync().AsTask();
+        await Assert.ThrowsAsync<ObjectDisposedException>(()=>client.SendAsync("worker.health","","{}",default));
+        Assert.True((await inFlight.WaitAsync(TimeSpan.FromSeconds(20))).Success);
+        await Task.WhenAll(first,second).WaitAsync(TimeSpan.FromSeconds(25));
+        await client.DisposeAsync();
+        await Assert.ThrowsAsync<ObjectDisposedException>(()=>client.SendAsync("worker.health","","{}",default));
+    }
+
     [Fact]public async Task CancelledBeforeSendDoesNotPoisonWorkerConnection()
     {
         if(!OperatingSystem.IsWindows())return;

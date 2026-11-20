@@ -16,7 +16,8 @@ public sealed class PrivilegedWorkerClient:IAsyncDisposable
     private readonly int _sessionId;
     private readonly string _userSid;
     private readonly SemaphoreSlim _requestLock=new(1,1);
-    private bool _disposed;
+    private int _closing;
+    private readonly TaskCompletionSource<bool> _closed=new(TaskCreationOptions.RunContinuationsAsynchronously);
     private bool _faulted;
     private static readonly TimeSpan RequestTimeout=TimeSpan.FromSeconds(15);
 
@@ -62,11 +63,20 @@ public sealed class PrivilegedWorkerClient:IAsyncDisposable
 
     public async Task<PrivilegedResponseEnvelope> SendAsync(string actionId,string target,string body,CancellationToken token)
     {
-        ObjectDisposedException.ThrowIf(_disposed,this);
+        ObjectDisposedException.ThrowIf(Volatile.Read(ref _closing)!=0,this);
         if(string.IsNullOrWhiteSpace(actionId))throw new ArgumentException("Action ID is required.",nameof(actionId));
         await _requestLock.WaitAsync(token);
         try
         {
+            ObjectDisposedException.ThrowIf(Volatile.Read(ref _closing)!=0,this);
+            return await ExchangeAsync(actionId,target,body,token);
+        }
+        finally{_requestLock.Release();}
+    }
+
+    // Caller owns the request lock for the entire authenticated exchange.
+    private async Task<PrivilegedResponseEnvelope> ExchangeAsync(string actionId,string target,string body,CancellationToken token)
+    {
             if(_faulted)throw new HbxException("HBX-WORKER-FAULTED: IPC exchange failed; start a new worker.");
             if(_process.HasExited)throw new HbxException($"HBX-WORKER-EXIT: Worker exited with code {_process.ExitCode}.");
             var request=new PrivilegedRequestEnvelope(PrivilegedRequestValidator.ProtocolVersion,Guid.NewGuid().ToString("D"),actionId,target,body,Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)),DateTimeOffset.UtcNow.ToUnixTimeSeconds(),_sessionId,_userSid,"");
@@ -89,8 +99,6 @@ public sealed class PrivilegedWorkerClient:IAsyncDisposable
                 _pipe.Dispose();
                 throw;
             }
-        }
-        finally{_requestLock.Release();}
     }
 
     public Task<PrivilegedResponseEnvelope> PreviewActionAsync(string actionId,string target,CancellationToken token)=>
@@ -104,19 +112,39 @@ public sealed class PrivilegedWorkerClient:IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        if(_disposed)return;
+        if(Interlocked.Exchange(ref _closing,1)!=0)
+        {
+            await _closed.Task;
+            return;
+        }
         try
         {
-            if(!_faulted&&_pipe.IsConnected&&!_process.HasExited)
+            // Let already-started exchanges finish under their existing timeout.
+            // Queued callers recheck closing after acquiring the lock.
+            await _requestLock.WaitAsync();
+            try
             {
-                using var timeout=new CancellationTokenSource(TimeSpan.FromSeconds(3));
-                try{await SendAsync("worker.shutdown","","{}",timeout.Token);await _process.WaitForExitAsync(timeout.Token);}catch{}
+                if(!_faulted&&_pipe.IsConnected&&!_process.HasExited)
+                {
+                    using var timeout=new CancellationTokenSource(TimeSpan.FromSeconds(3));
+                    try{await ExchangeAsync("worker.shutdown","","{}",timeout.Token);await _process.WaitForExitAsync(timeout.Token);}catch{}
+                }
+                if(!_process.HasExited)try{_process.Kill(true);}catch{}
             }
-            if(!_process.HasExited)try{_process.Kill(true);}catch{}
+            finally
+            {
+                CryptographicOperations.ZeroMemory(_sessionKey);
+                try{_pipe.Dispose();}finally{_process.Dispose();}
+                // Do not dispose the semaphore: pre-close callers may still be
+                // queued and must be allowed to observe closing safely.
+                _requestLock.Release();
+            }
+            _closed.TrySetResult(true);
         }
-        finally
+        catch(Exception exception)
         {
-            _disposed=true;CryptographicOperations.ZeroMemory(_sessionKey);_pipe.Dispose();_process.Dispose();_requestLock.Dispose();
+            _closed.TrySetException(exception);
+            throw;
         }
     }
 }
