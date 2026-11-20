@@ -16,6 +16,9 @@ public sealed class PrivilegedWorkerClient:IAsyncDisposable
     private readonly int _sessionId;
     private readonly string _userSid;
     private readonly SemaphoreSlim _requestLock=new(1,1);
+    // Count both the active exchange and queued callers; overload must never grow an unbounded queue.
+    public const int MaximumPendingRequests=16;
+    private readonly SemaphoreSlim _admission=new(MaximumPendingRequests,MaximumPendingRequests);
     private int _closing;
     private readonly TaskCompletionSource<bool> _closed=new(TaskCreationOptions.RunContinuationsAsynchronously);
     private bool _faulted;
@@ -65,13 +68,23 @@ public sealed class PrivilegedWorkerClient:IAsyncDisposable
     {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _closing)!=0,this);
         if(string.IsNullOrWhiteSpace(actionId))throw new ArgumentException("Action ID is required.",nameof(actionId));
-        await _requestLock.WaitAsync(token);
+        token.ThrowIfCancellationRequested();
+        if(!_admission.Wait(0))
+            throw new HbxException("HBX-WORKER-BUSY: IPC request queue is full. Review the current operation before retrying.");
         try
         {
             ObjectDisposedException.ThrowIf(Volatile.Read(ref _closing)!=0,this);
-            return await ExchangeAsync(actionId,target,body,token);
+            if(!await _requestLock.WaitAsync(RequestTimeout,token))
+                throw new HbxException("HBX-WORKER-QUEUE-TIMEOUT: No request was sent. Review the current operation before retrying.");
+            try
+            {
+                ObjectDisposedException.ThrowIf(Volatile.Read(ref _closing)!=0,this);
+                token.ThrowIfCancellationRequested();
+                return await ExchangeAsync(actionId,target,body,token);
+            }
+            finally{_requestLock.Release();}
         }
-        finally{_requestLock.Release();}
+        finally{_admission.Release();}
     }
 
     // Caller owns the request lock for the entire authenticated exchange.

@@ -87,6 +87,27 @@ public sealed class WorkerProcessTests
         await Assert.ThrowsAsync<ObjectDisposedException>(()=>client.SendAsync("worker.health","","{}",default));
     }
 
+    [Fact]public async Task ConcurrentHealthBurstStaysBoundedAndDoesNotPoisonConnection()
+    {
+        if(!OperatingSystem.IsWindows())return;
+        await using var client=await PrivilegedWorkerClient.StartAsync(FindWorker(),false,default);
+        async Task<string> Health()
+        {
+            try
+            {
+                var response=await client.SendAsync("worker.health","","{}",default);
+                Assert.True(response.Success,response.Message);return "success";
+            }
+            catch(HbxException error) when(error.Message.StartsWith("HBX-WORKER-BUSY:",StringComparison.Ordinal))
+            {return "busy";}
+        }
+        var requests=Enumerable.Range(0,PrivilegedWorkerClient.MaximumPendingRequests*4).Select(_=>Health()).ToArray();
+        var results=await Task.WhenAll(requests).WaitAsync(TimeSpan.FromSeconds(35));
+        Assert.Contains("success",results);
+        Assert.All(results,result=>Assert.Contains(result,new[]{"success","busy"}));
+        Assert.True((await client.SendAsync("worker.health","","{}",default)).Success);
+    }
+
     [Fact]public async Task CancelledBeforeSendDoesNotPoisonWorkerConnection()
     {
         if(!OperatingSystem.IsWindows())return;
