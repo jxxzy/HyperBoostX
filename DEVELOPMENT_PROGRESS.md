@@ -520,3 +520,9 @@ This is a source-level and Windows Server CI qualification for the specific feat
 
 - Verified CI 44723912074 at 8ac798b: 312/312 tests, zero compiler warnings/errors, all five installer lifecycle cases, 488 payload hashes; Stable gate still rejects 3,924 mandatory requirements.
 - Added a fail-fast 16-request admission bound (including the active exchange) and a 15-second queue deadline before any request bytes are sent. Cancellation, overload and queue expiry release admission slots without poisoning the transport; existing authenticated exchange deadline and serialized shutdown remain unchanged. Added a non-elevated real-worker concurrent health burst regression. It checks successful or explicitly refused health requests and subsequent connection usability; deterministic timeout saturation and elevated Windows desktop qualification remain open. Fresh CI pending. No requirement promotion, release or safety bypass.
+
+
+## Deterministic IPC saturation regression (2026-11-21)
+
+- Independently reviewed Windows CI 44777652083 for 6e523f4: 313/313 unit tests, 0 compiler warnings/errors, five installer lifecycle checks and 488 payload hashes passed. Stable gate correctly rejected 3,924 mandatory requirements.
+- Added a real-worker regression that holds the client exchange lock under test control, reserves all 16 admission slots, verifies that the 17th request fails explicitly without entering the pipe, cancels all queued requests, and confirms the worker remains healthy after releasing the lock. This supplements the prior nondeterministic health burst. No privileged system mutations. Fresh Windows CI pending, no requirements promoted. Next: queue-expiry verification and action/recovery integration on disposable Windows VMs.

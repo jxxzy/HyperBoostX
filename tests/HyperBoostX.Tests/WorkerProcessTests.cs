@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text.Json;
@@ -105,6 +106,37 @@ public sealed class WorkerProcessTests
         var results=await Task.WhenAll(requests).WaitAsync(TimeSpan.FromSeconds(35));
         Assert.Contains("success",results);
         Assert.All(results,result=>Assert.Contains(result,new[]{"success","busy"}));
+        Assert.True((await client.SendAsync("worker.health","","{}",default)).Success);
+    }
+
+    [Fact]public async Task SaturatedWorkerQueueRejectsOverloadAndRecoversAfterCancellation()
+    {
+        if(!OperatingSystem.IsWindows())return;
+        await using var client=await PrivilegedWorkerClient.StartAsync(FindWorker(),false,default);
+        var field=typeof(PrivilegedWorkerClient).GetField("_requestLock",BindingFlags.Instance|BindingFlags.NonPublic);
+        var gate=Assert.IsType<SemaphoreSlim>(field?.GetValue(client));
+        await gate.WaitAsync();
+        var cancellation=new CancellationTokenSource();
+        Task<PrivilegedResponseEnvelope>[] queued=Array.Empty<Task<PrivilegedResponseEnvelope>>();
+        try
+        {
+            queued=Enumerable.Range(0,PrivilegedWorkerClient.MaximumPendingRequests)
+                .Select(_=>client.SendAsync("worker.health","","{}",cancellation.Token)).ToArray();
+            // Each queued call must have reserved admission without writing to the pipe.
+            Assert.All(queued,request=>Assert.False(request.IsCompleted));
+            var rejected=await Assert.ThrowsAsync<HbxException>(
+                ()=>client.SendAsync("worker.health","","{}",default));
+            Assert.StartsWith("HBX-WORKER-BUSY:",rejected.Message,StringComparison.Ordinal);
+            cancellation.Cancel();
+            foreach(var request in queued)
+                await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>request);
+        }
+        finally
+        {
+            cancellation.Cancel();
+            gate.Release();
+            cancellation.Dispose();
+        }
         Assert.True((await client.SendAsync("worker.health","","{}",default)).Success);
     }
 
