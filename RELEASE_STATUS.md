@@ -199,3 +199,9 @@ Installer lifecycle CI at 09cace4 passed 279/279 tests and five lifecycle checks
 
 - Independently reviewed Windows CI 44777652083 for 6e523f4: 313/313 unit tests, 0 compiler warnings/errors, five installer lifecycle checks and 488 payload hashes passed. Stable gate correctly rejected 3,924 mandatory requirements.
 - Added a real-worker regression that holds the client exchange lock under test control, reserves all 16 admission slots, verifies that the 17th request fails explicitly without entering the pipe, cancels all queued requests, and confirms the worker remains healthy after releasing the lock. This supplements the prior nondeterministic health burst. No privileged system mutations. Fresh Windows CI pending, no requirements promoted. Next: queue-expiry verification and action/recovery integration on disposable Windows VMs.
+
+
+## IPC queue-expiry recovery regression (2026-11-21)
+
+- Reviewed main CI 44820988688 at 9755fe4: Windows build succeeded with 314/314 tests, zero compiler warnings/errors; Stable gate rejected 3,924 mandatory requirements. This qualifies the previous deterministic saturation test, not the change below.
+- Added a real-worker queue-expiry regression that deliberately holds the exchange lock, lets the 15-second bounded wait expire without cancelling the token, asserts the explicit HBX-WORKER-QUEUE-TIMEOUT error and verifies subsequent authenticated worker health after releasing the lock. No privileged mutations or transport frame injection. Fresh Windows CI pending; do not promote requirements on unrun evidence. Remaining: elevated Windows 10/11 qualification, rollback/recovery, signing and mandatory parity.

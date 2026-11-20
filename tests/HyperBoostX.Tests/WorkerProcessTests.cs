@@ -140,6 +140,30 @@ public sealed class WorkerProcessTests
         Assert.True((await client.SendAsync("worker.health","","{}",default)).Success);
     }
 
+    [Fact]public async Task QueuedRequestTimesOutWithoutPoisoningWorkerConnection()
+    {
+        if(!OperatingSystem.IsWindows())return;
+        await using var client=await PrivilegedWorkerClient.StartAsync(FindWorker(),false,default);
+        var field=typeof(PrivilegedWorkerClient).GetField("_requestLock",BindingFlags.Instance|BindingFlags.NonPublic);
+        var gate=Assert.IsType<SemaphoreSlim>(field?.GetValue(client));
+        await gate.WaitAsync();
+        try
+        {
+            // Real queue deadline, not a cancelled token or a fabricated response.
+            var clock=Stopwatch.StartNew();
+            var failure=await Assert.ThrowsAsync<HbxException>(
+                ()=>client.SendAsync("worker.health","","{}",default))
+                .WaitAsync(TimeSpan.FromSeconds(25));
+            clock.Stop();
+            Assert.StartsWith("HBX-WORKER-QUEUE-TIMEOUT:",failure.Message,StringComparison.Ordinal);
+            Assert.True(clock.Elapsed>=TimeSpan.FromSeconds(12));
+            Assert.True(clock.Elapsed<TimeSpan.FromSeconds(25));
+        }
+        finally{gate.Release();}
+        // The timed-out request must never send a partial frame or fault the pipe.
+        Assert.True((await client.SendAsync("worker.health","","{}",default)).Success);
+    }
+
     [Fact]public async Task CancelledBeforeSendDoesNotPoisonWorkerConnection()
     {
         if(!OperatingSystem.IsWindows())return;
