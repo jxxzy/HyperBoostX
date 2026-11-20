@@ -72,7 +72,23 @@ public sealed class ActionEngine
                 var actual=await action.ReadAsync(c.Target,CancellationToken.None);
                 if(actual==c.Desired)
                 {
-                    await action.WriteAsync(c.Target,c.Before,CancellationToken.None);
+                    // A restore provider may throw after successfully writing the original state.
+                    // Always read back before deciding recovery failed; never blindly retry a write.
+                    try { await action.WriteAsync(c.Target,c.Before,CancellationToken.None); }
+                    catch(Exception restoreWriteError)
+                    {
+                        try
+                        {
+                            actual=await action.ReadAsync(c.Target,CancellationToken.None);
+                            if(actual!=c.Before&&!action.IsRestoreSatisfied(actual,c.Before))
+                                throw new AggregateException("Restore write failed and original state was not verified.",restoreWriteError);
+                        }
+                        catch(HbxException){throw;}
+                        catch(Exception readError)
+                        {
+                            throw new AggregateException("Restore write and verification failed.",restoreWriteError,readError);
+                        }
+                    }
                     actual=await action.ReadAsync(c.Target,CancellationToken.None);
                 }
                 var cancelled=e is OperationCanceledException;

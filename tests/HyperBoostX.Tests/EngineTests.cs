@@ -171,6 +171,31 @@ public sealed class EngineTests:IDisposable
         _action.ThrowAfterApply=true;var e=Engine();var p=await e.PreviewAsync("test","",default);
         var c=await e.ApplyAsync(p.Token,true,null,default);Assert.Equal("FailedRestored",c.Status);Assert.Equal("0",_action.State.Value);
     }
+    [Fact]public async Task RestoreWriteExceptionAfterOriginalStateStillVerifiesCompensation()
+    {
+        _action.ThrowAfterApply=true;
+        _action.ThrowAfterRestore=true;
+        var engine=Engine();var preview=await engine.PreviewAsync("test","",default);
+        var change=await engine.ApplyAsync(preview.Token,true,null,default);
+        Assert.Equal("FailedRestored",change.Status);
+        Assert.Equal("0",change.Observed?.Value);
+        Assert.False(change.NeedsRecovery);
+        Assert.Equal("0",_action.State.Value);
+        Assert.Equal(change.Status,Store.Find(change.Id).Status);
+        Assert.Equal(2,_action.Writes);
+    }
+    [Fact]public async Task FailedCompensationThatDidNotRestoreRemainsRecoveryRequired()
+    {
+        _action.ThrowAfterApply=true;
+        _action.IgnoreRestore=true;
+        _action.ThrowAfterRestore=true;
+        var engine=Engine();var preview=await engine.PreviewAsync("test","",default);
+        var change=await engine.ApplyAsync(preview.Token,true,null,default);
+        Assert.Equal("RecoveryRequired",change.Status);
+        Assert.True(change.NeedsRecovery);
+        Assert.Equal("1",_action.State.Value);
+        Assert.Equal(change.Status,Store.Find(change.Id).Status);
+    }
     [Fact]public async Task CancellationDuringApplyRestoresDurablyAndPropagates()
     {
         using var cts=new CancellationTokenSource();_action.CancelSource=cts;_action.CancelAfterWriteValue="1";
@@ -353,7 +378,7 @@ public sealed class EngineTests:IDisposable
     private sealed class TestProtector:IStateProtector{public byte[] Protect(byte[] b)=>b;public byte[] Unprotect(byte[] b)=>b;}
     private sealed class FakeAction(string id="test"):ISystemAction
     {
-        public State State=new(true,"Int","0");public int Writes;public bool IgnoreWrite;public bool ThrowAfterApply;
+        public State State=new(true,"Int","0");public int Writes;public bool IgnoreWrite;public bool ThrowAfterApply;public bool ThrowAfterRestore;public bool IgnoreRestore;
         public CancellationTokenSource? CancelSource;public string? CancelAfterWriteValue;public Action? OnRead;
         public ActionInfo Info=>new(id,"Test","Test","Test","Test","Low","None","Test");
         public void Validate(string target){if(target!="")throw new HbxException("invalid target");}
@@ -361,9 +386,10 @@ public sealed class EngineTests:IDisposable
         public State Desired(string target,State before)=>new(true,"Int","1");
         public Task WriteAsync(string target,State state,CancellationToken token)
         {
-            token.ThrowIfCancellationRequested();Writes++;if(!IgnoreWrite)State=state;
+            token.ThrowIfCancellationRequested();Writes++;if(!IgnoreWrite&&!(IgnoreRestore&&state.Value=="0"))State=state;
             if(CancelAfterWriteValue==state.Value){CancelSource?.Cancel();token.ThrowIfCancellationRequested();}
             if(ThrowAfterApply&&state.Value=="1")throw new IOException("Injected failure after OS write");
+            if(ThrowAfterRestore&&state.Value=="0")throw new IOException("Injected failure after restore write");
             return Task.CompletedTask;
         }
     }

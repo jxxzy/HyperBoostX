@@ -205,3 +205,9 @@ Installer lifecycle CI at 09cace4 passed 279/279 tests and five lifecycle checks
 
 - Reviewed main CI 44820988688 at 9755fe4: Windows build succeeded with 314/314 tests, zero compiler warnings/errors; Stable gate rejected 3,924 mandatory requirements. This qualifies the previous deterministic saturation test, not the change below.
 - Added a real-worker queue-expiry regression that deliberately holds the exchange lock, lets the 15-second bounded wait expire without cancelling the token, asserts the explicit HBX-WORKER-QUEUE-TIMEOUT error and verifies subsequent authenticated worker health after releasing the lock. No privileged mutations or transport frame injection. Fresh Windows CI pending; do not promote requirements on unrun evidence. Remaining: elevated Windows 10/11 qualification, rollback/recovery, signing and mandatory parity.
+
+
+## Action compensation read-back hardening (2026-11-21)
+
+- Reviewed Windows CI 44835021888 at 6cc3a85: 315/315 unit tests passed, zero compiler warnings/errors, five installer lifecycle checks passed, 488 payload hashes matched; Stable gate still rejects 3,924 mandatory requirements.
+- Fixed an action recovery gap: when compensating a failed apply, a provider can write the original state and then throw. The engine now independently reads the actual state after that exception and records FailedRestored/CancelledRestored only when the original state or action-specific terminal state is observed. If compensation did not restore or read-back fails, it remains RecoveryRequired; no blind retry. Added fixture regressions for post-restore exceptions and genuinely failed compensation. Fresh CI pending, no requirement promoted. Next: real Windows 10/11 elevated recovery and signing qualification.
