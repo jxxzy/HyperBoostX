@@ -81,6 +81,29 @@ public sealed class EngineTests:IDisposable
         Assert.Equal(0,_action.Writes);
         Assert.Empty(Store.History());
     }
+    [Fact]public async Task PreviewRejectsRestrictionIntroducedDuringProviderRead()
+    {
+        string? block=null;
+        var engine=new ActionEngine([_action],Store,new SafetyGuard(()=>block),"test-owner");
+        _action.OnRead=()=>block="Managed device restriction during inspection";
+        await Assert.ThrowsAsync<HbxException>(()=>engine.PreviewAsync("test","",default));
+        Assert.Equal(0,_action.Writes);
+        Assert.Empty(Store.History());
+        _action.OnRead=null;block=null;
+        // The failed preview did not issue a token or prevent a later safe preview.
+        Assert.NotNull(await engine.PreviewAsync("test","",default));
+    }
+    [Fact]public async Task PreviewCancelledDuringProviderReadDoesNotIssueAnAction()
+    {
+        using var cts=new CancellationTokenSource();
+        var engine=Engine();
+        _action.OnRead=()=>cts.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>engine.PreviewAsync("test","",cts.Token));
+        Assert.Equal(0,_action.Writes);
+        Assert.Empty(Store.History());
+        _action.OnRead=null;
+        Assert.NotNull(await engine.PreviewAsync("test","",default));
+    }
     [Fact]public async Task SafeBoostVerifiesBothActionsInOneRecoverableSession()
     {
         var a=new FakeAction("windows.visual.transparency.disable");var b=new FakeAction("gaming.capture.disable");
