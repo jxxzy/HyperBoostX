@@ -45,10 +45,13 @@ public sealed class PrivilegedWorkerClient:IAsyncDisposable
         Process process;
         try{process=Process.Start(start)??throw new HbxException("HBX-WORKER-START: Worker process did not start.");}
         catch(Win32Exception exception) when(exception.NativeErrorCode==1223){throw new HbxException("HBX-WORKER-UAC-CANCELLED: Administrator consent was cancelled.");}
-        var pipe=new NamedPipeClientStream(".",pipeName,PipeDirection.InOut,PipeOptions.Asynchronous,TokenImpersonationLevel.Impersonation);
+        NamedPipeClientStream? pipe=null;
         byte[]? sessionKey=null;
         try
         {
+            // Pipe construction belongs inside the cleanup boundary: failure after
+            // spawning an elevated worker must not orphan that worker.
+            pipe=new NamedPipeClientStream(".",pipeName,PipeDirection.InOut,PipeOptions.Asynchronous,TokenImpersonationLevel.Impersonation);
             using var timeout=CancellationTokenSource.CreateLinkedTokenSource(token);timeout.CancelAfter(TimeSpan.FromSeconds(30));
             var connect=pipe.ConnectAsync(timeout.Token);var exited=process.WaitForExitAsync(timeout.Token);
             var first=await Task.WhenAny(connect,exited);
@@ -58,7 +61,7 @@ public sealed class PrivilegedWorkerClient:IAsyncDisposable
         }
         catch
         {
-            if(sessionKey is not null)CryptographicOperations.ZeroMemory(sessionKey);pipe.Dispose();
+            if(sessionKey is not null)CryptographicOperations.ZeroMemory(sessionKey);pipe?.Dispose();
             if(!process.HasExited)try{process.Kill(true);}catch{}
             process.Dispose();throw;
         }

@@ -538,3 +538,9 @@ This is a source-level and Windows Server CI qualification for the specific feat
 
 - Reviewed Windows CI 44835021888 at 6cc3a85: 315/315 unit tests passed, zero compiler warnings/errors, five installer lifecycle checks passed, 488 payload hashes matched; Stable gate still rejects 3,924 mandatory requirements.
 - Fixed an action recovery gap: when compensating a failed apply, a provider can write the original state and then throw. The engine now independently reads the actual state after that exception and records FailedRestored/CancelledRestored only when the original state or action-specific terminal state is observed. If compensation did not restore or read-back fails, it remains RecoveryRequired; no blind retry. Added fixture regressions for post-restore exceptions and genuinely failed compensation. Fresh CI pending, no requirement promoted. Next: real Windows 10/11 elevated recovery and signing qualification.
+
+
+## Worker startup resource ownership (2026-11-21)
+
+- Reviewed Windows CI 44837801506 at aed6e62: Windows build succeeded, 317/317 tests passed, zero compiler warnings/errors, five installer lifecycle checks and 488 payload hashes passed. Stable gate still rejects 3,924 mandatory requirements.
+- Fixed an orphan-worker edge case: named-pipe construction is now inside the existing worker-start failure cleanup boundary. If pipe allocation fails after process creation, the worker process is terminated and disposed rather than left running. Existing UAC cancellation handling, authenticated bootstrap and timeouts are unchanged. No privileged host mutations; fresh Windows CI pending. Elevated Windows 10/11 VM, signing and full recovery qualification remain open.
