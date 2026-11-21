@@ -35,6 +35,8 @@ public sealed class PrivilegedWorkerClient:IAsyncDisposable
     public static async Task<PrivilegedWorkerClient> StartAsync(string workerPath,bool requestElevation,CancellationToken token)
     {
         if(!OperatingSystem.IsWindows())throw new PlatformNotSupportedException("HyperBoostX Worker requires Windows.");
+        // Cancellation must not spawn a worker or trigger a UAC prompt.
+        token.ThrowIfCancellationRequested();
         var fullPath=Path.GetFullPath(workerPath??"");
         if(!File.Exists(fullPath)||!string.Equals(Path.GetFileName(fullPath),"HyperBoostX.Worker.exe",StringComparison.OrdinalIgnoreCase))
             throw new HbxException("HBX-WORKER-PATH: The packaged worker executable is missing or invalid.");
@@ -45,12 +47,14 @@ public sealed class PrivilegedWorkerClient:IAsyncDisposable
         start.ArgumentList.Add("--pipe");start.ArgumentList.Add(pipeName);start.ArgumentList.Add("--client-pid");start.ArgumentList.Add(Environment.ProcessId.ToString());
         start.ArgumentList.Add("--client-session");start.ArgumentList.Add(sessionId.ToString());start.ArgumentList.Add("--client-sid");start.ArgumentList.Add(sid);
         Process process;
+        token.ThrowIfCancellationRequested();
         try{process=Process.Start(start)??throw new HbxException("HBX-WORKER-START: Worker process did not start.");}
         catch(Win32Exception exception) when(exception.NativeErrorCode==1223){throw new HbxException("HBX-WORKER-UAC-CANCELLED: Administrator consent was cancelled.");}
         NamedPipeClientStream? pipe=null;
         byte[]? sessionKey=null;
         try
         {
+            token.ThrowIfCancellationRequested();
             // Pipe construction belongs inside the cleanup boundary: failure after
             // spawning an elevated worker must not orphan that worker.
             pipe=new NamedPipeClientStream(".",pipeName,PipeDirection.InOut,PipeOptions.Asynchronous,TokenImpersonationLevel.Impersonation);

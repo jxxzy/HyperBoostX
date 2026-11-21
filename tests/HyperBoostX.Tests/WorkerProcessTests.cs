@@ -192,6 +192,20 @@ public sealed class WorkerProcessTests
         Assert.True((await client.SendAsync("worker.health","","{}",default)).Success);
     }
 
+    [Fact]public async Task CancelledStartupDoesNotLaunchWorkerOrRequestElevation()
+    {
+        if(!OperatingSystem.IsWindows())return;
+        using var cancellation=new CancellationTokenSource();
+        cancellation.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            ()=>PrivilegedWorkerClient.StartAsync(FindWorker(),false,cancellation.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            ()=>PrivilegedWorkerClient.StartAsync(FindWorker(),true,cancellation.Token));
+        // A fresh non-elevated worker remains usable after rejected startup.
+        await using var client=await PrivilegedWorkerClient.StartAsync(FindWorker(),false,default);
+        Assert.True((await client.SendAsync("worker.health","","{}",default)).Success);
+    }
+
     [Fact]public async Task CancelledBeforeSendDoesNotPoisonWorkerConnection()
     {
         if(!OperatingSystem.IsWindows())return;
