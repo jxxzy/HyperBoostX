@@ -223,3 +223,6 @@ Installer lifecycle CI at 09cace4 passed 279/279 tests and five lifecycle checks
 
 - Verified Windows CI 44849783299 at 364df73: 318/318 unit tests passed, 0 compiler warnings/errors, five installer lifecycle checks passed with 488 payload hashes. Stable gate rejected 3,924 mandatory requirements.
 - Worker startup now rejects an already-cancelled token before validating/launching the executable and again immediately before Process.Start, preventing avoidable worker creation or a UAC prompt. Cancellation after spawn but before pipe allocation now follows the existing kill/dispose cleanup boundary. Added real Windows worker regression for cancelled non-elevated and elevation-requested startup followed by successful authenticated health with a fresh non-elevated worker. Fresh CI pending; no elevated mutation or desktop qualification. No requirement status promoted.
+
+
+2026-11-21: Safe Boost preflight now checks all selected states and safety restrictions before any batch write; focused regression tests added. Windows CI for this change pending; no Stable gate promotion or release.

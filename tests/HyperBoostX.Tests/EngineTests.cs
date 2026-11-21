@@ -91,6 +91,33 @@ public sealed class EngineTests:IDisposable
         Assert.Equal("1",a.State.Value);Assert.Equal("1",b.State.Value);
         Assert.All(journal.History(),c=>Assert.True(c.Recoverable));
     }
+    [Fact]public async Task SafeBoostPreflightRejectsStaleLaterSelectionBeforeAnyWrite()
+    {
+        var a=new FakeAction("windows.visual.transparency.disable");
+        var b=new FakeAction("gaming.capture.disable");
+        var journal=Store;
+        var engine=new ActionEngine([a,b],journal,new SafetyGuard(()=>null),"test-owner");
+        var previews=new[]{await engine.PreviewAsync(a.Info.Id,"",default),await engine.PreviewAsync(b.Info.Id,"",default)};
+        b.State=new(true,"Int","2");
+        var error=await Assert.ThrowsAsync<HbxException>(()=>engine.ApplySafeBoostAsync(previews,true,default));
+        Assert.Contains("HBX-BOOST-0004",error.Message);
+        Assert.Equal(0,a.Writes);Assert.Equal(0,b.Writes);
+        Assert.Equal("0",a.State.Value);Assert.Equal("2",b.State.Value);
+        Assert.Empty(journal.History());
+    }
+    [Fact]public async Task SafeBoostPreflightRespectsEnvironmentSafetyBeforeAnyWrite()
+    {
+        var a=new FakeAction("windows.visual.transparency.disable");
+        var b=new FakeAction("gaming.capture.disable");
+        string? blocked=null;
+        var journal=Store;
+        var engine=new ActionEngine([a,b],journal,new SafetyGuard(()=>blocked),"test-owner");
+        var previews=new[]{await engine.PreviewAsync(a.Info.Id,"",default),await engine.PreviewAsync(b.Info.Id,"",default)};
+        blocked="Managed environment restriction";
+        await Assert.ThrowsAsync<HbxException>(()=>engine.ApplySafeBoostAsync(previews,true,default));
+        Assert.Equal(0,a.Writes);Assert.Equal(0,b.Writes);
+        Assert.Empty(journal.History());
+    }
     [Fact]public async Task SafeBoostRestoresEarlierActionWhenLaterActionFails()
     {
         var a=new FakeAction("windows.visual.transparency.disable");var b=new FakeAction("gaming.capture.disable"){IgnoreWrite=true};

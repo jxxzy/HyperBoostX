@@ -556,3 +556,11 @@ This is a source-level and Windows Server CI qualification for the specific feat
 
 - Verified Windows CI 44849783299 at 364df73: 318/318 unit tests passed, 0 compiler warnings/errors, five installer lifecycle checks passed with 488 payload hashes. Stable gate rejected 3,924 mandatory requirements.
 - Worker startup now rejects an already-cancelled token before validating/launching the executable and again immediately before Process.Start, preventing avoidable worker creation or a UAC prompt. Cancellation after spawn but before pipe allocation now follows the existing kill/dispose cleanup boundary. Added real Windows worker regression for cancelled non-elevated and elevation-requested startup followed by successful authenticated health with a fresh non-elevated worker. Fresh CI pending; no elevated mutation or desktop qualification. No requirement status promoted.
+
+
+## Continuation checkpoint — 2026-11-21 (batch preflight)
+
+- Based on main 2182f17. Previous GitHub Actions run 44856313271: windows-build succeeded; stable-gate failed as expected (3,924 mandatory requirements outstanding).
+- Added non-mutating preflight for all approved Safe Boost previews before the first write: rechecks environment safety and live state of every selected action, rejects stale later selections with HBX-BOOST-0004, then preserves existing locked per-action recheck, durable journal and compensating rollback.
+- Added two focused fixture tests: stale second action causes zero writes and no recovery records; newly blocked environment causes zero writes. These are source changes pending Windows CI; no local .NET execution or elevated mutation was performed.
+- Next: verify Windows CI, then implement remaining action/provider parity with fixture-backed evidence. Stable gate remains closed; no requirement promoted.

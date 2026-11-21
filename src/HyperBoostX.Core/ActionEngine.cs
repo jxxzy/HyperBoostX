@@ -193,6 +193,18 @@ public sealed class ActionEngine
             if(!_previews.TryGetValue(preview.Token,out var pending)||pending.Preview!=preview||
                 Stopwatch.GetElapsedTime(pending.Tick)>TimeSpan.FromMinutes(10))
                 throw new HbxException("HBX-BOOST-0003: Batch preview expired or does not match its original.");
+        // Reject stale selections before any batch mutation. ApplyAsync retains its
+        // locked read-back recheck against races after this non-mutating preflight.
+        foreach(var preview in previews)
+        {
+            token.ThrowIfCancellationRequested();
+            var action=Get(preview.ActionId);
+            _safety.Check(action,preview.Target);
+            var current=await action.ReadAsync(preview.Target,token);
+            token.ThrowIfCancellationRequested();
+            if(current!=preview.Before)
+                throw new HbxException("HBX-BOOST-0004: Configuration changed after preview. Nothing was applied; review all selections again.");
+        }
         var session=Guid.NewGuid().ToString("N");
         var results=new List<Change>();
         try
