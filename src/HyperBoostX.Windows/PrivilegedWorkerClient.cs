@@ -19,6 +19,8 @@ public sealed class PrivilegedWorkerClient:IAsyncDisposable
     // Count both the active exchange and queued callers; overload must never grow an unbounded queue.
     public const int MaximumPendingRequests=16;
     private readonly SemaphoreSlim _admission=new(MaximumPendingRequests,MaximumPendingRequests);
+    // Wake queued callers immediately when shutdown closes admission.
+    private readonly CancellationTokenSource _shutdownSignal=new();
     private int _closing;
     private readonly TaskCompletionSource<bool> _closed=new(TaskCreationOptions.RunContinuationsAsynchronously);
     private bool _faulted;
@@ -77,7 +79,14 @@ public sealed class PrivilegedWorkerClient:IAsyncDisposable
         try
         {
             ObjectDisposedException.ThrowIf(Volatile.Read(ref _closing)!=0,this);
-            if(!await _requestLock.WaitAsync(RequestTimeout,token))
+            using var queuedCancellation=CancellationTokenSource.CreateLinkedTokenSource(token,_shutdownSignal.Token);
+            bool acquired;
+            try{acquired=await _requestLock.WaitAsync(RequestTimeout,queuedCancellation.Token);}
+            catch(OperationCanceledException) when(Volatile.Read(ref _closing)!=0&&!token.IsCancellationRequested)
+            {
+                throw new ObjectDisposedException(nameof(PrivilegedWorkerClient));
+            }
+            if(!acquired)
                 throw new HbxException("HBX-WORKER-QUEUE-TIMEOUT: No request was sent. Review the current operation before retrying.");
             try
             {
@@ -133,6 +142,7 @@ public sealed class PrivilegedWorkerClient:IAsyncDisposable
             await _closed.Task;
             return;
         }
+        _shutdownSignal.Cancel();
         try
         {
             // Let already-started exchanges finish under their existing timeout.

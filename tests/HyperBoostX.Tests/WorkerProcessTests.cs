@@ -88,6 +88,34 @@ public sealed class WorkerProcessTests
         await Assert.ThrowsAsync<ObjectDisposedException>(()=>client.SendAsync("worker.health","","{}",default));
     }
 
+    [Fact]public async Task ShutdownImmediatelyCancelsQueuedRequestsWithoutWaitingForQueueDeadline()
+    {
+        if(!OperatingSystem.IsWindows())return;
+        await using var client=await PrivilegedWorkerClient.StartAsync(FindWorker(),false,default);
+        var field=typeof(PrivilegedWorkerClient).GetField("_requestLock",BindingFlags.Instance|BindingFlags.NonPublic);
+        var gate=Assert.IsType<SemaphoreSlim>(field?.GetValue(client));
+        await gate.WaitAsync();
+        Task<PrivilegedResponseEnvelope>[] queued=Array.Empty<Task<PrivilegedResponseEnvelope>>();
+        Task? closing=null;
+        try
+        {
+            queued=Enumerable.Range(0,PrivilegedWorkerClient.MaximumPendingRequests)
+                .Select(_=>client.SendAsync("worker.health","","{}",default)).ToArray();
+            Assert.All(queued,request=>Assert.False(request.IsCompleted));
+            var clock=Stopwatch.StartNew();
+            closing=client.DisposeAsync().AsTask();
+            foreach(var request in queued)
+                await Assert.ThrowsAsync<ObjectDisposedException>(()=>request).WaitAsync(TimeSpan.FromSeconds(5));
+            Assert.True(clock.Elapsed<TimeSpan.FromSeconds(5),"Shutdown should wake queued callers immediately.");
+        }
+        finally
+        {
+            gate.Release();
+            if(closing is not null)await closing.WaitAsync(TimeSpan.FromSeconds(25));
+        }
+        await Assert.ThrowsAsync<ObjectDisposedException>(()=>client.SendAsync("worker.health","","{}",default));
+    }
+
     [Fact]public async Task ConcurrentHealthBurstStaysBoundedAndDoesNotPoisonConnection()
     {
         if(!OperatingSystem.IsWindows())return;

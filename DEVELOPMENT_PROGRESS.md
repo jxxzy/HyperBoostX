@@ -544,3 +544,9 @@ This is a source-level and Windows Server CI qualification for the specific feat
 
 - Reviewed Windows CI 44837801506 at aed6e62: Windows build succeeded, 317/317 tests passed, zero compiler warnings/errors, five installer lifecycle checks and 488 payload hashes passed. Stable gate still rejects 3,924 mandatory requirements.
 - Fixed an orphan-worker edge case: named-pipe construction is now inside the existing worker-start failure cleanup boundary. If pipe allocation fails after process creation, the worker process is terminated and disposed rather than left running. Existing UAC cancellation handling, authenticated bootstrap and timeouts are unchanged. No privileged host mutations; fresh Windows CI pending. Elevated Windows 10/11 VM, signing and full recovery qualification remain open.
+
+
+## Immediate IPC queue drain on worker shutdown (2026-11-21)
+
+- Independently verified main CI 44845032544 at 7f21a0f: Windows build succeeded, 317/317 tests passed with zero compiler warnings/errors; Stable gate correctly rejected 3,924 mandatory requirements. Installer lifecycle remains separately tested in the workflow.
+- Fixed a shutdown responsiveness gap: queued authenticated IPC requests previously waited up to the 15-second queue deadline even after client disposal began. A shutdown cancellation signal now wakes queued callers immediately, returning ObjectDisposedException when the caller did not itself cancel; existing active exchanges still finish under the serialized lock, and the 16-request admission bound remains intact. Added a real non-elevated worker regression that saturates admission, begins disposal while the request lock is held, checks prompt rejection of queued requests, then releases the lock to complete shutdown. Fresh CI required; no requirements promoted, no privileged host mutation, no Stable release. Elevated Windows 10/11 qualification and signing remain blocked on appropriate test environments and credentials.
