@@ -564,3 +564,11 @@ This is a source-level and Windows Server CI qualification for the specific feat
 - Added non-mutating preflight for all approved Safe Boost previews before the first write: rechecks environment safety and live state of every selected action, rejects stale later selections with HBX-BOOST-0004, then preserves existing locked per-action recheck, durable journal and compensating rollback.
 - Added two focused fixture tests: stale second action causes zero writes and no recovery records; newly blocked environment causes zero writes. These are source changes pending Windows CI; no local .NET execution or elevated mutation was performed.
 - Next: verify Windows CI, then implement remaining action/provider parity with fixture-backed evidence. Stable gate remains closed; no requirement promoted.
+
+
+## Continuation checkpoint — 2026-11-21 (preview safety revalidation)
+
+- Base was main `2e773087`; verified GitHub Actions run 44866241833: `windows-build` succeeded, `stable-gate` failed only at mandatory requirement verification.
+- Source commit `e8b86c1` rechecks cancellation and environment safety immediately after the action provider's preview read, before computing or issuing a preview token. This closes a time-of-check/time-of-use gap when device policy changes during inspection.
+- Test commit `b620d7b` adds two isolated fixture regressions: a restriction appearing during provider read blocks preview issuance, and cancellation during provider read propagates without issuing an action. Both assert zero writes and no journal history; tests are **NOT YET RUN/CI PENDING**.
+- No Windows configuration was modified, no release published, and no mandatory requirement was promoted. Stable remains closed. Next: inspect Windows CI for `b620d7b`; fix any regression before further implementation, then continue provider/action parity and privileged VM acceptance.
