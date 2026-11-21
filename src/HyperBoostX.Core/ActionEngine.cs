@@ -30,7 +30,11 @@ public sealed class ActionEngine
     public async Task<Preview> PreviewAsync(string id,string target,CancellationToken token)
     {
         var action=Get(id); _safety.Check(action,target);
-        var before=await action.ReadAsync(target,token); var desired=action.Desired(target,before);
+        var before=await action.ReadAsync(target,token);
+        token.ThrowIfCancellationRequested();
+        _safety.Check(action,target); // The environment can become restricted during provider inspection.
+        var desired=action.Desired(target,before);
+        token.ThrowIfCancellationRequested();
         var preview=new Preview(id,target,before,desired,Guid.NewGuid().ToString("N"),DateTimeOffset.UtcNow,action.Info.Description);
         lock(_previewGate)
         {
