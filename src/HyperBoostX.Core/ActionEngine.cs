@@ -206,6 +206,7 @@ public sealed class ActionEngine
             _safety.Check(action,preview.Target);
             var current=await action.ReadAsync(preview.Target,token);
             token.ThrowIfCancellationRequested();
+            _safety.Check(action,preview.Target); // A restriction may appear while the provider is reading.
             if(current!=preview.Before)
                 throw new HbxException("HBX-BOOST-0004: Configuration changed after preview. Nothing was applied; review all selections again.");
         }

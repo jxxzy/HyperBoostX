@@ -141,6 +141,18 @@ public sealed class EngineTests:IDisposable
         Assert.Equal(0,a.Writes);Assert.Equal(0,b.Writes);
         Assert.Empty(journal.History());
     }
+    [Fact]public async Task SafeBoostPreflightRejectsRestrictionIntroducedDuringProviderRead()
+    {
+        var action=new FakeAction("windows.visual.transparency.disable");
+        string? restriction=null;
+        var journal=Store;
+        var engine=new ActionEngine([action],journal,new SafetyGuard(()=>restriction),"test-owner");
+        var preview=await engine.PreviewAsync(action.Info.Id,"",default);
+        action.OnRead=()=>restriction="Managed device restriction during Safe Boost preflight";
+        await Assert.ThrowsAsync<HbxException>(()=>engine.ApplySafeBoostAsync([preview],true,default));
+        Assert.Equal(0,action.Writes);
+        Assert.Empty(journal.History());
+    }
     [Fact]public async Task SafeBoostRestoresEarlierActionWhenLaterActionFails()
     {
         var a=new FakeAction("windows.visual.transparency.disable");var b=new FakeAction("gaming.capture.disable"){IgnoreWrite=true};
