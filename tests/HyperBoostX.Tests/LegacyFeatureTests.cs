@@ -110,6 +110,23 @@ public sealed class LegacyFeatureTests:IDisposable
         var sessions=new GameSessions(engine,_journal,_documents);var result=await sessions.StartAsync(game,[a,b],true,default);
         Assert.Equal("Restored",result.Status);Assert.Contains("failed",result.Message);Assert.Equal("1",capture.Value.Value);Assert.False(sessions.Active);
     }
+    [Fact]public async Task CanceledSessionStartPropagatesCancellationAfterSafeRecovery()
+    {
+        var action=new Preference("gaming.capture.disable");
+        var engine=Engine(action);
+        var game=Game(new(DisableCapture:true));
+        var preview=await engine.PreviewAsync(action.Info.Id,"",default);
+        var sessions=new GameSessions(engine,_journal,_documents);
+        using var cts=new CancellationTokenSource();cts.Cancel();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            ()=>sessions.StartAsync(game,[preview],true,cts.Token));
+
+        Assert.Equal("1",action.Value.Value);
+        Assert.Equal("Restored",sessions.Current?.Status);
+        Assert.False(sessions.Active);
+        Assert.DoesNotContain(_journal.History(),change=>change.NeedsRecovery);
+    }
     [Fact]public async Task CanceledSessionRestoreRemainsRecoverableAndCanBeRetried()
     {
         var action=new Preference("gaming.capture.disable");var engine=Engine(action);var game=Game(new(DisableCapture:true));
