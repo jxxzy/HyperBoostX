@@ -138,6 +138,19 @@ public sealed class LegacyFeatureTests:IDisposable
         Assert.False(sessions.Active);
         Assert.DoesNotContain(_journal.History(),change=>change.NeedsRecovery);
     }
+    [Fact]public async Task ProviderCancellationDuringSessionStartPropagatesAfterRecovery()
+    {
+        var action=new Preference("gaming.capture.disable"){CancelOnWrite=true};
+        var engine=Engine(action);var game=Game(new(DisableCapture:true));
+        var sessions=new GameSessions(engine,_journal,_documents);
+        var preview=await engine.PreviewAsync(action.Info.Id,"",default);
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            ()=>sessions.StartAsync(game,[preview],true,default));
+        Assert.Equal("1",action.Value.Value);
+        Assert.Equal("Restored",sessions.Current?.Status);
+        Assert.False(sessions.Active);
+        Assert.DoesNotContain(_journal.History(),change=>change.NeedsRecovery);
+    }
     [Fact]public async Task CanceledSessionRestoreRemainsRecoverableAndCanBeRetried()
     {
         var action=new Preference("gaming.capture.disable");var engine=Engine(action);var game=Game(new(DisableCapture:true));
@@ -199,12 +212,12 @@ public sealed class LegacyFeatureTests:IDisposable
     private static GameEntry GameEntryForImport(GameEntry game)=>game with{Name="Another imported entry"};
     private sealed class Preference(string id):ISystemAction
     {
-        public State Value=new(true,"DWord","1");public bool IgnoreWrite;
+        public State Value=new(true,"DWord","1");public bool IgnoreWrite;public bool CancelOnWrite;
         public ActionInfo Info=>new(id,"Fixture","Gaming","Fixture","Test","Low","None","Fixture");
         public void Validate(string target){if(target!="")throw new HbxException("Invalid target");}
         public Task<State> ReadAsync(string target,CancellationToken token){token.ThrowIfCancellationRequested();return Task.FromResult(Value);}
         public State Desired(string target,State before)=>new(true,"DWord","0");
-        public Task WriteAsync(string target,State state,CancellationToken token){token.ThrowIfCancellationRequested();if(!IgnoreWrite)Value=state;return Task.CompletedTask;}
+        public Task WriteAsync(string target,State state,CancellationToken token){token.ThrowIfCancellationRequested();if(CancelOnWrite)throw new OperationCanceledException("Provider canceled the write.");if(!IgnoreWrite)Value=state;return Task.CompletedTask;}
     }
     public void Dispose()
     {

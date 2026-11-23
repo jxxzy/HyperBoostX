@@ -25,9 +25,10 @@ public sealed class GameSessions(ActionEngine engine,Journal journal,DocumentSto
             }
             session=session with{Status="Active",Message="Profile applied. Restore this session when finished."};Save(session);return session;
         }
-        catch(OperationCanceledException) when(token.IsCancellationRequested)
+        catch(OperationCanceledException)
         {
-            // A canceled profile application still requires best-effort recovery.
+            // Provider-originated cancellation must also propagate, even if the
+            // caller token has not been canceled. A canceled profile application still requires best-effort recovery.
             // Use a fresh token so cancellation cannot suppress rollback, but
             // never report the canceled start as a successful session.
             await RestoreCore(session with{Message="Profile application was canceled."},CancellationToken.None);
@@ -72,7 +73,7 @@ public sealed class GameSessions(ActionEngine engine,Journal journal,DocumentSto
                 }
                 if(result.Status!="RolledBack")problems.Add(result.ActionId+": "+result.Status);
             }
-            catch(OperationCanceledException) when(token.IsCancellationRequested)
+            catch(OperationCanceledException)
             {
                 Save(session with{Status="RecoveryRequired",Message="Session restore was canceled. Retry restore to recover any changes that remain applied."});
                 throw;
