@@ -162,6 +162,22 @@ public sealed class LegacyFeatureTests:IDisposable
         Assert.Equal("RecoveryRequired",sessions.Current?.Status);Assert.Equal("0",action.Value.Value);
         Assert.Equal("Restored",(await sessions.RestoreAsync(true,default)).Status);Assert.Equal("1",action.Value.Value);
     }
+    [Fact]public async Task ProviderCancellationDuringRestoreRemainsRecoverableAndCanRetry()
+    {
+        var action=new Preference("gaming.capture.disable");var engine=Engine(action);var game=Game(new(DisableCapture:true));
+        var sessions=new GameSessions(engine,_journal,_documents);
+        await sessions.StartAsync(game,[await engine.PreviewAsync(action.Info.Id,"",default)],true,default);
+        Assert.Equal("0",action.Value.Value);
+        action.CancelOnWrite=true;
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>sessions.RestoreAsync(true,default));
+        Assert.Equal("RecoveryRequired",sessions.Current?.Status);
+        Assert.Equal("0",action.Value.Value);
+        Assert.Contains(_journal.History(),c=>c.Status=="RollbackCancelled"&&c.NeedsRecovery);
+        action.CancelOnWrite=false;
+        Assert.Equal("Restored",(await sessions.RestoreAsync(true,default)).Status);
+        Assert.Equal("1",action.Value.Value);
+        Assert.False(sessions.Active);
+    }
     [Fact]public async Task CancelledEmptySessionRestoreCannotClaimCompletionAndCanRetry()
     {
         // A persisted session may have no recoverable changes (e.g. all profile
