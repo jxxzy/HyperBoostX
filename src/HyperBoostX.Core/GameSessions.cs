@@ -55,6 +55,13 @@ public sealed class GameSessions(ActionEngine engine,Journal journal,DocumentSto
             try
             {
                 var result=await engine.RollbackAsync(change.Id,true,token);
+                if(result.Status=="RollbackCancelled" && token.IsCancellationRequested)
+                {
+                    // The action engine persists a retryable cancellation rather than
+                    // throwing; propagate cancellation to session callers as well.
+                    Save(session with{Status="RecoveryRequired",Message="Session restore was canceled. Retry restore to recover any changes that remain applied."});
+                    throw new OperationCanceledException(token);
+                }
                 if(result.Status!="RolledBack")problems.Add(result.ActionId+": "+result.Status);
             }
             catch(OperationCanceledException) when(token.IsCancellationRequested)

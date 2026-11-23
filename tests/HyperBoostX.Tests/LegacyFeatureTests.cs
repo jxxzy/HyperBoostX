@@ -117,6 +117,7 @@ public sealed class LegacyFeatureTests:IDisposable
         await sessions.StartAsync(game,[await engine.PreviewAsync(action.Info.Id,"",default)],true,default);
         using var cts=new CancellationTokenSource();cts.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>sessions.RestoreAsync(true,cts.Token));
+        Assert.Contains(_journal.History(),c=>c.Status=="RollbackCancelled"&&c.NeedsRecovery);
         Assert.Equal("RecoveryRequired",sessions.Current?.Status);Assert.Equal("0",action.Value.Value);
         Assert.Equal("Restored",(await sessions.RestoreAsync(true,default)).Status);Assert.Equal("1",action.Value.Value);
     }
