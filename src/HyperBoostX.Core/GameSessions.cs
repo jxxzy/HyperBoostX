@@ -58,7 +58,7 @@ public sealed class GameSessions(ActionEngine engine,Journal journal,DocumentSto
     private async Task<GamingSession> RestoreCore(GamingSession session,CancellationToken token)
     {
         Save(session with{Status="Restoring"});var problems=new List<string>();
-        foreach(var change in journal.History(10000).Where(c=>c.Session==session.Id&&c.Recoverable))
+        foreach(var change in journal.SessionHistory(session.Id).Where(c=>c.Recoverable))
         {
             try
             {

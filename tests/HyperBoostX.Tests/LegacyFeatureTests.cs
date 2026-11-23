@@ -102,6 +102,17 @@ public sealed class LegacyFeatureTests:IDisposable
         Assert.Equal("1",action.Value.Value);
         Assert.Equal(started.Id,reopened.Current?.Id);
     }
+    [Fact]public async Task SessionRecoveryReadsOnlyItsChangesWithoutGlobalHistoryLimit()
+    {
+        var action=new Preference("gaming.capture.disable");var engine=Engine(action);
+        var game=Game(new(DisableCapture:true));var sessions=new GameSessions(engine,_journal,_documents);
+        var started=await sessions.StartAsync(game,[await engine.PreviewAsync(action.Info.Id,"",default)],true,default);
+        Assert.Single(_journal.SessionHistory(started.Id));
+        Assert.Empty(_journal.SessionHistory(Guid.NewGuid().ToString("N")));
+        Assert.Throws<HbxException>(()=>_journal.SessionHistory("../invalid"));
+        Assert.Equal("Restored",(await sessions.RestoreAsync(true,default)).Status);
+        Assert.Equal("1",action.Value.Value);
+    }
     [Fact]public async Task SessionPartialFailureRestoresEarlierActions()
     {
         var capture=new Preference("gaming.capture.disable");var visual=new Preference("windows.visual.transparency.disable"){IgnoreWrite=true};

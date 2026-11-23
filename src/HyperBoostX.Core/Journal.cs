@@ -125,6 +125,21 @@ public sealed class Journal
         while(r.Read()) results.Add(Decode((byte[])r[0]));
         return results;
     }
+    // Recovery must not silently omit older changes when global history exceeds
+    // the UI history cap. Encrypted payloads require filtering after decoding.
+    public IReadOnlyList<Change> SessionHistory(string sessionId)
+    {
+        if (!Guid.TryParseExact(sessionId,"N",out _)) throw new HbxException("HBX-GAME-0016: Invalid session ID.");
+        using var c=Open();using var cmd=c.CreateCommand();
+        cmd.CommandText="SELECT payload FROM changes ORDER BY sequence DESC";
+        using var reader=cmd.ExecuteReader();var changes=new List<Change>();
+        while(reader.Read())
+        {
+            var change=Decode((byte[])reader[0]);
+            if(change.Session==sessionId)changes.Add(change);
+        }
+        return changes;
+    }
     public Change Find(string id)
     {
         if (!Guid.TryParseExact(id,"N",out _)) throw new HbxException("HBX-RESTORE-0001: Invalid restore ID.");
