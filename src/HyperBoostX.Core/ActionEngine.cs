@@ -126,7 +126,18 @@ public sealed class ActionEngine
         if(!c.Recoverable) throw new HbxException("HBX-RESTORE-0005: This record does not require rollback.");
         var action=Get(c.ActionId);action.ValidateRestore(c.Target,c.Before);
         if(!action.Info.Reversible)throw new HbxException("HBX-SAFE-0001: This engine requires a verified recovery strategy.");
-        var current=await action.ReadAsync(c.Target,token);
+        State current;
+        try
+        {
+            current=await action.ReadAsync(c.Target,token);
+        }
+        catch(OperationCanceledException) when(token.IsCancellationRequested)
+        {
+            // No restore write has started. Preserve the durable recovery intent
+            // and do not attempt an unapproved, uncancellable provider read.
+            c=c with{Status="RollbackCancelled",Message="Rollback cancelled during provider inspection. Retry recovery."};
+            _journal.Save(c);return c;
+        }
         // A provider may complete its read while cancellation is requested. Do not
         // transition the journal to RollingBack or write after that cancellation.
         if(token.IsCancellationRequested)
