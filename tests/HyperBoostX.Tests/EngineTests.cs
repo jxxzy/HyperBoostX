@@ -275,6 +275,24 @@ public sealed class EngineTests:IDisposable
         var retried=await e.RollbackAsync(applied.Id,true,default);
         Assert.Equal("RolledBack",retried.Status);Assert.False(retried.NeedsRecovery);Assert.Equal("0",_action.State.Value);
     }
+    [Fact]public async Task CancellationDuringRollbackReadNeverWritesAndCanRetry()
+    {
+        var engine=Engine();var preview=await engine.PreviewAsync("test","",default);
+        var applied=await engine.ApplyAsync(preview.Token,true,null,default);
+        using var cts=new CancellationTokenSource();
+        _action.OnRead=()=>cts.Cancel();
+        var cancelled=await engine.RollbackAsync(applied.Id,true,cts.Token);
+        Assert.Equal("RollbackCancelled",cancelled.Status);
+        Assert.True(cancelled.NeedsRecovery);
+        Assert.Equal("1",_action.State.Value);
+        Assert.Equal(1,_action.Writes);
+        Assert.Equal("RollbackCancelled",Store.Find(applied.Id).Status);
+        _action.OnRead=null;
+        var retried=await engine.RollbackAsync(applied.Id,true,default);
+        Assert.Equal("RolledBack",retried.Status);
+        Assert.Equal("0",_action.State.Value);
+        Assert.Equal(2,_action.Writes);
+    }
     [Fact]public async Task CancellationAfterRollbackWriteStillVerifiesRestoredState()
     {
         var e=Engine();var preview=await e.PreviewAsync("test","",default);var applied=await e.ApplyAsync(preview.Token,true,null,default);

@@ -127,6 +127,13 @@ public sealed class ActionEngine
         var action=Get(c.ActionId);action.ValidateRestore(c.Target,c.Before);
         if(!action.Info.Reversible)throw new HbxException("HBX-SAFE-0001: This engine requires a verified recovery strategy.");
         var current=await action.ReadAsync(c.Target,token);
+        // A provider may complete its read while cancellation is requested. Do not
+        // transition the journal to RollingBack or write after that cancellation.
+        if(token.IsCancellationRequested)
+        {
+            c=c with{Status="RollbackCancelled",Observed=current,Message="Rollback cancelled after provider inspection. Retry recovery."};
+            _journal.Save(c);return c;
+        }
         var targetNoLongerExists=action.IsRestoreSatisfied(current,c.Before);
         if(current!=c.Before && current!=c.Desired && !targetNoLongerExists)
         {
