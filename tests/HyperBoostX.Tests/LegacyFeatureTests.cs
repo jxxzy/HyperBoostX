@@ -121,6 +121,21 @@ public sealed class LegacyFeatureTests:IDisposable
         Assert.Equal("RecoveryRequired",sessions.Current?.Status);Assert.Equal("0",action.Value.Value);
         Assert.Equal("Restored",(await sessions.RestoreAsync(true,default)).Status);Assert.Equal("1",action.Value.Value);
     }
+    [Fact]public async Task CancelledEmptySessionRestoreCannotClaimCompletionAndCanRetry()
+    {
+        // A persisted session may have no recoverable changes (e.g. all profile
+        // actions already matched their desired state). Cancellation must still
+        // be observable rather than silently turning the session into Restored.
+        var engine=Engine();var sessions=new GameSessions(engine,_journal,_documents);
+        _documents.Update<GamingSession?>("gaming-session",null,_=>new GamingSession(
+            Guid.NewGuid().ToString("N"),"fixture-game","Fixture","Active",DateTimeOffset.UtcNow));
+        using var cts=new CancellationTokenSource();cts.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>sessions.RestoreAsync(true,cts.Token));
+        Assert.Equal("RecoveryRequired",sessions.Current?.Status);
+        Assert.Empty(_journal.History());
+        Assert.Equal("Restored",(await sessions.RestoreAsync(true,default)).Status);
+        Assert.False(sessions.Active);
+    }
     [Fact]public async Task SessionCannotOverwriteDriftOrStartOverUnresolvedRecovery()
     {
         var action=new Preference("gaming.capture.disable");var engine=Engine(action);var game=Game(new(DisableCapture:true));

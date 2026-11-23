@@ -71,6 +71,14 @@ public sealed class GameSessions(ActionEngine engine,Journal journal,DocumentSto
             }
             catch(Exception e){problems.Add(e.Message);}
         }
+        // Cancellation can arrive after the last recoverable journal entry (or when
+        // there are none). Do not report a completed restore to the caller when its
+        // cancellation was never acknowledged. A retry rechecks the durable journal.
+        if(token.IsCancellationRequested)
+        {
+            Save(session with{Status="RecoveryRequired",Message="Session restore was canceled. Retry restore to verify the session is fully recovered."});
+            throw new OperationCanceledException(token);
+        }
         var resultSession=session with{Status=problems.Count==0?"Restored":"RecoveryRequired",Message=problems.Count==0?"Session changes restored and verified. "+session.Message:string.Join("\n",problems)};
         Save(resultSession);return resultSession;
     }
