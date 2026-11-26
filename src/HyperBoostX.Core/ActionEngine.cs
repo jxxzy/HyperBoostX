@@ -59,10 +59,12 @@ public sealed class ActionEngine
         if(current==p.Desired)
         { c=c with{Status="AlreadyDesiredState",Observed=current,CompletedAt=DateTimeOffset.UtcNow,Message="No write was needed."};_journal.Save(c);return c; }
         token.ThrowIfCancellationRequested();
-        _journal.Save(c); // No OS mutation unless durable backup succeeds.
-        c=c with{Status="Applying"};_journal.Save(c);
+        _journal.SaveVerifiedIntent(c); // Both recovery representations must be readable and match.
+        c=c with{Status="Applying"};_journal.SaveVerifiedIntent(c);
         try
         {
+            token.ThrowIfCancellationRequested();
+            _safety.Check(action,p.Target);
             await action.WriteAsync(c.Target,c.Desired,token);
             var after=await action.ReadAsync(c.Target,CancellationToken.None);
             if(after!=c.Desired) throw new HbxException("HBX-VERIFY-0001: Read-back did not match the requested state.");
@@ -151,9 +153,10 @@ public sealed class ActionEngine
             c=c with{Status="ConflictDetected",Observed=current,Message="External change detected. Current state was preserved; automatic restore is blocked."};
             _journal.Save(c);return c;
         }
-        c=c with{Status="RollingBack"};_journal.Save(c);
+        c=c with{Status="RollingBack"};_journal.SaveVerifiedIntent(c);
         try
         {
+            token.ThrowIfCancellationRequested();
             if(current!=c.Before&&!targetNoLongerExists) await action.WriteAsync(c.Target,c.Before,token);
             var actual=await action.ReadAsync(c.Target,CancellationToken.None);
             var restored=actual==c.Before||action.IsRestoreSatisfied(actual,c.Before);
@@ -251,7 +254,7 @@ public sealed class ActionEngine
                 _journal.Reconcile();
                 if(!string.IsNullOrWhiteSpace(_journal.RecoveryNotice))
                     problems.Add("Recovery journal requires review: "+_journal.RecoveryNotice);
-                foreach(var record in _journal.History(10000).Where(c=>c.Session==session&&c.Recoverable))
+                foreach(var record in _journal.SessionHistory(session).Where(c=>c.Recoverable))
                 {
                     try
                     {

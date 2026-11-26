@@ -91,6 +91,23 @@ public sealed class Journal
         SafePaths.AtomicWrite(SafePaths.Under(Root, $"Recovery/{change.Id}.hbx"), data);
         SaveDatabase(change);
     }
+    // Caller holds the cross-process operation lock. Confirm that both durable
+    // representations contain the complete expected recovery state before mutation.
+    public void SaveVerifiedIntent(Change change)
+    {
+        Save(change);
+        VerifyPersistedChange(change);
+    }
+    public void VerifyPersistedChange(Change expected)
+    {
+        if(Find(expected.Id)!=expected)
+            throw new HbxException("HBX-DATA-0007: Recovery file read-back does not match the intended change. No system write is permitted.");
+        using var c=Open();using var cmd=c.CreateCommand();
+        cmd.CommandText="SELECT payload FROM changes WHERE id=$id";
+        cmd.Parameters.AddWithValue("$id",expected.Id);
+        if(cmd.ExecuteScalar() is not byte[] payload||Decode(payload)!=expected)
+            throw new HbxException("HBX-DATA-0007: Recovery database read-back does not match the intended change. No system write is permitted.");
+    }
     private void SaveDatabase(Change change)
     {
         using var c = Open(); using var tx = c.BeginTransaction(); using var cmd = c.CreateCommand(); cmd.Transaction = tx;

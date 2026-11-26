@@ -412,6 +412,36 @@ public sealed class EngineTests:IDisposable
         var recovery=Path.Combine(_root,"Recovery");Directory.Move(recovery,recovery+"-moved");File.WriteAllText(recovery,"not a directory");
         await Assert.ThrowsAnyAsync<IOException>(()=>e.ApplyAsync(p.Token,true,null,default));Assert.Equal(0,_action.Writes);
     }
+    [Theory][InlineData(1)][InlineData(2)][InlineData(3)][InlineData(4)]
+    public async Task BackupReadBackMismatchBlocksSystemMutation(int corruptWrite)
+    {
+        var journal=new Journal(_root,new MismatchedBackupProtector(corruptWrite));
+        var engine=new ActionEngine([_action],journal,new SafetyGuard(()=>null),"test-owner");
+        var preview=await engine.PreviewAsync("test","",default);
+        var error=await Assert.ThrowsAsync<HbxException>(()=>engine.ApplyAsync(preview.Token,true,null,default));
+        Assert.Contains("HBX-DATA-0007",error.Message);
+        Assert.Equal(0,_action.Writes);
+        Assert.Equal("0",_action.State.Value);
+    }
+    private sealed class MismatchedBackupProtector(int corruptWrite):IStateProtector
+    {
+        private int _writes;
+        public byte[] Protect(byte[] data)
+        {
+            if(++_writes!=corruptWrite)return data;
+            var change=Json.Read<Change>(Encoding.UTF8.GetString(data));
+            return Encoding.UTF8.GetBytes(Json.Write(change with{Before=new(true,"Int","unexpected")}));
+        }
+        public byte[] Unprotect(byte[] data)=>data;
+    }
+    [Fact]public void VerifiedIntentChecksBothPersistedRepresentations()
+    {
+        var journal=Store;var change=new Change{ActionId="test",Owner="test-owner"};
+        journal.SaveVerifiedIntent(change);
+        Assert.Equal(change,journal.Find(change.Id));
+        File.WriteAllText(Path.Combine(_root,"Recovery",change.Id+".hbx"),Json.Write(change with{Before=new(true,"Int","changed")}));
+        Assert.Throws<HbxException>(()=>journal.VerifyPersistedChange(change));
+    }
     [Theory][InlineData("../outside")][InlineData("C:\\outside")][InlineData("file:stream")]
     public void UnsafePathsAreBlocked(string path)=>Assert.Throws<HbxException>(()=>SafePaths.Under(_root,path));
     [Theory][InlineData("Windows Defender")][InlineData("NVIDIA App")][InlineData("vgtray")][InlineData("TRYX KANALI")][InlineData("Realtek Audio")]
