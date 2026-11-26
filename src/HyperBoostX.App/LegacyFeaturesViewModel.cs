@@ -120,14 +120,22 @@ public sealed partial class ShellViewModel
             foreach(var candidate in candidates)DiscoveredGames.Add(candidate);
             SelectedDiscoveredGame=DiscoveredGames.FirstOrDefault();
             Status=candidates.Count>0
-                ?$"{candidates.Count} registered game executable(s) found. Review before adding to the library."
-                :"No registered Steam or Epic game executable was found.";
+                ?$"{candidates.Count} game installation candidate(s) found. Review or select an executable before registration."
+                :"No accessible Steam, Epic or GOG game installation was found. This does not prove no games are installed.";
         }),()=>!Busy);
         RegisterDiscoveredGameCommand=new Command(()=>Run(_=>
         {
             if(SelectedDiscoveredGame is not {} candidate)return Task.CompletedTask;
-            if(!Confirm($"Register {candidate.Name}?\n{candidate.Executable}\n\nSource: {candidate.Source}\n\nThis adds the executable only; no Windows setting is changed.","Register discovered game"))return Task.CompletedTask;
-            var game=Runtime.Games.Add(candidate.Name,candidate.Executable);
+            var executable=candidate.Executable;
+            if(executable is null)
+            {
+                var dialog=new OpenFileDialog{Filter="Game executable|*.exe",Title="Select the game executable",InitialDirectory=candidate.InstallDirectory??"",CheckFileExists=true};
+                if(dialog.ShowDialog()!=true)return Task.CompletedTask;
+                executable=dialog.FileName;
+            }
+            executable=GameProcesses.ValidateDiscoveredExecutable(candidate,executable);
+            if(!Confirm($"Register {candidate.Name}?\n{executable}\n\nSource: {candidate.Source}\n\nThis adds the executable only; no Windows setting is changed.","Register discovered game"))return Task.CompletedTask;
+            var game=Runtime.Games.Add(candidate.Name,executable);
             DiscoveredGames.Remove(candidate);
             SelectedDiscoveredGame=DiscoveredGames.FirstOrDefault();
             RefreshGames(game.Id);

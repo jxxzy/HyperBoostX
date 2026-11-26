@@ -1,7 +1,5 @@
 using System.Diagnostics;
-using System.Text.Json;
 using HyperBoostX.Core;
-using Microsoft.Win32;
 
 namespace HyperBoostX.Windows;
 
@@ -12,13 +10,31 @@ public sealed class GameProcessEndedException:Exception
 
 public static class GameProcesses
 {
-    public sealed record InstalledGameCandidate(string Name,string Executable,string Source);
+    public sealed record InstalledGameCandidate(string Name,string? Executable,string Source,string? InstallDirectory=null)
+    {
+        public string DisplayName=>$"{Name} · {Source}"+(Executable is null?" · select executable":"");
+    }
 
     public static IReadOnlyList<InstalledGameCandidate> DiscoverInstalledGames(CancellationToken token)
-        =>DiscoverInstalledGames(SteamRoots().ToArray(),new[]{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),"Epic","EpicGamesLauncher","Data","Manifests")},token);
+        =>BuildCandidates([InstalledGameDetection.Scan(token)],token);
 
     public static IReadOnlyList<InstalledGameCandidate> DiscoverInstalledGames(IReadOnlyList<string> steamRoots,IReadOnlyList<string> epicManifestRoots,CancellationToken token)
     {
+        IEnumerable<InstalledGameDetection.Result> Results()
+        {
+            yield return InstalledGameDetection.ScanLocations(steamRoots,null,token);
+            foreach(var root in epicManifestRoots.Take(32))
+            {
+                token.ThrowIfCancellationRequested();
+                yield return InstalledGameDetection.ScanLocations([],root,token);
+            }
+        }
+        return BuildCandidates(Results(),token);
+    }
+
+    public static IReadOnlyList<InstalledGameCandidate> BuildCandidates(IEnumerable<InstalledGameDetection.Result> results,CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
         var candidates=new List<InstalledGameCandidate>();
         var seen=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         void Read(InstalledGameDetection.Result result)
@@ -28,47 +44,30 @@ public static class GameProcesses
                 token.ThrowIfCancellationRequested();
                 if(candidates.Count>=500)return;
                 var executable=game.Executable??(game.Store=="Steam"?FindLikelyExecutable(game.InstallDirectory,game.Name,token):null);
-                if(executable is null||!seen.Add(executable))continue;
-                candidates.Add(new(game.Name,executable,game.Store=="Epic Games"?"Epic":game.Store));
+                var identity=executable is null?"directory|"+game.InstallDirectory:"executable|"+executable;
+                if(!seen.Add(identity))continue;
+                candidates.Add(new(game.Name,executable,game.Store=="Epic Games"?"Epic":game.Store,game.InstallDirectory));
             }
         }
-        Read(InstalledGameDetection.ScanLocations(steamRoots,null,token));
-        foreach(var root in epicManifestRoots.Take(32))
+        foreach(var result in results)
         {
             token.ThrowIfCancellationRequested();
             if(candidates.Count>=500)break;
-            Read(InstalledGameDetection.ScanLocations([],root,token));
+            Read(result);
         }
         return candidates.OrderBy(c=>c.Source,StringComparer.OrdinalIgnoreCase).ThenBy(c=>c.Name,StringComparer.OrdinalIgnoreCase).ToArray();
     }
 
-    private static IEnumerable<string> SteamRoots()
+    public static string ValidateDiscoveredExecutable(InstalledGameCandidate candidate,string selectedPath)
     {
-        var roots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var view in new[]{RegistryView.Registry64,RegistryView.Registry32})
-        {
-            foreach (var hive in new[]{RegistryHive.CurrentUser,RegistryHive.LocalMachine})
-            {
-                try
-                {
-                    using var baseKey=RegistryKey.OpenBaseKey(hive,view);
-                    foreach (var subKeyName in new[]{"SOFTWARE\\Valve\\Steam","SOFTWARE\\WOW6432Node\\Valve\\Steam"})
-                    {
-                        using var key=baseKey.OpenSubKey(subKeyName);
-                        if(key?.GetValue("InstallPath") is string installPath&&!string.IsNullOrWhiteSpace(installPath))
-                            roots.Add(Path.GetFullPath(installPath));
-                    }
-                }
-                catch(UnauthorizedAccessException){}catch(IOException){}
-            }
-        }
-        var steamApps=Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
-        if(!string.IsNullOrWhiteSpace(steamApps))
-        {
-            var commonPath=Path.Combine(steamApps,"Steam");
-            if(Directory.Exists(commonPath))roots.Add(commonPath);
-        }
-        return roots;
+        var path=GameLibrary.ValidateExecutable(selectedPath);
+        if(candidate.InstallDirectory is not {} directory)
+            throw new HbxException("Discovered game installation directory is unavailable.");
+        var root=SafePaths.Local(directory);
+        var relative=Path.GetRelativePath(root,path);
+        if(Path.IsPathRooted(relative)||relative==".."||relative.StartsWith(".."+Path.DirectorySeparatorChar,StringComparison.Ordinal))
+            throw new HbxException("Select an executable inside the discovered game installation.");
+        return SafePaths.Under(root,relative);
     }
 
     private static string? FindLikelyExecutable(string root,string gameName,CancellationToken token)

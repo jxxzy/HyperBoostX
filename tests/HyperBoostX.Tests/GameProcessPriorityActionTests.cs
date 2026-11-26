@@ -121,6 +121,19 @@ public sealed class GameProcessPriorityActionTests:IDisposable
         Assert.Equal("Epic",candidate.Source);
     }
 
+    [Fact]public void GogDiscoveryFlowsToRegistrationWithExplicitExecutableSelection()
+    {
+        var install=Path.Combine(_root,"GogGame");Directory.CreateDirectory(install);
+        var executable=Path.Combine(install,"Game.exe");File.WriteAllText(executable,"fixture");
+        var outside=Path.Combine(_root,"Outside.exe");File.WriteAllText(outside,"fixture");
+        var result=InstalledGameDetection.ScanLocations([],null,default,[new("GOG fixture",install)]);
+        var candidate=Assert.Single(GameProcesses.BuildCandidates([result],default));
+        Assert.Equal("GOG",candidate.Source);Assert.Null(candidate.Executable);
+        Assert.Equal(executable,GameProcesses.ValidateDiscoveredExecutable(candidate,executable));
+        Assert.Throws<HbxException>(()=>GameProcesses.ValidateDiscoveredExecutable(candidate,outside));
+        Assert.ThrowsAny<OperationCanceledException>(()=>GameProcesses.BuildCandidates([result],new CancellationToken(true)));
+    }
+
     private GameEntry AddGame()
     {
         Directory.CreateDirectory(_root);

@@ -241,3 +241,6 @@ RGB legacy migration and sample validation: PENDING_CI; no Stable promotion.
 
 
 2026-11-27: Game Library read-only GOG registry candidates, legacy Steam discovery and scan coverage fixes; PENDING_CI, no mandatory status promoted.
+
+
+2026-11-27: Game Library GOG and manual executable registration integrated into existing WPF UI; PENDING_CI. No mandatory status promoted.
