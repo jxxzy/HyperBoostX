@@ -226,3 +226,6 @@ Installer lifecycle CI at 09cace4 passed 279/279 tests and five lifecycle checks
 
 
 2026-11-21: Safe Boost preflight now checks all selected states and safety restrictions before any batch write; focused regression tests added. Windows CI for this change pending; no Stable gate promotion or release.
+
+
+2026-11-27: V1.3 overlay catalog migration and process measurement hardening; new regression tests PENDING_CI. Read-only detector only; no new mandatory verification or Stable claim.

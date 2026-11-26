@@ -264,6 +264,40 @@ public sealed class IntegrationProviderTests:IDisposable
     [InlineData("GameBarFTServer","Microsoft")]
     public void OverlaySignaturesClassifyPrototypeProviders(string value,string vendor)=>Assert.Equal(vendor,OverlaySoftwareDetection.Classify(value)?.Vendor);
 
+    [Theory]
+    [InlineData("IntelArcControl.exe","Intel")]
+    [InlineData("DiscordHookHelper.exe","Discord")]
+    [InlineData("OBS32.exe","OBS Project")]
+    [InlineData("obs.exe","OBS Project")]
+    [InlineData("GameBarPresenceWriter.exe","Microsoft")]
+    [InlineData("NVIDIA Broadcast.exe","NVIDIA")]
+    [InlineData("TikTokLiveStudio.exe","TikTok")]
+    [InlineData("RTSSHooksLoader.exe","RivaTuner")]
+    public void OverlayProcessAliasesRecoverLegacyCatalog(string name,string vendor)
+        =>Assert.Equal(vendor,OverlaySoftwareDetection.ClassifyProcess(name)?.Vendor);
+
+    [Theory]
+    [InlineData("steamship.exe")]
+    [InlineData("medallion.exe")]
+    [InlineData("discordbackup.exe")]
+    [InlineData("nvcontainer.exe")]
+    public void OverlayProcessAliasesRejectUnrelatedAndDriverServiceNames(string name)
+        =>Assert.Null(OverlaySoftwareDetection.ClassifyProcess(name));
+
+    [Fact]public void OverlayCpuMeasurementRejectsPidReuseAndInvalidSamples()
+    {
+        var start=DateTime.UnixEpoch;
+        var before=TimeSpan.FromMilliseconds(100);var after=TimeSpan.FromMilliseconds(300);
+        var elapsed=TimeSpan.FromMilliseconds(500);
+        Assert.Equal(10d,OverlaySoftwareDetection.MeasureCpuPercent(start,start,before,after,elapsed,4));
+        Assert.Equal(0d,OverlaySoftwareDetection.MeasureCpuPercent(start,start,before,before,elapsed,4));
+        Assert.Null(OverlaySoftwareDetection.MeasureCpuPercent(start,start.AddSeconds(1),before,after,elapsed,4));
+        Assert.Null(OverlaySoftwareDetection.MeasureCpuPercent(start,start,after,before,elapsed,4));
+        Assert.Null(OverlaySoftwareDetection.MeasureCpuPercent(start,start,before,after,TimeSpan.Zero,4));
+        Assert.Null(OverlaySoftwareDetection.MeasureCpuPercent(start,start,before,after,elapsed,0));
+        Assert.Null(OverlaySoftwareDetection.MeasureCpuPercent(start,start,before,TimeSpan.FromSeconds(5),elapsed,4));
+    }
+
     [Fact]public async Task OverlayInventoryMeasuresRunningProcessAndCombinedLoad()
     {
         var executable=Path.Combine(_root,"Discord.exe");File.Copy(Path.Combine(Environment.SystemDirectory,"ping.exe"),executable);
