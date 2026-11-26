@@ -250,3 +250,6 @@ RGB legacy migration and sample validation: PENDING_CI; no Stable promotion.
 
 
 2026-11-27: Stutter Analyzer import/measurement validation and UI cancellation improvements. PENDING_CI, no requirement promotion.
+
+
+2026-11-27: Research Mode repeat-trial statistics and evidence retention guard; PENDING_CI. No requirement promotion.

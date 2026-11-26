@@ -71,6 +71,40 @@ public sealed class EngineTests:IDisposable
         Assert.Contains(report.Facts,f=>f.Name=="Game load / Time · variant B"&&f.Value.Contains("n=1 · Δ vs A -20",StringComparison.Ordinal));
         Assert.Contains(report.Facts,f=>f.Name=="File copy / Time · variant C"&&f.Value.Contains("no baseline A for this workload",StringComparison.Ordinal)&&!f.Value.Contains("Δ vs A",StringComparison.Ordinal));
     }
+    [Fact]public void ResearchReportShowsRepeatSpreadAndRelativeDeltaWithoutInventingImprovement()
+    {
+        var research=new ResearchExperiments(new DocumentStore(Store,new TestProtector()));
+        research.Add("Experiment","Boot","A","Time",10,"seconds","");
+        research.Add("Experiment","Boot","A","Time",14,"seconds","");
+        research.Add("Experiment","Boot","B","Time",9,"seconds","");
+        var report=research.Report("Experiment");
+        Assert.Contains(report.Facts,f=>f.Name=="Time · variant A"&&f.Value.Contains("median 12 · min 10 · max 14 · sample SD 2.82843"));
+        Assert.Contains(report.Facts,f=>f.Name=="Time · variant B"&&f.Value.Contains("relative Δ -25%")&&f.Value.Contains("Unavailable (n<2)"));
+        Assert.Contains(report.Facts,f=>f.Name=="Time · variant B · recorded period"&&f.Source.Contains("not measurement timestamps"));
+    }
+
+    [Fact]public void ResearchReportDoesNotDivideByZeroOrMixUnits()
+    {
+        var research=new ResearchExperiments(new DocumentStore(Store,new TestProtector()));
+        research.Add("Experiment","Boot","A","Time",0,"seconds","");
+        research.Add("Experiment","Boot","B","Time",1,"seconds","");
+        research.Add("Experiment","Boot","B","Time",1000,"milliseconds","");
+        var report=research.Report("Experiment");
+        Assert.Contains(report.Facts,f=>f.Name=="Time · variant B"&&f.Value.Contains("relative Δ unavailable (zero baseline or overflow)"));
+        Assert.Contains(report.Facts,f=>f.Name=="Time · variant B"&&f.Value.Contains("milliseconds")&&f.Value.Contains("no baseline A for this workload"));
+    }
+
+    [Fact]public void FullResearchHistoryRejectsNewTrialWithoutEvictingEvidence()
+    {
+        var documents=new DocumentStore(Store,new TestProtector());
+        var old=Enumerable.Range(0,ResearchExperiments.MaximumTrials).Select(i=>new ResearchTrial(i.ToString(),DateTimeOffset.UnixEpoch,"Experiment","Boot","A","Time",10,"seconds","")).ToList();
+        documents.Update("research-trials",new List<ResearchTrial>(),_=>old);
+        var research=new ResearchExperiments(documents);
+        Assert.Throws<HbxException>(()=>research.Add("Experiment","Boot","B","Time",8,"seconds",""));
+        Assert.Equal(ResearchExperiments.MaximumTrials,research.History().Count);
+        Assert.Contains(research.History(),t=>t.Id=="0");
+    }
+
     [Fact]public void ResearchTrialsRejectInvalidVariantsAndNonFiniteValues()
     {
         var research=new ResearchExperiments(new DocumentStore(Store,new TestProtector()));
