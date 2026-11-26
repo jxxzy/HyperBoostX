@@ -18,6 +18,53 @@ public static class LocalBenchmarks
              new("Elapsed",$"{watch.Elapsed.TotalSeconds:F3} seconds","Stopwatch","Measured"),new("Data processed",bytes.ToString(),"Byte counter","Measured"),
              new("Checksum accumulator",checksum.ToString(),"Work result"),new("Comparison limits","Compare identical app/runtime versions, AC/battery state, power plan, background load and thermal conditions. This is not an FPS or general CPU score.","Methodology")],[]);
     },token);
+    public const int MemoryBufferSize=32*1024*1024;
+    public const ulong MemoryMinimumAvailable=256UL*1024*1024;
+
+    public static void ValidateMemoryBenchmarkPreflight(TelemetrySample sample)
+    {
+        if(sample.TotalMemory==0||sample.AvailableMemory>sample.TotalMemory||
+            sample.AvailableMemory<MemoryMinimumAvailable||sample.LowMemorySignaled!=false)
+            throw new HbxException("HBX-BENCH-MEMORY: At least 256 MiB available physical memory and a confirmed normal Windows memory signal are required.");
+    }
+
+    public static Task<DiagnosticReport> MemoryAsync(CancellationToken token)=>Task.Run(()=>
+    {
+        token.ThrowIfCancellationRequested();
+        var telemetry=new Telemetry();
+        var baseline=telemetry.Sample();
+        ValidateMemoryBenchmarkPreflight(baseline);
+        // Two private managed buffers; no trimming, paging configuration or process changes.
+        var source=new byte[MemoryBufferSize];var destination=new byte[MemoryBufferSize];
+        RandomNumberGenerator.Fill(source);
+        Buffer.BlockCopy(source,0,destination,0,source.Length);
+        token.ThrowIfCancellationRequested();
+        long copied=0;int iterations=0;
+        var watch=Stopwatch.StartNew();
+        while(watch.Elapsed<TimeSpan.FromSeconds(2))
+        {
+            token.ThrowIfCancellationRequested();
+            Buffer.BlockCopy(source,0,destination,0,source.Length);
+            copied+=source.Length;iterations++;
+        }
+        watch.Stop();
+        token.ThrowIfCancellationRequested();
+        if(iterations==0||watch.Elapsed.TotalSeconds<=0||!CryptographicOperations.FixedTimeEquals(source,destination))
+            throw new HbxException("HBX-BENCH-MEMORY: Invalid interval or memory copy verification failed.");
+        var after=telemetry.Sample();
+        token.ThrowIfCancellationRequested();
+        return new DiagnosticReport("Memory copy benchmark",DateTimeOffset.UtcNow,
+            [new("Method","HBX-MEMCOPY-1: single worker, repeated 32 MiB managed buffer copy for >=2 seconds, 64 MiB total buffers; untimed content verification.","Benchmark method"),
+             new("Copy throughput",FormattableString.Invariant($"{copied/1048576d/watch.Elapsed.TotalSeconds:F2} MiB/s"),"Stopwatch + copied payload bytes","Measured"),
+             new("Elapsed",FormattableString.Invariant($"{watch.Elapsed.TotalSeconds:F3} seconds"),"Stopwatch","Measured"),
+             new("Bytes copied",copied.ToString(System.Globalization.CultureInfo.InvariantCulture),"Byte counter","Measured"),
+             new("Copy iterations",iterations.ToString(System.Globalization.CultureInfo.InvariantCulture),"Iteration counter","Measured"),
+             new("Available memory before",baseline.AvailableMemory.ToString(System.Globalization.CultureInfo.InvariantCulture)+" bytes","Windows GlobalMemoryStatusEx","Measured"),
+             new("Available memory after",after.AvailableMemory.ToString(System.Globalization.CultureInfo.InvariantCulture)+" bytes","Windows GlobalMemoryStatusEx","Measured"),
+             new("Content verification","Final destination matched source","Untimed byte comparison","Direct","Available"),
+             new("Comparison limits","Managed copy throughput includes runtime, cache and workload effects; it is not raw DRAM bandwidth, memory clock, CAS latency or an FPS score. Compare identical runtime, power and workload conditions.","Methodology")],[]);
+    },token);
+
     public const int StorageBlockSize=1024*1024;
     public const int StorageBlockCount=64;
 

@@ -13,8 +13,8 @@
     <ListBox ItemsSource="{Binding ResearchHistory}" MaxHeight="150" Margin="0,8,0,0" AutomationProperties.AutomationId="ResearchHistory"/>
    </StackPanel>
   </Border>
-  <WrapPanel Margin="0,12"><Button Content="Run CPU benchmark · 3 seconds" Command="{Binding CpuBenchmarkCommand}"/><Button Content="Run storage benchmark · 64 MiB" Command="{Binding StorageBenchmarkCommand}"/></WrapPanel>
-  <TextBlock Text="Tes lokal mengukur throughput SHA-256 atau I/O file. Hasil tersimpan di Reports dan tidak dikonversi menjadi skor FPS." Foreground="{DynamicResource MutedBrush}"/>
+  <WrapPanel Margin="0,12"><Button Content="Run CPU benchmark · 3 seconds" Command="{Binding CpuBenchmarkCommand}"/><Button Content="Run storage benchmark · 64 MiB" Command="{Binding StorageBenchmarkCommand}"/><Button Content="Run memory copy · 2 seconds" Command="{Binding MemoryBenchmarkCommand}" AutomationProperties.AutomationId="MemoryBenchmarkButton" ToolTip="Measures managed buffer copy throughput, not raw RAM clock or latency."/></WrapPanel>
+  <TextBlock Text="Tes lokal mengukur throughput SHA-256, salin memori, atau I/O file. Hasil tersimpan di Reports dan tidak dikonversi menjadi skor FPS." Foreground="{DynamicResource MutedBrush}"/>
   <TextBlock Text="Catat hasil capture Anda atau impor CSV. Angka diberi label User Reported; aplikasi tidak mengarang FPS atau mengklaim pengukuran GPU otomatis." Margin="0,10,0,15"/>
   <Grid IsEnabled="{Binding Busy,Converter={StaticResource InverseBool}}">
    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>

@@ -73,12 +73,14 @@ public sealed partial class ShellViewModel
     public ICommand CompareBenchmarksCommand{get;private set;}=null!;
     public ICommand CpuBenchmarkCommand{get;private set;}=null!;
     public ICommand StorageBenchmarkCommand{get;private set;}=null!;
+    public ICommand MemoryBenchmarkCommand{get;private set;}=null!;
     public ICommand ImportFrametimeCommand{get;private set;}=null!;
     public ICommand AddResearchTrialCommand{get;private set;}=null!;
     public ICommand AnalyzeResearchCommand{get;private set;}=null!;
     private void InitializeLegacyFeatures()
     {
         CpuBenchmarkCommand=new Command(()=>Run(async t=>{var report=await LocalBenchmarks.CpuAsync(t);Runtime.Journal.SaveReport(report);Show(report);Status="Pengukuran SHA-256 CPU selesai; hasil tersimpan di Reports.";}),()=>!Busy);
+        MemoryBenchmarkCommand=new Command(()=>Run(async t=>{if(!Confirm("Uji memakai dua buffer privat total 64 MiB selama sekitar 2 detik. Minimal 256 MiB RAM tersedia dan sinyal memori Windows normal diperlukan. Tidak mengubah pengaturan sistem. Lanjutkan?","Memory benchmark"))return;var report=await LocalBenchmarks.MemoryAsync(t);t.ThrowIfCancellationRequested();Runtime.Journal.SaveReport(report);Show(report);Status="Pengukuran salin memori selesai; hasil tersimpan di Reports.";}),()=>!Busy);
         StorageBenchmarkCommand=new Command(()=>Run(async t=>{if(!Confirm("Uji membutuhkan ruang kosong minimal 128 MiB, menulis file sementara 64 MiB, mengukur pembacaan, memverifikasi isi file, lalu menghapus file tes sendiri. Hasil baca mencakup cache Windows. Lanjutkan?","Storage benchmark"))return;var report=await LocalBenchmarks.StorageAsync(Runtime.Journal.Root,t);Runtime.Journal.SaveReport(report);Show(report);Status="Pengukuran storage selesai; file tes sudah dibersihkan.";}),()=>!Busy);
         ImportFrametimeCommand=new Command(()=>Run(async t=>
         {

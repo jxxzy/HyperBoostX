@@ -69,6 +69,21 @@ public sealed class TelemetryBenchmarkTests
         Assert.Null(resumed.ReceivedBytesPerSecond);Assert.Null(resumed.SentBytesPerSecond);
         Assert.NotEqual(MeasurementAvailability.Available,resumed.NetworkAvailability);
     }
+    [Fact]public void MemoryBenchmarkPreflightRejectsPressureAndUnknownSignals()
+    {
+        var sample=new TelemetrySample(DateTimeOffset.UnixEpoch,null,1024UL*1024*1024,LocalBenchmarks.MemoryMinimumAvailable,null,null,0,"fixture"){LowMemorySignaled=false};
+        LocalBenchmarks.ValidateMemoryBenchmarkPreflight(sample);
+        Assert.Throws<HbxException>(()=>LocalBenchmarks.ValidateMemoryBenchmarkPreflight(sample with{AvailableMemory=LocalBenchmarks.MemoryMinimumAvailable-1}));
+        Assert.Throws<HbxException>(()=>LocalBenchmarks.ValidateMemoryBenchmarkPreflight(sample with{LowMemorySignaled=true}));
+        Assert.Throws<HbxException>(()=>LocalBenchmarks.ValidateMemoryBenchmarkPreflight(sample with{LowMemorySignaled=null}));
+        Assert.Throws<HbxException>(()=>LocalBenchmarks.ValidateMemoryBenchmarkPreflight(sample with{AvailableMemory=sample.TotalMemory+1}));
+    }
+
+    [Fact]public async Task MemoryBenchmarkPreCancelledDoesNotStart()
+    {
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>LocalBenchmarks.MemoryAsync(new CancellationToken(true)));
+    }
+
     [Fact]public async Task StorageVerificationRejectsSameLengthCorruptionAndTruncation()
     {
         byte[] block=[1,2,3,4];
