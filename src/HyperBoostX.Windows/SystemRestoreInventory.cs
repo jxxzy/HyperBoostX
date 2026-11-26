@@ -50,14 +50,14 @@ public static class SystemRestoreInventory
         {
             using var search=new ManagementObjectSearcher(new ManagementScope(@"root\default"),
                 new ObjectQuery("SELECT SequenceNumber, Description, CreationTime, RestorePointType FROM SystemRestore"),
-                new EnumerationOptions{Timeout=TimeSpan.FromSeconds(8),ReturnImmediately=false,Rewindable=false});
-            using var result=search.Get();var limited=false;
+                new System.Management.EnumerationOptions{Timeout=TimeSpan.FromSeconds(8),ReturnImmediately=false,Rewindable=false});
+            using var result=search.Get();var limited=false;var examined=0;
             foreach(ManagementObject row in result)
             {
                 using(row)
                 {
                     token.ThrowIfCancellationRequested();
-                    if(points.Count>=MaxPoints){limited=true;break;}
+                    if(++examined>MaxPoints){limited=true;break;}
                     if(row["SequenceNumber"] is not uint sequence){limited=true;continue;}
                     points.Add(new(sequence,row["Description"] as string??"",row["CreationTime"] as string??"",row["RestorePointType"] is uint type?type:null));
                 }
