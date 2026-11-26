@@ -12,16 +12,17 @@ public static class InstalledGameDetection
     private const int ManifestLimit=500;
     private const int RootLimit=32;
     private static readonly Regex VdfLine=new("^[\\t ]*\"(?<key>[^\"\\r\\n]+)\"[\\t ]+\"(?<value>(?:\\\\.|[^\"\\\\\\r\\n])*)\"[\\t ]*\\r?$",RegexOptions.Multiline|RegexOptions.CultureInvariant,TimeSpan.FromMilliseconds(250));
+    public sealed record GogRecord(string? Name,string? InstallDirectory);
     public sealed record Candidate(string Name,string InstallDirectory,string Store,string? Executable);
     public sealed record Result(IReadOnlyList<Candidate> Games,IReadOnlyList<string> Issues,bool Truncated)
     {
         public DiagnosticReport Report()
         {
             var facts=new List<Fact>{
-                new("Installed game candidates",Games.Count.ToString(),"Local launcher manifests","Direct",Truncated?"Limited":"Available"),
-                new("Coverage",Truncated?"Limited: scan bounds reached":"Local configured Steam roots and Epic manifests; not an exhaustive game inventory","Manifest discovery","Guidance",Truncated?"Limited":"Available")
+                new("Installed game candidates",Games.Count.ToString(),"Local launcher manifests and registry","Direct",Truncated||Issues.Count>0?"Limited":"Available"),
+                new("Coverage",Truncated?"Limited: scan bounds reached":"Local Steam/Epic manifests and GOG installation registry when available; not an exhaustive game inventory","Local discovery","Guidance",Truncated||Issues.Count>0?"Limited":"Available")
             };
-            foreach(var game in Games)facts.Add(new(game.Name,$"{game.InstallDirectory} · {(game.Executable is null?"Select direct game executable manually":game.Executable)}",game.Store+" manifest","Direct"));
+            foreach(var game in Games)facts.Add(new(game.Name,$"{game.InstallDirectory} · {(game.Executable is null?"Select direct game executable manually":game.Executable)}",game.Store=="GOG"?"GOG installation registry":game.Store+" manifest","Direct"));
             foreach(var issue in Issues.Take(100))facts.Add(new("Discovery limitation",issue,"Local launcher manifests","Unavailable","Unavailable"));
             if(Games.Count==0)facts.Add(new("Game discovery","No accessible matching installed game manifests found; this does not prove no games are installed.","Local launcher manifests","Unavailable","Unavailable"));
             return new("Game Library",DateTimeOffset.UtcNow,facts,[]);
@@ -46,11 +47,47 @@ public static class InstalledGameDetection
         var programFiles=Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
         if(!string.IsNullOrWhiteSpace(programFiles))yield return Path.Combine(programFiles,"Steam");
     }
-    public static Result Scan(CancellationToken token)=>ScanLocations(SteamRoots(),
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),"Epic","EpicGamesLauncher","Data","Manifests"),token);
-
-    public static Result ScanLocations(IEnumerable<string> steamRoots,string? epicManifests,CancellationToken token)
+    public static Result Scan(CancellationToken token)
     {
+        token.ThrowIfCancellationRequested();
+        var issues=new List<string>();
+        var discovered=ScanLocations(SteamRoots(),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),"Epic","EpicGamesLauncher","Data","Manifests"),token,ReadGogRecords(issues,token));
+        return discovered with { Issues=discovered.Issues.Concat(issues).Take(100).ToArray() };
+    }
+
+    // Read installation metadata only. A registry entry is not permission to execute a game.
+    private static IEnumerable<GogRecord> ReadGogRecords(List<string> issues,CancellationToken token)
+    {
+        foreach(var view in new[]{RegistryView.Registry32,RegistryView.Registry64})
+        {
+            token.ThrowIfCancellationRequested();
+            var records=new List<GogRecord>();
+            try
+            {
+                using var root=RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,view);
+                using var games=root.OpenSubKey(@"SOFTWARE\GOG.com\Games");
+                if(games is null)continue;
+                foreach(var id in games.GetSubKeyNames().Take(ManifestLimit+1))
+                {
+                    token.ThrowIfCancellationRequested();
+                    try
+                    {
+                        using var key=games.OpenSubKey(id);
+                        records.Add(new(key?.GetValue("gameName",null,RegistryValueOptions.DoNotExpandEnvironmentNames) as string,
+                            key?.GetValue("path",null,RegistryValueOptions.DoNotExpandEnvironmentNames) as string));
+                    }
+                    catch(Exception e) when(Recoverable(e)){if(issues.Count<100)issues.Add($"GOG registry entry: {e.GetType().Name}");}
+                }
+            }
+            catch(Exception e) when(Recoverable(e)){if(issues.Count<100)issues.Add($"GOG registry {view}: {e.GetType().Name}");}
+            foreach(var record in records)yield return record;
+        }
+    }
+
+    public static Result ScanLocations(IEnumerable<string> steamRoots,string? epicManifests,CancellationToken token,IEnumerable<GogRecord>? gogRecords=null)
+    {
+        token.ThrowIfCancellationRequested();
         var games=new List<Candidate>();var issues=new List<string>();var truncated=false;
         var roots=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var visited=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -67,7 +104,13 @@ public static class InstalledGameDetection
             }
             catch(Exception e) when(Recoverable(e)){Issue("Steam root",e);}
         }
-        foreach(var root in steamRoots.Take(RootLimit+1)){token.ThrowIfCancellationRequested();AddRoot(root);}
+        var rootCount=0;
+        foreach(var root in steamRoots.Take(RootLimit+1))
+        {
+            token.ThrowIfCancellationRequested();
+            if(rootCount++>=RootLimit){truncated=true;break;}
+            AddRoot(root);
+        }
         foreach(var root in roots.ToArray())
         {
             token.ThrowIfCancellationRequested();
@@ -78,7 +121,11 @@ public static class InstalledGameDetection
                 foreach(Match match in VdfLine.Matches(ReadText(libraries,token)))
                 {
                     token.ThrowIfCancellationRequested();
-                    if(match.Groups["key"].Value.Equals("path",StringComparison.OrdinalIgnoreCase))AddRoot(Unescape(match.Groups["value"].Value));
+                    var key=match.Groups["key"].Value;
+                    var value=Unescape(match.Groups["value"].Value);
+                    // Older Steam libraryfolders.vdf uses numeric keys directly for local library paths.
+                    if(key.Equals("path",StringComparison.OrdinalIgnoreCase)||
+                        (uint.TryParse(key,out _)&&Path.IsPathFullyQualified(value)))AddRoot(value);
                 }
             }
             catch(Exception e) when(Recoverable(e)){Issue("Steam library folders",e);}
@@ -112,6 +159,24 @@ public static class InstalledGameDetection
         }
         if(!string.IsNullOrWhiteSpace(epicManifests))
             ScanManifests(epicManifests,"*.item","Epic manifest",ParseEpic);
+        if(gogRecords is not null)
+        {
+            var count=0;
+            foreach(var record in gogRecords)
+            {
+                token.ThrowIfCancellationRequested();
+                if(count++>=ManifestLimit){truncated=true;break;}
+                try
+                {
+                    if(record.Name is not {} name||!ValidName(name)||record.InstallDirectory is not {} directory||
+                       !Path.IsPathFullyQualified(directory))continue;
+                    var install=SafePaths.Local(directory);
+                    if(Directory.Exists(install)&&visited.Add("GOG|"+install))
+                        games.Add(new(name,install,"GOG",null));
+                }
+                catch(Exception e) when(Recoverable(e)){Issue("GOG installation directory",e);}
+            }
+        }
         return new(games.OrderBy(g=>g.Name,StringComparer.OrdinalIgnoreCase).ToArray(),issues,truncated);
     }
 

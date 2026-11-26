@@ -51,5 +51,38 @@ public sealed class InstalledGameDetectionTests:IDisposable
         Assert.ThrowsAny<OperationCanceledException>(()=>InstalledGameDetection.ScanLocations([root],null,new CancellationToken(true)));
     }
 
+    [Fact] public void GogRegistryCandidatesRequireExistingLocalDirectoriesAndManualExecutableSelection()
+    {
+        var install=Path.Combine(root,"GogGame");Directory.CreateDirectory(install);
+        File.WriteAllText(Path.Combine(install,"Game.exe"),"fixture only");
+        var records=new InstalledGameDetection.GogRecord[]{
+            new("GOG Example",install),new("Duplicate",install),new("Missing",Path.Combine(root,"missing")),
+            new("Relative","relative"),new("Bad name\n",install),new(null,install)
+        };
+        var result=InstalledGameDetection.ScanLocations([],null,default,records);
+        var game=Assert.Single(result.Games);
+        Assert.Equal("GOG",game.Store);Assert.Equal("GOG Example",game.Name);
+        Assert.Equal(install,game.InstallDirectory);Assert.Null(game.Executable);
+        Assert.Contains(result.Report().Facts,f=>f.Source=="GOG installation registry");
+    }
+
+    [Fact] public void LegacySteamNumericLibraryPathIsDiscovered()
+    {
+        var steam=Path.Combine(root,"Steam");var extra=Path.Combine(root,"Extra");
+        var apps=Path.Combine(steam,"steamapps");var install=Path.Combine(extra,"steamapps","common","Example");
+        Directory.CreateDirectory(apps);Directory.CreateDirectory(install);
+        File.WriteAllText(Path.Combine(apps,"libraryfolders.vdf"),"\"LibraryFolders\"\n{\n \"1\" \""+extra.Replace("\\","\\\\")+"\"\n}");
+        File.WriteAllText(Path.Combine(extra,"steamapps","appmanifest_100.acf"),"\"AppState\"\n{\n \"appid\" \"100\"\n \"name\" \"Old format\"\n \"installdir\" \"Example\"\n}");
+        Assert.Equal(install,Assert.Single(InstalledGameDetection.ScanLocations([steam],null,default).Games).InstallDirectory);
+    }
+
+    [Fact] public void BoundsAndCancellationApplyEvenToEmptyOrDuplicateSources()
+    {
+        var records=Enumerable.Repeat(new InstalledGameDetection.GogRecord(null,null),501);
+        Assert.True(InstalledGameDetection.ScanLocations([],null,default,records).Truncated);
+        Assert.True(InstalledGameDetection.ScanLocations(Enumerable.Repeat(root,33),null,default).Truncated);
+        Assert.ThrowsAny<OperationCanceledException>(()=>InstalledGameDetection.ScanLocations([],null,new CancellationToken(true)));
+    }
+
     public void Dispose(){if(Directory.Exists(root))Directory.Delete(root,true);}
 }
