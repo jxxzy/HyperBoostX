@@ -79,7 +79,7 @@ public sealed partial class ShellViewModel
     private void InitializeLegacyFeatures()
     {
         CpuBenchmarkCommand=new Command(()=>Run(async t=>{var report=await LocalBenchmarks.CpuAsync(t);Runtime.Journal.SaveReport(report);Show(report);Status="Pengukuran SHA-256 CPU selesai; hasil tersimpan di Reports.";}),()=>!Busy);
-        StorageBenchmarkCommand=new Command(()=>Run(async t=>{if(!Confirm("Uji menulis file sementara 64 MiB di lokasi data aplikasi, membaca kembali, lalu menghapus file tes sendiri. Hasil baca mencakup cache Windows. Lanjutkan?","Storage benchmark"))return;var report=await LocalBenchmarks.StorageAsync(Runtime.Journal.Root,t);Runtime.Journal.SaveReport(report);Show(report);Status="Pengukuran storage selesai; file tes sudah dibersihkan.";}),()=>!Busy);
+        StorageBenchmarkCommand=new Command(()=>Run(async t=>{if(!Confirm("Uji membutuhkan ruang kosong minimal 128 MiB, menulis file sementara 64 MiB, mengukur pembacaan, memverifikasi isi file, lalu menghapus file tes sendiri. Hasil baca mencakup cache Windows. Lanjutkan?","Storage benchmark"))return;var report=await LocalBenchmarks.StorageAsync(Runtime.Journal.Root,t);Runtime.Journal.SaveReport(report);Show(report);Status="Pengukuran storage selesai; file tes sudah dibersihkan.";}),()=>!Busy);
         ImportFrametimeCommand=new Command(()=>Run(async t=>
         {
             var dialog=new OpenFileDialog{Filter="Frametime CSV|*.csv",Title="Import frametime capture (single presentation stream)"};

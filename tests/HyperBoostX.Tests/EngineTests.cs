@@ -11,10 +11,23 @@ public sealed class EngineTests:IDisposable
     [Fact]public void FrametimeCsvCalculatesLowsSpikesAndOptionalCorrelations()
     {
         var rows=new List<string>{"frametime_ms,cpu,gpu,disk_io,temperature"};
-        for(var i=0;i<1000;i++){var frame=i>=990?50:10+(i%5);rows.Add($"{frame},{20+frame},{40+frame},1,{60+frame/10d}");}
+        for(var i=0;i<1000;i++){var frame=i>=990?50:10+(i%5);rows.Add(FormattableString.Invariant($"{frame},{20+frame},{40+frame},1,{60+frame/10d}"));}
         var report=FrameTimeAnalysis.AnalyzeCsv(string.Join("\n",rows),"fixture.csv");
         Assert.Equal("Stutter Analyzer",report.Center);Assert.Contains(report.Facts,f=>f.Name=="Average FPS");Assert.Contains(report.Facts,f=>f.Name=="1% low FPS");Assert.Contains(report.Facts,f=>f.Name=="0.1% low FPS");
         Assert.Contains(report.Facts,f=>f.Name=="Frame-time spikes"&&f.Value.StartsWith("10 ",StringComparison.Ordinal));Assert.Contains(report.Facts,f=>f.Name=="CPU load correlation"&&f.Availability=="Available");Assert.NotEmpty(report.Findings);
+    }
+    [Fact]public void FrametimeCsvUsesInvariantDecimalUnderCommaDecimalCulture()
+    {
+        var previous=System.Globalization.CultureInfo.CurrentCulture;
+        try
+        {
+            System.Globalization.CultureInfo.CurrentCulture=System.Globalization.CultureInfo.GetCultureInfo("id-ID");
+            var csv="frametime_ms,cpu\n"+string.Join("\n",Enumerable.Range(1,10).Select(i=>FormattableString.Invariant($"{15.5+i/10d},{20+i/10d}")));
+            var report=FrameTimeAnalysis.AnalyzeCsv(csv,"invariant.csv");
+            Assert.Contains(report.Facts,f=>f.Name=="CPU load correlation"&&f.Value=="1.0000");
+            Assert.Throws<HbxException>(()=>FrameTimeAnalysis.AnalyzeCsv("frametime_ms,cpu\n15,5,20","ambiguous.csv"));
+        }
+        finally{System.Globalization.CultureInfo.CurrentCulture=previous;}
     }
     [Fact]public void FrametimeCsvRejectsMissingInvalidOrInsufficientSamples()
     {

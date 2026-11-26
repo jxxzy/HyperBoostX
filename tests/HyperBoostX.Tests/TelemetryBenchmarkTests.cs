@@ -69,6 +69,20 @@ public sealed class TelemetryBenchmarkTests
         Assert.Null(resumed.ReceivedBytesPerSecond);Assert.Null(resumed.SentBytesPerSecond);
         Assert.NotEqual(MeasurementAvailability.Available,resumed.NetworkAvailability);
     }
+    [Fact]public async Task StorageVerificationRejectsSameLengthCorruptionAndTruncation()
+    {
+        byte[] block=[1,2,3,4];
+        using var valid=new MemoryStream(new byte[]{1,2,3,4,1,2,3,4});
+        await LocalBenchmarks.VerifyRepeatedBlocksAsync(valid,block,2,default);
+        using var corrupt=new MemoryStream(new byte[]{1,2,3,4,1,9,3,4});
+        await Assert.ThrowsAsync<HbxException>(()=>LocalBenchmarks.VerifyRepeatedBlocksAsync(corrupt,block,2,default));
+        using var shortStream=new MemoryStream(new byte[]{1,2,3,4,1});
+        await Assert.ThrowsAsync<HbxException>(()=>LocalBenchmarks.VerifyRepeatedBlocksAsync(shortStream,block,2,default));
+        using var extra=new MemoryStream(new byte[]{1,2,3,4,1,2,3,4,9});
+        await Assert.ThrowsAsync<HbxException>(()=>LocalBenchmarks.VerifyRepeatedBlocksAsync(extra,block,2,default));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>LocalBenchmarks.VerifyRepeatedBlocksAsync(valid,block,2,new CancellationToken(true)));
+    }
+
     [Fact]public async Task StorageBenchmarkUsesAndRemovesOnlyItsScratchFile()
     {
         var parent=Path.Combine(Path.GetTempPath(),"HyperBoostX-tests");var root=Path.Combine(parent,Guid.NewGuid().ToString("N"));Directory.CreateDirectory(root);
@@ -76,6 +90,7 @@ public sealed class TelemetryBenchmarkTests
         {
             var marker=Path.Combine(root,"keep.txt");File.WriteAllText(marker,"Preserve");
             var report=await LocalBenchmarks.StorageAsync(root,default);Assert.Contains(report.Facts,f=>f.Name=="Bytes verified"&&f.Value=="67108864");
+            Assert.Contains(report.Facts,f=>f.Name=="Content verification"&&f.Availability=="Available");
             Assert.Empty(Directory.GetFiles(Path.Combine(root,"BenchmarkScratch")));Assert.Equal("Preserve",File.ReadAllText(marker));
             using var cts=new CancellationTokenSource();cts.Cancel();await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>LocalBenchmarks.StorageAsync(root,cts.Token));
             Assert.Empty(Directory.GetFiles(Path.Combine(root,"BenchmarkScratch")));
