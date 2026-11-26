@@ -484,6 +484,23 @@ public sealed class EngineTests:IDisposable
         var report=new DiagnosticReport("Test",DateTimeOffset.UtcNow,[],[new("Low disk space","2 GiB","Review Storage","Measured")]);
         var markdown=ReportExport.Markdown(report);Assert.Contains("Low disk space",markdown);Assert.Contains("Review Storage",markdown);
     }
+    [Fact]public void RestoreCreationRequiresUniqueObservedPointEvenAfterSuccessCode()
+    {
+        const string description="HyperBoostX fixture";
+        var point=new SystemRestoreInventory.Point(42,description,"",12);
+        Assert.Equal(42u,SystemRestoreCreation.RequireObservedPoint(0,description,[point]).Sequence);
+        Assert.Throws<HbxException>(()=>SystemRestoreCreation.RequireObservedPoint(0,description,[]));
+        Assert.Throws<HbxException>(()=>SystemRestoreCreation.RequireObservedPoint(0,description,[point,point]));
+        Assert.Throws<HbxException>(()=>SystemRestoreCreation.RequireObservedPoint(0,description,[point with{Description="Old point"}]));
+        Assert.Throws<HbxException>(()=>SystemRestoreCreation.RequireObservedPoint(0,description,[point with{Sequence=0}]));
+        Assert.Throws<HbxException>(()=>SystemRestoreCreation.RequireObservedPoint(5,description,[point]));
+    }
+    [Fact]public async Task RestoreCreationRequiresConsentAndHonorsPreCancellation()
+    {
+        var error=await Assert.ThrowsAsync<HbxException>(()=>SystemRestoreCreation.CreateAsync(false,default));
+        Assert.Contains("HBX-RESTORE-POINT-CONSENT",error.Message);
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>SystemRestoreCreation.CreateAsync(true,new CancellationToken(true)));
+    }
     [Fact]public void RestoreInventoryDistinguishesEmptyUnavailableAndObservedPoints()
     {
         var empty=SystemRestoreInventory.BuildReport([],false,null);
