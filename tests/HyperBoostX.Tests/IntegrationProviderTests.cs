@@ -12,6 +12,24 @@ namespace HyperBoostX.Tests;
 
 public sealed class IntegrationProviderTests:IDisposable
 {
+    [Theory]
+    [InlineData("NVIDIA GeForce RTX 4090",null,"NVIDIA","GeForce RTX / RTX")]
+    [InlineData("AMD Radeon RX 7900 XT",null,"AMD","Radeon RX")]
+    [InlineData("Intel Arc A770",null,"Intel","Intel Arc")]
+    [InlineData("Intel Iris Xe Graphics",null,"Intel","Intel Iris Xe")]
+    [InlineData("Microsoft Basic Display Adapter",null,"Microsoft","Basic Display Adapter")]
+    [InlineData("Mystery Display Adapter",null,"Unknown","Unknown")]
+    [InlineData("Unknown adapter",@"PCI\VEN_10DE&DEV_1234","NVIDIA","NVIDIA GPU")]
+    [InlineData("NVIDIA GeForce",@"PCI\VEN_8086&DEV_1234","Intel","Intel GPU")]
+    [InlineData("NVIDIA GeForce",@"PCI\VEN_1234&DEV_1234","Unknown","Unknown")]
+    [InlineData(null,null,"Unknown","Unknown")]
+    public void GpuIdentityAdaptsLegacyClassificationWithoutInventingHardware(string? model,string? deviceId,string vendor,string family)
+    {
+        var identity=GpuIdentity.Classify(model,deviceId);
+        Assert.Equal(vendor,identity.Vendor);Assert.Equal(family,identity.Family);
+        Assert.False(string.IsNullOrWhiteSpace(identity.Profile));
+    }
+
     [Fact]public async Task TelemetryReadsPhysicalMemoryAndSecondCpuIntervalFromWindows()
     {
         var telemetry=new Telemetry();

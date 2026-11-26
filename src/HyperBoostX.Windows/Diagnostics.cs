@@ -36,6 +36,13 @@ public sealed class Diagnostics
                         var name=fields.Length>0?Format(row[fields[0]]):$"Entry {count}";
                         if(fields.Length>0 && (row[fields[0]] is bool||center=="GPU"&&fields[0]=="Name"))Add(fields[0],row[fields[0]],query);
                         foreach(var field in fields.Skip(1))Add($"{name} · {field}",row[field] is {} value?Format(value):null,query);
+                        if(center=="GPU"&&fields.Length>0&&fields[0]=="Name")
+                        {
+                            var identity=GpuIdentity.Classify(row["Name"]?.ToString(),row["PNPDeviceID"]?.ToString());
+                            Add($"{name} · Vendor",identity.Vendor,"PCI vendor ID or adapter name","Heuristic");
+                            Add($"{name} · Family",identity.Family,"Adapter model name","Heuristic");
+                            Add($"{name} · Profile recommendation",identity.Profile,"Read-only adapter classification; no settings changed","Heuristic");
+                        }
                     }
                 }
                 if(count==0)Add("Provider result","No entries reported",query);
@@ -102,7 +109,7 @@ public sealed class Diagnostics
                 Memory(facts);Add("CPU temperature",null,"No validated temperature provider");
                 break;
             case "GPU":
-                await Query(@"root\cimv2","SELECT Name,DriverVersion,DriverDate,VideoProcessor,CurrentHorizontalResolution,CurrentVerticalResolution,CurrentRefreshRate,ConfigManagerErrorCode FROM Win32_VideoController","Name","DriverVersion","DriverDate","VideoProcessor","CurrentHorizontalResolution","CurrentVerticalResolution","CurrentRefreshRate","ConfigManagerErrorCode");
+                await Query(@"root\cimv2","SELECT Name,DriverVersion,DriverDate,VideoProcessor,CurrentHorizontalResolution,CurrentVerticalResolution,CurrentRefreshRate,ConfigManagerErrorCode,PNPDeviceID FROM Win32_VideoController","Name","DriverVersion","DriverDate","VideoProcessor","CurrentHorizontalResolution","CurrentVerticalResolution","CurrentRefreshRate","ConfigManagerErrorCode");
                 facts.AddRange(await GpuCounters.ScanAsync(token));
                 Add("VRAM capacity",null,"Win32_VideoController.AdapterRAM is not reliable for modern VRAM sizes; dedicated usage is not capacity");
                 Add("GPU temperature / power",null,"No validated vendor sensor provider");

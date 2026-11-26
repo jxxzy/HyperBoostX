@@ -229,3 +229,6 @@ Installer lifecycle CI at 09cace4 passed 279/279 tests and five lifecycle checks
 
 
 2026-11-27: V1.3 overlay catalog migration and process measurement hardening; new regression tests PENDING_CI. Read-only detector only; no new mandatory verification or Stable claim.
+
+
+2026-11-27: GPU Center read-only vendor/family/profile classification adapted from v1.3.0 app/services/monitoring/gpu_detection_service.py; existing GPU ScanCommand → Diagnostics → Win32_VideoController now includes PCI vendor identity and conservative recommendations. No VRAM, hybrid or sensor claims; no mutations. Ten classification fixture cases added. Previous CI 45869240179 Windows build passed, Stable gate failed. New candidate PENDING_CI; no requirement promotion. Next: verify CI and extend adapter-specific capacity with validated provider.
