@@ -260,3 +260,6 @@ RGB legacy migration and sample validation: PENDING_CI; no Stable promotion.
 Frametime culture fixture regression fix and storage benchmark integration: PENDING_CI.
 
 2026-11-27: Real managed memory copy benchmark in Benchmark Lab with pressure preflight, cancellation, consent, measured throughput and verification. PENDING_CI; no mandatory status promotion or raw DRAM performance claim.
+
+
+2026-11-27: Memory Guard sustained-pressure evidence persisted to Reports; immediate OS low-memory signal, bounded observation continuity, no automatic mutation. PENDING_CI; no mandatory status promoted.

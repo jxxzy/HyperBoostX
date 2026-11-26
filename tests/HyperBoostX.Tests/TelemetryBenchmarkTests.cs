@@ -47,6 +47,29 @@ public sealed class TelemetryBenchmarkTests
         var invalid=MemoryPressureAssessment.FromSample(sample with{CommitAvailability=MeasurementAvailability.Available,CommitLimitBytes=99},100);
         Assert.Null(invalid.CommitPercent);Assert.Equal(95,invalid.ThresholdPercent);
     }
+    [Fact]public void MemoryGuardRecordsSustainedPressureAndResetsOnGapOrNormalSample()
+    {
+        var tracker=new MemoryGuardEvidence();
+        var sample=new TelemetrySample(DateTimeOffset.UnixEpoch,null,100,5,null,null,0,"fixture"){LowMemorySignaled=false};
+        Assert.Null(tracker.Observe(sample,90));
+        Assert.Null(tracker.Observe(sample with{ObservedAt=sample.ObservedAt.AddSeconds(2)},90));
+        var report=tracker.Observe(sample with{ObservedAt=sample.ObservedAt.AddSeconds(4)},90);
+        Assert.NotNull(report);
+        Assert.Contains(report.Facts,f=>f.Name=="Consecutive pressure observations"&&f.Value=="3");
+        Assert.Contains(report.Facts,f=>f.Name=="Commit charge usage"&&f.Availability=="Unavailable");
+        Assert.Null(tracker.Observe(sample with{ObservedAt=sample.ObservedAt.AddSeconds(20)},90));
+        Assert.Null(tracker.Observe(sample with{ObservedAt=sample.ObservedAt.AddSeconds(22),AvailableMemory=50},90));
+        Assert.Null(tracker.Observe(sample with{ObservedAt=sample.ObservedAt.AddSeconds(24)},90));
+    }
+    [Fact]public void MemoryGuardRecordsWindowsLowMemorySignalImmediately()
+    {
+        var tracker=new MemoryGuardEvidence();
+        var sample=new TelemetrySample(DateTimeOffset.UnixEpoch,null,100,60,null,null,0,"fixture"){LowMemorySignaled=true};
+        var report=tracker.Observe(sample,90);
+        Assert.NotNull(report);
+        Assert.Contains(report.Facts,f=>f.Name=="Windows low-memory signal"&&f.Value=="True");
+        Assert.Contains(report.Facts,f=>f.Name=="Consecutive pressure observations"&&f.Value=="1");
+    }
     [Fact]public async Task WindowsTelemetryReportsMeasuredMemoryAndBoundedCpu()
     {
         var provider=new Telemetry();var first=provider.Sample();await Task.Delay(150);var second=provider.Sample();

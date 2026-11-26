@@ -40,6 +40,34 @@ public sealed record MemoryPressureAssessment(double? PhysicalPercent,double? Co
     }
 }
 
+public sealed class MemoryGuardEvidence
+{
+    private DateTimeOffset? _first;
+    private DateTimeOffset? _last;
+    private int _count;
+    private int _threshold;
+    public void Reset(){_first=null;_last=null;_count=0;}
+    public DiagnosticReport? Observe(TelemetrySample sample,int thresholdPercent)
+    {
+        var pressure=MemoryPressureAssessment.FromSample(sample,thresholdPercent);
+        if(!pressure.ShouldAlert){Reset();return null;}
+        if(_last is {} previous&&(sample.ObservedAt<=previous||sample.ObservedAt-previous>TimeSpan.FromSeconds(6)||_threshold!=pressure.ThresholdPercent))Reset();
+        _first??=sample.ObservedAt;_last=sample.ObservedAt;_threshold=pressure.ThresholdPercent;
+        if(_count<int.MaxValue)_count++;
+        if(_count<3&&pressure.WindowsLowMemory!=true)return null;
+        Fact Percent(string name,double? value)=>new(name,value is double v?FormattableString.Invariant($"{v:F2}%"):"Unavailable","Windows telemetry","Direct",value.HasValue?"Available":"Unavailable");
+        return new DiagnosticReport("Memory Guard pressure evidence",sample.ObservedAt,
+            [Percent("Physical memory usage",pressure.PhysicalPercent),Percent("Commit charge usage",pressure.CommitPercent),
+             new("Windows low-memory signal",pressure.WindowsLowMemory?.ToString()??"Unavailable","Windows memory resource notification","Direct",pressure.WindowsLowMemory.HasValue?"Available":"Unavailable"),
+             new("Threshold",pressure.ThresholdPercent.ToString(System.Globalization.CultureInfo.InvariantCulture)+"%","User setting"),
+             new("Consecutive pressure observations",_count.ToString(System.Globalization.CultureInfo.InvariantCulture),"Memory Guard"),
+             new("First observation",_first.Value.ToString("O"),"Windows telemetry"),
+             new("Latest observation",sample.ObservedAt.ToString("O"),"Windows telemetry"),
+             new("Observation span",FormattableString.Invariant($"{(sample.ObservedAt-_first.Value).TotalSeconds:F2} seconds"),"Sample timestamps"),
+             new("Response","Review workload and memory usage; save work before closing applications. No processes stopped, memory trimmed, or system configuration changed.","Safety policy")],[]);
+    }
+}
+
 public sealed class Telemetry
 {
     private (ulong Idle,ulong Kernel,ulong User)? _cpu;

@@ -15,6 +15,7 @@ public sealed partial class ShellViewModel
     private GpuCounters.LoadSample? _liveGpu;
     private string? _telemetryError;
     private DateTimeOffset _lastMemoryNotice;
+    private readonly MemoryGuardEvidence _memoryEvidence=new();
     private bool _memoryGuard;
     private int _memoryGuardThresholdPercent=90;
     private int _memoryGuardCooldownMinutes=5;
@@ -89,7 +90,7 @@ public sealed partial class ShellViewModel
     };
     public PointCollection CpuChart {get;private set;}=[];
     public bool HasCpuSamples=>_cpuPoints.Count>1;
-    public bool MemoryGuardEnabled{get=>_memoryGuard;set{Runtime.Journal.SetSetting("memory-guard",value.ToString());_memoryGuard=value;Notify();}}
+    public bool MemoryGuardEnabled{get=>_memoryGuard;set{if(_memoryGuard==value)return;Runtime.Journal.SetSetting("memory-guard",value.ToString());_memoryGuard=value;_memoryEvidence.Reset();_lastMemoryNotice=default;Notify();}}
     public int MemoryGuardThresholdPercent
     {
         get=>_memoryGuardThresholdPercent;
@@ -166,7 +167,7 @@ public sealed partial class ShellViewModel
             using var timer=new PeriodicTimer(TimeSpan.FromSeconds(2));var ticks=0;
             while(await timer.WaitForNextTickAsync(token))
             {
-                if(!IsDashboard&&!IsCpuOptimization&&!MemoryGuardEnabled){_telemetry.ResetBaseline();continue;}
+                if(!IsDashboard&&!IsCpuOptimization&&!MemoryGuardEnabled){_telemetry.ResetBaseline();_memoryEvidence.Reset();continue;}
                 try
                 {
                     var sample=await Task.Run(_telemetry.Sample,token);token.ThrowIfCancellationRequested();_liveSample=sample;_telemetryError=null;
@@ -175,13 +176,15 @@ public sealed partial class ShellViewModel
                     if(MemoryGuardEnabled)
                     {
                         var pressure=MemoryPressureAssessment.FromSample(sample,MemoryGuardThresholdPercent);
-                        if(ShouldNotifyMemoryGuard(pressure,_lastMemoryNotice,observedAt,MemoryGuardCooldownMinutes))
+                        var evidence=_memoryEvidence.Observe(sample,MemoryGuardThresholdPercent);
+                        if(evidence is not null&&ShouldNotifyMemoryGuard(pressure,_lastMemoryNotice,observedAt,MemoryGuardCooldownMinutes))
                         {
+                            Runtime.Journal.SaveReport(evidence);
                             var reasons=new List<string>();
                             if(pressure.PhysicalHigh)reasons.Add($"{Localization["PhysicalMemory"]}: {pressure.PhysicalPercent:F1}%");
                             if(pressure.CommitHigh)reasons.Add($"{Localization["CommitCharge"]}: {pressure.CommitPercent:F1}%");
                             if(pressure.WindowsLowMemory==true)reasons.Add(Localization["MemoryLowSignaled"]);
-                            Status=string.Join(" · ",reasons)+". "+Localization["MemoryGuardRecommendation"];
+                            if(!Busy)Status=string.Join(" · ",reasons)+". "+Localization["MemoryGuardRecommendation"]+" · Reports";
                             _lastMemoryNotice=observedAt;
                         }
                     }
@@ -189,7 +192,7 @@ public sealed partial class ShellViewModel
                     foreach(var name in new[]{nameof(LiveCpu),nameof(LiveMemory),nameof(LiveMemoryPressure),nameof(LiveCommit),nameof(LiveGpu),nameof(LiveGpuDetail),nameof(LiveStorage),nameof(LiveNetwork),nameof(LiveUptime),nameof(TelemetryStatus),nameof(CpuChart),nameof(HasCpuSamples)})Notify(name);
                 }
                 catch(OperationCanceledException)when(token.IsCancellationRequested){break;}
-                catch(Exception e){_liveSample=null;_telemetry.ResetBaseline();_telemetryError=ReportExport.Redact(e.Message);foreach(var name in new[]{nameof(LiveCpu),nameof(LiveMemory),nameof(LiveMemoryPressure),nameof(LiveCommit),nameof(LiveNetwork),nameof(LiveUptime),nameof(TelemetryStatus)})Notify(name);}
+                catch(Exception e){_liveSample=null;_telemetry.ResetBaseline();_memoryEvidence.Reset();_telemetryError=ReportExport.Redact(e.Message);foreach(var name in new[]{nameof(LiveCpu),nameof(LiveMemory),nameof(LiveMemoryPressure),nameof(LiveCommit),nameof(LiveNetwork),nameof(LiveUptime),nameof(TelemetryStatus)})Notify(name);}
             }
         }
         catch(OperationCanceledException)when(token.IsCancellationRequested){}
