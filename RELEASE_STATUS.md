@@ -272,3 +272,6 @@ Frametime culture fixture regression fix and storage benchmark integration: PEND
 
 
 2026-11-27: Typed verified restore creation provider added, not activated. Actual creation, elevated IPC integration, and Windows VM qualification pending. No Stable or mandatory status promotion.
+
+
+2026-11-27: Core pre-mutation restore point evidence gate implemented and fixture coverage added. Windows creation provider not yet connected to production action dispatch; actual elevated creation and VM tests pending. No Stable promotion.

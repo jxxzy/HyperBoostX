@@ -17,7 +17,7 @@ public sealed record State(bool Exists, string Kind, string Value)
     public override string ToString() => Exists ? $"{Value} ({Kind})" : "Value absent";
 }
 public sealed record ActionInfo(string Id, string Name, string Center, string Description, string Scope,
-    string Risk, string Restart, string Source, bool Reversible = true, bool RequiresElevation = false)
+    string Risk, string Restart, string Source, bool Reversible = true, bool RequiresElevation = false, bool RequiresRestorePoint = false)
 {
     public override string ToString()=>Name;
 }
@@ -34,8 +34,10 @@ public interface ISystemAction
 }
 public sealed record Preview(string ActionId, string Target, State Before, State Desired, string Token,
     DateTimeOffset CreatedAt, string Description);
+public sealed record RestorePointEvidence(uint Sequence,string Description,DateTimeOffset VerifiedAt);
 public sealed record Change
 {
+    public RestorePointEvidence? RestorePoint { get; init; }
     public string Id { get; init; } = Guid.NewGuid().ToString("N");
     public string Session { get; init; } = Guid.NewGuid().ToString("N");
     public string ActionId { get; init; } = "";

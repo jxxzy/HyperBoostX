@@ -23,9 +23,11 @@ public sealed class ActionEngine
     private readonly Journal _journal;
     private readonly SafetyGuard _safety;
     private readonly string _owner;
+    private readonly Func<CancellationToken,Task<RestorePointEvidence>>? _createRestorePoint;
     public IReadOnlyList<ActionInfo> Actions => _actions.Values.Select(a=>a.Info).ToArray();
-    public ActionEngine(IEnumerable<ISystemAction> actions, Journal journal, SafetyGuard safety, string owner)
-    { _actions = actions.ToDictionary(a=>a.Info.Id,StringComparer.Ordinal); _journal=journal; _safety=safety; _owner=owner; }
+    public ActionEngine(IEnumerable<ISystemAction> actions, Journal journal, SafetyGuard safety, string owner,
+        Func<CancellationToken,Task<RestorePointEvidence>>? createRestorePoint=null)
+    { _actions = actions.ToDictionary(a=>a.Info.Id,StringComparer.Ordinal); _journal=journal; _safety=safety; _owner=owner; _createRestorePoint=createRestorePoint; }
     private ISystemAction Get(string id) => _actions.TryGetValue(id,out var a) ? a : throw new HbxException("HBX-SAFE-0002: Action is not registered.");
     public async Task<Preview> PreviewAsync(string id,string target,CancellationToken token)
     {
@@ -59,6 +61,22 @@ public sealed class ActionEngine
         if(current==p.Desired)
         { c=c with{Status="AlreadyDesiredState",Observed=current,CompletedAt=DateTimeOffset.UtcNow,Message="No write was needed."};_journal.Save(c);return c; }
         token.ThrowIfCancellationRequested();
+        if(action.Info.RequiresRestorePoint)
+        {
+            if(_createRestorePoint is null)
+                throw new HbxException("HBX-RESTORE-POINT-REQUIRED: No authorized restore point provider is available. Nothing was applied.");
+            var evidence=await _createRestorePoint(token);
+            token.ThrowIfCancellationRequested();
+            if(evidence is null||evidence.Sequence==0||string.IsNullOrWhiteSpace(evidence.Description)||evidence.VerifiedAt==default)
+                throw new HbxException("HBX-RESTORE-POINT-UNVERIFIED: Restore point evidence is incomplete. Nothing was applied.");
+            _safety.Check(action,p.Target);
+            current=await action.ReadAsync(p.Target,token);
+            token.ThrowIfCancellationRequested();
+            _safety.Check(action,p.Target);
+            if(current!=p.Before)
+                throw new HbxException("HBX-ACTION-0004: State changed during restore point preparation. Nothing was applied.");
+            c=c with{RestorePoint=evidence};
+        }
         _journal.SaveVerifiedIntent(c); // Both recovery representations must be readable and match.
         c=c with{Status="Applying"};_journal.SaveVerifiedIntent(c);
         try

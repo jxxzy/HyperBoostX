@@ -259,6 +259,49 @@ public sealed class EngineTests:IDisposable
         var result=await e.ApplySafeBoostAsync(previews,true,cts.Token);
         Assert.Equal("CancelledRestored",result.Status);Assert.Equal("0",a.State.Value);Assert.Equal(0,b.Writes);
     }
+    [Fact]public async Task RequiredRestorePointFailsClosedWithoutProvider()
+    {
+        var action=new FakeAction(requiresRestorePoint:true);
+        var engine=new ActionEngine([action],Store,new SafetyGuard(()=>null),"test-owner");
+        var preview=await engine.PreviewAsync("test","",default);
+        var error=await Assert.ThrowsAsync<HbxException>(()=>engine.ApplyAsync(preview.Token,true,null,default));
+        Assert.Contains("HBX-RESTORE-POINT-REQUIRED",error.Message);
+        Assert.Equal(0,action.Writes);Assert.Empty(Store.History());
+    }
+    [Fact]public async Task RequiredRestorePointEvidencePersistsBeforeMutationAndRollbackDoesNotCreateAnother()
+    {
+        var action=new FakeAction(requiresRestorePoint:true);var calls=0;
+        var evidence=new RestorePointEvidence(42,"HyperBoostX fixture",DateTimeOffset.UtcNow);
+        var engine=new ActionEngine([action],Store,new SafetyGuard(()=>null),"test-owner",_=>{calls++;return Task.FromResult(evidence);});
+        var preview=await engine.PreviewAsync("test","",default);
+        await Assert.ThrowsAsync<HbxException>(()=>engine.ApplyAsync(preview.Token,false,null,default));
+        Assert.Equal(0,calls);
+        var applied=await engine.ApplyAsync(preview.Token,true,null,default);
+        Assert.Equal("Verified",applied.Status);Assert.Equal(evidence,Store.Find(applied.Id).RestorePoint);
+        Assert.Equal("RolledBack",(await engine.RollbackAsync(applied.Id,true,default)).Status);Assert.Equal(1,calls);
+    }
+    [Fact]public async Task RequiredRestorePointRechecksStateAfterProviderReturns()
+    {
+        var action=new FakeAction(requiresRestorePoint:true);
+        var engine=new ActionEngine([action],Store,new SafetyGuard(()=>null),"test-owner",_=>{
+            action.State=new(true,"Int","external");return Task.FromResult(new RestorePointEvidence(42,"HyperBoostX fixture",DateTimeOffset.UtcNow));});
+        var preview=await engine.PreviewAsync("test","",default);
+        await Assert.ThrowsAsync<HbxException>(()=>engine.ApplyAsync(preview.Token,true,null,default));
+        Assert.Equal(0,action.Writes);Assert.Empty(Store.History());
+    }
+    [Fact]public async Task RequiredRestorePointCancellationAndInvalidEvidencePreventMutation()
+    {
+        var action=new FakeAction(requiresRestorePoint:true);
+        using var cts=new CancellationTokenSource();
+        var engine=new ActionEngine([action],Store,new SafetyGuard(()=>null),"test-owner",_=>{
+            cts.Cancel();return Task.FromResult(new RestorePointEvidence(42,"HyperBoostX fixture",DateTimeOffset.UtcNow));});
+        var preview=await engine.PreviewAsync("test","",default);
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>engine.ApplyAsync(preview.Token,true,null,cts.Token));
+        var invalid=new ActionEngine([action],Store,new SafetyGuard(()=>null),"test-owner",_=>Task.FromResult(new RestorePointEvidence(0,"",default)));
+        var invalidPreview=await invalid.PreviewAsync("test","",default);
+        await Assert.ThrowsAsync<HbxException>(()=>invalid.ApplyAsync(invalidPreview.Token,true,null,default));
+        Assert.Equal(0,action.Writes);Assert.Empty(Store.History());
+    }
     [Fact]public async Task ApplyPersistsBeforeAndVerifiesRollback()
     {
         var e=Engine();var p=await e.PreviewAsync("test","",default);var c=await e.ApplyAsync(p.Token,true,null,default);
@@ -615,11 +658,11 @@ public sealed class EngineTests:IDisposable
         if(root.StartsWith(parent,StringComparison.OrdinalIgnoreCase)&&Directory.Exists(root))Directory.Delete(root,true);
     }
     private sealed class TestProtector:IStateProtector{public byte[] Protect(byte[] b)=>b;public byte[] Unprotect(byte[] b)=>b;}
-    private sealed class FakeAction(string id="test"):ISystemAction
+    private sealed class FakeAction(string id="test",bool requiresRestorePoint=false):ISystemAction
     {
         public State State=new(true,"Int","0");public int Writes;public bool IgnoreWrite;public bool ThrowAfterApply;public bool ThrowAfterRestore;public bool IgnoreRestore;
         public CancellationTokenSource? CancelSource;public string? CancelAfterWriteValue;public Action? OnRead;
-        public ActionInfo Info=>new(id,"Test","Test","Test","Test","Low","None","Test");
+        public ActionInfo Info=>new(id,"Test","Test","Test","Test","Low","None","Test",RequiresRestorePoint:requiresRestorePoint);
         public void Validate(string target){if(target!="")throw new HbxException("invalid target");}
         public Task<State> ReadAsync(string target,CancellationToken token){OnRead?.Invoke();return Task.FromResult(State);}
         public State Desired(string target,State before)=>new(true,"Int","1");
