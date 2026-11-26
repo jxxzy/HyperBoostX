@@ -80,11 +80,12 @@ public sealed partial class ShellViewModel
     {
         CpuBenchmarkCommand=new Command(()=>Run(async t=>{var report=await LocalBenchmarks.CpuAsync(t);Runtime.Journal.SaveReport(report);Show(report);Status="Pengukuran SHA-256 CPU selesai; hasil tersimpan di Reports.";}),()=>!Busy);
         StorageBenchmarkCommand=new Command(()=>Run(async t=>{if(!Confirm("Uji menulis file sementara 64 MiB di lokasi data aplikasi, membaca kembali, lalu menghapus file tes sendiri. Hasil baca mencakup cache Windows. Lanjutkan?","Storage benchmark"))return;var report=await LocalBenchmarks.StorageAsync(Runtime.Journal.Root,t);Runtime.Journal.SaveReport(report);Show(report);Status="Pengukuran storage selesai; file tes sudah dibersihkan.";}),()=>!Busy);
-        ImportFrametimeCommand=new Command(()=>Run(_=>
+        ImportFrametimeCommand=new Command(()=>Run(async t=>
         {
-            var dialog=new OpenFileDialog{Filter="Frametime CSV|*.csv",Title="Import frametime capture"};
-            if(dialog.ShowDialog()==true){var info=new FileInfo(dialog.FileName);if(info.Length>64L*1024*1024)throw new HbxException("Frametime CSV maximum size is 64 MiB.");var report=FrameTimeAnalysis.AnalyzeCsv(File.ReadAllText(dialog.FileName),Path.GetFileName(dialog.FileName));Runtime.Journal.SaveReport(report);Show(report);Status="Frametime capture analyzed and stored in Reports.";}
-            return Task.CompletedTask;
+            var dialog=new OpenFileDialog{Filter="Frametime CSV|*.csv",Title="Import frametime capture (single presentation stream)"};
+            if(dialog.ShowDialog()!=true)return;
+            var report=await Task.Run(()=>FrameTimeAnalysis.AnalyzeFile(dialog.FileName,t),t);
+            t.ThrowIfCancellationRequested();Runtime.Journal.SaveReport(report);Show(report);Status="Frametime capture analyzed and stored in Reports.";
         }),()=>!Busy&&IsStutterAnalyzer);
         AddResearchTrialCommand=new Command(()=>Run(_=>{var trial=Runtime.Research.Add(ResearchExperiment,ResearchWorkload,ResearchVariant,ResearchMetric,ParseNumber(ResearchValue),ResearchUnit,ResearchNotes);RefreshResearch();Status=$"Research trial {trial.Variant} saved locally.";return Task.CompletedTask;}),()=>!Busy&&IsResearchMode);
         AnalyzeResearchCommand=new Command(()=>Run(_=>{var report=Runtime.Research.Report(ResearchExperiment);Runtime.Journal.SaveReport(report);Show(report);Status="A/B/C/D experiment summary calculated from recorded trials.";return Task.CompletedTask;}),()=>!Busy&&IsResearchMode&&ResearchHistory.Any(t=>string.Equals(t.Experiment,ResearchExperiment,StringComparison.OrdinalIgnoreCase)));

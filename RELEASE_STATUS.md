@@ -247,3 +247,6 @@ RGB legacy migration and sample validation: PENDING_CI; no Stable promotion.
 
 
 2026-11-27: MSI Windows CI regression fixture corrected without weakening termination assertion; bounded WMI enumeration and cancellation checks. PENDING_CI; Stable gate remains closed.
+
+
+2026-11-27: Stutter Analyzer import/measurement validation and UI cancellation improvements. PENDING_CI, no requirement promotion.

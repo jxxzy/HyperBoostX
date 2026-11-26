@@ -22,6 +22,36 @@ public sealed class EngineTests:IDisposable
         Assert.Throws<HbxException>(()=>FrameTimeAnalysis.AnalyzeCsv("other\n1\n2","missing.csv"));
         Assert.Throws<HbxException>(()=>FrameTimeAnalysis.AnalyzeCsv("frametime_ms\n10\n11","short.csv"));
     }
+    [Fact]public void PresentMonSingleStreamHandlesQuotedNamesAndRejectsMixedStreams()
+    {
+        var row="\"Example, Game.exe\",123,0xABC,16.0";
+        var csv="Application,ProcessID,SwapChainAddress,MsBetweenPresents\n"+string.Join("\n",Enumerable.Repeat(row,10));
+        var report=FrameTimeAnalysis.AnalyzeCsv(csv,"presentmon.csv");
+        Assert.Contains(report.Facts,f=>f.Name=="Average FPS"&&f.Value=="62.50");
+        Assert.Contains(report.Facts,f=>f.Name=="Capture method"&&f.Value.Contains("not display FPS"));
+        Assert.Contains(report.Facts,f=>f.Name=="1% low FPS"&&f.Availability=="Unavailable");
+        Assert.Contains(report.Facts,f=>f.Name=="0.1% low FPS"&&f.Availability=="Unavailable");
+        Assert.Throws<HbxException>(()=>FrameTimeAnalysis.AnalyzeCsv(csv+"\nOther.exe,124,0xDEF,16.0","mixed.csv"));
+        Assert.Throws<HbxException>(()=>FrameTimeAnalysis.AnalyzeCsv("MsBetweenPresents\n"+string.Join("\n",Enumerable.Repeat("16",10)),"noidentity.csv"));
+    }
+    [Fact]public void FrametimeRejectsAmbiguousMalformedAndNonfiniteData()
+    {
+        Assert.Throws<HbxException>(()=>FrameTimeAnalysis.AnalyzeCsv("frametime_ms,ms\n16,16","duplicate.csv"));
+        Assert.Throws<HbxException>(()=>FrameTimeAnalysis.AnalyzeCsv("frametime_ms,cpu\n16","width.csv"));
+        Assert.Throws<HbxException>(()=>FrameTimeAnalysis.AnalyzeCsv("frametime_ms\n\"16","quotes.csv"));
+        Assert.Throws<HbxException>(()=>FrameTimeAnalysis.AnalyzeCsv("frametime_ms\n1e-320","overflow.csv"));
+        Assert.ThrowsAny<OperationCanceledException>(()=>FrameTimeAnalysis.AnalyzeCsv("16","cancel.csv",new CancellationToken(true)));
+    }
+    [Fact]public void InvalidOptionalMeasurementsAreNotUsedForCorrelations()
+    {
+        var rows=Enumerable.Range(1,10).Select(i=>$"{i+10},101,-1,{i}e300,-300");
+        var report=FrameTimeAnalysis.AnalyzeCsv("frametime_ms,cpu,gpu,disk_io,temperature\n"+string.Join("\n",rows),"fixture.csv");
+        Assert.Contains(report.Facts,f=>f.Name=="CPU load correlation"&&f.Availability=="Unavailable");
+        Assert.Contains(report.Facts,f=>f.Name=="GPU load correlation"&&f.Availability=="Unavailable");
+        Assert.Contains(report.Facts,f=>f.Name=="Thermal data correlation"&&f.Availability=="Unavailable");
+        Assert.Contains(report.Facts,f=>f.Name=="Disk I/O correlation"&&f.Value=="1.0000");
+    }
+
     [Fact]public void ResearchTrialsPersistRepeatVariantsAndCalculateDeltaAgainstA()
     {
         var research=new ResearchExperiments(new DocumentStore(Store,new TestProtector()));
