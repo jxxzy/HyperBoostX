@@ -484,6 +484,22 @@ public sealed class EngineTests:IDisposable
         var report=new DiagnosticReport("Test",DateTimeOffset.UtcNow,[],[new("Low disk space","2 GiB","Review Storage","Measured")]);
         var markdown=ReportExport.Markdown(report);Assert.Contains("Low disk space",markdown);Assert.Contains("Review Storage",markdown);
     }
+    [Fact]public void RestoreInventoryDistinguishesEmptyUnavailableAndObservedPoints()
+    {
+        var empty=SystemRestoreInventory.BuildReport([],false,null);
+        Assert.Contains(empty.Facts,f=>f.Name=="Windows restore point inventory"&&f.Value=="No restore points reported"&&f.Availability=="Available");
+        Assert.Contains(empty.Facts,f=>f.Name=="System Protection / creation readiness"&&f.Availability=="Unavailable");
+        var failed=SystemRestoreInventory.BuildReport([],false,"Access denied");
+        Assert.Contains(failed.Facts,f=>f.Name=="Windows restore point inventory"&&f.Availability=="Unavailable");
+        var partial=SystemRestoreInventory.BuildReport([new(42,"Example","",12)],true,null);
+        Assert.Contains(partial.Facts,f=>f.Name=="Windows restore point inventory"&&f.Availability=="Limited");
+        Assert.Contains(partial.Facts,f=>f.Name=="Restore point #42 · creation time"&&f.Availability=="Unavailable");
+        Assert.Contains(partial.Facts,f=>f.Name=="System Protection / creation readiness"&&f.Availability=="Unavailable");
+    }
+    [Fact]public async Task RestoreInventoryPreCancellationNeverCallsWmi()
+    {
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>SystemRestoreInventory.ScanAsync(new CancellationToken(true)));
+    }
     [Fact]public void JournalRecoversFromCorruptDatabase()
     {
         var journal=Store;var c=new Change{ActionId="test",Owner="test-owner"};journal.Save(c);

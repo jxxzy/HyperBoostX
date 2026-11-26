@@ -266,3 +266,6 @@ Frametime culture fixture regression fix and storage benchmark integration: PEND
 
 
 2026-11-27: H21/H38 backup read-back verification enforced for shared action apply and rollback; uncapped Safe Boost session recovery. PENDING_CI; no Stable or mandatory status promotion.
+
+
+2026-11-27: Windows restore point inventory and explicit protection/recovery handoffs implemented. Read-only; creation readiness not inferred. Automatic creation and Windows VM evidence remain outstanding. PENDING_CI.

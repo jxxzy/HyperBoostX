@@ -15,7 +15,7 @@ namespace HyperBoostX.Windows;
 
 public sealed class Diagnostics
 {
-    public static readonly string[] Centers=["Dashboard","Smart Scan","Optimize","Gaming","Processes","Hardware","GPU","Storage","Network","Startup","Apps","Devices","Security","Windows","Power","Creator","Reliability","Privacy","Drivers"];
+    public static readonly string[] Centers=["Dashboard","Smart Scan","Optimize","Gaming","Processes","Hardware","GPU","Storage","Network","Startup","Apps","Devices","Security","Windows","Power","Creator","Reliability","Privacy","Drivers","Restore"];
     private static readonly SemaphoreSlim WmiGate=new(2);
     public Task<DiagnosticReport> ScanAsync(string center,CancellationToken token)=>Task.Run(async()=>
     {
@@ -209,6 +209,8 @@ public sealed class Diagnostics
                 Memory(facts);Drives(facts,findings);Add("Camera / microphone","No capture device is opened by this scan.","Privacy");Add("Encoder / DPC latency",null,"No validated encoder or ETW session provider");break;
             case "Reliability":
                 Events(facts,token);break;
+            case "Restore":
+                facts.AddRange((await SystemRestoreInventory.ScanAsync(token)).Facts);break;
             default:throw new HbxException("HBX-SCAN-0001: Unknown diagnostic center.");
         }
         return new DiagnosticReport(center,DateTimeOffset.UtcNow,facts,findings);

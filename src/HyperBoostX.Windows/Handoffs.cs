@@ -20,6 +20,7 @@ public static class Handoffs
         ["Power"]=[new("Power and battery settings","ms-settings:powersleep")],
         ["Creator"]=[new("Sound settings","ms-settings:sound"),new("Volume mixer","ms-settings:apps-volume"),new("Microphone privacy","ms-settings:privacy-microphone"),new("Camera privacy","ms-settings:privacy-webcam")],
         ["Repair"]=[new("Windows recovery options","ms-settings:recovery"),new("Troubleshooting settings","ms-settings:troubleshoot"),new("System Restore","rstrui.exe"),new("Windows Update","ms-settings:windowsupdate")],
+        ["Restore"]=[new("System Protection","SystemPropertiesProtection.exe"),new("System Restore","rstrui.exe")],
         ["Reliability"]=[new("Event Viewer","eventvwr.msc")]
     };
     public static IReadOnlyList<Handoff> For(string center)=>Map.GetValueOrDefault(center)??[];
