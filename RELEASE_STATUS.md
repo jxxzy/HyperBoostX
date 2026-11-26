@@ -235,3 +235,6 @@ Installer lifecycle CI at 09cace4 passed 279/279 tests and five lifecycle checks
 
 
 RGB legacy migration and sample validation: PENDING_CI; no Stable promotion.
+
+
+2026-11-27: LCD/MSI safety diagnostics hardening and SCM dependency inventory corrected; PENDING_CI. No mandatory verification promoted.

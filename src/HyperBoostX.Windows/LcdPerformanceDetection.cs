@@ -23,13 +23,14 @@ public static class LcdPerformanceDetection
 
     public static async Task<DiagnosticReport> ScanAsync(double cpuThreshold,long memoryThresholdMiB,bool gamingOnly,bool gamingActive,CancellationToken token)
     {
-        if(cpuThreshold<0||cpuThreshold>100)throw new HbxException("CPU threshold must be between 0 and 100 percent.");
+        token.ThrowIfCancellationRequested();
+        if(!double.IsFinite(cpuThreshold)||cpuThreshold<0||cpuThreshold>100)throw new HbxException("CPU threshold must be between 0 and 100 percent.");
         if(memoryThresholdMiB<1||memoryThresholdMiB>1_048_576)throw new HbxException("Memory threshold must be between 1 MiB and 1 TiB.");
-        var samples=new List<(int Id,string Name,LcdUtilitySignature Signature,TimeSpan Cpu,long Stamp)>();var facts=new List<Fact>();var findings=new List<Finding>();
+        var samples=new List<(int Id,string Name,LcdUtilitySignature Signature,DateTime Started,TimeSpan Cpu,long Stamp)>();var facts=new List<Fact>();var findings=new List<Finding>();
         foreach(var process in Process.GetProcesses())using(process)
         {
             token.ThrowIfCancellationRequested();
-            try{if(Classify(process.ProcessName) is {} signature)samples.Add((process.Id,process.ProcessName,signature,process.TotalProcessorTime,Stopwatch.GetTimestamp()));}
+            try{if(Classify(process.ProcessName) is {} signature)samples.Add((process.Id,process.ProcessName,signature,process.StartTime.ToUniversalTime(),process.TotalProcessorTime,Stopwatch.GetTimestamp()));}
             catch(Exception e) when(e is InvalidOperationException or System.ComponentModel.Win32Exception){facts.Add(new("Process inspection issue",ReportExport.Redact(e.Message),"Process API","Unavailable","Unavailable"));}
         }
         if(samples.Count>0)await Task.Delay(500,token);
@@ -38,7 +39,14 @@ public static class LcdPerformanceDetection
             token.ThrowIfCancellationRequested();
             try
             {
-                using var process=Process.GetProcessById(sample.Id);var elapsed=Stopwatch.GetElapsedTime(sample.Stamp);var cpu=Math.Clamp((process.TotalProcessorTime-sample.Cpu).TotalMilliseconds/(elapsed.TotalMilliseconds*Math.Max(1,Environment.ProcessorCount))*100,0,100);var memory=process.WorkingSet64/1048576d;
+                using var process=Process.GetProcessById(sample.Id);
+                var started=process.StartTime.ToUniversalTime();var after=process.TotalProcessorTime;var elapsed=Stopwatch.GetElapsedTime(sample.Stamp);
+                var measured=OverlaySoftwareDetection.MeasureCpuPercent(sample.Started,started,sample.Cpu,after,elapsed,Environment.ProcessorCount);
+                if(measured is not double cpu||!string.Equals(process.ProcessName,sample.Name,StringComparison.OrdinalIgnoreCase))
+                {
+                    facts.Add(new("LCD utility sample rejected","Process identity changed or CPU interval was invalid",$"PID {sample.Id}","Unavailable","Unavailable"));continue;
+                }
+                var memory=process.WorkingSet64/1048576d;
                 var safety=sample.Signature.CoolingCritical?"Cooling/fan/pump exclusion enforced":"Monitor only";
                 facts.Add(new(sample.Signature.Product,$"PID {sample.Id} · CPU {cpu:F2}% · working set {memory:F1} MiB · {safety}",$"Running process · {sample.Signature.Vendor}","Measured","Available"));
                 var thresholdExceeded=cpu>=cpuThreshold||memory>=memoryThresholdMiB;
@@ -46,7 +54,7 @@ public static class LcdPerformanceDetection
             }
             catch(Exception e) when(e is ArgumentException or InvalidOperationException or System.ComponentModel.Win32Exception){facts.Add(new("LCD utility ended during sampling",ReportExport.Redact(e.Message),$"PID {sample.Id}","Unavailable","Unavailable"));}
         }
-        if(samples.Count==0)facts.Insert(0,new("LCD utility processes","No supported signature observed","Running processes","Direct","Available"));
+        if(samples.Count==0)facts.Insert(0,new("LCD utility processes",facts.Count==0?"No supported signature observed":"No supported signature observed in incomplete inventory","Running processes",facts.Count==0?"Direct":"Limited",facts.Count==0?"Available":"Limited"));
         facts.Insert(0,new("Guard policy",$"{(gamingOnly?"Gaming sessions only":"Always monitor")} · CPU ≥ {cpuThreshold:F2}% · memory ≥ {memoryThresholdMiB} MiB · cooling exclusions enforced","User-configured thresholds","Direct","Available"));
         if(gamingOnly&&!gamingActive)facts.Insert(1,new("Gaming guard","Inactive: no HyperBoostX gaming session is active","Gaming session state","Direct","Available"));
         return new("LCD Performance Guard",DateTimeOffset.UtcNow,facts,findings);

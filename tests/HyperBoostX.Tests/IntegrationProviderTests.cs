@@ -135,6 +135,29 @@ public sealed class IntegrationProviderTests:IDisposable
     [InlineData("HWiNFO64",false)]
     public void LcdUtilitySignaturesIdentifyCoolingCriticalExclusions(string name,bool coolingCritical)=>Assert.Equal(coolingCritical,LcdPerformanceDetection.Classify(name)?.CoolingCritical);
 
+    [Theory]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    [InlineData(double.NegativeInfinity)]
+    [InlineData(-1d)]
+    [InlineData(101d)]
+    public async Task LcdGuardRejectsInvalidCpuThresholdBeforeSampling(double threshold)
+        =>await Assert.ThrowsAsync<HbxException>(()=>LcdPerformanceDetection.ScanAsync(threshold,1,false,false,default));
+
+    [Fact]public async Task LcdGuardHonorsPreCancelledToken()
+    {
+        using var source=new CancellationTokenSource();source.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>LcdPerformanceDetection.ScanAsync(10,100,false,false,source.Token));
+    }
+
+    [Fact]public void MsiDependenciesDistinguishUnknownEmptyAndConfiguredLists()
+    {
+        Assert.Equal("Unavailable",MsiSoftwareDetection.DescribeDependencies(null,[]));
+        Assert.Equal("Unavailable",MsiSoftwareDetection.DescribeDependencies([],null));
+        Assert.Equal("none configured",MsiSoftwareDetection.DescribeDependencies([],[]));
+        Assert.Equal("service: FanControl, group: Network",MsiSoftwareDetection.DescribeDependencies(["FanControl"],["Network"]));
+    }
+
     [Fact]public async Task LcdGuardMeasuresARealUtilityNamedProcessAndHonorsGamingAlertGate()
     {
         var executable=Path.Combine(_root,"AIDA64.exe");File.Copy(Path.Combine(Environment.SystemDirectory,"ping.exe"),executable);
