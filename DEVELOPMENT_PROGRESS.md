@@ -582,3 +582,7 @@ This is a source-level and Windows Server CI qualification for the specific feat
 
 
 2026-11-27: GPU Center read-only vendor/family/profile classification adapted from v1.3.0 app/services/monitoring/gpu_detection_service.py; existing GPU ScanCommand → Diagnostics → Win32_VideoController now includes PCI vendor identity and conservative recommendations. No VRAM, hybrid or sensor claims; no mutations. Ten classification fixture cases added. Previous CI 45869240179 Windows build passed, Stable gate failed. New candidate PENDING_CI; no requirement promotion. Next: verify CI and extend adapter-specific capacity with validated provider.
+
+
+## 2026-11-27 RGB legacy migration
+Base c956682f7f61742cd73fa74e0d3567e3571e3907. V1.3 BackgroundAppCatalog (app/services/monitoring/gpu_detection_service.py at v1.3.0): L-Connect migrated to existing RGB detector; exact process aliases and shared validated CPU measurement reject PID reuse and invalid samples. Incomplete inventory explicitly limited. Route ui.hardware.rgb-software-detector → ScanCommand → VendorSoftwareDetection.ScanRgbAsync → Process/WMI/uninstall inventory. Related requirement hardware.rgb-software-detection; ADAPT_REFACTOR, no new verified IDs. Seven fixture cases added; existing live process test retained. Prior Windows CI 45874798862 passed 354/354 tests; Stable gate 3924 pending. Current batch PENDING_CI; no local SDK test run. Next: expand vendor inventory and safe profile guidance; no process/service mutations.

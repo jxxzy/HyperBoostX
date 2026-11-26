@@ -260,6 +260,21 @@ public sealed class IntegrationProviderTests:IDisposable
         Assert.All(report.Facts,fact=>Assert.Contains(fact.Availability,new[]{"Available","Unavailable"}));
     }
 
+    [Theory]
+    [InlineData("L-Connect.exe","Lian Li")]
+    [InlineData("LConnect3.exe","Lian Li")]
+    [InlineData("OpenRGB.exe","OpenRGB")]
+    [InlineData("SignalRGB.exe","Whirlwind FX")]
+    public void RgbProcessAliasesRecognizeLegacyControllers(string name,string vendor)
+        =>Assert.Equal(vendor,VendorSoftwareDetection.ClassifyRgbProcess(name)?.Vendor);
+
+    [Theory]
+    [InlineData("icuebackup.exe")]
+    [InlineData("openrgbinstaller.exe")]
+    [InlineData("lconnectuninstall.exe")]
+    public void RgbProcessAliasesRejectUnrelatedNames(string name)
+        =>Assert.Null(VendorSoftwareDetection.ClassifyRgbProcess(name));
+
     [Fact]public async Task RgbInventoryMeasuresRunningControllerCpuAndMemory()
     {
         var executable=Path.Combine(_root,"OpenRGB.exe");File.Copy(Path.Combine(Environment.SystemDirectory,"ping.exe"),executable);

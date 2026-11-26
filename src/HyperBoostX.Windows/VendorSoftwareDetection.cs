@@ -22,7 +22,8 @@ public static class VendorSoftwareDetection
         new("GIGABYTE","RGB Fusion",["rgb fusion","rgbfusion"]),
         new("ASRock","Polychrome RGB",["polychrome","asrpolychrome"]),
         new("NZXT","CAM",["nzxt cam","nzxtcam"]),
-        new("Cooler Master","MasterPlus+",["masterplus","coolermaster masterplus"])
+        new("Cooler Master","MasterPlus+",["masterplus","coolermaster masterplus"]),
+        new("Lian Li","L-Connect",["l-connect","lconnect","l-connect 3","lconnect3"])
     ];
 
     public static RgbSoftwareSignature? ClassifyRgb(string? value)
@@ -31,12 +32,19 @@ public static class VendorSoftwareDetection
         return RgbSignatures.FirstOrDefault(signature=>signature.Patterns.Any(pattern=>value.Contains(pattern,StringComparison.OrdinalIgnoreCase)));
     }
 
+    public static RgbSoftwareSignature? ClassifyRgbProcess(string? value)
+    {
+        if(string.IsNullOrWhiteSpace(value))return null;
+        var name=value.Trim();if(name.EndsWith(".exe",StringComparison.OrdinalIgnoreCase))name=name[..^4];
+        return RgbSignatures.FirstOrDefault(s=>s.Patterns.Any(p=>name.Equals(p,StringComparison.OrdinalIgnoreCase)));
+    }
+
     public static Task<DiagnosticReport> ScanRgbAsync(CancellationToken token)=>Task.Run(()=>ScanRgb(token),token);
 
     private static async Task<DiagnosticReport> ScanRgb(CancellationToken token)
     {
         var observations=new List<(RgbSoftwareSignature Signature,string Source,string Identity,string State)>();var issues=new List<Fact>();
-        var processSamples=new List<(int ProcessId,RgbSoftwareSignature Signature,string Identity,TimeSpan Cpu,long WorkingSet,long Timestamp)>();
+        var processSamples=new List<(int ProcessId,RgbSoftwareSignature Signature,string Identity,DateTime Started,TimeSpan Cpu,long Timestamp)>();
         void Observe(string source,string identity,string state){var signature=ClassifyRgb(identity);if(signature is not null)observations.Add((signature,source,identity,state));}
         foreach(var process in Process.GetProcesses())
         {
@@ -45,8 +53,8 @@ public static class VendorSoftwareDetection
                 token.ThrowIfCancellationRequested();
                 try
                 {
-                    var signature=ClassifyRgb(process.ProcessName);
-                    if(signature is not null)processSamples.Add((process.Id,signature,process.ProcessName,process.TotalProcessorTime,process.WorkingSet64,Stopwatch.GetTimestamp()));
+                    var signature=ClassifyRgbProcess(process.ProcessName);
+                    if(signature is not null)processSamples.Add((process.Id,signature,process.ProcessName,process.StartTime.ToUniversalTime(),process.TotalProcessorTime,Stopwatch.GetTimestamp()));
                 }
                 catch(Exception exception) when(exception is InvalidOperationException or System.ComponentModel.Win32Exception){issues.Add(new("Process inspection issue",ReportExport.Redact(exception.Message),"System.Diagnostics.Process","Unavailable","Unavailable"));}
             }
@@ -59,9 +67,11 @@ public static class VendorSoftwareDetection
                 token.ThrowIfCancellationRequested();
                 try
                 {
-                    using var process=Process.GetProcessById(sample.ProcessId);var elapsed=Stopwatch.GetElapsedTime(sample.Timestamp);var cpuDelta=process.TotalProcessorTime-sample.Cpu;
-                    var cpu=elapsed.TotalMilliseconds<=0?0:Math.Clamp(cpuDelta.TotalMilliseconds/(elapsed.TotalMilliseconds*Math.Max(1,Environment.ProcessorCount))*100,0,100);
-                    observations.Add((sample.Signature,"Running process",sample.Identity,$"Running · PID {sample.ProcessId} · interval CPU {cpu:F2}% · working set {FileAnalysisFormatting.Size(process.WorkingSet64)}"));
+                    using var process=Process.GetProcessById(sample.ProcessId);var started=process.StartTime.ToUniversalTime();var after=process.TotalProcessorTime;var elapsed=Stopwatch.GetElapsedTime(sample.Timestamp);
+                    var cpu=OverlaySoftwareDetection.MeasureCpuPercent(sample.Started,started,sample.Cpu,after,elapsed,Environment.ProcessorCount);
+                    if(cpu is null||!string.Equals(process.ProcessName,sample.Identity,StringComparison.OrdinalIgnoreCase))
+                    {issues.Add(new("RGB process sample rejected","Process identity changed or CPU sample was inconsistent",$"PID {sample.ProcessId}","Unavailable","Unavailable"));continue;}
+                    observations.Add((sample.Signature,"Running process",sample.Identity,$"Running · PID {sample.ProcessId} · interval CPU {cpu.Value:F2}% · working set {FileAnalysisFormatting.Size(process.WorkingSet64)}"));
                 }
                 catch(Exception exception) when(exception is ArgumentException or InvalidOperationException or System.ComponentModel.Win32Exception)
                 {issues.Add(new("RGB process ended during sampling",ReportExport.Redact(exception.Message),$"PID {sample.ProcessId}","Unavailable","Unavailable"));}
@@ -87,7 +97,7 @@ public static class VendorSoftwareDetection
         }
         var distinct=observations.GroupBy(item=>$"{item.Signature.Vendor}|{item.Signature.Product}|{item.Source}|{item.Identity}",StringComparer.OrdinalIgnoreCase).Select(group=>group.First()).OrderBy(item=>item.Signature.Vendor).ThenBy(item=>item.Signature.Product).ToArray();
         var facts=distinct.Select(item=>new Fact(item.Signature.Product,item.State,$"{item.Source} · {item.Signature.Vendor}","Direct","Available")).Concat(issues).ToList();
-        if(distinct.Length==0)facts.Insert(0,new("RGB control software","No supported signature observed","Processes, Win32_Service and uninstall registry","Direct","Available"));
+        if(distinct.Length==0)facts.Insert(0,new("RGB control software",issues.Count==0?"No supported signature observed":"No supported signature observed in incomplete inventory","Processes, Win32_Service and uninstall registry",issues.Count==0?"Direct":"Limited",issues.Count==0?"Available":"Limited"));
         var activeControllers=distinct.Where(item=>(item.Source=="Running process"||item.Source=="Windows service")&&item.State.StartsWith("Running",StringComparison.OrdinalIgnoreCase)).Select(item=>item.Signature.Product).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
         var findings=activeControllers.Length>1?new[]{new Finding("Multiple RGB controllers observed",string.Join(", ",activeControllers),"Review vendor utilities for overlapping device ownership. HyperBoostX did not stop or reconfigure them.","Direct process/service inventory")}:Array.Empty<Finding>();
         return new("RGB Software Detector",DateTimeOffset.UtcNow,facts,findings);
