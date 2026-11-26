@@ -244,3 +244,6 @@ RGB legacy migration and sample validation: PENDING_CI; no Stable promotion.
 
 
 2026-11-27: Game Library GOG and manual executable registration integrated into existing WPF UI; PENDING_CI. No mandatory status promoted.
+
+
+2026-11-27: MSI Windows CI regression fixture corrected without weakening termination assertion; bounded WMI enumeration and cancellation checks. PENDING_CI; Stable gate remains closed.

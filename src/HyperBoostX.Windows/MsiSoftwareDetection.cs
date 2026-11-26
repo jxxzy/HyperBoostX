@@ -38,6 +38,7 @@ public static class MsiSoftwareDetection
     }
     public static async Task<DiagnosticReport> ScanAsync(CancellationToken token)
     {
+        token.ThrowIfCancellationRequested();
         var facts=new List<Fact>();var samples=new List<(int Id,string Name,DateTime Started,TimeSpan Cpu,long Stamp)>();int services=0,installed=0;
         foreach(var process in Process.GetProcesses())using(process)
         {
@@ -62,7 +63,10 @@ public static class MsiSoftwareDetection
         }
         try
         {
-            using var searcher=new ManagementObjectSearcher("SELECT Name,DisplayName,State,StartMode,PathName FROM Win32_Service");using var rows=searcher.Get();
+            token.ThrowIfCancellationRequested();
+            using var searcher=new ManagementObjectSearcher(new ManagementScope(@"root\cimv2"),new ObjectQuery("SELECT Name,DisplayName,State,StartMode,PathName FROM Win32_Service"),new System.Management.EnumerationOptions{Timeout=TimeSpan.FromSeconds(8),ReturnImmediately=false,Rewindable=false});
+            using var rows=searcher.Get();
+            token.ThrowIfCancellationRequested();
             foreach(ManagementObject row in rows)using(row)
             {
                 token.ThrowIfCancellationRequested();var identity=$"{row["Name"]} {row["DisplayName"]} {row["PathName"]}";if(!IsMsiUtility(identity))continue;services++;var dependencies=ReadDependencies(row["Name"]?.ToString());var exclusion=IsCoolingCritical(identity)||IsCoolingCritical(dependencies)?"cooling/fan/pump exclusion enforced":"protected from automatic changes";
@@ -75,6 +79,7 @@ public static class MsiSoftwareDetection
             try{using var root=RegistryKey.OpenBaseKey(hive,view);using var uninstall=root.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");if(uninstall is null)continue;foreach(var subName in uninstall.GetSubKeyNames()){token.ThrowIfCancellationRequested();using var sub=uninstall.OpenSubKey(subName);var name=sub?.GetValue("DisplayName")?.ToString();if(!IsMsiUtility(name))continue;installed++;facts.Add(new(name!,$"Installed · version {sub?.GetValue("DisplayVersion")??"Unavailable"}",$"{hive} {view} uninstall registry","Direct","Available"));}}
             catch(Exception e) when(e is UnauthorizedAccessException or SecurityException or IOException){facts.Add(new("MSI application inventory","Unavailable",$"{hive} {view}: {e.GetType().Name}","Unavailable","Unavailable"));}
         }
+        token.ThrowIfCancellationRequested();
         if(samples.Count+services+installed==0)facts.Insert(0,new("MSI utilities",facts.Count==0?"No supported MSI Center, Mystic Light, or Dragon Center signature observed":"No supported signature observed in incomplete inventory","Processes, Win32_Service, uninstall registry",facts.Count==0?"Direct":"Limited",facts.Count==0?"Available":"Limited"));
         facts.Insert(0,new("Safety policy","Monitor only · service/process termination disabled · cooling, fan, pump, thermal, and security components excluded","HyperBoostX MSI guard","Direct","Available"));
         return new("MSI Safe Optimizer",DateTimeOffset.UtcNow,facts,[]);

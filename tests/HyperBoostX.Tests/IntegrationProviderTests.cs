@@ -266,10 +266,17 @@ public sealed class IntegrationProviderTests:IDisposable
     public void MsiUtilitySignaturesClassifySupportedSoftware(string value)=>Assert.True(MsiSoftwareDetection.IsMsiUtility(value));
     [Theory][InlineData("MSI Center Service")][InlineData("Frozr Cooling Service")][InlineData("Pump Controller")]
     public void MsiCoolingExclusionsAreConservative(string value)=>Assert.True(MsiSoftwareDetection.IsCoolingCritical(value));
+    [Fact]public async Task MsiInventoryHonorsPreCancelledToken()
+    {
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>MsiSoftwareDetection.ScanAsync(new CancellationToken(true)));
+    }
+
     [Fact]public async Task MsiSafeOptimizerMeasuresARealNamedProcessWithoutStoppingIt()
     {
         var executable=Path.Combine(_root,"MSICenter.exe");File.Copy(Path.Combine(Environment.SystemDirectory,"ping.exe"),executable);
-        using var process=Process.Start(new ProcessStartInfo(executable,"127.0.0.1 -n 4"){UseShellExecute=false,CreateNoWindow=true})!;
+        // Keep the fixture running for the entire service/registry inventory, including slow CI hosts.
+        // The finally block owns termination; the scanner must never stop this process.
+        using var process=Process.Start(new ProcessStartInfo(executable,"127.0.0.1 -t"){UseShellExecute=false,CreateNoWindow=true})!;
         try{var report=await MsiSoftwareDetection.ScanAsync(default);Assert.Equal("MSI Safe Optimizer",report.Center);Assert.Contains(report.Facts,f=>f.Value.Contains($"PID {process.Id}",StringComparison.Ordinal)&&f.Value.Contains("protected from termination",StringComparison.Ordinal));Assert.False(process.HasExited);}
         finally{if(!process.HasExited)process.Kill(true);await process.WaitForExitAsync();}
     }
