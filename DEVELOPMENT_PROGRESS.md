@@ -675,3 +675,10 @@ Base 1e3fec0beffaa855f408ef42d738ec2f9659f0ff; integrates unpushed candidate 499
 
 
 Pre-integration review 2026-11-27: Windows CI 45949835040 succeeded at 5b37bde, 407/407 tests, zero warnings/errors, 488 payload hashes and installer lifecycle checks passed. CI 45950038852 now active. Added a fixture that corrupts only a SQLite payload and requires restoration from the valid authoritative recovery file plus both-representation read-back. No Windows SDK run in this turn. Integrate cumulative candidate on unchanged main; PENDING_CI, no status promotion.
+
+
+## 2026-11-27 H21/H35 late cancellation at apply boundary
+Base bad5b13c75e6874eb216f82a2472b00996a4fd0f. Shared ActionEngine rejects cancellation before consuming preview, and after a provider write or read-back even if the provider returns normally despite cancellation. The existing compensation and durable recovery pipeline handles the resulting cancellation; final safety and restore policy are checked before write. Rollback success semantics unchanged. Two fixture cases exercise silent cancellation after actual fixture write and during verification; retain existing tests. Exact-match source changes checked; no local Windows SDK/test run. CI 45950038852 active and 45950475206 pending at preparation; do not replace pending recovery validation. PENDING_CI, no requirement promotion, actual elevated restore-point creation and disposable VM evidence still open.
+
+
+Pre-integration review 2026-11-27: Windows CI 45950038852 passed at 1e3fec0, 409/409 tests, zero errors/warnings, 488 payload hashes and installer lifecycle. CI 45950475206 active on base. Added focused pre-cancel fixture ensuring preview is not consumed or written before cancellation and remains subject to normal revalidation. Combined with late write/read-back cancellation changes; no local Windows test execution, PENDING_CI, no new verified requirement promotion.

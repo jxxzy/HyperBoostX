@@ -54,6 +54,7 @@ public sealed class ActionEngine
     public async Task<Change> ApplyAsync(string previewToken,bool consent,string? session,CancellationToken token)
     {
         if (!consent) throw new HbxException("HBX-ACTION-0002: Explicit approval is required.");
+        token.ThrowIfCancellationRequested();
         if (!_previews.TryRemove(previewToken,out var pending) || Stopwatch.GetElapsedTime(pending.Tick)>TimeSpan.FromMinutes(10))
             throw new HbxException("HBX-ACTION-0003: Preview expired. Scan and review again.");
         var p=pending.Preview; var action=Get(p.ActionId); _safety.Check(action,p.Target);
@@ -95,8 +96,14 @@ public sealed class ActionEngine
         {
             token.ThrowIfCancellationRequested();
             _safety.Check(action,p.Target);
+            RequireUnchangedRestorePolicy(action,p);
+            token.ThrowIfCancellationRequested();
             await action.WriteAsync(c.Target,c.Desired,token);
+            // A noncooperative provider may return normally after cancellation.
+            // Recover the mutation rather than acknowledging a canceled apply.
+            token.ThrowIfCancellationRequested();
             var after=await action.ReadAsync(c.Target,CancellationToken.None);
+            token.ThrowIfCancellationRequested();
             if(after!=c.Desired) throw new HbxException("HBX-VERIFY-0001: Read-back did not match the requested state.");
             c=c with{Status="Verified",Observed=after,CompletedAt=DateTimeOffset.UtcNow,Message="Requested configuration was read back and verified. Performance improvement has not been measured."};
             _journal.Save(c);return c;

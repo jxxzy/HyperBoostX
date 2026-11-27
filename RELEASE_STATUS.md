@@ -293,3 +293,6 @@ Frametime culture fixture regression fix and storage benchmark integration: PEND
 
 
 2026-11-27: Missing authoritative recovery evidence detection and retryable session recovery, combined with gaming preflight candidate; PENDING_CI. No Stable promotion.
+
+
+2026-11-27: Shared apply boundary handles noncooperative cancellation after write/read-back, PENDING_CI. No Stable promotion.

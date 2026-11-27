@@ -415,6 +415,14 @@ public sealed class EngineTests:IDisposable
         Assert.Equal("1",_action.State.Value);
         Assert.Equal(change.Status,Store.Find(change.Id).Status);
     }
+    [Fact]public async Task PreCancelledApplyDoesNotConsumeReviewedPreviewOrWrite()
+    {
+        var e=Engine();var p=await e.PreviewAsync("test","",default);
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>e.ApplyAsync(p.Token,true,null,new CancellationToken(true)));
+        Assert.Empty(Store.History());Assert.Equal(0,_action.Writes);
+        var applied=await e.ApplyAsync(p.Token,true,null,default);
+        Assert.Equal("Verified",applied.Status);Assert.Equal(1,_action.Writes);
+    }
     [Fact]public async Task CancellationDuringApplyRestoresDurablyAndPropagates()
     {
         using var cts=new CancellationTokenSource();_action.CancelSource=cts;_action.CancelAfterWriteValue="1";
@@ -423,6 +431,25 @@ public sealed class EngineTests:IDisposable
         var saved=Assert.Single(Store.History());
         Assert.Equal("CancelledRestored",saved.Status);Assert.False(saved.NeedsRecovery);Assert.Equal("0",_action.State.Value);
     }
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task NoncooperativeCancellationDuringApplyOrReadbackIsRecovered(bool cancelDuringReadback)
+    {
+        using var cts=new CancellationTokenSource();
+        if(cancelDuringReadback)
+            _action.OnRead=()=>{if(_action.State.Value=="1")cts.Cancel();};
+        else
+        {
+            _action.CancelSource=cts;_action.CancelAfterWriteValue="1";_action.ReturnNormallyAfterCancellation=true;
+        }
+        var e=Engine();var p=await e.PreviewAsync("test","",default);
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>e.ApplyAsync(p.Token,true,null,cts.Token));
+        var saved=Assert.Single(Store.History());
+        Assert.Equal("CancelledRestored",saved.Status);Assert.Equal("0",_action.State.Value);
+        Assert.False(saved.NeedsRecovery);Assert.Equal(2,_action.Writes);
+    }
+
     [Fact]public async Task CancellationDuringRollbackIsVisibleAndRetryable()
     {
         var e=Engine();var preview=await e.PreviewAsync("test","",default);var applied=await e.ApplyAsync(preview.Token,true,null,default);
@@ -726,7 +753,7 @@ public sealed class EngineTests:IDisposable
     private sealed class FakeAction(string id="test",bool requiresRestorePoint=false):ISystemAction
     {
         public State State=new(true,"Int","0");public int Writes;public bool IgnoreWrite;public bool ThrowAfterApply;public bool ThrowAfterRestore;public bool IgnoreRestore;
-        public CancellationTokenSource? CancelSource;public string? CancelAfterWriteValue;public Action? OnRead;
+        public CancellationTokenSource? CancelSource;public string? CancelAfterWriteValue;public Action? OnRead;public bool ReturnNormallyAfterCancellation;
         public ActionInfo Info=>new(id,"Test","Test","Test","Test","Low","None","Test",RequiresRestorePoint:requiresRestorePoint);
         public void Validate(string target){if(target!="")throw new HbxException("invalid target");}
         public Task<State> ReadAsync(string target,CancellationToken token){OnRead?.Invoke();return Task.FromResult(State);}
@@ -734,7 +761,7 @@ public sealed class EngineTests:IDisposable
         public Task WriteAsync(string target,State state,CancellationToken token)
         {
             token.ThrowIfCancellationRequested();Writes++;if(!IgnoreWrite&&!(IgnoreRestore&&state.Value=="0"))State=state;
-            if(CancelAfterWriteValue==state.Value){CancelSource?.Cancel();token.ThrowIfCancellationRequested();}
+            if(CancelAfterWriteValue==state.Value){CancelSource?.Cancel();if(!ReturnNormallyAfterCancellation)token.ThrowIfCancellationRequested();}
             if(ThrowAfterApply&&state.Value=="1")throw new IOException("Injected failure after OS write");
             if(ThrowAfterRestore&&state.Value=="0")throw new IOException("Injected failure after restore write");
             return Task.CompletedTask;
