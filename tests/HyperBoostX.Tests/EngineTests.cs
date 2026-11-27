@@ -659,6 +659,33 @@ public sealed class EngineTests:IDisposable
         File.WriteAllText(Path.Combine(_root,"hyperboostx.db"),"broken database");
         Assert.Equal(c.Id,Store.History().Single().Id);
     }
+    [Fact]public void ReconcileRepairsCorruptDatabasePayloadFromValidRecoveryFile()
+    {
+        var journal=Store;var change=new Change{ActionId="test",Owner="test-owner",Status="Verified"};
+        journal.Save(change);
+        using(var connection=new Microsoft.Data.Sqlite.SqliteConnection(new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder{DataSource=Path.Combine(_root,"hyperboostx.db"),Pooling=false}.ToString()))
+        {
+            connection.Open();using var cmd=connection.CreateCommand();
+            cmd.CommandText="UPDATE changes SET payload=$payload WHERE id=$id";
+            cmd.Parameters.AddWithValue("$payload",Encoding.UTF8.GetBytes("invalid JSON"));
+            cmd.Parameters.AddWithValue("$id",change.Id);Assert.Equal(1,cmd.ExecuteNonQuery());
+        }
+        journal.Reconcile();
+        Assert.False(journal.RecoveryIncomplete);
+        Assert.Equal(change,journal.History().Single());
+        journal.VerifyPersistedChange(change);
+    }
+    [Fact]public void ReconcileDetectsMissingRecoverableEvidenceAndClearsResolvedIssue()
+    {
+        var journal=Store;var change=new Change{ActionId="test",Owner="test-owner",Status="Verified"};
+        journal.Save(change);
+        var path=Path.Combine(_root,"Recovery",change.Id+".hbx");var bytes=File.ReadAllBytes(path);
+        File.Delete(path);journal.Reconcile();
+        Assert.True(journal.RecoveryIncomplete);Assert.Contains("lack readable authoritative recovery evidence",journal.RecoveryNotice);
+        Assert.Equal(change,journal.History().Single());
+        File.WriteAllBytes(path,bytes);journal.Reconcile();
+        Assert.False(journal.RecoveryIncomplete);Assert.Equal(change,journal.Find(change.Id));
+    }
     [Fact]public void RecoveryFileCannotImpersonateAnotherRecord()
     {
         var journal=Store;var c=new Change{ActionId="test",Owner="test-owner"};

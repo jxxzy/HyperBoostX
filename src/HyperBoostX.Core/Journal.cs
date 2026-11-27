@@ -8,7 +8,10 @@ public sealed class Journal
     private readonly string _database;
     private readonly IStateProtector _protector;
     public string Root { get; }
-    public string RecoveryNotice { get; private set; } = "";
+    private string _databaseRecoveryNotice="";
+    private string _recoveryIssue="";
+    public string RecoveryNotice=>string.Join(" ",new[]{_databaseRecoveryNotice,_recoveryIssue}.Where(s=>s.Length>0));
+    public bool RecoveryIncomplete=>_recoveryIssue.Length>0;
     public Journal(string root, IStateProtector protector)
     {
         Root = SafePaths.Local(root); _protector = protector;
@@ -24,7 +27,7 @@ public sealed class Journal
             foreach (var file in new[] { _database, _database + "-wal", _database + "-shm" })
                 if (File.Exists(file)) File.Move(file, file + suffix);
             Initialize();
-            RecoveryNotice = "The damaged database was preserved. Action history was recovered from encrypted recovery records. Review settings and restore history.";
+            _databaseRecoveryNotice = "The damaged database was preserved. Action history was recovered from encrypted recovery records. Review settings and restore history.";
             foreach (var change in RecoveryRecords()) SaveDatabase(change);
         }
     }
@@ -119,6 +122,7 @@ public sealed class Journal
     private IEnumerable<Change> RecoveryRecords()
     {
         var records=new List<Change>();var failed=0;
+        _recoveryIssue="";
         foreach(var file in Directory.EnumerateFiles(SafePaths.Under(Root,"Recovery"),"*.hbx"))
         {
             try
@@ -128,10 +132,10 @@ public sealed class Journal
                     throw new InvalidDataException("Recovery ID does not match its file.");
                 records.Add(change);
             }
-            catch(Exception e) when(e is IOException or UnauthorizedAccessException or System.Security.Cryptography.CryptographicException or System.Text.Json.JsonException or InvalidDataException)
+            catch(Exception e) when(e is IOException or UnauthorizedAccessException or System.Security.Cryptography.CryptographicException or System.Text.Json.JsonException or InvalidDataException or HbxException)
             {failed++;}
         }
-        if(failed>0)RecoveryNotice=$"{failed} recovery record(s) could not be read and were preserved. Other history remains available; damaged records cannot be restored automatically.";
+        if(failed>0)_recoveryIssue=$"{failed} recovery record(s) could not be read and were preserved. Other history remains available; damaged records cannot be restored automatically.";
         return records.OrderBy(c=>c.StartedAt);
     }
     public IReadOnlyList<Change> History(int limit = 200)
@@ -172,14 +176,43 @@ public sealed class Journal
     public void Reconcile()
     {
         using var gate = Acquire();
-        foreach(var change in RecoveryRecords())
+        var records=RecoveryRecords().ToArray();
+        var verified=new HashSet<string>(records.Select(change=>change.Id),StringComparer.Ordinal);
+        foreach(var change in records)
         {
             using var c = Open(); using var cmd = c.CreateCommand();
             cmd.CommandText = "SELECT payload FROM changes WHERE id=$id";
             cmd.Parameters.AddWithValue("$id",change.Id);
             var existing = cmd.ExecuteScalar() as byte[];
-            if (existing is null || Decode(existing) != change) SaveDatabase(change);
+            bool matches=false;
+            if(existing is not null)
+            {
+                try{matches=Decode(existing)==change;}
+                catch(Exception e) when(e is System.Security.Cryptography.CryptographicException or System.Text.Json.JsonException or InvalidDataException)
+                {
+                    // A valid authoritative recovery file can repair the database payload.
+                }
+            }
+            if(!matches)SaveDatabase(change);
         }
+        // A database-only recoverable change is not safe to restore automatically.
+        // Keep it intact and report uncertainty instead of silently declaring success.
+        using var connection=Open();using var query=connection.CreateCommand();
+        query.CommandText="SELECT id,payload FROM changes";
+        using var reader=query.ExecuteReader();int missing=0;
+        while(reader.Read())
+        {
+            var id=reader.GetString(0);
+            if(verified.Contains(id))continue;
+            try
+            {
+                var change=Decode((byte[])reader[1]);
+                if(change.Id!=id||change.Recoverable)missing++;
+            }
+            catch(Exception e) when(e is System.Security.Cryptography.CryptographicException or System.Text.Json.JsonException or InvalidDataException)
+            {missing++;}
+        }
+        if(missing>0)_recoveryIssue=(_recoveryIssue+" "+$"{missing} database record(s) lack readable authoritative recovery evidence; manual review required.").Trim();
     }
     public string GetSetting(string key, string fallback = "")
     {

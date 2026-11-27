@@ -194,7 +194,7 @@ public sealed partial class ShellViewModel
         SaveGameProfile();if(SelectedGame is not {} game)return;
         var previews=new List<Preview>();
         foreach(var action in GameLibrary.Actions(game.Profile))previews.Add(await Task.Run(()=>Runtime.Engine.PreviewAsync(action.ActionId,action.Target,token),token));
-        var changes=previews.Count==0?"Tidak ada perubahan Windows.":string.Join("\n",previews.Select(p=>$"{p.ActionId}: {p.Before} → {p.Desired}"));
+        var changes=previews.Count==0?"Tidak ada perubahan Windows.":string.Join("\n",previews.Select(p=>$"{p.ActionId}: {p.Before} → {p.Desired}\n{RestorePointReview(p)}"));
         if(game.Profile.RaisePriority)changes+="\nGame process priority: separate post-launch review required; only the selected executable can be changed to AboveNormal.";
         if(!Confirm($"Jalankan {game.Name}?\n{game.Executable}\n\n{changes}\n\nPerubahan dipulihkan saat executable ini keluar. Identitas proses persisten memungkinkan pemantauan dilanjutkan setelah HyperBoostX restart; jika identitas tidak dapat diverifikasi, pemulihan manual diperlukan. Gunakan executable game langsung; launcher dapat keluar sebelum game selesai.\n\nSetujui profil dan pemulihan sesi ini?","Preview gaming session"))return;
         var session=await Task.Run(()=>Runtime.GamingSessions.StartAsync(game,previews,true,token),token);
@@ -224,7 +224,7 @@ public sealed partial class ShellViewModel
         var target=GameProcessPriorityAction.Target(game,process);
         var preview=await Task.Run(()=>Runtime.Engine.PreviewAsync(actionId,target,token),token);
         if(preview.Before==preview.Desired){Status="Game priority is already AboveNormal; no change was needed.";return;}
-        var approved=Confirm($"Set {game.Name} process (PID {process.Id}) from {preview.Before.Value} to AboveNormal?\n\nOnly this registered executable is targeted. The original priority is journaled and restored with the gaming session. This does not guarantee higher FPS.","Review game process priority");
+        var approved=Confirm($"Set {game.Name} process (PID {process.Id}) from {preview.Before.Value} to AboveNormal?\n\nOnly this registered executable is targeted. {RestorePointReview(preview)}\nThe original priority is journaled and restored with the gaming session. This does not guarantee higher FPS.","Review game process priority");
         if(!approved){Status="Game launched; process priority was left unchanged. Session auto-restore remains active.";return;}
         var change=await Task.Run(()=>Runtime.Engine.ApplyAsync(preview.Token,true,sessionId,token),token);
         Status=change.Status switch

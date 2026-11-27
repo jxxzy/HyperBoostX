@@ -18,11 +18,13 @@ public sealed class GameSessions(ActionEngine engine,Journal journal,DocumentSto
         Save(session);
         try
         {
+            await engine.PreflightSessionAsync(previews,token);
             foreach(var preview in previews)
             {
                 var change=await engine.ApplyAsync(preview.Token,true,session.Id,token);
                 if(change.Status is not ("Verified" or "AlreadyDesiredState"))throw new HbxException(change.Message);
             }
+            token.ThrowIfCancellationRequested();
             session=session with{Status="Active",Message="Profile applied. Restore this session when finished."};Save(session);return session;
         }
         catch(OperationCanceledException)
@@ -59,7 +61,20 @@ public sealed class GameSessions(ActionEngine engine,Journal journal,DocumentSto
     private async Task<GamingSession> RestoreCore(GamingSession session,CancellationToken token)
     {
         Save(session with{Status="Restoring"});var problems=new List<string>();
-        foreach(var change in journal.SessionHistory(session.Id).Where(c=>c.Recoverable))
+        IReadOnlyList<Change> changes;
+        try
+        {
+            journal.Reconcile();
+            if(journal.RecoveryIncomplete)
+                problems.Add("Recovery journal requires review: "+journal.RecoveryNotice);
+            changes=journal.SessionHistory(session.Id);
+        }
+        catch(Exception e)
+        {
+            var blocked=session with{Status="RecoveryRequired",Message="Session history could not be reconciled: "+e.Message};
+            Save(blocked);return blocked;
+        }
+        foreach(var change in changes.Where(c=>c.Recoverable))
         {
             try
             {

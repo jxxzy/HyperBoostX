@@ -113,6 +113,28 @@ public sealed class LegacyFeatureTests:IDisposable
         Assert.Equal("Restored",(await sessions.RestoreAsync(true,default)).Status);
         Assert.Equal("1",action.Value.Value);
     }
+    [Fact]public async Task GamingPreflightRejectsStaleLaterActionWithoutWritingEarlierAction()
+    {
+        var capture=new Preference("gaming.capture.disable");var visual=new Preference("windows.visual.transparency.disable");
+        var engine=Engine(capture,visual);var game=Game(new(DisableCapture:true,DisableTransparency:true));
+        var a=await engine.PreviewAsync(capture.Info.Id,"",default);var b=await engine.PreviewAsync(visual.Info.Id,"",default);
+        visual.Value=new(true,"DWord","2");
+        var sessions=new GameSessions(engine,_journal,_documents);
+        var result=await sessions.StartAsync(game,[a,b],true,default);
+        Assert.Equal("Restored",result.Status);Assert.Contains("Configuration changed",result.Message);
+        Assert.Equal("1",capture.Value.Value);Assert.Equal("2",visual.Value.Value);Assert.Empty(_journal.History());
+    }
+    [Fact]public async Task GamingPreflightRejectsMissingRestoreProviderBeforeAnyAction()
+    {
+        var capture=new Preference("gaming.capture.disable");
+        var visual=new Preference("windows.visual.transparency.disable",requiresRestorePoint:true);
+        var engine=Engine(capture,visual);var game=Game(new(DisableCapture:true,DisableTransparency:true));
+        var a=await engine.PreviewAsync(capture.Info.Id,"",default);var b=await engine.PreviewAsync(visual.Info.Id,"",default);
+        var sessions=new GameSessions(engine,_journal,_documents);
+        var result=await sessions.StartAsync(game,[a,b],true,default);
+        Assert.Equal("Restored",result.Status);Assert.Contains("HBX-RESTORE-POINT-REQUIRED",result.Message);
+        Assert.Equal("1",capture.Value.Value);Assert.Equal("1",visual.Value.Value);Assert.Empty(_journal.History());
+    }
     [Fact]public async Task SessionPartialFailureRestoresEarlierActions()
     {
         var capture=new Preference("gaming.capture.disable");var visual=new Preference("windows.visual.transparency.disable"){IgnoreWrite=true};
@@ -193,6 +215,20 @@ public sealed class LegacyFeatureTests:IDisposable
         Assert.Equal("Restored",(await sessions.RestoreAsync(true,default)).Status);
         Assert.False(sessions.Active);
     }
+    [Fact]public async Task SessionWithMissingRecoveryFileCannotClaimRestored()
+    {
+        var action=new Preference("gaming.capture.disable");var engine=Engine(action);var game=Game(new(DisableCapture:true));
+        var sessions=new GameSessions(engine,_journal,_documents);
+        var started=await sessions.StartAsync(game,[await engine.PreviewAsync(action.Info.Id,"",default)],true,default);
+        var change=Assert.Single(_journal.SessionHistory(started.Id));
+        var file=Path.Combine(_journal.Root,"Recovery",change.Id+".hbx");var evidence=File.ReadAllBytes(file);
+        File.Delete(file);
+        Assert.Equal("RecoveryRequired",(await sessions.RestoreAsync(true,default)).Status);
+        Assert.Equal("0",action.Value.Value);Assert.True(sessions.Active);
+        File.WriteAllBytes(file,evidence);
+        Assert.Equal("Restored",(await sessions.RestoreAsync(true,default)).Status);
+        Assert.Equal("1",action.Value.Value);
+    }
     [Fact]public async Task SessionCannotOverwriteDriftOrStartOverUnresolvedRecovery()
     {
         var action=new Preference("gaming.capture.disable");var engine=Engine(action);var game=Game(new(DisableCapture:true));
@@ -226,10 +262,10 @@ public sealed class LegacyFeatureTests:IDisposable
     }
     private ActionEngine Engine(params ISystemAction[] actions)=>new(actions,_journal,new SafetyGuard(()=>null),"fixture-owner");
     private static GameEntry GameEntryForImport(GameEntry game)=>game with{Name="Another imported entry"};
-    private sealed class Preference(string id):ISystemAction
+    private sealed class Preference(string id,bool requiresRestorePoint=false):ISystemAction
     {
         public State Value=new(true,"DWord","1");public bool IgnoreWrite;public bool CancelOnWrite;
-        public ActionInfo Info=>new(id,"Fixture","Gaming","Fixture","Test","Low","None","Fixture");
+        public ActionInfo Info=>new(id,"Fixture","Gaming","Fixture","Test","Low","None","Fixture",RequiresRestorePoint:requiresRestorePoint);
         public void Validate(string target){if(target!="")throw new HbxException("Invalid target");}
         public Task<State> ReadAsync(string target,CancellationToken token){token.ThrowIfCancellationRequested();return Task.FromResult(Value);}
         public State Desired(string target,State before)=>new(true,"DWord","0");

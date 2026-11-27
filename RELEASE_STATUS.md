@@ -287,3 +287,9 @@ Frametime culture fixture regression fix and storage benchmark integration: PEND
 
 
 2026-11-27: H19 restore point policy bound to user-reviewed and authenticated previews, with fail-closed batch preflight. PENDING_CI; actual elevated activation not qualified.
+
+
+2026-11-27: Gaming profile reuses whole-session restore policy/state preflight and durable recovery reconciliation; PENDING_CI, no mandatory status promotion.
+
+
+2026-11-27: Missing authoritative recovery evidence detection and retryable session recovery, combined with gaming preflight candidate; PENDING_CI. No Stable promotion.

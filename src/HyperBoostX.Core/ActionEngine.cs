@@ -235,14 +235,13 @@ public sealed class ActionEngine
 
     // Persistent changes use the same action journal and recovery engine as individual actions.
     // This is a compensating batch, not a Windows transaction.
-    public async Task<BoostBatchResult> ApplySafeBoostAsync(IReadOnlyList<Preview> previews,bool consent,CancellationToken token)
+    // Validate every engine-issued preview before the first write in a local session.
+    // ApplyAsync still rechecks state under the cross-process mutation lock.
+    public async Task PreflightSessionAsync(IReadOnlyList<Preview> previews,CancellationToken token)
     {
-        if(!consent)throw new HbxException("HBX-BOOST-0001: Explicit batch approval is required.");
         token.ThrowIfCancellationRequested();
-        var allowed=SafeBoostActionIds(true,true);
-        if(previews.Count is <1 or >2||previews.Any(p=>p.Target!=""||!allowed.Contains(p.ActionId,StringComparer.Ordinal)||Get(p.ActionId).Info.RequiresElevation)||
-           previews.Select(p=>p.ActionId).Distinct(StringComparer.Ordinal).Count()!=previews.Count)
-            throw new HbxException("HBX-BOOST-0002: Invalid safe boost action selection.");
+        if(previews.Any(p=>Get(p.ActionId).Info.RequiresElevation))
+            throw new HbxException("HBX-SESSION-ELEVATION: Local sessions cannot apply elevated actions.");
         // Check the engine-issued immutable preview before any modification, not merely its displayed fields.
         foreach(var preview in previews)
             if(!_previews.TryGetValue(preview.Token,out var pending)||pending.Preview!=preview||
@@ -264,6 +263,17 @@ public sealed class ActionEngine
             if(current!=preview.Before)
                 throw new HbxException("HBX-BOOST-0004: Configuration changed after preview. Nothing was applied; review all selections again.");
         }
+    }
+
+    public async Task<BoostBatchResult> ApplySafeBoostAsync(IReadOnlyList<Preview> previews,bool consent,CancellationToken token)
+    {
+        if(!consent)throw new HbxException("HBX-BOOST-0001: Explicit batch approval is required.");
+        token.ThrowIfCancellationRequested();
+        var allowed=SafeBoostActionIds(true,true);
+        if(previews.Count is <1 or >2||previews.Any(p=>p.Target!=""||!allowed.Contains(p.ActionId,StringComparer.Ordinal)||Get(p.ActionId).Info.RequiresElevation)||
+           previews.Select(p=>p.ActionId).Distinct(StringComparer.Ordinal).Count()!=previews.Count)
+            throw new HbxException("HBX-BOOST-0002: Invalid safe boost action selection.");
+        await PreflightSessionAsync(previews,token);
         var session=Guid.NewGuid().ToString("N");
         var results=new List<Change>();
         try
@@ -285,7 +295,7 @@ public sealed class ActionEngine
             {
                 // Recovery files are authoritative even when a database commit failed.
                 _journal.Reconcile();
-                if(!string.IsNullOrWhiteSpace(_journal.RecoveryNotice))
+                if(_journal.RecoveryIncomplete)
                     problems.Add("Recovery journal requires review: "+_journal.RecoveryNotice);
                 foreach(var record in _journal.SessionHistory(session).Where(c=>c.Recoverable))
                 {
