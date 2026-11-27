@@ -25,30 +25,55 @@ public sealed class PrivilegedPipeEndpoint:IDisposable
         uint expectedSessionId,
         Func<PrivilegedRequestEnvelope,CancellationToken,Task<PrivilegedDispatchResult>> dispatch,
         TimeSpan operationTimeout,
-        CancellationToken token)
+        CancellationToken token,
+        TimeSpan? frameReadTimeout=null)
     {
         ObjectDisposedException.ThrowIf(_disposed,this);ArgumentNullException.ThrowIfNull(server);ArgumentNullException.ThrowIfNull(dispatch);
         if(operationTimeout<=TimeSpan.Zero||operationTimeout>TimeSpan.FromMinutes(5))throw new ArgumentOutOfRangeException(nameof(operationTimeout));
+        if(frameReadTimeout is { } readLimit&&(readLimit<=TimeSpan.Zero||readLimit>TimeSpan.FromMinutes(5)))
+            throw new ArgumentOutOfRangeException(nameof(frameReadTimeout));
+        token.ThrowIfCancellationRequested();
         var peer=PrivilegedPipeIdentity.ReadConnectedClient(server);
         if(peer.ProcessId!=expectedClientProcessId||peer.SessionId!=expectedSessionId||!string.Equals(peer.UserSid,expectedUserSid,StringComparison.Ordinal))
             throw new HbxException("HBX-IPC-PEER: Connected client identity does not match the authorized launch context.");
-        var request=await PrivilegedFrameCodec.ReadAsync(server,token);
+        PrivilegedRequestEnvelope request;
+        // Waiting for the next frame must not consume the authorized operation budget.
+        using(var readCancellation=CancellationTokenSource.CreateLinkedTokenSource(token))
+        {
+            if(frameReadTimeout is { } limit)readCancellation.CancelAfter(limit);
+            request=await PrivilegedFrameCodec.ReadAsync(server,readCancellation.Token);
+        }
+        token.ThrowIfCancellationRequested();
         var validation=_validator.Validate(request,peer.UserSid,checked((int)peer.SessionId),DateTimeOffset.UtcNow);
         PrivilegedDispatchResult result;
         if(!validation.Accepted)result=new(false,validation.Code,validation.Message);
         else
         {
             using var timeout=CancellationTokenSource.CreateLinkedTokenSource(token);timeout.CancelAfter(operationTimeout);
-            try{result=await dispatch(request,timeout.Token);}
-            catch(OperationCanceledException) when(!token.IsCancellationRequested){result=new(false,"HBX-IPC-TIMEOUT","Authorized operation exceeded its time limit.");}
+            try
+            {
+                result=await dispatch(request,timeout.Token);
+                token.ThrowIfCancellationRequested();
+                // Some providers finish after cancellation. Never acknowledge late success;
+                // the caller must reconcile durable history before considering a retry.
+                if(timeout.IsCancellationRequested)result=TimedOut();
+            }
+            catch(OperationCanceledException) when(token.IsCancellationRequested){throw;}
+            catch(OperationCanceledException) when(timeout.IsCancellationRequested){result=TimedOut();}
             catch(Exception){result=new(false,"HBX-IPC-DISPATCH","Authorized operation failed. Internal details were withheld from the IPC response.");}
         }
         result=Normalize(result);
         var response=new PrivilegedResponseEnvelope(PrivilegedRequestValidator.ProtocolVersion,request.RequestId,request.Nonce,result.Success,result.Code,result.Message,result.Body,DateTimeOffset.UtcNow.ToUnixTimeSeconds(),"");
         response=response with{AuthenticationTag=PrivilegedResponseAuthenticator.Sign(response,_secret)};
-        await PrivilegedFrameCodec.WriteResponseAsync(server,response,token);
+        // Bound response delivery independently of idle and dispatch cancellation.
+        using var responseCancellation=CancellationTokenSource.CreateLinkedTokenSource(token);
+        responseCancellation.CancelAfter(TimeSpan.FromSeconds(5));
+        await PrivilegedFrameCodec.WriteResponseAsync(server,response,responseCancellation.Token);
         return response;
     }
+
+    private static PrivilegedDispatchResult TimedOut()=>new(false,"HBX-IPC-TIMEOUT",
+        "Authorized operation exceeded its time limit. Its final state may be uncertain; inspect recovery history before retrying.");
 
     private static PrivilegedDispatchResult Normalize(PrivilegedDispatchResult result)
     {

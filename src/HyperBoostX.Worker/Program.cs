@@ -35,8 +35,8 @@ internal static class Program
                 using var endpoint=new PrivilegedPipeEndpoint(sessionKey,allowlist);
                 for(var requestNumber=0;requestNumber<MaximumRequests&&!shutdown;requestNumber++)
                 {
-                    using var idleTimeout=new CancellationTokenSource(TimeSpan.FromSeconds(30));
-                    await endpoint.ServeOnceAsync(server,launch.ClientProcessId,launch.UserSid.Value,launch.ClientSessionId,Dispatch,TimeSpan.FromSeconds(10),idleTimeout.Token);
+                    await endpoint.ServeOnceAsync(server,launch.ClientProcessId,launch.UserSid.Value,launch.ClientSessionId,Dispatch,
+                        TimeSpan.FromSeconds(10),CancellationToken.None,frameReadTimeout:TimeSpan.FromSeconds(30));
                 }
                 return shutdown?0:3;
 

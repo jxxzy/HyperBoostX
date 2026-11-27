@@ -278,3 +278,6 @@ Frametime culture fixture regression fix and storage benchmark integration: PEND
 
 
 2026-11-27: H19/H20 restore evidence freshness and malformed/duplicate WMI read-back rejection hardened; focused regression coverage added. PENDING_CI; actual elevated creation remains disabled and Stable gate unchanged.
+
+
+2026-11-27: Worker IPC separates frame idle, dispatch and response deadlines; late provider success rejected with explicit uncertain-state warning. PENDING_CI; no elevated restore activation or Stable promotion.

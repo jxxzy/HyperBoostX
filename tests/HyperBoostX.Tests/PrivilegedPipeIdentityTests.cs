@@ -84,6 +84,28 @@ public sealed class PrivilegedPipeIdentityTests
         Assert.Equal("HBX-IPC-DISPATCH",response.Code);Assert.DoesNotContain("secret internal detail",response.Message,StringComparison.Ordinal);
     }
 
+    [Fact]public async Task EndpointRejectsLateSuccessAndSignsUncertainTimeout()
+    {
+        if(!OperatingSystem.IsWindows())return;
+        using var current=WindowsIdentity.GetCurrent();using var process=Process.GetCurrentProcess();var sid=Assert.IsType<SecurityIdentifier>(current.User);
+        var secret=RandomNumberGenerator.GetBytes(32);var pipeName=$"HyperBoostX.Tests.Timeout.{Guid.NewGuid():N}";
+        await using var server=PrivilegedPipeFactory.CreateServer(pipeName,sid);
+        await using var client=new NamedPipeClientStream(".",pipeName,PipeDirection.InOut,PipeOptions.Asynchronous,TokenImpersonationLevel.Impersonation);
+        using var deadline=new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        var waiting=server.WaitForConnectionAsync(deadline.Token);await client.ConnectAsync(deadline.Token);await waiting;
+        using var endpoint=new PrivilegedPipeEndpoint(secret,new Dictionary<string,Func<string,string,bool>>{{"test.read",(_,_)=>true}});
+        var request=new PrivilegedRequestEnvelope(1,Guid.NewGuid().ToString("D"),"test.read","","{}",Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)),DateTimeOffset.UtcNow.ToUnixTimeSeconds(),process.SessionId,sid.Value,"");
+        request=request with{AuthenticationTag=PrivilegedRequestValidator.Sign(request,secret)};
+        var serving=endpoint.ServeOnceAsync(server,(uint)Environment.ProcessId,sid.Value,(uint)process.SessionId,async (_,operationToken)=>
+        {
+            try{await Task.Delay(Timeout.InfiniteTimeSpan,operationToken);}catch(OperationCanceledException) when(operationToken.IsCancellationRequested){}
+            return new PrivilegedDispatchResult(true,"late","late success");
+        },TimeSpan.FromMilliseconds(100),deadline.Token,frameReadTimeout:TimeSpan.FromSeconds(3));
+        await PrivilegedFrameCodec.WriteAsync(client,request,deadline.Token);var response=await PrivilegedFrameCodec.ReadResponseAsync(client,deadline.Token);await serving;
+        Assert.False(response.Success);Assert.Equal("HBX-IPC-TIMEOUT",response.Code);Assert.Contains("recovery history",response.Message);
+        Assert.True(PrivilegedResponseAuthenticator.Validate(response,request.RequestId,request.Nonce,secret).Accepted);
+    }
+
     [Fact]public async Task VerifiedPeersDeriveTheSameEphemeralSessionKey()
     {
         if(!OperatingSystem.IsWindows())return;
