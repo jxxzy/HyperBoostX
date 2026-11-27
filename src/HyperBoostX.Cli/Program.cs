@@ -25,6 +25,8 @@ try
             hbx history                   Recent changes (contains local state; do not share raw)
             hbx verify <change-id>         Read current state without changing it
             hbx rollback <change-id> --yes Restore after drift validation
+            hbx preference-session <session-id>  Review local preference session
+            hbx preference-restore <session-id> --yes  Restore reviewed local preference session
             hbx backup                    Back up local SQLite database
             hbx self-check                Check database and recovery state
             hbx report <output.json>      Export redacted system report
@@ -59,6 +61,13 @@ try
         case "verify" when arguments.Count==2:Console.WriteLine(Json.Write(await runtime.Engine.VerifyAsync(arguments[1],cts.Token)));break;
         case "rollback" when arguments.Count==3&&arguments[2]=="--yes":
             var result=await runtime.Engine.RollbackAsync(arguments[1],true,cts.Token);Console.WriteLine(Json.Write(result));return result.Status=="RolledBack"?0:2;
+        case "preference-session" when arguments.Count==2:
+            Console.WriteLine(Json.Write(runtime.Engine.InspectPreferenceSession(arguments[1])));break;
+        case "preference-restore" when arguments.Count==3&&arguments[2]=="--yes":
+            if(runtime.GamingSessions.Current is {} gaming&&gaming.Id==arguments[1]&&gaming.Status!="Restored")
+                throw new HbxException("Use gaming-restore for an active gaming session.");
+            var sessionResult=await runtime.Engine.RestorePreferenceSessionAsync(arguments[1],true,cts.Token);
+            Console.WriteLine(Json.Write(sessionResult));return sessionResult.Status=="Restored"?0:2;
         case "backup":runtime.Journal.Backup();Console.WriteLine("Database backup completed.");break;
         case "self-check":Console.WriteLine(Json.Write(new{Database="Integrity checked",Recovery=runtime.Journal.RecoveryNotice,Changes=runtime.Journal.History().Count,Pending=runtime.Journal.History().Count(c=>c.NeedsRecovery),MutationPolicy=Runtime.EnvironmentBlock()??"Registered changes allowed with preview and consent",Release="Development; Stable gates pending"}));break;
         case "report" when arguments.Count==2:

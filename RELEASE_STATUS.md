@@ -296,3 +296,6 @@ Frametime culture fixture regression fix and storage benchmark integration: PEND
 
 
 2026-11-27: Shared apply boundary handles noncooperative cancellation after write/read-back, PENDING_CI. No Stable promotion.
+
+
+2026-11-27: Local preference session review and one-click restore GUI/CLI; limited to two allowlisted preferences. PENDING_CI; no mandatory promotion.

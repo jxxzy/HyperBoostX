@@ -322,6 +322,46 @@ public sealed class ActionEngine
         }
     }
 
+    // Restricted to local reversible preference sessions. Other privileged and
+    // gaming-process operations keep their dedicated recovery paths.
+    public IReadOnlyList<Change> InspectPreferenceSession(string sessionId)
+    {
+        _journal.Reconcile();
+        if(_journal.RecoveryIncomplete)
+            throw new HbxException("HBX-SESSION-RECOVERY: Recovery evidence is incomplete; review the journal before session restore.");
+        var changes=_journal.SessionHistory(sessionId);
+        var allowed=SafeBoostActionIds(true,true);
+        if(changes.Count is <1 or >2||changes.Select(c=>c.ActionId).Distinct(StringComparer.Ordinal).Count()!=changes.Count||
+            changes.Any(c=>c.Owner!=_owner||c.Target!=""||!allowed.Contains(c.ActionId,StringComparer.Ordinal)||Get(c.ActionId).Info.RequiresElevation||!Get(c.ActionId).Info.Reversible))
+            throw new HbxException("HBX-SESSION-RECOVERY: Session is not a supported local preference session.");
+        return changes;
+    }
+    public async Task<BoostBatchResult> RestorePreferenceSessionAsync(string sessionId,bool consent,CancellationToken token)
+    {
+        if(!consent)throw new HbxException("HBX-RESTORE-0003: Session restore requires explicit approval.");
+        token.ThrowIfCancellationRequested();
+        var records=InspectPreferenceSession(sessionId);
+        var results=new List<Change>();
+        foreach(var record in records.Where(c=>c.Recoverable))
+        {
+            if(token.IsCancellationRequested)return new(sessionId,"RecoveryRequired","Session restore cancelled; retry to inspect remaining changes.",results);
+            try
+            {
+                var result=await RollbackAsync(record.Id,true,token);
+                results.Add(result);
+                if(result.Status!="RolledBack")
+                    return new(sessionId,"RecoveryRequired","Session restore stopped at "+result.ActionId+": "+result.Status+". Review or retry remaining changes.",results);
+            }
+            catch(Exception e)
+            {
+                return new(sessionId,"RecoveryRequired","Session restore stopped: "+e.GetType().Name+". Review recovery history.",results);
+            }
+        }
+        var remaining=InspectPreferenceSession(sessionId);
+        if(token.IsCancellationRequested||remaining.Any(c=>c.Recoverable))
+            return new(sessionId,"RecoveryRequired","Session restore requires another inspection.",results);
+        return new(sessionId,"Restored","All remaining recorded preference changes were restored and verified; already restored records were not rewritten.",results);
+    }
     public async Task<State> VerifyAsync(string id,CancellationToken token)
     {
         var c=_journal.Find(id);if(c.Owner!=_owner)throw new HbxException("HBX-RESTORE-0004: Owner mismatch.");

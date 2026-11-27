@@ -320,6 +320,7 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
     public ICommand SafeBoostCommand{get;}
     public ICommand ApplyFindingCommand{get;}
     public ICommand RollbackCommand{get;}
+    public ICommand RestorePreferenceSessionCommand{get;}
     public ICommand VerifyCommand{get;}
     public ICommand ExportCommand{get;}
     public ICommand SupportCommand{get;}
@@ -374,6 +375,7 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
             parameter=>!Busy&&SurfaceTitle=="Smart Scan"&&parameter is string id&&SmartScanActionIds.Contains(id)&&Runtime.Engine.Actions.Any(action=>action.Id==id),
             parameter=>{if(parameter is string id)ApplySmartScanRecommendation(id);});
         RollbackCommand=new Command(()=>Run(Rollback),()=>!Busy&&SelectedChange?.Recoverable==true);
+        RestorePreferenceSessionCommand=new Command(()=>Run(RestorePreferenceSession),()=>!Busy&&SelectedChange!=null);
         VerifyCommand=new Command(()=>Run(Verify),()=>!Busy&&SelectedChange!=null);
         ExportCommand=new Command(Export,()=>!Busy&&_report!=null);
         SupportCommand=new Command(Support,()=>!Busy);
@@ -760,6 +762,17 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
         else result=await Task.Run(()=>Runtime.Engine.ApplyAsync(preview.Token,true,null,token),token);
         Status=$"{result.Status}: {result.Message}";Detail=Json.Write(result);RefreshHistory();RefreshTargets();
         Facts.Clear();Findings.Clear();_pageReport=null;Notify(nameof(HasFindings));Notify(nameof(ObservationSummary));
+    }
+    private async Task RestorePreferenceSession(CancellationToken token)
+    {
+        if(SelectedChange is not {} selected)return;
+        if(Runtime.GamingSessions.Current is {} gaming&&gaming.Id==selected.Session&&gaming.Status!="Restored")
+            throw new HbxException("Gunakan Restore session pada Game Library untuk sesi gaming aktif.");
+        var records=await Task.Run(()=>Runtime.Engine.InspectPreferenceSession(selected.Session),token);
+        var review=string.Join("\n",records.Select(c=>$"{c.ActionId}: {c.Status} · {c.Desired} → {c.Before}"));
+        if(!Confirm($"Pulihkan seluruh perubahan preferensi sesi ini?\n\n{review}\n\nPemulihan dilakukan dalam urutan terbalik, berhenti jika konflik, dan tidak menjalankan Windows System Restore.","Konfirmasi pemulihan sesi"))return;
+        var result=await Task.Run(()=>Runtime.Engine.RestorePreferenceSessionAsync(selected.Session,true,token),token);
+        Status=$"{result.Status}: {result.Message}";Detail=Json.Write(result);RefreshHistory();
     }
     private async Task Rollback(CancellationToken token)
     {

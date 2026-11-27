@@ -249,6 +249,38 @@ public sealed class EngineTests:IDisposable
         await Assert.ThrowsAsync<HbxException>(()=>e.ApplySafeBoostAsync([preview,preview],true,default));
         Assert.Equal(0,a.Writes);
     }
+    [Fact]public async Task PreferenceSessionRestoreReversesAllChangesAndIsIdempotent()
+    {
+        var a=new FakeAction("windows.visual.transparency.disable");var b=new FakeAction("gaming.capture.disable");
+        var e=new ActionEngine([a,b],Store,new SafetyGuard(()=>null),"test-owner");
+        var batch=await e.ApplySafeBoostAsync([await e.PreviewAsync(a.Info.Id,"",default),await e.PreviewAsync(b.Info.Id,"",default)],true,default);
+        Assert.Equal("Verified",batch.Status);
+        await Assert.ThrowsAsync<HbxException>(()=>e.RestorePreferenceSessionAsync(batch.Session,false,default));
+        var restored=await e.RestorePreferenceSessionAsync(batch.Session,true,default);
+        Assert.Equal("Restored",restored.Status);Assert.Equal(new[]{b.Info.Id,a.Info.Id},restored.Changes.Select(c=>c.ActionId));
+        Assert.Equal("0",a.State.Value);Assert.Equal("0",b.State.Value);
+        Assert.Empty((await e.RestorePreferenceSessionAsync(batch.Session,true,default)).Changes);
+        Assert.Equal(2,a.Writes);Assert.Equal(2,b.Writes);
+    }
+    [Fact]public async Task PreferenceSessionRestoreStopsOnConflictAndAllowsRetry()
+    {
+        var a=new FakeAction("windows.visual.transparency.disable");var b=new FakeAction("gaming.capture.disable");
+        var e=new ActionEngine([a,b],Store,new SafetyGuard(()=>null),"test-owner");
+        var batch=await e.ApplySafeBoostAsync([await e.PreviewAsync(a.Info.Id,"",default),await e.PreviewAsync(b.Info.Id,"",default)],true,default);
+        b.State=new(true,"Int","external");
+        var blocked=await e.RestorePreferenceSessionAsync(batch.Session,true,default);
+        Assert.Equal("RecoveryRequired",blocked.Status);Assert.Equal("ConflictDetected",Assert.Single(blocked.Changes).Status);
+        Assert.Equal("1",a.State.Value);Assert.Equal("external",b.State.Value);
+        b.State=new(true,"Int","1");
+        Assert.Equal("Restored",(await e.RestorePreferenceSessionAsync(batch.Session,true,default)).Status);
+        Assert.Equal("0",a.State.Value);Assert.Equal("0",b.State.Value);
+    }
+    [Fact]public async Task PreferenceSessionRestoreRejectsUnrelatedAction()
+    {
+        var e=Engine();var change=await e.ApplyAsync((await e.PreviewAsync("test","",default)).Token,true,null,default);
+        await Assert.ThrowsAsync<HbxException>(()=>e.RestorePreferenceSessionAsync(change.Session,true,default));
+        Assert.Equal("1",_action.State.Value);
+    }
     [Fact]public async Task SafeBoostCancellationRecoversAppliedAction()
     {
         using var cts=new CancellationTokenSource();
