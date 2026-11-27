@@ -75,7 +75,8 @@ public sealed class PrivilegedPipeEndpoint:IDisposable
                 if(timeout.IsCancellationRequested||Stopwatch.GetElapsedTime(started)>=budget)result=TimedOut();
             }
             catch(OperationCanceledException) when(token.IsCancellationRequested){throw;}
-            catch(OperationCanceledException) when(timeout.IsCancellationRequested){result=TimedOut();}
+            catch(Exception) when(token.IsCancellationRequested){token.ThrowIfCancellationRequested();throw;}
+            catch(Exception) when(timeout.IsCancellationRequested){result=TimedOut();}
             catch(Exception)
             {
                 token.ThrowIfCancellationRequested();
