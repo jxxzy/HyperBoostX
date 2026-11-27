@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO.Pipes;
 using System.Security.Cryptography;
 using HyperBoostX.Core;
@@ -5,6 +6,16 @@ using HyperBoostX.Core;
 namespace HyperBoostX.Windows;
 
 public sealed record PrivilegedDispatchResult(bool Success,string Code,string Message,string Body="");
+
+// Fixed protocol budgets: callers cannot supply a deadline in the IPC payload.
+public static class PrivilegedOperationBudget
+{
+    public static TimeSpan QueueTimeout=>TimeSpan.FromSeconds(15);
+    public static TimeSpan FrameReadTimeout=>TimeSpan.FromSeconds(30);
+    public static TimeSpan ResponseWriteTimeout=>TimeSpan.FromSeconds(5);
+    public static TimeSpan DispatchTimeout(string actionId)=>actionId=="action.apply"?TimeSpan.FromSeconds(150):TimeSpan.FromSeconds(10);
+    public static TimeSpan ExchangeTimeout(string actionId)=>DispatchTimeout(actionId)+TimeSpan.FromSeconds(10);
+}
 
 public sealed class PrivilegedPipeEndpoint:IDisposable
 {
@@ -26,7 +37,8 @@ public sealed class PrivilegedPipeEndpoint:IDisposable
         Func<PrivilegedRequestEnvelope,CancellationToken,Task<PrivilegedDispatchResult>> dispatch,
         TimeSpan operationTimeout,
         CancellationToken token,
-        TimeSpan? frameReadTimeout=null)
+        TimeSpan? frameReadTimeout=null,
+        Func<string,TimeSpan>? authenticatedOperationBudget=null)
     {
         ObjectDisposedException.ThrowIf(_disposed,this);ArgumentNullException.ThrowIfNull(server);ArgumentNullException.ThrowIfNull(dispatch);
         if(operationTimeout<=TimeSpan.Zero||operationTimeout>TimeSpan.FromMinutes(5))throw new ArgumentOutOfRangeException(nameof(operationTimeout));
@@ -49,25 +61,34 @@ public sealed class PrivilegedPipeEndpoint:IDisposable
         if(!validation.Accepted)result=new(false,validation.Code,validation.Message);
         else
         {
-            using var timeout=CancellationTokenSource.CreateLinkedTokenSource(token);timeout.CancelAfter(operationTimeout);
+            // Select the budget only after peer, request authentication and payload validation.
+            var budget=authenticatedOperationBudget?.Invoke(request.ActionId)??operationTimeout;
+            if(budget<=TimeSpan.Zero||budget>TimeSpan.FromMinutes(5))throw new ArgumentOutOfRangeException(nameof(authenticatedOperationBudget));
+            using var timeout=CancellationTokenSource.CreateLinkedTokenSource(token);timeout.CancelAfter(budget);
+            var started=Stopwatch.GetTimestamp();
             try
             {
                 result=await dispatch(request,timeout.Token);
                 token.ThrowIfCancellationRequested();
                 // Some providers finish after cancellation. Never acknowledge late success;
                 // the caller must reconcile durable history before considering a retry.
-                if(timeout.IsCancellationRequested)result=TimedOut();
+                if(timeout.IsCancellationRequested||Stopwatch.GetElapsedTime(started)>=budget)result=TimedOut();
             }
             catch(OperationCanceledException) when(token.IsCancellationRequested){throw;}
             catch(OperationCanceledException) when(timeout.IsCancellationRequested){result=TimedOut();}
-            catch(Exception){result=new(false,"HBX-IPC-DISPATCH","Authorized operation failed. Internal details were withheld from the IPC response.");}
+            catch(Exception)
+            {
+                token.ThrowIfCancellationRequested();
+                result=timeout.IsCancellationRequested||Stopwatch.GetElapsedTime(started)>=budget?TimedOut():
+                    new(false,"HBX-IPC-DISPATCH","Authorized operation failed. Internal details were withheld from the IPC response.");
+            }
         }
         result=Normalize(result);
         var response=new PrivilegedResponseEnvelope(PrivilegedRequestValidator.ProtocolVersion,request.RequestId,request.Nonce,result.Success,result.Code,result.Message,result.Body,DateTimeOffset.UtcNow.ToUnixTimeSeconds(),"");
         response=response with{AuthenticationTag=PrivilegedResponseAuthenticator.Sign(response,_secret)};
         // Bound response delivery independently of idle and dispatch cancellation.
         using var responseCancellation=CancellationTokenSource.CreateLinkedTokenSource(token);
-        responseCancellation.CancelAfter(TimeSpan.FromSeconds(5));
+        responseCancellation.CancelAfter(PrivilegedOperationBudget.ResponseWriteTimeout);
         await PrivilegedFrameCodec.WriteResponseAsync(server,response,responseCancellation.Token);
         return response;
     }

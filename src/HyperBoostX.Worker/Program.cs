@@ -36,7 +36,8 @@ internal static class Program
                 for(var requestNumber=0;requestNumber<MaximumRequests&&!shutdown;requestNumber++)
                 {
                     await endpoint.ServeOnceAsync(server,launch.ClientProcessId,launch.UserSid.Value,launch.ClientSessionId,Dispatch,
-                        TimeSpan.FromSeconds(10),CancellationToken.None,frameReadTimeout:TimeSpan.FromSeconds(30));
+                        TimeSpan.FromSeconds(10),CancellationToken.None,frameReadTimeout:PrivilegedOperationBudget.FrameReadTimeout,
+                        authenticatedOperationBudget:PrivilegedOperationBudget.DispatchTimeout);
                 }
                 return shutdown?0:3;
 

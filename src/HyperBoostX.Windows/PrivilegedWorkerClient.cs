@@ -24,7 +24,7 @@ public sealed class PrivilegedWorkerClient:IAsyncDisposable
     private int _closing;
     private readonly TaskCompletionSource<bool> _closed=new(TaskCreationOptions.RunContinuationsAsynchronously);
     private bool _faulted;
-    private static readonly TimeSpan RequestTimeout=TimeSpan.FromSeconds(15);
+    private static readonly TimeSpan QueueTimeout=PrivilegedOperationBudget.QueueTimeout;
 
     private PrivilegedWorkerClient(Process process,NamedPipeClientStream pipe,byte[] sessionKey,int sessionId,string userSid)
     {_process=process;_pipe=pipe;_sessionKey=sessionKey;_sessionId=sessionId;_userSid=userSid;}
@@ -85,7 +85,7 @@ public sealed class PrivilegedWorkerClient:IAsyncDisposable
             ObjectDisposedException.ThrowIf(Volatile.Read(ref _closing)!=0,this);
             using var queuedCancellation=CancellationTokenSource.CreateLinkedTokenSource(token,_shutdownSignal.Token);
             bool acquired;
-            try{acquired=await _requestLock.WaitAsync(RequestTimeout,queuedCancellation.Token);}
+            try{acquired=await _requestLock.WaitAsync(QueueTimeout,queuedCancellation.Token);}
             catch(OperationCanceledException) when(Volatile.Read(ref _closing)!=0&&!token.IsCancellationRequested)
             {
                 throw new ObjectDisposedException(nameof(PrivilegedWorkerClient));
@@ -112,7 +112,7 @@ public sealed class PrivilegedWorkerClient:IAsyncDisposable
             request=request with{AuthenticationTag=PrivilegedRequestValidator.Sign(request,_sessionKey)};
             token.ThrowIfCancellationRequested();
             using var timeout=CancellationTokenSource.CreateLinkedTokenSource(token);
-            timeout.CancelAfter(RequestTimeout);
+            timeout.CancelAfter(PrivilegedOperationBudget.ExchangeTimeout(actionId));
             try
             {
                 await PrivilegedFrameCodec.WriteAsync(_pipe,request,timeout.Token);

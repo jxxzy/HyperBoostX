@@ -281,3 +281,6 @@ Frametime culture fixture regression fix and storage benchmark integration: PEND
 
 
 2026-11-27: Worker IPC separates frame idle, dispatch and response deadlines; late provider success rejected with explicit uncertain-state warning. PENDING_CI; no elevated restore activation or Stable promotion.
+
+
+2026-11-27: Fixed authenticated operation-specific IPC budgets and monotonic late-result rejection added. PENDING_CI. Elevated restore creation not enabled; Stable gate unchanged.

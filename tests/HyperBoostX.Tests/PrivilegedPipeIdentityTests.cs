@@ -10,6 +10,19 @@ namespace HyperBoostX.Tests;
 
 public sealed class PrivilegedPipeIdentityTests
 {
+    [Theory]
+    [InlineData("action.apply",150)]
+    [InlineData("action.preview",10)]
+    [InlineData("action.rollback",10)]
+    [InlineData("worker.health",10)]
+    [InlineData("unknown.action",10)]
+    public void FixedWorkerOperationBudgetsLeaveResponseMargin(string actionId,int seconds)
+    {
+        Assert.Equal(TimeSpan.FromSeconds(seconds),PrivilegedOperationBudget.DispatchTimeout(actionId));
+        Assert.True(PrivilegedOperationBudget.ExchangeTimeout(actionId)>PrivilegedOperationBudget.DispatchTimeout(actionId)+PrivilegedOperationBudget.ResponseWriteTimeout);
+        Assert.Equal(TimeSpan.FromSeconds(15),PrivilegedOperationBudget.QueueTimeout);
+    }
+
     [Fact]public async Task ConnectedClientIsBoundToProcessSessionAndWindowsSid()
     {
         if(!OperatingSystem.IsWindows())return;
@@ -64,9 +77,11 @@ public sealed class PrivilegedPipeIdentityTests
         var waiting=server.WaitForConnectionAsync();await client.ConnectAsync(5000);await waiting;
         using var endpoint=new PrivilegedPipeEndpoint(secret,new Dictionary<string,Func<string,string,bool>>{{"dns.set",(_,_)=>true}});
         var request=new PrivilegedRequestEnvelope(1,Guid.NewGuid().ToString("D"),"dns.set","Ethernet","{}",Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)),DateTimeOffset.UtcNow.ToUnixTimeSeconds(),process.SessionId,sid.Value,"invalid");
-        var serving=endpoint.ServeOnceAsync(server,(uint)Environment.ProcessId,sid.Value,(uint)process.SessionId,(_,_)=>{dispatched=true;return Task.FromResult(new PrivilegedDispatchResult(true,"bad","bad"));},TimeSpan.FromSeconds(5),default);
+        var budgetSelected=false;
+        var serving=endpoint.ServeOnceAsync(server,(uint)Environment.ProcessId,sid.Value,(uint)process.SessionId,(_,_)=>{dispatched=true;return Task.FromResult(new PrivilegedDispatchResult(true,"bad","bad"));},TimeSpan.FromSeconds(5),default,
+            authenticatedOperationBudget:_=>{budgetSelected=true;return TimeSpan.FromSeconds(5);});
         await PrivilegedFrameCodec.WriteAsync(client,request,default);var response=await PrivilegedFrameCodec.ReadResponseAsync(client,default);await serving;
-        Assert.False(dispatched);Assert.False(response.Success);Assert.Equal("HBX-IPC-AUTH",response.Code);Assert.True(PrivilegedResponseAuthenticator.Validate(response,request.RequestId,request.Nonce,secret).Accepted);
+        Assert.False(budgetSelected);Assert.False(dispatched);Assert.False(response.Success);Assert.Equal("HBX-IPC-AUTH",response.Code);Assert.True(PrivilegedResponseAuthenticator.Validate(response,request.RequestId,request.Nonce,secret).Accepted);
     }
 
     [Fact]public async Task EndpointDoesNotExposeDispatcherExceptions()
