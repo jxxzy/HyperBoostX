@@ -12,7 +12,7 @@ public sealed class PrivilegedActionDispatcher(ActionEngine engine,Journal? audi
     public static void ValidateReviewedPreview(Preview reviewed,Preview authoritative)
     {
         ArgumentNullException.ThrowIfNull(reviewed);ArgumentNullException.ThrowIfNull(authoritative);
-        if(authoritative.ActionId!=reviewed.ActionId||authoritative.Target!=reviewed.Target||authoritative.Before!=reviewed.Before||authoritative.Desired!=reviewed.Desired)
+        if(authoritative.ActionId!=reviewed.ActionId||authoritative.Target!=reviewed.Target||authoritative.Before!=reviewed.Before||authoritative.Desired!=reviewed.Desired||authoritative.RequiresRestorePoint!=reviewed.RequiresRestorePoint)
             throw new HbxException("HBX-ACTION-0004: State changed after review. Nothing was applied; review the action again.");
     }
     public static IReadOnlyDictionary<string,Func<string,string,bool>> PayloadValidators { get; }=

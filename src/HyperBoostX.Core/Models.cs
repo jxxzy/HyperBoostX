@@ -33,7 +33,10 @@ public interface ISystemAction
     Task WriteAsync(string target, State state, CancellationToken token);
 }
 public sealed record Preview(string ActionId, string Target, State Before, State Desired, string Token,
-    DateTimeOffset CreatedAt, string Description);
+    DateTimeOffset CreatedAt, string Description)
+{
+    public bool RequiresRestorePoint { get; init; }
+}
 public sealed record RestorePointEvidence(uint Sequence,string Description,DateTimeOffset VerifiedAt);
 public sealed record Change
 {

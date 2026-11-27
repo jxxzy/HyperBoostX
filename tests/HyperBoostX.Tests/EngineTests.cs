@@ -259,6 +259,19 @@ public sealed class EngineTests:IDisposable
         var result=await e.ApplySafeBoostAsync(previews,true,cts.Token);
         Assert.Equal("CancelledRestored",result.Status);Assert.Equal("0",a.State.Value);Assert.Equal(0,b.Writes);
     }
+    [Fact]public async Task SafeBoostPreflightBlocksRequiredRestorePointBeforeAnyBatchWrite()
+    {
+        var first=new FakeAction("windows.visual.transparency.disable");
+        var second=new FakeAction("gaming.capture.disable",requiresRestorePoint:true);
+        var engine=new ActionEngine([first,second],Store,new SafetyGuard(()=>null),"test-owner");
+        var a=await engine.PreviewAsync(first.Info.Id,"",default);
+        var b=await engine.PreviewAsync(second.Info.Id,"",default);
+        Assert.False(a.RequiresRestorePoint);Assert.True(b.RequiresRestorePoint);
+        Assert.True(Json.Read<Preview>(Json.Write(b)).RequiresRestorePoint);
+        var error=await Assert.ThrowsAsync<HbxException>(()=>engine.ApplySafeBoostAsync([a,b],true,default));
+        Assert.Contains("HBX-RESTORE-POINT-REQUIRED",error.Message);
+        Assert.Equal(0,first.Writes);Assert.Equal(0,second.Writes);Assert.Empty(Store.History());
+    }
     [Fact]public async Task RequiredRestorePointFailsClosedWithoutProvider()
     {
         var action=new FakeAction(requiresRestorePoint:true);

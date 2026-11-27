@@ -735,7 +735,7 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
         var previews=new List<Preview>();
         foreach(var id in ids)previews.Add(await Task.Run(()=>Runtime.Engine.PreviewAsync(id,"",token),token));
         if(previews.Count==0)return;
-        var review=string.Join("\n\n",previews.Select(p=>$"{p.Description}\nBefore: {p.Before}\nAfter: {p.Desired}"));
+        var review=string.Join("\n\n",previews.Select(p=>$"{p.Description}\nBefore: {p.Before}\nAfter: {p.Desired}\n{RestorePointReview(p)}"));
         if(!Confirm("Perubahan preferensi Windows yang dipilih:\n\n"+review+"\n\nEach action is backed up and read back. On failure the batch attempts conflict-aware recovery. No FPS gain is promised. Apply?","Safe Boost preview"))return;
         var result=await Task.Run(()=>Runtime.Engine.ApplySafeBoostAsync(previews,true,token),token);
         Status=$"{result.Status}: {result.Message}";Detail=Json.Write(result);RefreshHistory();
@@ -754,7 +754,7 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
     {
         var target=a.Id switch{"windows.power.set_plan"=>SelectedPlan?.Id??"","startup.current_user.disable"=>SelectedStartup?.Name??"","storage.temp.quarantine"=>SelectedCleanup?.Path??"","network.dns.set_profile"=>DnsProfileAction.Target(SelectedDnsAdapter?.Id??"",SelectedDnsPreset),_=>""};
         var preview=await Task.Run(()=>Runtime.Engine.PreviewAsync(a.Id,target,token),token);
-        if(!Confirm($"{a.Name}\n\n{a.Description}\n\nScope: {a.Scope}\nRisk: {a.Risk}\nTarget: {(target==""?"Current user's Windows preference":target)}\nBefore: {preview.Before}\nAfter: {preview.Desired}\nRestart: {a.Restart}\n\nBackup disimpan sebelum perubahan. Tidak ada klaim kenaikan FPS.\n\nTerapkan perubahan ini?","Preview perubahan"))return;
+        if(!Confirm($"{a.Name}\n\n{a.Description}\n\nScope: {a.Scope}\nRisk: {a.Risk}\nTarget: {(target==""?"Current user's Windows preference":target)}\nBefore: {preview.Before}\nAfter: {preview.Desired}\nRestart: {a.Restart}\n{RestorePointReview(preview)}\n\nBackup disimpan sebelum perubahan. Tidak ada klaim kenaikan FPS.\n\nTerapkan perubahan ini?","Preview perubahan"))return;
         Change result;
         if(a.RequiresElevation)result=await ApplyElevated(a,target,preview,token);
         else result=await Task.Run(()=>Runtime.Engine.ApplyAsync(preview.Token,true,null,token),token);
@@ -908,6 +908,9 @@ public sealed partial class ShellViewModel:INotifyPropertyChanged
             Status="Support bundle disimpan lokal.";
         }catch(Exception e){Status="Support bundle gagal: "+e.Message;}
     }
+    private static string RestorePointReview(Preview preview)=>preview.RequiresRestorePoint&&preview.Before!=preview.Desired
+        ?"Perubahan ini memerlukan System Restore Point Windows yang baru dan terverifikasi. Persetujuan mencakup pembuatan restore point; bila gagal, perubahan diblokir. Backup per aksi tetap wajib."
+        :"Tidak ada System Restore Point baru yang disyaratkan oleh preview ini.";
     private static bool Confirm(string text,string title)
     {
         var result=Application.Current?.MainWindow is { } owner

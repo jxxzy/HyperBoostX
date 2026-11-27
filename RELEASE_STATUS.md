@@ -284,3 +284,6 @@ Frametime culture fixture regression fix and storage benchmark integration: PEND
 
 
 2026-11-27: Fixed authenticated operation-specific IPC budgets and monotonic late-result rejection added. PENDING_CI. Elevated restore creation not enabled; Stable gate unchanged.
+
+
+2026-11-27: H19 restore point policy bound to user-reviewed and authenticated previews, with fail-closed batch preflight. PENDING_CI; actual elevated activation not qualified.

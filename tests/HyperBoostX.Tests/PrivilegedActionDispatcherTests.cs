@@ -67,6 +67,7 @@ public sealed class PrivilegedActionDispatcherTests:IDisposable
         var reviewed=new Preview("fixture.action","safe-target",before,desired,"local",DateTimeOffset.UtcNow,"reviewed");
         var authoritative=reviewed with{Token="worker",CreatedAt=reviewed.CreatedAt.AddSeconds(1)};
         PrivilegedActionDispatcher.ValidateReviewedPreview(reviewed,authoritative);
+        Assert.Throws<HbxException>(()=>PrivilegedActionDispatcher.ValidateReviewedPreview(reviewed,authoritative with{RequiresRestorePoint=true}));
         var error=Assert.Throws<HbxException>(()=>PrivilegedActionDispatcher.ValidateReviewedPreview(reviewed,authoritative with{Before=new(true,"Int","external")}));
         Assert.StartsWith("HBX-ACTION-0004",error.Message);
     }

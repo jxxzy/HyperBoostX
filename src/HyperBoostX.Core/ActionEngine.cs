@@ -37,7 +37,7 @@ public sealed class ActionEngine
         _safety.Check(action,target); // The environment can become restricted during provider inspection.
         var desired=action.Desired(target,before);
         token.ThrowIfCancellationRequested();
-        var preview=new Preview(id,target,before,desired,Guid.NewGuid().ToString("N"),DateTimeOffset.UtcNow,action.Info.Description);
+        var preview=new Preview(id,target,before,desired,Guid.NewGuid().ToString("N"),DateTimeOffset.UtcNow,action.Info.Description){RequiresRestorePoint=action.Info.RequiresRestorePoint};
         lock(_previewGate)
         {
             foreach(var pair in _previews.Where(p=>Stopwatch.GetElapsedTime(p.Value.Tick)>TimeSpan.FromMinutes(10)).ToArray()) _previews.TryRemove(pair.Key,out _);
@@ -46,22 +46,29 @@ public sealed class ActionEngine
         }
         return preview;
     }
+    private static void RequireUnchangedRestorePolicy(ISystemAction action,Preview preview)
+    {
+        if(action.Info.RequiresRestorePoint!=preview.RequiresRestorePoint)
+            throw new HbxException("HBX-ACTION-0004: Restore point policy changed after preview. Nothing was applied; review the action again.");
+    }
     public async Task<Change> ApplyAsync(string previewToken,bool consent,string? session,CancellationToken token)
     {
         if (!consent) throw new HbxException("HBX-ACTION-0002: Explicit approval is required.");
         if (!_previews.TryRemove(previewToken,out var pending) || Stopwatch.GetElapsedTime(pending.Tick)>TimeSpan.FromMinutes(10))
             throw new HbxException("HBX-ACTION-0003: Preview expired. Scan and review again.");
         var p=pending.Preview; var action=Get(p.ActionId); _safety.Check(action,p.Target);
+        RequireUnchangedRestorePolicy(action,p);
         using var gate=_journal.Acquire(); // Cross-process, covers preview recheck, backup, mutation and verification.
         var current=await action.ReadAsync(p.Target,token);
         token.ThrowIfCancellationRequested();
         _safety.Check(action,p.Target); // Recheck after the provider read, while holding the operation lock.
+        RequireUnchangedRestorePolicy(action,p);
         if(current!=p.Before) throw new HbxException("HBX-ACTION-0004: State changed after preview. Nothing was applied.");
         var c=new Change { ActionId=p.ActionId,Target=p.Target,Before=current,Desired=p.Desired,Owner=_owner,Session=session??Guid.NewGuid().ToString("N") };
         if(current==p.Desired)
         { c=c with{Status="AlreadyDesiredState",Observed=current,CompletedAt=DateTimeOffset.UtcNow,Message="No write was needed."};_journal.Save(c);return c; }
         token.ThrowIfCancellationRequested();
-        if(action.Info.RequiresRestorePoint)
+        if(p.RequiresRestorePoint)
         {
             if(_createRestorePoint is null)
                 throw new HbxException("HBX-RESTORE-POINT-REQUIRED: No authorized restore point provider is available. Nothing was applied.");
@@ -77,6 +84,7 @@ public sealed class ActionEngine
             current=await action.ReadAsync(p.Target,token);
             token.ThrowIfCancellationRequested();
             _safety.Check(action,p.Target);
+            RequireUnchangedRestorePolicy(action,p);
             if(current!=p.Before)
                 throw new HbxException("HBX-ACTION-0004: State changed during restore point preparation. Nothing was applied.");
             c=c with{RestorePoint=evidence};
@@ -250,6 +258,9 @@ public sealed class ActionEngine
             var current=await action.ReadAsync(preview.Target,token);
             token.ThrowIfCancellationRequested();
             _safety.Check(action,preview.Target); // A restriction may appear while the provider is reading.
+            RequireUnchangedRestorePolicy(action,preview);
+            if(current!=preview.Desired&&preview.RequiresRestorePoint&&_createRestorePoint is null)
+                throw new HbxException("HBX-RESTORE-POINT-REQUIRED: A selected action requires an authorized restore point provider. Nothing was applied.");
             if(current!=preview.Before)
                 throw new HbxException("HBX-BOOST-0004: Configuration changed after preview. Nothing was applied; review all selections again.");
         }
