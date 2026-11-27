@@ -17,7 +17,7 @@ public static class SystemRestoreCreation
         if(returnCode!=0)
             throw new HbxException($"HBX-RESTORE-POINT-FAILED: Windows returned 0x{returnCode:X8}; no optimization is authorized.");
         var matches=observed.Where(p=>string.Equals(p.Description,description,StringComparison.Ordinal)).ToArray();
-        if(matches.Length!=1||matches[0].Sequence==0)
+        if(string.IsNullOrWhiteSpace(description)||matches.Length!=1||matches[0].Sequence==0)
             throw new HbxException("HBX-RESTORE-POINT-UNVERIFIED: A unique new restore point was not observed. Windows may have skipped creation; review System Protection and frequency policy.");
         return new(matches[0].Sequence,description,DateTimeOffset.UtcNow);
     }
@@ -52,9 +52,11 @@ public static class SystemRestoreCreation
                 using(row)
                 {
                     token.ThrowIfCancellationRequested();
-                    if(++examined>2)throw new HbxException("HBX-RESTORE-POINT-UNVERIFIED: Unexpected duplicate restore point inventory.");
-                    if(row["SequenceNumber"] is uint sequence)
-                        points.Add(new(sequence,row["Description"] as string??"",row["CreationTime"] as string??"",row["RestorePointType"] is uint type?type:null));
+                    if(++examined>1||row["SequenceNumber"] is not uint sequence||
+                        row["Description"] is not string observedDescription||
+                        !string.Equals(observedDescription,description,StringComparison.Ordinal))
+                        throw new HbxException("HBX-RESTORE-POINT-UNVERIFIED: Unexpected or incomplete restore point inventory.");
+                    points.Add(new(sequence,observedDescription,row["CreationTime"] as string??"",row["RestorePointType"] is uint type?type:null));
                 }
             }
             token.ThrowIfCancellationRequested();

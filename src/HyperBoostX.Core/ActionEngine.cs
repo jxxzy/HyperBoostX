@@ -65,9 +65,13 @@ public sealed class ActionEngine
         {
             if(_createRestorePoint is null)
                 throw new HbxException("HBX-RESTORE-POINT-REQUIRED: No authorized restore point provider is available. Nothing was applied.");
+            var restoreRequestedAt=DateTimeOffset.UtcNow;
             var evidence=await _createRestorePoint(token);
             token.ThrowIfCancellationRequested();
-            if(evidence is null||evidence.Sequence==0||string.IsNullOrWhiteSpace(evidence.Description)||evidence.VerifiedAt==default)
+            var restoreObservedAt=DateTimeOffset.UtcNow;
+            // A cached or future-dated provider result must not authorize a new mutation.
+            if(evidence is null||evidence.Sequence==0||string.IsNullOrWhiteSpace(evidence.Description)||
+                evidence.VerifiedAt<restoreRequestedAt||evidence.VerifiedAt>restoreObservedAt)
                 throw new HbxException("HBX-RESTORE-POINT-UNVERIFIED: Restore point evidence is incomplete. Nothing was applied.");
             _safety.Check(action,p.Target);
             current=await action.ReadAsync(p.Target,token);

@@ -275,3 +275,6 @@ Frametime culture fixture regression fix and storage benchmark integration: PEND
 
 
 2026-11-27: Core pre-mutation restore point evidence gate implemented and fixture coverage added. Windows creation provider not yet connected to production action dispatch; actual elevated creation and VM tests pending. No Stable promotion.
+
+
+2026-11-27: H19/H20 restore evidence freshness and malformed/duplicate WMI read-back rejection hardened; focused regression coverage added. PENDING_CI; actual elevated creation remains disabled and Stable gate unchanged.

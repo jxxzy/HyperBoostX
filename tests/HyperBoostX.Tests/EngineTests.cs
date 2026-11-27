@@ -271,8 +271,10 @@ public sealed class EngineTests:IDisposable
     [Fact]public async Task RequiredRestorePointEvidencePersistsBeforeMutationAndRollbackDoesNotCreateAnother()
     {
         var action=new FakeAction(requiresRestorePoint:true);var calls=0;
-        var evidence=new RestorePointEvidence(42,"HyperBoostX fixture",DateTimeOffset.UtcNow);
-        var engine=new ActionEngine([action],Store,new SafetyGuard(()=>null),"test-owner",_=>{calls++;return Task.FromResult(evidence);});
+        RestorePointEvidence? evidence=null;
+        var engine=new ActionEngine([action],Store,new SafetyGuard(()=>null),"test-owner",_=>{
+            calls++;var observed=new RestorePointEvidence(42,"HyperBoostX fixture",DateTimeOffset.UtcNow);
+            evidence=observed;return Task.FromResult(observed);});
         var preview=await engine.PreviewAsync("test","",default);
         await Assert.ThrowsAsync<HbxException>(()=>engine.ApplyAsync(preview.Token,false,null,default));
         Assert.Equal(0,calls);
@@ -301,6 +303,28 @@ public sealed class EngineTests:IDisposable
         var invalidPreview=await invalid.PreviewAsync("test","",default);
         await Assert.ThrowsAsync<HbxException>(()=>invalid.ApplyAsync(invalidPreview.Token,true,null,default));
         Assert.Equal(0,action.Writes);Assert.Empty(Store.History());
+    }
+    [Theory]
+    [InlineData(-60)]
+    [InlineData(60)]
+    public async Task RestorePointEvidenceOutsideCurrentRequestCannotAuthorizeMutation(int offsetSeconds)
+    {
+        var action=new FakeAction(requiresRestorePoint:true);
+        var engine=new ActionEngine([action],Store,new SafetyGuard(()=>null),"test-owner",_=>
+            Task.FromResult(new RestorePointEvidence(42,"HyperBoostX fixture",DateTimeOffset.UtcNow.AddSeconds(offsetSeconds))));
+        var preview=await engine.PreviewAsync("test","",default);
+        var error=await Assert.ThrowsAsync<HbxException>(()=>engine.ApplyAsync(preview.Token,true,null,default));
+        Assert.Contains("HBX-RESTORE-POINT-UNVERIFIED",error.Message);
+        Assert.Equal(0,action.Writes);Assert.Empty(Store.History());
+    }
+    [Fact]public async Task RequiredRestorePointNoOpNeverCallsProvider()
+    {
+        var action=new FakeAction(requiresRestorePoint:true);action.State=new(true,"Int","1");var calls=0;
+        var engine=new ActionEngine([action],Store,new SafetyGuard(()=>null),"test-owner",_=>{
+            calls++;throw new InvalidOperationException("No-op must not request a restore point.");});
+        var preview=await engine.PreviewAsync("test","",default);
+        var change=await engine.ApplyAsync(preview.Token,true,null,default);
+        Assert.Equal("AlreadyDesiredState",change.Status);Assert.Equal(0,calls);Assert.Equal(0,action.Writes);Assert.Null(change.RestorePoint);
     }
     [Fact]public async Task ApplyPersistsBeforeAndVerifiesRollback()
     {
@@ -537,6 +561,7 @@ public sealed class EngineTests:IDisposable
         Assert.Throws<HbxException>(()=>SystemRestoreCreation.RequireObservedPoint(0,description,[point with{Description="Old point"}]));
         Assert.Throws<HbxException>(()=>SystemRestoreCreation.RequireObservedPoint(0,description,[point with{Sequence=0}]));
         Assert.Throws<HbxException>(()=>SystemRestoreCreation.RequireObservedPoint(5,description,[point]));
+        Assert.Throws<HbxException>(()=>SystemRestoreCreation.RequireObservedPoint(0," ",[point with{Description=" "}]));
     }
     [Fact]public async Task RestoreCreationRequiresConsentAndHonorsPreCancellation()
     {
