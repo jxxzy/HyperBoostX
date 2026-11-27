@@ -99,7 +99,10 @@ public sealed class PrivilegedPipeIdentityTests
         Assert.Equal("HBX-IPC-DISPATCH",response.Code);Assert.DoesNotContain("secret internal detail",response.Message,StringComparison.Ordinal);
     }
 
-    [Fact]public async Task EndpointRejectsLateSuccessAndSignsUncertainTimeout()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task EndpointRejectsLateSuccessAndSignsUncertainTimeout(bool throwAfterTimeout)
     {
         if(!OperatingSystem.IsWindows())return;
         using var current=WindowsIdentity.GetCurrent();using var process=Process.GetCurrentProcess();var sid=Assert.IsType<SecurityIdentifier>(current.User);
@@ -114,6 +117,7 @@ public sealed class PrivilegedPipeIdentityTests
         var serving=endpoint.ServeOnceAsync(server,(uint)Environment.ProcessId,sid.Value,(uint)process.SessionId,async (_,operationToken)=>
         {
             try{await Task.Delay(Timeout.InfiniteTimeSpan,operationToken);}catch(OperationCanceledException) when(operationToken.IsCancellationRequested){}
+            if(throwAfterTimeout)throw new InvalidOperationException("provider failed after timeout");
             return new PrivilegedDispatchResult(true,"late","late success");
         },TimeSpan.FromMilliseconds(100),deadline.Token,frameReadTimeout:TimeSpan.FromSeconds(3));
         await PrivilegedFrameCodec.WriteAsync(client,request,deadline.Token);var response=await PrivilegedFrameCodec.ReadResponseAsync(client,deadline.Token);await serving;
